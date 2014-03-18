@@ -1,0 +1,499 @@
+-- Unable to render VIEW DDL for object MAXIMO.VIEW_TSI051 with DBMS_METADATA attempting internal generator.
+CREATE VIEW MAXIMO.VIEW_TSI051 AS
+WITH loc_all                   AS
+  (SELECT spc.siteid,
+    spc.location,
+    reg.region,
+    spc.NUMVALUE hoz,
+    spc1.NUMVALUE nom,
+    spc2.alnvalue
+    ||', '
+    ||spc3.alnvalue pred_desc
+  FROM MAXIMO.LOCATIONSPEC spc
+  JOIN MAXIMO.locations lo
+  ON lo.location = spc.location
+  AND spc.siteid = lo.siteid
+  LEFT JOIN maximo.LOCATIONSPEC spc1
+  ON spc.location      = spc1.location
+  AND spc1.siteid      = spc.siteid
+  AND spc1.ASSETATTRID = 'NOM'
+  JOIN maximo.LOCATIONSPEC spc2
+  ON spc.location      = spc2.location
+  AND spc2.siteid      = spc.siteid
+  AND spc2.ASSETATTRID = 'SNAME'
+  JOIN maximo.LOCATIONSPEC spc3
+  ON spc.location      = spc3.location
+  AND spc3.siteid      = spc.siteid
+  AND spc3.ASSETATTRID = 'SNAME2'
+  LEFT JOIN
+    (SELECT lo.parent,
+      lo.siteid,
+      lo.location,
+      spc.numvalue region
+    FROM MAXIMO.lochierarchy lo
+    JOIN maximo.LOCATIONSPEC spc3
+    ON lo.parent         = spc3.location
+    AND spc3.siteid      = lo.siteid
+    AND spc3.ASSETATTRID = 'TIP_PREDPR'
+    JOIN maximo.LOCATIONSPEC spc
+    ON lo.parent        = spc.location
+    AND spc.siteid      = lo.siteid
+    AND spc.ASSETATTRID = 'NOM'
+    WHERE lo.systemid   ='Œ—'
+    AND spc3.numvalue   =2
+    )reg ON lo.location = reg.location
+  AND reg.siteid        = lo.siteid
+  WHERE spc.ASSETATTRID = 'TIP_PREDPR'
+  AND spc.NUMVALUE     IN (3,4,5)
+  AND lo.status         = '–¿¡Œ“¿≈“'
+  ),
+  loc AS
+  (SELECT (
+    CASE
+      WHEN l_tip.NUMVALUE ='3'
+      THEN p_desc.description
+      ELSE e_sh_desc.description
+    END) AS podr ,
+    h.siteid siteid,
+    (
+    CASE
+      WHEN l_tip.NUMVALUE ='3'
+      THEN l.location
+      ELSE h.location
+    END) location,
+    h.parent pred
+  FROM
+    ( SELECT DISTINCT connect_by_root(parent) parent,
+      siteid,
+      location,
+      systemid
+    FROM MAXIMO.lochierarchy LH
+      CONNECT BY PRIOR LH.LOCATION = LH.PARENT
+    AND PRIOR LH.SYSTEMID          = LH.SYSTEMID
+    AND PRIOR LH.SITEID            = LH.SITEID
+    AND level                     IN (1,2,3)
+      START WITH PARENT           IN
+      ( SELECT DISTINCT spc.location
+      FROM maximo.locationspec spc
+      LEFT JOIN
+        (SELECT lo.siteid,
+          lo.location,
+          spc.numvalue region
+        FROM MAXIMO.lochierarchy lo
+        JOIN MAXIMO.locations l
+        ON l.location = lo.location
+        AND lo.siteid = l.siteid
+        AND l.status  = '–¿¡Œ“¿≈“'
+        JOIN maximo.LOCATIONSPEC spc3
+        ON lo.parent         = spc3.location
+        AND spc3.siteid      = lo.siteid
+        AND spc3.ASSETATTRID = 'TIP_PREDPR'
+        JOIN maximo.LOCATIONSPEC spc
+        ON lo.parent         = spc.location
+        AND spc.siteid       = lo.siteid
+        AND spc.ASSETATTRID  = 'NOM'
+        WHERE lo.systemid    ='Œ—'
+        AND spc3.numvalue    =2
+        )reg ON spc.location = reg.location
+      AND reg.siteid         = spc.siteid
+      WHERE spc.ASSETATTRID  = 'TIP_PREDPR'
+      AND spc.NUMVALUE      IN (3,4,5)
+      )
+    )h
+  JOIN
+    (SELECT location,
+      siteid
+    FROM MAXIMO.locations
+    WHERE 1=
+      CASE
+        WHEN status = '–¿¡Œ“¿≈“'
+        THEN 1
+        WHEN to_date(statusdate,'dd.mm.yy') > to_date (sysdate-1 ,'DD.MM.YY')
+        THEN 1
+        ELSE 0
+      END
+    ) lst
+  ON lst.location =h.location
+  AND lst.siteid  =h.siteid
+  LEFT JOIN MAXIMO.locationspec l_tip
+  ON l_tip.location    =h.parent
+  AND l_tip.siteid     =h.siteid
+  AND l_tip.assetattrid='TIP_PREDPR'
+  LEFT JOIN
+    (SELECT l.SITEID,
+      l.LOCATION,
+      l.SYSTEMID,
+      l.parent
+    FROM MAXIMO.LOCHIERARCHY l
+    )l
+  ON l.siteid   =h.siteid
+  AND l.parent  =h.location
+  AND l.SYSTEMID= 'Œ—'
+  LEFT JOIN
+    (SELECT s.siteid siteid,
+      s.location location,
+      s.NUMVALUE
+    FROM MAXIMO.locationspec s
+    WHERE s.assetattrid = 'ID_TYPE'
+    )p_sh_podrs
+  ON p_sh_podrs.siteid   =h.siteid
+  AND p_sh_podrs.location=h.location
+  LEFT JOIN
+    (SELECT s.siteid siteid,
+      s.location location,
+      s.alnvalue description
+    FROM MAXIMO.locationspec s
+    WHERE s.assetattrid= 'SNAME_PODR'
+    )p_desc
+  ON p_desc.siteid   =h.siteid
+  AND p_desc.location=h.location
+  LEFT JOIN
+    (SELECT s.siteid siteid,
+      s.location location,
+      s.description
+    FROM MAXIMO.locations s
+    )e_sh_desc
+  ON e_sh_desc.siteid   =h.siteid
+  AND e_sh_desc.location=h.location
+  WHERE 1               = (
+    CASE
+      WHEN l_tip.NUMVALUE    ='3'
+      AND h.systemid         ='Œ—'
+      AND p_sh_podrs.NUMVALUE='2301'
+      THEN 1
+      WHEN l_tip.NUMVALUE = '4'
+      AND h.systemid      ='—›'
+      AND (h.location LIKE 'ECH%'
+      OR h.location LIKE 'RRU%')
+      THEN 1
+      WHEN l_tip.NUMVALUE    = '5'
+      AND h.systemid         ='ÿ'
+      AND p_sh_podrs.NUMVALUE='500415'
+      AND p_desc.description LIKE 'ÿÕ—%'
+      THEN 1
+      ELSE 0
+    END)
+  ),
+  per AS
+  (SELECT TO_CHAR( sys_xmlagg(xmlelement(displayname, DISPLAYNAME
+    ||'; ') ).extract('/ROWSET/DISPLAYNAME/text()').getclobval() ) AS displayname,
+    siteid ,
+    pred ,
+    podr
+  FROM
+    (SELECT DISTINCT per.displayname,
+      loc.siteid ,
+      loc.pred ,
+      loc.podr
+    FROM loc
+    JOIN
+      (SELECT p.displayname,
+        p.l_podr per_podr,
+        l.l_podr l_podr ,
+        p.locationsite siteid
+      FROM MAXIMO.maxuser u
+      JOIN maximo.person p
+      ON p.personid=u.personid
+      JOIN MAXIMO.GROUPUSER G
+      ON (G.USERID = U.USERID)
+      LEFT JOIN maximo.lpodr l
+      ON l.personid                        =p.personid
+      WHERE G.GROUPNAME                   IN ('CRAFT_RUKGRUPNAZ_E','CRAFT_RUKGRUPNAZ', 'CRAFT_SHNS')
+      AND p.status                         ='¿ “»¬ÕŒ'
+      AND u.status                         ='¿ “»¬ÕŒ'
+      )per ON NVL(per.l_podr, per.per_podr)=loc.location
+    AND per.siteid                         =loc.siteid
+    ORDER BY displayname
+    )
+  GROUP BY siteid ,
+    pred ,
+    podr
+  ),
+  all_inc AS
+  (SELECT i.ticketid ticketid ,
+    (
+    CASE
+      WHEN i.extsystemid IS NOT NULL
+      THEN NVL( w_ord.pred, i.pred)
+      ELSE w_ord.pred
+    END ) ass_pred,
+    w_ord.podr podr ,
+    i.siteid siteid,
+    i.status,
+    i.statusdate,
+    i.TARGETFINISH,
+    i.reportdate,
+    i.isknownerrordate,
+    i.extsystemid,
+    w_ustr_st.ACTFINISH
+  FROM MAXIMO.incident i
+  LEFT JOIN
+    (SELECT w.origrecordid,
+      w.origrecordclass,
+      w.L_PODR AS podr ,
+      w.L_PRED AS pred
+    FROM MAXIMO.workorder w
+    )w_ord
+  ON w_ord.origrecordid    =i.ticketid
+  AND w_ord.origrecordclass='»Õ÷»ƒ≈Õ“'
+  LEFT JOIN
+    (SELECT origrecordid,
+      origrecordclass,
+      MAX(ACTFINISH) AS ACTFINISH
+    FROM maximo.workorder
+    GROUP BY origrecordid,
+      origrecordclass
+    ) w_ustr_st
+  ON w_ustr_st.origrecordid    = i.ticketid
+  AND w_ustr_st.origrecordclass='»Õ÷»ƒ≈Õ“'
+  WHERE i.status              != '”ƒ¿À≈ÕŒ'
+  AND ( 1                      =
+    CASE
+      WHEN i.extsystemid IS NOT NULL
+      AND i.extsystemid  != 703
+      THEN 1
+      WHEN (i.extsystemid IS NULL
+      AND i.h             IN ('090004000002','090004000003','090004000004') )
+      THEN 1
+      ELSE 0
+    END )
+  ),
+  inc AS
+  ( SELECT DISTINCT per.displayname,
+    all_inc.ticketid,
+    loc.podr,
+    loc.pred,
+    all_inc.siteid,
+    all_inc.reportdate,
+    all_inc.isknownerrordate,
+    all_inc.extsystemid,
+    all_inc.status,
+    all_inc.statusdate,
+    all_inc.TARGETFINISH ,
+    all_inc.ACTFINISH
+  FROM loc
+  LEFT JOIN all_inc
+  ON all_inc.siteid   =loc.siteid
+  AND all_inc.ass_pred=loc.pred
+  AND all_inc.podr    =loc.location
+  LEFT JOIN per
+  ON loc.podr =per.podr
+  AND per.pred=loc.pred
+  ),
+  inc_pred AS
+  (SELECT COUNT (DISTINCT all_inc.ticketid) inc,
+    all_inc.ass_pred pred,
+    all_inc.siteid
+  FROM all_inc
+  WHERE to_date ( all_inc.reportdate ,'DD.MM.YY') = to_date (sysdate-1 ,'DD.MM.YY')
+  GROUP BY all_inc.ass_pred ,
+    all_inc.siteid
+  ),
+  inc_podr AS
+  (SELECT inc.siteid,
+    inc.pred,
+    inc.podr,
+    inc.displayname,
+    SUM(
+    CASE
+      WHEN EXISTS
+        (SELECT 1
+        FROM maximo.tkstatus s
+        WHERE inc.ticketid                      =s.ticketid
+        AND s.class                             ='»Õ÷»ƒ≈Õ“'
+        AND s.status                            ='Õ¿œ–_¬_√–'
+        AND to_date ( s.changedate ,'DD.MM.YY') = to_date (sysdate-1 ,'DD.MM.YY')
+        AND EXISTS
+          (SELECT 1
+          FROM MAXIMO.GROUPUSER
+          WHERE USERID  = s.changeby
+          AND GROUPNAME ='CRAFT_STDISPCUSI'
+          )
+        )
+      THEN 1
+      ELSE 0
+    END) AS napr_disp,
+    SUM(
+    CASE
+      WHEN inc.status                           = 'Õ¿œ–_¬_√–'
+      AND to_date ( inc.statusdate ,'DD.MM.YY') = to_date (sysdate-1 ,'DD.MM.YY')
+      THEN 1
+      WHEN inc.status != 'Õ¿œ–_¬_√–'
+      AND EXISTS
+        (SELECT 1
+        FROM maximo.tkstatus s
+        WHERE inc.ticketid                      =s.ticketid
+        AND s.class                             ='»Õ÷»ƒ≈Õ“'
+        AND s.status                            ='Õ¿œ–_¬_√–'
+        AND to_date ( s.changedate ,'DD.MM.YY') = to_date (sysdate-1 ,'DD.MM.YY')
+        )
+      THEN 1
+      ELSE 0
+    END) AS napr_gr,
+    SUM(
+    CASE
+      WHEN EXISTS
+        (SELECT 1
+        FROM maximo.tkstatus s
+        WHERE inc.ticketid                      =s.ticketid
+        AND s.class                             ='»Õ÷»ƒ≈Õ“'
+        AND s.status                            ='¬_–¿¡Œ“≈'
+        AND to_date ( s.changedate ,'DD.MM.YY') = to_date (sysdate-1 ,'DD.MM.YY')
+        )
+      THEN 1
+      ELSE 0
+    END) AS v_rabote,
+    SUM(
+    CASE
+      WHEN inc.status                            = '¬_–¿¡Œ“≈'
+      AND to_date ( inc.statusdate ,'DD.MM.YY') <= to_date (sysdate-1 ,'DD.MM.YY')
+      THEN 1
+      WHEN inc.status IN ('«¿¬_ƒ»—œ','”—“–¿Õ≈Õ','«¿ –€“Œ')
+      AND EXISTS
+        (SELECT 1
+        FROM maximo.tkstatus s
+        WHERE inc.ticketid                       =s.ticketid
+        AND s.class                              ='»Õ÷»ƒ≈Õ“'
+        AND s.status                             ='¬_–¿¡Œ“≈'
+        AND to_date ( s.changedate ,'DD.MM.YY') <= to_date (sysdate-1 ,'DD.MM.YY')
+        )
+      AND to_date (
+        (SELECT MIN(s.statusdate)
+        FROM maximo.a_ticket s
+        WHERE inc.ticketid=s.ticketid
+        AND s.status                       IN ('«¿¬_ƒ»—œ','”—“–¿Õ≈Õ','«¿ –€“Œ')
+        ) ,'DD.MM.YY')    > to_date (sysdate-1 ,'DD.MM.YY')
+      THEN 1
+      ELSE 0
+    END) AS v_rabote_end,
+    SUM(
+    CASE
+      WHEN inc.status                             = '¬_–¿¡Œ“≈'
+      AND to_date ( inc.statusdate ,'DD.MM.YY')  <= to_date (sysdate  -1 ,'DD.MM.YY')
+      AND to_date ( inc.targetfinish ,'DD.MM.YY') < = to_date (sysdate-1 ,'DD.MM.YY')
+      THEN 1
+      WHEN inc.status IN ('«¿¬_ƒ»—œ','”—“–¿Õ≈Õ','«¿ –€“Œ')
+      AND EXISTS
+        (SELECT 1
+        FROM maximo.tkstatus s
+        WHERE inc.ticketid                       =s.ticketid
+        AND s.class                              ='»Õ÷»ƒ≈Õ“'
+        AND s.status                             ='¬_–¿¡Œ“≈'
+        AND to_date ( s.changedate ,'DD.MM.YY') <= to_date (sysdate-1 ,'DD.MM.YY')
+        )
+      AND to_date (
+        (SELECT MIN(s.statusdate)
+        FROM maximo.a_ticket s
+        WHERE inc.ticketid                        =s.ticketid
+        AND s.status                                                 IN ('«¿¬_ƒ»—œ','”—“–¿Õ≈Õ','«¿ –€“Œ')
+        ) ,'DD.MM.YY')                            > to_date (sysdate  -1 ,'DD.MM.YY')
+      AND to_date ( inc.targetfinish ,'DD.MM.YY') < = to_date (sysdate-1 ,'DD.MM.YY')
+      THEN 1
+      ELSE 0
+    END) AS v_rabote_end_sr,
+    SUM(
+    CASE
+      WHEN inc.status NOT                                            IN ('Œ¡⁄≈ƒ»Õ≈Õ','ÀŒ∆Õ€…','«¿¬_ƒ»—œ','”—“–¿Õ≈Õ','«¿ –€“Œ')
+      AND to_date ( inc.targetfinish ,'DD.MM.YY') < = to_date (sysdate-1 ,'DD.MM.YY')
+      THEN 1
+      WHEN inc.status                                                IN ('Œ¡⁄≈ƒ»Õ≈Õ','ÀŒ∆Õ€…','«¿¬_ƒ»—œ','”—“–¿Õ≈Õ','«¿ –€“Œ')
+      AND to_date ( inc.targetfinish ,'DD.MM.YY') < = to_date (sysdate-1 ,'DD.MM.YY')
+      AND to_date (
+        (SELECT MIN(s.statusdate)
+        FROM maximo.a_ticket s
+        WHERE inc.ticketid=s.ticketid
+        AND s.status                       IN ('Œ¡⁄≈ƒ»Õ≈Õ','ÀŒ∆Õ€…','«¿¬_ƒ»—œ','”—“–¿Õ≈Õ','«¿ –€“Œ')
+        ) ,'DD.MM.YY')    > to_date (sysdate-1 ,'DD.MM.YY')
+      THEN 1
+      ELSE 0
+    END) AS inc_pr,
+    SUM(
+    CASE
+      WHEN EXISTS
+        (SELECT 1
+        FROM maximo.tkstatus s
+        WHERE inc.ticketid                      =s.ticketid
+        AND s.class                             ='»Õ÷»ƒ≈Õ“'
+        AND s.status                            ='Œ“ ÀŒÕ≈Õ'
+        AND to_date ( s.changedate ,'DD.MM.YY') = to_date (sysdate-1 ,'DD.MM.YY')
+        )
+      THEN 1
+      ELSE 0
+    END) AS otkl,
+    SUM(
+    CASE
+      WHEN to_date ( inc.ACTFINISH ,'DD.MM.YY') = to_date (sysdate-1 ,'DD.MM.YY')
+      THEN 1
+      ELSE 0
+    END) AS inc_ustr,
+    SUM(
+    CASE
+      WHEN to_date ( inc.ACTFINISH ,'DD.MM.YY') = to_date (sysdate-1 ,'DD.MM.YY')
+      AND to_date (inc.ACTFINISH,'DD.MM.YY')    > to_date (inc.TARGETFINISH,'DD.MM.YY')
+      THEN 1
+      ELSE 0
+    END) AS inc_ustr_sr,
+    SUM(
+    CASE
+      WHEN inc.status                           = '«¿¬_ƒ»—œ'
+      AND to_date ( inc.statusdate ,'DD.MM.YY') < = to_date (sysdate-1 ,'DD.MM.YY')
+      THEN 1
+      WHEN inc.status IN ('”—“–¿Õ≈Õ','«¿ –€“Œ')
+      AND EXISTS
+        (SELECT 1
+        FROM maximo.a_ticket s
+        WHERE inc.ticketid                       =s.ticketid
+        AND s.status                             ='«¿¬_ƒ»—œ'
+        AND to_date ( s.statusdate, 'DD.MM.YY') <= to_date (sysdate-1 ,'DD.MM.YY')
+        )
+      AND to_date (
+        (SELECT MIN(s.statusdate)
+        FROM maximo.a_ticket s
+        WHERE inc.ticketid=s.ticketid
+        AND s.status                       IN ('”—“–¿Õ≈Õ','«¿ –€“Œ')
+        ) ,'DD.MM.YY')    > to_date (sysdate-1 ,'DD.MM.YY')
+      THEN 1
+      ELSE 0
+    END) AS zav_disp ,
+    SUM(
+    CASE
+      WHEN inc.status                           = '«¿ –€“Œ'
+      AND to_date ( inc.statusdate ,'DD.MM.YY') = to_date (sysdate-1 ,'DD.MM.YY')
+      THEN 1
+      ELSE 0
+    END) AS zakrit
+  FROM inc
+  GROUP BY inc.siteid,
+    inc.pred,
+    inc.podr,
+    inc.displayname
+  )
+SELECT to_date (sysdate -1 ,'DD.MM.YY') date_row,
+  loc_all.siteid ,
+  loc_all.location ,
+  loc_all.region,
+  pred,
+  NVL(inc_pred.inc, 0) inc,
+  inc_podr.zakrit,
+  inc_podr.podr,
+  inc_podr.displayname,
+  inc_podr.napr_disp,
+  inc_podr.napr_gr,
+  inc_podr.v_rabote,
+  inc_podr.v_rabote_end,
+  inc_podr.v_rabote_end_sr,
+  inc_podr.inc_pr,
+  inc_podr.otkl,
+  inc_podr.inc_ustr,
+  inc_podr.inc_ustr_sr,
+  inc_podr.zav_disp,
+  loc_all.hoz,
+  loc_all.nom,
+  loc_all.pred_desc
+FROM loc_all
+LEFT JOIN inc_podr
+ON inc_podr.pred   =loc_all.location
+AND loc_all.siteid = inc_podr.siteid
+LEFT JOIN INC_PRED
+ON INC_PRED.PRED   =LOC_ALL.location
+AND LOC_ALL.SITEID = INC_PRED.SITEID

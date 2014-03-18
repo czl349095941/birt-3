@@ -1,0 +1,37 @@
+ WITH DAT AS      
+         (      
+                select     
+                distinct pm.pmnum, pm.siteid , pm.obrab plan,  
+                 case when month = 'ﬂÕ¬¿–‹' then  1      
+                   when pm.month = '‘≈¬–¿À‹'   then 2       
+                when pm.month = 'Ã¿–“'   then  3       
+                  when pm.month = '¿œ–≈À‹'   then  4      
+                 when pm.month = 'Ã¿…'   then 5       
+                  when pm.month = '»ﬁÕ‹'   then   6      
+                 when pm.month = '»ﬁÀ‹'   then  7       
+                   WHEN pm.MONTH = '¿¬√”—“'   THEN  8       
+                 WHEN pm.MONTH = '—≈Õ“ﬂ¡–‹'   THEN  9     
+                  when pm.month = 'Œ “ﬂ¡–‹'   then  10      
+                  when pm.month = 'ÕŒﬂ¡–‹'   then   11      
+                 WHEN pm.MONTH = 'ƒ≈ ¿¡–‹'   THEN   12    
+          end mon
+                  from maximo.masterpm          
+                  JOIN MAXIMO.PM ON PM.MASTERPM = MASTERPM.MASTERPMNUM             
+                  WHERE MASTERPM.YEAR =  2012       AND PM.MONTH IS NOT NULL AND NAMERAB1 = '090000070806'    
+                     
+                 )
+             SELECT 
+ SITE.DESCRIPTION, 
+ nvl(A1.plan,0) plan1,
+  nvl(A11.plan,0) plan2,
+  nvl(A111.plan,0) plan3
+   
+    
+             FROM       
+             MAXIMO.site    
+  LEFT JOIN (SELECT COUNT(PMNUM) PLAN,  SITEID FROM DAT  GROUP BY SITEID) A1 ON SITE.SITEID = A1.SITEID 
+    LEFT JOIN (SELECT COUNT(PMNUM)  PLAN, SITEID FROM DAT WHERE mon =10 GROUP BY SITEID) A11 ON SITE.SITEID = A11.SITEID
+  LEFT JOIN (SELECT COUNT(PMNUM)  PLAN, SITEID FROM DAT WHERE mon < 10 GROUP BY SITEID) A111 ON SITE.SITEID = A111.SITEID 
+             where site.siteid in ('1', '10', '17', '24', '28', '51', '58', '61', '63', '76', '80', '83', '88', '92', '94', '96')   
+       
+           ORDER BY SITE.SITEID   

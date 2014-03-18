@@ -1,0 +1,3087 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<report xmlns="http://www.eclipse.org/birt/2005/design" version="3.2.17" id="1">
+    <property name="createdBy">Eclipse BIRT Designer Version 2.3.2.r232_20090202 Build &lt;2.3.2.v20090218-0730></property>
+    <property name="units">in</property>
+    <property name="comments">IBM Confidential
+
+OCO Source Materials
+
+5724-M19
+
+(C) COPYRIGHT IBM CORP. 2006
+
+The source code for this program is not published or otherwise
+divested of its trade secrets, irrespective of what has been
+deposited with the U.S. Copyright Office.</property>
+    <html-property name="description">This template will create a report with one or more groups, each having identical data fields, and contains three styles of charts.</html-property>
+    <method name="initialize"><![CDATA[importPackage(Packages.com.ibm.tivoli.maximo.report.script);
+
+mxReportScriptContext = MXReportScriptContext.initialize(reportContext);
+
+var finishStr= new String(params["fin"].value);
+if (finishStr.length==8)
+{
+var date = new Date(   2000+ Number( finishStr.substr(6,2) ), Number( finishStr.substr(3,2) ) - 1 , finishStr.substr(0,2) ) ;
+var now = new Date();
+
+if( date.getDate()== now.getDate() &amp;&amp; date.getMonth()==now.getMonth() &amp;&amp; date.getFullYear()==now.getFullYear() )
+{
+	finishStr = date.getDate()+"."+( date.getMonth()+1 )+"."+ ( date.getFullYear() - 2000 ) +" "+now.getHours()+":"+now.getMinutes()+":"+now.getSeconds();
+}
+else 
+	finishStr = date.getDate()+"."+( date.getMonth()+1 )+"."+ ( date.getFullYear() - 2000 ) +" 23:59:59"
+
+}]]></method>
+    <method name="afterFactory"><![CDATA[MXReportScriptContext.close();]]></method>
+    <property name="theme">MaximoSystemLibrary.maximoTheme</property>
+    <text-property name="displayName">Tivoli Maximo Grouped Chart Template</text-property>
+    <list-property name="libraries">
+        <structure>
+            <property name="fileName">MaximoSystemLibrary.rptlibrary</property>
+            <property name="namespace">MaximoSystemLibrary</property>
+        </structure>
+    </list-property>
+    <parameters>
+        <scalar-parameter name="where" id="25">
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="paramType">simple</property>
+            <property name="isRequired">true</property>
+            <property name="controlType">text-box</property>
+            <property name="defaultValue">1=1</property>
+            <property name="distinct">true</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="appname" id="240">
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="isRequired">false</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="paramdelimiter" id="241">
+            <property name="hidden">true</property>
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="isRequired">false</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="paramstring" id="242">
+            <property name="hidden">true</property>
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="isRequired">false</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="userName" id="7480">
+            <property name="hidden">true</property>
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="paramType">simple</property>
+            <property name="isRequired">false</property>
+            <property name="controlType">text-box</property>
+            <property name="distinct">true</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="par" id="7814">
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="paramType">simple</property>
+            <property name="isRequired">false</property>
+            <property name="controlType">text-box</property>
+            <property name="distinct">true</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="fin" id="8001">
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="paramType">simple</property>
+            <property name="isRequired">false</property>
+            <property name="controlType">text-box</property>
+            <property name="distinct">true</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="locationId" id="8002">
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="paramType">simple</property>
+            <property name="isRequired">false</property>
+            <property name="controlType">text-box</property>
+            <property name="distinct">true</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="status" id="8004">
+            <property name="valueType">static</property>
+            <property name="dataType">integer</property>
+            <property name="paramType">simple</property>
+            <property name="isRequired">false</property>
+            <property name="controlType">text-box</property>
+            <property name="distinct">true</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="podrId" id="8517">
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="paramType">simple</property>
+            <property name="isRequired">false</property>
+            <property name="controlType">text-box</property>
+            <property name="distinct">true</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="sum_uch" id="9442">
+            <property name="valueType">static</property>
+            <property name="dataType">integer</property>
+            <property name="paramType">simple</property>
+            <property name="isRequired">true</property>
+            <property name="controlType">text-box</property>
+            <property name="distinct">true</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+    </parameters>
+    <data-sources>
+        <script-data-source name="maximoDataSource" id="64" extends="MaximoSystemLibrary.maximoDataSource"/>
+    </data-sources>
+    <data-sets>
+        <script-data-set name="Workreport" id="368">
+            <list-property name="resultSetHints">
+                <structure>
+                    <property name="position">1</property>
+                    <property name="name">MESTO</property>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="position">2</property>
+                    <property name="name">TICKETID</property>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="position">3</property>
+                    <property name="name">REP</property>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="position">4</property>
+                    <property name="name">DISPLAYNAME</property>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="position">5</property>
+                    <property name="name">VID</property>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="position">6</property>
+                    <property name="name">SROK</property>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="position">7</property>
+                    <property name="name">PRIO</property>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="position">8</property>
+                    <property name="name">DAT</property>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="position">9</property>
+                    <property name="name">STATUS</property>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="position">10</property>
+                    <property name="name">reg_title</property>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="position">11</property>
+                    <property name="name">workid</property>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="position">12</property>
+                    <property name="name">podr</property>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="position">13</property>
+                    <property name="name">asset</property>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="position">14</property>
+                    <property name="name">statusdate</property>
+                    <property name="dataType">string</property>
+                </structure>
+            </list-property>
+            <list-property name="columnHints">
+                <structure>
+                    <property name="columnName">MESTO</property>
+                </structure>
+                <structure>
+                    <property name="columnName">TICKETID</property>
+                </structure>
+                <structure>
+                    <property name="columnName">REP</property>
+                </structure>
+                <structure>
+                    <property name="columnName">DISPLAYNAME</property>
+                </structure>
+                <structure>
+                    <property name="columnName">VID</property>
+                </structure>
+                <structure>
+                    <property name="columnName">SROK</property>
+                </structure>
+                <structure>
+                    <property name="columnName">PRIO</property>
+                </structure>
+                <structure>
+                    <property name="columnName">DAT</property>
+                </structure>
+                <structure>
+                    <property name="columnName">STATUS</property>
+                </structure>
+                <structure>
+                    <property name="columnName">reg_title</property>
+                </structure>
+                <structure>
+                    <property name="columnName">workid</property>
+                </structure>
+                <structure>
+                    <property name="columnName">podr</property>
+                </structure>
+                <structure>
+                    <property name="columnName">asset</property>
+                </structure>
+                <structure>
+                    <property name="columnName">statusdate</property>
+                </structure>
+            </list-property>
+            <structure name="cachedMetaData">
+                <list-property name="resultSet">
+                    <structure>
+                        <property name="position">1</property>
+                        <property name="name">MESTO</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">2</property>
+                        <property name="name">TICKETID</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">3</property>
+                        <property name="name">REP</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">4</property>
+                        <property name="name">DISPLAYNAME</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">5</property>
+                        <property name="name">VID</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">6</property>
+                        <property name="name">SROK</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">7</property>
+                        <property name="name">PRIO</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">8</property>
+                        <property name="name">DAT</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">9</property>
+                        <property name="name">STATUS</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">10</property>
+                        <property name="name">reg_title</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">11</property>
+                        <property name="name">workid</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">12</property>
+                        <property name="name">podr</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">13</property>
+                        <property name="name">asset</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">14</property>
+                        <property name="name">statusdate</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                </list-property>
+            </structure>
+            <property name="dataSource">maximoDataSource</property>
+            <method name="open"><![CDATA[maximoDataSet = MXReportDataSetProvider.create(this.getDataSource().getName(), this.getName());
+	maximoDataSet.open();
+	var sqlText = new String();
+
+var siteid = new String(params["userName"]);
+
+siteid = " ( select distinct defsite from maximo.maxuser where loginid = '" + params["userName"] + "' )";
+//siteid = "76";
+
+
+var locationId = new String("'" + params["locationId"] + "'");
+
+var status = new String(params["status"]);
+
+var sum_uch = new String(params["sum_uch"]);
+
+var podrId = new String(params["podrId"]);
+var podrId_ex = new String(1);
+
+if(params["podrId"]!='')
+{podrId = "'"+params["podrId"]+"'"}
+else if(params["podrId"]=='')
+{	podrId_ex = 0;
+	podrId = 0;}
+	
+	
+
+var start = new String(params["par"]);
+
+start = "to_date ('"+params["par"]+"','DD.MM.YY')"
+
+var finish = new String(finishStr);
+finish = "to_date ('"+finishStr+"','DD.MM.YY HH24:MI:SS')"
+
+
+	sqlText = " select distinct"
+ +" locations.description|| "
+ +" case when sp.numvalue=1 then ' (станция)' when sp1.numvalue =1  then ' (перегон)' else '' end  mesto, "
+ +" i.ticketid ticketid, "
+ +" w_ord.wonum workid, "
+  +" i.reportdate  rep, "
+ 
+   +" (CASE WHEN i.extsystemid is not null   THEN i.extsysname "
+  +"			 else person.displayname end ) displayname, "
+ 
+   +" (CASE WHEN i.extsystemid is not null   THEN '' "
+  +"		else "
++"  			'( '|| "
++" 						(select distinct cr.description from MAXIMO.laborcraftrate lcr "
++"								join MAXIMO.CRAFT cr on cr.craft = lcr.craft "
++"						 where lcr.DEFAULTCRAFT = 1 and lcr.LABORCODE =  person.personid "
++"						) "
++"				|| ' )' "
+  +"  end ) reg_title , "
+ 
+
+ +" i.description vid , "
+ +" a.description asset,	"
+ +" i.TARGETFINISH srok, "
+ +" NUMERICDOMAIN.description prio, "
+ +" synd.description status,"
+ +"	'дата статуса: '||i.statusdate statusdate, "
++"  w_ustr_st.ACTFINISH   dat, "
+ +" ( case  when l_tip.NUMVALUE in ('3') then l_des_p.description "
+ +"						 	 else l_des_e_sh.description end ) podr	"
+ +" from "
+ +" MAXIMO.incident i "
+
+ +"   left join maximo.person on  i.reportedby=person.personid "
+ +"   left join maximo.locations on (locations.location=i.location and locations.siteid=i.assetsiteid)  "
+ +"   left join maximo.locationspec sp  "
+ +"   on (locations.location = sp.location and locations.siteid = sp.siteid and sp.assetattrid = 'TIP_RAZMST') "
+ +"   left join maximo.locationspec sp1  "
+ +"   on (locations.location = sp1.location and locations.siteid = sp1.siteid and sp1.assetattrid = 'TIP_RAZM_MSP') "
+
+
+
+
+ +"   left join MAXIMO.synonymdomain synd on i.status=synd.value and 'INCIDENTSTATUS'=synd.domainid"
+ +"   left join maximo.NUMERICDOMAIN on (NUMERICDOMAIN.domainid='NSI_INC_PRIORITY' and    "
+ +"   NUMERICDOMAIN.value=i.inc_priority )   "
+ 
+ 
+ +"   left join MAXIMO.multiassetlocci m	"
+ +"     join MAXIMO.asset a on m.assetnum=a.assetnum and a.siteid=m.siteid	"
+ +"   on i.ticketid = m.recordkey and  m.siteid  = i.siteid  and m.RECORDCLASS= 'ИНЦИДЕНТ' and m.ISPRIMARY= 0 "
+ 
+ 
+ +"       left join (select origrecordid, origrecordclass, w.wonum,  w.l_podr podr, w.l_pred as pred from maximo.workorder w "
+ +"             )w_ord on  w_ord.origrecordid= i.ticketid  and w_ord.origrecordclass='ИНЦИДЕНТ' "
+ 
+ 
+ +"      join MAXIMO.locationspec l_tip on   l_tip.location = (case when i.extsystemid is not null then nvl( w_ord.pred, i.pred) else w_ord.pred end ) "
+ +"  															 and l_tip.assetattrid='TIP_PREDPR' and l_tip.siteid  in  ( " + siteid + " ) "
+                               
+ +"    left  join (  "
+ +"           select distinct connect_by_root(parent) ANCESTOR, siteid, location, systemid from MAXIMO.lochierarchy LH CONNECT BY     "
+ +"             PRIOR  LH.LOCATION = LH.PARENT AND PRIOR LH.SYSTEMID = LH.SYSTEMID AND PRIOR LH.SITEID = LH.SITEID AND  level in (1,2,3) START WITH PARENT = "+locationId+"  and LH.siteid in (" + siteid + ") "
+
+ +"            )l on  l.location= w_ord.podr  "
+ +"             and l.SYSTEMID= case when l_tip.NUMVALUE ='3' then 'ОС' "
+ +"                                  when l_tip.NUMVALUE ='4' then 'СЭ' "
+ +"                                  when l_tip.NUMVALUE ='5' then 'Ш' else '' end "
+ +"                          and l.ancestor = "+locationId+" "
+
+ +"	left 	join  MAXIMO.locations l_des_e_sh on  l_des_e_sh.siteid  in  ( " + siteid + " )  and l_des_e_sh.location= w_ord.podr  "
+ 
+ +"	left	join ( select l.SITEID, l.LOCATION, l.SYSTEMID, l.parent, d.alnvalue as description  from MAXIMO.LOCHIERARCHY l"
+ +"						 	                      				  join MAXIMO.locationspec d on d.location=l.parent and d.siteid=l.siteid and d.assetattrid= 'SNAME_PODR'"
+ +"				)l_des_p on l_des_p.siteid  in  ( " + siteid + " )  and l_des_p.location= w_ord.podr  and l_des_p.SYSTEMID= 'ОС' "
+
+                         
+ +"                left join 	(select w.origrecordid,  MAX(w.ACTFINISH) as ACTFINISH  from maximo.workorder w"
+ +"                     join maximo.incident i on i.ticketid =  w.origrecordid and i.siteid in ("+siteid+")  and i.h in ('090004000002','090004000003','090004000004')    and  i.status in ('ЗАВ_ДИСП','УСТРАНЕН','ЗАКРЫТО')"
+ +"                where w.siteid = "+siteid+" and w.origrecordclass='ИНЦИДЕНТ' and w.istask = 0 "
+ +"                           group by w.origrecordid  ) w_ustr_st  on w_ustr_st.origrecordid= i.ticketid  "
+
++"               where  i.siteid  in  ( " + siteid + " )  "
+ +"   					and i.status != 'УДАЛЕНО' "
+ +"						and ( 1=CASE WHEN i.extsystemid is not null and i.extsystemid != 703  THEN 1 "
+ +" 								WHEN (i.extsystemid is null and i.h in ('090004000002','090004000003','090004000004') )  "
+ +"								THEN 1 else 0 end )"
+ 
+ +"		and   1=(case when "+podrId_ex+"=1 and "
+ +"						 1= case when l_tip.NUMVALUE in ('4','5') and ( l_des_e_sh.description = "+podrId+" ) then 1"
+ +"						 	    when l_tip.NUMVALUE in ('3') and ( l_des_p.description =  "+podrId+" ) then 1 "
+ +"						 	 else 0 end "
+ +"					then 1"
+
+ +"						when "+podrId_ex+"=0 then 1"
+ +"					else 0 end)" 
+ 
+ 
+ +"		and   1=(case when "+sum_uch+"=1 and "
+ +"								 1= case when l_tip.NUMVALUE in('4','5') and ( l_des_e_sh.description is not null ) then 1"
+ +"						 	    		when l_tip.NUMVALUE in('3') and ( l_des_p.description is not null ) then 1 "
+ +"						 	 		else 0 end "
+ +"						 then 1"
+ +"							when "+sum_uch+"=0 then 1"
+ +"					else 0 end)" 
+ 
+  
++"    and (  1=CASE "
++"      	WHEN ("+status+"=0  "
++"   							 and i.reportdate  between   " + start + " and  " + finish + "  "
+ +"							)  THEN 1 "
+
+ +"  		WHEN ("+status+"=2 "
++"	  						and 1= case  when  exists ( select 1 from maximo.tkstatus s where i.ticketid=s.ticketid and s.class='ИНЦИДЕНТ' and s.status='НАПР_В_ГР' "
++"												and s.changedate between " + start + " and  " + finish + " "
++"												and exists ( select 1 from MAXIMO.GROUPUSER  where USERID = s.changeby and GROUPNAME ='CRAFT_STDISPCUSI' ) "
++"											)  then 1 "
++"								 else 0 end"
+ +"					) THEN 1 "
+ +"  		WHEN ("+status+"=3  "
+ +"					and 1= case  when  i.status = 'НАПР_В_ГР'  "
++"									and i.statusdate  between " + start + " and  " + finish + " "
++"	  					 		then 1 "
+
++"								when  i.status != 'НАПР_В_ГР' and exists ( select 1 from maximo.tkstatus s where i.ticketid=s.ticketid and s.class='ИНЦИДЕНТ' and s.status='НАПР_В_ГР' "
++"																and s.changedate  between " + start + " and  " + finish + " "
++"								)  then 1 "
+
++"		 				else 0 end"
+ +"					) THEN 1 "
+  +"     	WHEN ("+status+"=4  "
+ +"        							and "
+  +"								1=case  when  exists ( select 1 from maximo.tkstatus s where i.ticketid=s.ticketid and s.class='ИНЦИДЕНТ' and s.status='В_РАБОТЕ' "
++"													and s.changedate  between " + start + " and  " + finish + " "
++"											)  then 1 "
++"									 else 0 end"
+ +"					) THEN 1 "
+ +"  		WHEN ("+status+"=5 "
++"	  						and 1= case  when  i.status = 'В_РАБОТЕ'  "
++"												and  i.statusdate  <=  " + finish + " "
++"	  					 				then 1 " 
++"										when  i.status in ('ЗАВ_ДИСП','УСТРАНЕН','ЗАКРЫТО') "
++"													and exists ( select 1 from maximo.tkstatus s where i.ticketid=s.ticketid and s.class='ИНЦИДЕНТ' and s.status='В_РАБОТЕ' "
++"																		and  s.changedate   <=  " + finish + " "
++"																) "
++"								and    ( select  min(s.statusdate)  from maximo.a_ticket s where i.ticketid=s.ticketid  and s.status in ('ЗАВ_ДИСП','УСТРАНЕН','ЗАКРЫТО')"
++"										)  >  " + finish + " "
+
++"						  				then 1 "
++"								 else 0 end"
+ +"					) THEN 1 "
+ +"  		WHEN ("+status+"=6  "
++"	  						and 1= case  when  i.status = 'В_РАБОТЕ'  "
++"												and  i.statusdate   <=  " + finish + " "
+
++"											and i.targetfinish  < " + finish + " "
++"	  					 				then 1 " 
++"										when  i.status in ('ЗАВ_ДИСП','УСТРАНЕН','ЗАКРЫТО') "
++"													and exists ( select 1 from maximo.tkstatus s where i.ticketid=s.ticketid and s.class='ИНЦИДЕНТ' and s.status='В_РАБОТЕ' "
++"																		and  s.changedate   <=  " + finish + " "
++"																) "
++"								and    ( select  min(s.statusdate)  from maximo.a_ticket s where i.ticketid=s.ticketid  and s.status in ('ЗАВ_ДИСП','УСТРАНЕН','ЗАКРЫТО')"
++"										 )  >  " + finish + " "
+
++"						  				then 1 "
++"								 else 0 end"
+
+ +"					) THEN 1 "
+  +"     	WHEN ("+status+"=7  "
+ +"        				and "
+  +"					1=	case  when  i.status not in ('ОБЪЕДИНЕН','ЛОЖНЫЙ','ЗАВ_ДИСП','УСТРАНЕН','ЗАКРЫТО' )  "
++"										and  i.targetfinish  < " + finish + "  then 1 "
++"									when  i.status in ('ОБЪЕДИНЕН','ЛОЖНЫЙ','ЗАВ_ДИСП','УСТРАНЕН','ЗАКРЫТО' )  "
+
++"								and    ( select  min(s.statusdate)  from maximo.a_ticket s where i.ticketid=s.ticketid  and s.status in ('ОБЪЕДИНЕН','ЛОЖНЫЙ','ЗАВ_ДИСП','УСТРАНЕН','ЗАКРЫТО') "
++"										 )  >  " + finish + " "
+
++"										and  i.targetfinish  < " + finish + "  then 1 "
++"		 					else 0 end		"
+ +"					) THEN 1 "
+ +"  		WHEN ("+status+"=8 "
++"	  						and 1= case  when  exists ( select 1 from maximo.tkstatus s where i.ticketid=s.ticketid and s.class='ИНЦИДЕНТ' and s.status='ОТКЛОНЕН' "
++"													and  s.changedate    between " + start + " and  " + finish + " "
++"										)  then 1 "
++"		 							else 0 end"
+ +"					) THEN 1 "
+ +"  		WHEN ("+status+"=10 "
+ +"	  						and  w_ustr_st.ACTFINISH   between " + start + " and  " + finish + " "
+
+ +"					) THEN 1  "
+  +"     	WHEN ("+status+"=11 "
+ +"	  						and  w_ustr_st.ACTFINISH   between " + start + " and  " + finish + " "
++"									and  w_ustr_st.ACTFINISH >  i.TARGETFINISH "
+  
+ +"					) THEN 1 "
+ +"  		WHEN ("+status+"=9 "
++"	  						and 1= case  when  i.status = 'ЗАВ_ДИСП'  "
++"									and  i.statusdate   <=  " + finish + " "
++"	  					 		then 1 "
+
++"				when  i.status in ('УСТРАНЕН','ЗАКРЫТО') "
++"								and exists ( select 1 from maximo.a_ticket s where i.ticketid=s.ticketid  and s.status='ЗАВ_ДИСП' "
++"																and  s.statusdate  <=  " + finish + " "
++"											) "
++"								and   ( select  min(s.statusdate)  from maximo.a_ticket s where i.ticketid=s.ticketid  and s.status in ('УСТРАНЕН','ЗАКРЫТО')"
++"									 )  >  " + finish + " "
++"						  then 1 "
+
++"		 				else 0 end"
+
+ +"					) THEN 1 "
+ +"  		WHEN ("+status+"=12  "
+ +"					and 1= case  when  i.status = 'ЗАКРЫТО'  "
++"										and  i.statusdate   between " + start + " and  " + finish + " "
++"	  					 		then 1 "
++"		 					else 0 end "
+ +"					) THEN 1  else 0 end)"
+
+ +"  and  (case when i.extsystemid is not null then nvl( w_ord.pred, i.pred) else w_ord.pred end )  = "+locationId+" "
+
+  ;
+
+	maximoDataSet.setQuery(sqlText);]]></method>
+            <method name="fetch"><![CDATA[if (!maximoDataSet.fetch())
+     return (false);
+
+row["MESTO"] = maximoDataSet.getString("MESTO");
+row["TICKETID"] = maximoDataSet.getString("TICKETID");
+row["REP"] = maximoDataSet.getString("REP");
+row["DISPLAYNAME"] = maximoDataSet.getString("DISPLAYNAME");
+row["VID"] = maximoDataSet.getString("VID");
+row["SROK"] = maximoDataSet.getString("SROK");
+row["PRIO"] = maximoDataSet.getString("PRIO");
+row["STATUS"] = maximoDataSet.getString("STATUS");
+row["DAT"] = maximoDataSet.getString("DAT");
+row["reg_title"] = maximoDataSet.getString("reg_title");
+row["workid"] = maximoDataSet.getString("workid");
+row["podr"] = maximoDataSet.getString("podr");
+
+row["asset"] = maximoDataSet.getString("asset");
+row["statusdate"] = maximoDataSet.getString("statusdate");
+
+
+return (true);]]></method>
+        </script-data-set>
+        <script-data-set name="site" id="7885">
+            <list-property name="resultSetHints">
+                <structure>
+                    <property name="position">1</property>
+                    <property name="name">description</property>
+                    <property name="dataType">string</property>
+                </structure>
+            </list-property>
+            <list-property name="columnHints">
+                <structure>
+                    <property name="columnName">description</property>
+                </structure>
+            </list-property>
+            <structure name="cachedMetaData">
+                <list-property name="resultSet">
+                    <structure>
+                        <property name="position">1</property>
+                        <property name="name">description</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                </list-property>
+            </structure>
+            <property name="dataSource">maximoDataSource</property>
+            <method name="open"><![CDATA[maximoDataSet = MXReportDataSetProvider.create(this.getDataSource().getName(), this.getName());
+	maximoDataSet.open();
+
+var siteid = new String(params["userName"]);
+
+siteid = " ( select distinct defsite from maximo.maxuser where loginid = '" + params["userName"] + "' )";
+//siteid = "24";
+
+
+	var sqlText = new String();
+
+	sqlText = " select description "
+ + "  from maximo.site "
+ + "  where siteid = " + siteid
+ ;
+	maximoDataSet.setQuery(sqlText);]]></method>
+            <method name="fetch"><![CDATA[if (!maximoDataSet.fetch())
+	   return (false);
+	// Add a line for each output column
+	row["description"] = maximoDataSet.getString("description");
+	return (true);]]></method>
+        </script-data-set>
+        <script-data-set name="des" id="7998">
+            <list-property name="resultSetHints">
+                <structure>
+                    <property name="position">1</property>
+                    <property name="name">description</property>
+                    <property name="dataType">string</property>
+                </structure>
+            </list-property>
+            <list-property name="columnHints">
+                <structure>
+                    <property name="columnName">description</property>
+                </structure>
+            </list-property>
+            <structure name="cachedMetaData">
+                <list-property name="resultSet">
+                    <structure>
+                        <property name="position">1</property>
+                        <property name="name">description</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                </list-property>
+            </structure>
+            <property name="dataSource">maximoDataSource</property>
+            <method name="open"><![CDATA[maximoDataSet = MXReportDataSetProvider.create(this.getDataSource().getName(), this.getName());
+	maximoDataSet.open();
+
+
+var locationId = new String(params["locationId"]);
+
+var sqlText = new String();
+
+	sqlText = 
+ "	select spec.alnvalue || ', ' || spec2.alnvalue as description "
++"	from maximo.locationspec spec "
++"  	join maximo.locationspec spec2 on (spec.location = spec2.location) "
++"	where spec.location = '"+locationId+"'"
++" 			and spec.assetattrid = 'SNAME' and spec2.assetattrid = 'SNAME2'"
+;
+	maximoDataSet.setQuery(sqlText);]]></method>
+            <method name="fetch"><![CDATA[if (!maximoDataSet.fetch())
+	   return (false);
+	// Add a line for each output column
+	row["description"] = maximoDataSet.getString("description");
+	return (true);]]></method>
+        </script-data-set>
+        <script-data-set name="status" id="8344">
+            <list-property name="resultSetHints">
+                <structure>
+                    <property name="position">1</property>
+                    <property name="name">description</property>
+                    <property name="dataType">string</property>
+                </structure>
+            </list-property>
+            <list-property name="columnHints">
+                <structure>
+                    <property name="columnName">description</property>
+                </structure>
+            </list-property>
+            <structure name="cachedMetaData">
+                <list-property name="resultSet">
+                    <structure>
+                        <property name="position">1</property>
+                        <property name="name">description</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                </list-property>
+            </structure>
+            <property name="dataSource">maximoDataSource</property>
+            <method name="open"><![CDATA[maximoDataSet = MXReportDataSetProvider.create(this.getDataSource().getName(), this.getName());
+	maximoDataSet.open();
+
+
+var status = new String(params["status"]);
+
+var sqlText = new String();
+
+	sqlText = 
+" select  decode("+status+","
+
+ +"0,'Создано за период', "
+ +"2,'Направлено в группу за период диспетчером ЦУСИ', "
+   +"3,'Всего направлено в группу за период', "
+  +"4,'Принято в работу за период', "
+   +"5,'В работе на конец  периода', "
+    +"6,'В работе на конец периода, с прошедшим крайним сроком', "
+    +"7,'Просрочено, не устранено на конец периода', "
+   +"8,'Отклонено за период', "
+  +"9,'Завершено диспетчером за период', "
+   +"10,'Устранено за период', "
+    +"11,'Устранено с нарушением срока за период', "
+    +"12,'Закрыто за период', "
+   
+   
+ +"'') description"
+ +" from dual "
+;
+	maximoDataSet.setQuery(sqlText);]]></method>
+            <method name="fetch"><![CDATA[if (!maximoDataSet.fetch())
+	   return (false);
+	// Add a line for each output column
+	row["description"] = maximoDataSet.getString("description");
+	return (true);]]></method>
+        </script-data-set>
+    </data-sets>
+    <styles>
+        <style name="NewStyle" id="583">
+            <property name="borderBottomStyle">solid</property>
+            <property name="borderBottomWidth">thin</property>
+            <property name="borderLeftStyle">solid</property>
+            <property name="borderLeftWidth">thin</property>
+            <property name="borderRightStyle">solid</property>
+            <property name="borderRightWidth">thin</property>
+            <property name="borderTopStyle">solid</property>
+            <property name="borderTopWidth">thin</property>
+            <property name="textAlign">center</property>
+        </style>
+    </styles>
+    <page-setup>
+        <simple-master-page name="maximoLandscape" id="47" extends="MaximoSystemLibrary.maximoLandscape">
+            <property name="type">a4</property>
+            <overridden-values>
+                <ref-entry baseId="304" name="NewGrid2" id="304"/>
+                <ref-entry baseId="305" id="305"/>
+                <ref-entry baseId="306" id="306"/>
+                <ref-entry baseId="307" id="307"/>
+                <ref-entry baseId="308" id="308"/>
+                <ref-entry baseId="340" name="NewImage1" id="340">
+                    <property name="source">file</property>
+                    <expression name="uri">"IBM_logo_Black.gif"</expression>
+                    <property name="height">1px</property>
+                    <property name="width">3px</property>
+                </ref-entry>
+                <ref-entry baseId="309" id="309"/>
+                <ref-entry baseId="310" name="NewImage" id="310">
+                    <property name="height">1px</property>
+                    <property name="width">1px</property>
+                </ref-entry>
+                <ref-entry baseId="322" name="NewGrid" id="322">
+                    <list-property name="visibility">
+                        <structure>
+                            <property name="format">xls</property>
+                            <expression name="valueExpr">true</expression>
+                        </structure>
+                        <structure>
+                            <property name="format">pdf</property>
+                            <expression name="valueExpr">true</expression>
+                        </structure>
+                    </list-property>
+                </ref-entry>
+                <ref-entry baseId="323" id="323"/>
+                <ref-entry baseId="324" id="324"/>
+                <ref-entry baseId="325" id="325"/>
+                <ref-entry baseId="326" id="326"/>
+                <ref-entry baseId="328" name="NewText" id="328"/>
+                <ref-entry baseId="327" id="327"/>
+                <ref-entry baseId="329" name="NewGrid1" id="329"/>
+                <ref-entry baseId="330" id="330"/>
+                <ref-entry baseId="331" id="331"/>
+                <ref-entry baseId="332" id="332"/>
+                <ref-entry baseId="333" id="333"/>
+                <ref-entry baseId="334" id="334"/>
+                <ref-entry baseId="335" name="NewAutoText" id="335"/>
+                <ref-entry baseId="336" id="336"/>
+                <ref-entry baseId="337" name="NewText1" id="337"/>
+                <ref-entry baseId="338" id="338"/>
+                <ref-entry baseId="339" name="NewAutoText1" id="339"/>
+            </overridden-values>
+        </simple-master-page>
+    </page-setup>
+    <body>
+        <data id="8353">
+            <property name="fontSize">large</property>
+            <property name="fontWeight">bold</property>
+            <property name="marginTop">0pt</property>
+            <property name="paddingRight">1pt</property>
+            <property name="textAlign">center</property>
+            <property name="dataSet">status</property>
+            <list-property name="boundDataColumns">
+                <structure>
+                    <property name="name">description</property>
+                    <property name="displayName">description</property>
+                    <expression name="expression">dataSetRow["description"]+'  инцидентов'</expression>
+                    <property name="dataType">string</property>
+                </structure>
+            </list-property>
+            <property name="resultSetColumn">description</property>
+        </data>
+        <data id="7999">
+            <property name="fontSize">large</property>
+            <property name="fontWeight">bold</property>
+            <property name="textAlign">center</property>
+            <property name="dataSet">des</property>
+            <list-property name="boundDataColumns">
+                <structure>
+                    <property name="name">description</property>
+                    <property name="displayName">description</property>
+                    <expression name="expression">dataSetRow["description"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+            </list-property>
+            <property name="resultSetColumn">description</property>
+        </data>
+        <data id="9413">
+            <property name="fontSize">large</property>
+            <property name="fontWeight">bold</property>
+            <property name="textAlign">center</property>
+            <list-property name="boundDataColumns">
+                <structure>
+                    <property name="name">podrId</property>
+                    <expression name="expression">params["podrId"].value</expression>
+                    <property name="dataType">string</property>
+                </structure>
+            </list-property>
+            <property name="resultSetColumn">podrId</property>
+        </data>
+        <data id="7886">
+            <property name="fontSize">large</property>
+            <property name="fontWeight">bold</property>
+            <property name="textAlign">center</property>
+            <property name="dataSet">site</property>
+            <list-property name="boundDataColumns">
+                <structure>
+                    <property name="name">description</property>
+                    <property name="displayName">description</property>
+                    <expression name="expression">dataSetRow["description"] + ' железная дорога'</expression>
+                    <property name="dataType">string</property>
+                </structure>
+            </list-property>
+            <property name="resultSetColumn">description</property>
+        </data>
+        <data id="10599">
+            <property name="fontSize">large</property>
+            <property name="fontWeight">bold</property>
+            <property name="textAlign">center</property>
+            <list-property name="boundDataColumns">
+                <structure>
+                    <property name="name">dates</property>
+                    <expression name="expression">var finishStr= new String(params["fin"].value);
+var startStr= new String(params["par"].value);
+var date1 = new Date(   2000+ Number( startStr.substr(6,2) ), Number( startStr.substr(3,2) ) - 1 , startStr.substr(0,2) ) ;
+var date_pos = new Number ( finishStr.indexOf('.',0) );
+var month_pos = new Number( finishStr.indexOf('.', (date_pos+1) ) );
+
+var date2 = new Date(   2000+ Number( finishStr.substr( (month_pos+1) ,2 ) ),  Number(  finishStr.substr( (date_pos+1) , (month_pos -  (date_pos+1)  )  ) ) - 1 , finishStr.substr( 0,date_pos ) ) ;
+'с '+BirtDateTime.day(date1)+' '+BirtDateTime.month(date1, 2)+' '+BirtDateTime.year(date1)+' г.' + ' по ' + BirtDateTime.day(date2)+' '+BirtDateTime.month(date2, 2)+' '+BirtDateTime.year(date2)+' г.'</expression>
+                    <property name="dataType">string</property>
+                </structure>
+            </list-property>
+            <property name="resultSetColumn">dates</property>
+        </data>
+        <table id="9154">
+            <property name="borderBottomColor">#000000</property>
+            <property name="borderBottomStyle">solid</property>
+            <property name="borderBottomWidth">thin</property>
+            <property name="borderLeftColor">#000000</property>
+            <property name="borderLeftStyle">solid</property>
+            <property name="borderLeftWidth">thin</property>
+            <property name="borderRightColor">#000000</property>
+            <property name="borderRightStyle">solid</property>
+            <property name="borderRightWidth">thin</property>
+            <property name="borderTopColor">#000000</property>
+            <property name="borderTopStyle">solid</property>
+            <property name="borderTopWidth">thin</property>
+            <property name="marginTop">0pt</property>
+            <property name="marginLeft">0in</property>
+            <property name="marginRight">0in</property>
+            <property name="verticalAlign">middle</property>
+            <property name="width">222mm</property>
+            <property name="dataSet">Workreport</property>
+            <list-property name="visibility">
+                <structure>
+                    <property name="format">postscript</property>
+                    <expression name="valueExpr">true</expression>
+                </structure>
+                <structure>
+                    <property name="format">doc</property>
+                    <expression name="valueExpr">true</expression>
+                </structure>
+                <structure>
+                    <property name="format">html</property>
+                    <expression name="valueExpr">true</expression>
+                </structure>
+                <structure>
+                    <property name="format">ppt</property>
+                    <expression name="valueExpr">true</expression>
+                </structure>
+            </list-property>
+            <list-property name="boundDataColumns">
+                <structure>
+                    <property name="name">MESTO</property>
+                    <property name="displayName">MESTO</property>
+                    <expression name="expression">dataSetRow["MESTO"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">TICKETID</property>
+                    <property name="displayName">TICKETID</property>
+                    <expression name="expression">dataSetRow["TICKETID"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">REP</property>
+                    <property name="displayName">REP</property>
+                    <expression name="expression">dataSetRow["REP"]</expression>
+                    <property name="dataType">date</property>
+                </structure>
+                <structure>
+                    <property name="name">DISPLAYNAME</property>
+                    <property name="displayName">DISPLAYNAME</property>
+                    <expression name="expression">dataSetRow["DISPLAYNAME"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">VID</property>
+                    <property name="displayName">VID</property>
+                    <expression name="expression">dataSetRow["VID"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">SROK</property>
+                    <property name="displayName">SROK</property>
+                    <expression name="expression">dataSetRow["SROK"]</expression>
+                    <property name="dataType">date</property>
+                </structure>
+                <structure>
+                    <property name="name">PRIO</property>
+                    <property name="displayName">PRIO</property>
+                    <expression name="expression">dataSetRow["PRIO"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">DAT</property>
+                    <property name="displayName">DAT</property>
+                    <expression name="expression">dataSetRow["DAT"]</expression>
+                    <property name="dataType">date</property>
+                </structure>
+                <structure>
+                    <property name="name">STATUS</property>
+                    <property name="displayName">STATUS</property>
+                    <expression name="expression">dataSetRow["STATUS"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">Aggregation</property>
+                    <property name="displayName">inc_count</property>
+                    <property name="dataType">integer</property>
+                    <property name="aggregateFunction">COUNTDISTINCT</property>
+                    <list-property name="arguments">
+                        <structure>
+                            <property name="name">Expression</property>
+                            <expression name="value">row["TICKETID"]</expression>
+                        </structure>
+                    </list-property>
+                </structure>
+                <structure>
+                    <property name="name">workid</property>
+                    <property name="displayName">workid</property>
+                    <expression name="expression">dataSetRow["workid"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">reg_title</property>
+                    <property name="displayName">reg_title</property>
+                    <expression name="expression">dataSetRow["reg_title"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">asset</property>
+                    <property name="displayName">asset</property>
+                    <expression name="expression">dataSetRow["asset"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+            </list-property>
+            <property name="pageBreakInterval">1000000</property>
+            <column id="9178">
+                <property name="width">100%</property>
+            </column>
+            <column id="9179">
+                <property name="width">100%</property>
+                <property name="suppressDuplicates">true</property>
+            </column>
+            <column id="9180">
+                <property name="width">100%</property>
+                <property name="suppressDuplicates">true</property>
+            </column>
+            <column id="9181">
+                <property name="width">100%</property>
+                <property name="suppressDuplicates">true</property>
+            </column>
+            <column id="9182">
+                <property name="width">100%</property>
+                <property name="suppressDuplicates">true</property>
+            </column>
+            <column id="9183">
+                <property name="width">100%</property>
+                <property name="suppressDuplicates">true</property>
+            </column>
+            <column id="9184">
+                <property name="width">100%</property>
+                <property name="suppressDuplicates">true</property>
+            </column>
+            <column id="9185">
+                <property name="width">100%</property>
+                <property name="suppressDuplicates">true</property>
+            </column>
+            <column id="9186">
+                <property name="width">100%</property>
+                <property name="suppressDuplicates">true</property>
+            </column>
+            <column id="9187">
+                <property name="width">100%</property>
+                <property name="suppressDuplicates">true</property>
+            </column>
+            <column id="9188">
+                <property name="width">100%</property>
+                <property name="suppressDuplicates">true</property>
+            </column>
+            <header>
+                <row id="9155">
+                    <cell id="9156">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <label id="9157">
+                            <property name="fontSize">10pt</property>
+                            <text-property name="text">Инцидент</text-property>
+                        </label>
+                    </cell>
+                    <cell id="9158">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <label id="9159">
+                            <property name="fontSize">10pt</property>
+                            <text-property name="text">Рабочее Задание</text-property>
+                        </label>
+                    </cell>
+                    <cell id="9160">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <label id="9161">
+                            <property name="fontSize">10pt</property>
+                            <text-property name="text">Местонахождение</text-property>
+                        </label>
+                    </cell>
+                    <cell id="9162">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <label id="9163">
+                            <property name="fontSize">10pt</property>
+                            <text-property name="text">Дата регистрации</text-property>
+                        </label>
+                    </cell>
+                    <cell id="9164">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <label id="9165">
+                            <property name="fontSize">10pt</property>
+                            <text-property name="text">Регистратор</text-property>
+                        </label>
+                    </cell>
+                    <cell id="9166">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <label id="9167">
+                            <property name="fontSize">10pt</property>
+                            <text-property name="text">Описание</text-property>
+                        </label>
+                    </cell>
+                    <cell id="9168">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <label id="9169">
+                            <property name="fontSize">10pt</property>
+                            <text-property name="text">Крайний срок</text-property>
+                        </label>
+                    </cell>
+                    <cell id="9170">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <label id="9171">
+                            <property name="fontSize">10pt</property>
+                            <text-property name="text">Приоритет</text-property>
+                        </label>
+                    </cell>
+                    <cell id="9172">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <label id="9173">
+                            <property name="fontSize">10pt</property>
+                            <text-property name="text">Дата устранения</text-property>
+                        </label>
+                    </cell>
+                    <cell id="9174">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <label id="9175">
+                            <property name="fontSize">10pt</property>
+                            <text-property name="text">Статус</text-property>
+                        </label>
+                    </cell>
+                    <cell id="9176">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <label id="9177">
+                            <property name="fontSize">10pt</property>
+                            <text-property name="text">Ответственный исполнитель</text-property>
+                        </label>
+                    </cell>
+                </row>
+            </header>
+        </table>
+        <table id="9189">
+            <property name="marginTop">0pt</property>
+            <property name="marginLeft">0in</property>
+            <property name="marginRight">0in</property>
+            <property name="verticalAlign">middle</property>
+            <property name="width">222mm</property>
+            <property name="dataSet">Workreport</property>
+            <list-property name="visibility">
+                <structure>
+                    <property name="format">postscript</property>
+                    <expression name="valueExpr">true</expression>
+                </structure>
+                <structure>
+                    <property name="format">doc</property>
+                    <expression name="valueExpr">true</expression>
+                </structure>
+                <structure>
+                    <property name="format">html</property>
+                    <expression name="valueExpr">true</expression>
+                </structure>
+                <structure>
+                    <property name="format">ppt</property>
+                    <expression name="valueExpr">true</expression>
+                </structure>
+            </list-property>
+            <list-property name="boundDataColumns">
+                <structure>
+                    <property name="name">MESTO</property>
+                    <property name="displayName">MESTO</property>
+                    <expression name="expression">dataSetRow["MESTO"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">TICKETID</property>
+                    <property name="displayName">TICKETID</property>
+                    <expression name="expression">dataSetRow["TICKETID"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">REP</property>
+                    <property name="displayName">REP</property>
+                    <expression name="expression">dataSetRow["REP"]</expression>
+                    <property name="dataType">date</property>
+                </structure>
+                <structure>
+                    <property name="name">DISPLAYNAME</property>
+                    <property name="displayName">DISPLAYNAME</property>
+                    <expression name="expression">dataSetRow["DISPLAYNAME"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">VID</property>
+                    <property name="displayName">VID</property>
+                    <expression name="expression">dataSetRow["VID"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">SROK</property>
+                    <property name="displayName">SROK</property>
+                    <expression name="expression">dataSetRow["SROK"]</expression>
+                    <property name="dataType">date</property>
+                </structure>
+                <structure>
+                    <property name="name">PRIO</property>
+                    <property name="displayName">PRIO</property>
+                    <expression name="expression">dataSetRow["PRIO"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">DAT</property>
+                    <property name="displayName">DAT</property>
+                    <expression name="expression">dataSetRow["DAT"]</expression>
+                    <property name="dataType">date</property>
+                </structure>
+                <structure>
+                    <property name="name">STATUS</property>
+                    <property name="displayName">STATUS</property>
+                    <expression name="expression">dataSetRow["STATUS"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">workid</property>
+                    <property name="displayName">workid</property>
+                    <expression name="expression">dataSetRow["workid"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">reg_title</property>
+                    <property name="displayName">reg_title</property>
+                    <expression name="expression">dataSetRow["reg_title"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">asset</property>
+                    <property name="displayName">asset</property>
+                    <expression name="expression">dataSetRow["asset"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">podr</property>
+                    <property name="displayName">podr</property>
+                    <expression name="expression">dataSetRow["podr"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">dif_podrs</property>
+                    <property name="dataType">integer</property>
+                    <simple-property-list name="aggregateOn">
+                        <value>NewTableGroup1</value>
+                    </simple-property-list>
+                    <property name="aggregateFunction">COUNTDISTINCT</property>
+                    <list-property name="arguments">
+                        <structure>
+                            <property name="name">Expression</property>
+                            <expression name="value">row["podr"]</expression>
+                        </structure>
+                    </list-property>
+                </structure>
+                <structure>
+                    <property name="name">count_dis</property>
+                    <property name="dataType">integer</property>
+                    <property name="aggregateFunction">COUNTDISTINCT</property>
+                    <list-property name="arguments">
+                        <structure>
+                            <property name="name">Expression</property>
+                            <expression name="value">row["TICKETID"]</expression>
+                        </structure>
+                    </list-property>
+                </structure>
+                <structure>
+                    <property name="name">count_sum</property>
+                    <property name="dataType">integer</property>
+                    <property name="aggregateFunction">RUNNINGSUM</property>
+                    <list-property name="arguments">
+                        <structure>
+                            <property name="name">Expression</property>
+                            <expression name="value">row["dif_podrs"]</expression>
+                        </structure>
+                    </list-property>
+                </structure>
+                <structure>
+                    <property name="name">statusdate</property>
+                    <property name="displayName">statusdate</property>
+                    <expression name="expression">dataSetRow["statusdate"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+            </list-property>
+            <property name="pageBreakInterval">1000000</property>
+            <list-property name="sort">
+                <structure>
+                    <expression name="key">row["TICKETID"]</expression>
+                    <property name="direction">asc</property>
+                </structure>
+            </list-property>
+            <column id="9271">
+                <property name="width">100%</property>
+                <property name="suppressDuplicates">false</property>
+            </column>
+            <column id="9272">
+                <property name="width">100%</property>
+                <property name="suppressDuplicates">true</property>
+            </column>
+            <column id="9273">
+                <property name="width">100%</property>
+                <property name="suppressDuplicates">true</property>
+            </column>
+            <column id="9274">
+                <property name="width">100%</property>
+                <property name="suppressDuplicates">true</property>
+            </column>
+            <column id="9275">
+                <property name="width">100%</property>
+                <property name="suppressDuplicates">true</property>
+            </column>
+            <column id="9276">
+                <property name="width">100%</property>
+                <property name="suppressDuplicates">true</property>
+            </column>
+            <column id="9277">
+                <property name="width">100%</property>
+                <property name="suppressDuplicates">true</property>
+            </column>
+            <column id="9278">
+                <property name="width">100%</property>
+                <property name="suppressDuplicates">true</property>
+            </column>
+            <column id="9279">
+                <property name="width">100%</property>
+                <property name="suppressDuplicates">true</property>
+            </column>
+            <column id="9280">
+                <property name="width">100%</property>
+                <property name="suppressDuplicates">true</property>
+            </column>
+            <column id="9281">
+                <property name="width">100%</property>
+                <property name="suppressDuplicates">true</property>
+            </column>
+            <group id="9190">
+                <property name="groupName">NewTableGroup1</property>
+                <property name="interval">none</property>
+                <property name="sortDirection">asc</property>
+                <expression name="keyExpr">row["TICKETID"]</expression>
+                <structure name="toc">
+                    <expression name="expressionValue">row["TICKETID"]</expression>
+                </structure>
+                <property name="repeatHeader">true</property>
+                <property name="hideDetail">false</property>
+                <property name="pageBreakAfter">auto</property>
+                <property name="pageBreakBefore">auto</property>
+                <property name="pageBreakInside">auto</property>
+                <header>
+                    <row id="9401">
+                        <cell id="9402">
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">1px</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">1px</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">1px</property>
+                            <data id="9193">
+                                <property name="fontSize">10pt</property>
+                                <property name="resultSetColumn">TICKETID</property>
+                                <structure name="action">
+                                    <property name="linkType">drill-through</property>
+                                    <property name="reportName">incidentCard.rptdesign</property>
+                                    <property name="targetWindow">_blank</property>
+                                    <property name="targetFileType">report-design</property>
+                                    <list-property name="paramBindings">
+                                        <structure>
+                                            <property name="paramName">where</property>
+                                            <expression name="expression">"1"</expression>
+                                        </structure>
+                                        <structure>
+                                            <property name="paramName">appname</property>
+                                            <expression name="expression">params["appname"].value</expression>
+                                        </structure>
+                                        <structure>
+                                            <property name="paramName">paramdelimiter</property>
+                                            <expression name="expression">params["paramdelimiter"].value</expression>
+                                        </structure>
+                                        <structure>
+                                            <property name="paramName">paramstring</property>
+                                            <expression name="expression">params["paramstring"].value</expression>
+                                        </structure>
+                                        <structure>
+                                            <property name="paramName">userName</property>
+                                            <expression name="expression">params["userName"].value</expression>
+                                        </structure>
+                                        <structure>
+                                            <property name="paramName">incidentId</property>
+                                            <expression name="expression">row["TICKETID"]</expression>
+                                        </structure>
+                                    </list-property>
+                                </structure>
+                            </data>
+                        </cell>
+                        <cell id="9403">
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">1px</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">1px</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">1px</property>
+                        </cell>
+                        <cell id="9404">
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">1px</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">1px</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">1px</property>
+                            <data id="9246">
+                                <property name="fontSize">10pt</property>
+                                <property name="resultSetColumn">MESTO</property>
+                            </data>
+                        </cell>
+                        <cell id="9405">
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">1px</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">1px</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">1px</property>
+                        </cell>
+                        <cell id="9406">
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">1px</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">1px</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">1px</property>
+                        </cell>
+                        <cell id="9407">
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">1px</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">1px</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">1px</property>
+                        </cell>
+                        <cell id="9408">
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">1px</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">1px</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">1px</property>
+                        </cell>
+                        <cell id="9409">
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">1px</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">1px</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">1px</property>
+                        </cell>
+                        <cell id="9410">
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">1px</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">1px</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">1px</property>
+                        </cell>
+                        <cell id="9411">
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">1px</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">1px</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">1px</property>
+                        </cell>
+                        <cell id="9412">
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">1px</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">1px</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">1px</property>
+                        </cell>
+                    </row>
+                </header>
+            </group>
+            <group id="9458">
+                <property name="groupName">NewTableGroup2</property>
+                <property name="interval">none</property>
+                <property name="sortDirection">asc</property>
+                <expression name="keyExpr">row["podr"]</expression>
+                <structure name="toc">
+                    <expression name="expressionValue">row["podr"]</expression>
+                </structure>
+                <property name="repeatHeader">true</property>
+                <property name="hideDetail">false</property>
+                <property name="pageBreakAfter">auto</property>
+                <property name="pageBreakBefore">auto</property>
+                <property name="pageBreakInside">auto</property>
+            </group>
+            <detail>
+                <row id="9241">
+                    <property name="suppressDuplicates">false</property>
+                    <cell id="9242">
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                    </cell>
+                    <cell id="9243">
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <data id="9244">
+                            <property name="fontSize">10pt</property>
+                            <property name="paddingTop">1pt</property>
+                            <property name="resultSetColumn">workid</property>
+                        </data>
+                    </cell>
+                    <cell id="9245">
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <data id="9247">
+                            <property name="fontSize">10pt</property>
+                            <property name="paddingTop">2pt</property>
+                            <property name="resultSetColumn">asset</property>
+                        </data>
+                    </cell>
+                    <cell id="9248">
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <data id="9249">
+                            <property name="fontSize">10pt</property>
+                            <structure name="dateTimeFormat">
+                                <property name="category">Medium Date</property>
+                                <property name="pattern">Medium Date</property>
+                            </structure>
+                            <property name="resultSetColumn">REP</property>
+                        </data>
+                    </cell>
+                    <cell id="9250">
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <data id="9251">
+                            <property name="fontSize">10pt</property>
+                            <property name="resultSetColumn">DISPLAYNAME</property>
+                        </data>
+                        <data id="9252">
+                            <property name="fontSize">10pt</property>
+                            <property name="resultSetColumn">reg_title</property>
+                        </data>
+                    </cell>
+                    <cell id="9253">
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <data id="9254">
+                            <property name="fontSize">10pt</property>
+                            <property name="resultSetColumn">VID</property>
+                        </data>
+                    </cell>
+                    <cell id="9255">
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <data id="9256">
+                            <property name="fontSize">10pt</property>
+                            <structure name="dateTimeFormat">
+                                <property name="category">Medium Date</property>
+                                <property name="pattern">Medium Date</property>
+                            </structure>
+                            <property name="resultSetColumn">SROK</property>
+                        </data>
+                    </cell>
+                    <cell id="9257">
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <data id="9258">
+                            <property name="fontSize">10pt</property>
+                            <property name="resultSetColumn">PRIO</property>
+                        </data>
+                    </cell>
+                    <cell id="9259">
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <data id="9260">
+                            <property name="fontSize">10pt</property>
+                            <property name="resultSetColumn">DAT</property>
+                        </data>
+                    </cell>
+                    <cell id="9261">
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <data id="9262">
+                            <property name="fontSize">10pt</property>
+                            <property name="resultSetColumn">STATUS</property>
+                        </data>
+                        <data id="9489">
+                            <property name="fontSize">10pt</property>
+                            <property name="resultSetColumn">statusdate</property>
+                        </data>
+                    </cell>
+                    <cell id="9263">
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <data id="9414">
+                            <property name="fontSize">10pt</property>
+                            <property name="resultSetColumn">podr</property>
+                        </data>
+                    </cell>
+                </row>
+            </detail>
+            <footer>
+                <row id="9266">
+                    <cell id="9267">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">1px</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <text-data id="9447">
+                            <property name="fontSize">10pt</property>
+                            <property name="fontWeight">bold</property>
+                            <expression name="valueExpr">if ( params["sum_uch"].value == 1)
+{ 'Итого инцидентов по всем подразделениям : '}
+else
+{'Итого инцидентов : '}</expression>
+                            <property name="contentType">html</property>
+                        </text-data>
+                    </cell>
+                    <cell id="9269">
+                        <property name="colSpan">10</property>
+                        <property name="rowSpan">1</property>
+                        <property name="fontSize">10pt</property>
+                        <property name="fontWeight">bold</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">1px</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <data id="9486">
+                            <property name="fontSize">10pt</property>
+                            <property name="fontWeight">bold</property>
+                            <list-property name="visibility">
+                                <structure>
+                                    <property name="format">all</property>
+                                    <expression name="valueExpr">if ( params["sum_uch"].value == 1)
+{ true }
+else
+{ false }</expression>
+                                </structure>
+                            </list-property>
+                            <property name="resultSetColumn">count_dis</property>
+                        </data>
+                        <data id="9487">
+                            <list-property name="visibility">
+                                <structure>
+                                    <property name="format">all</property>
+                                    <expression name="valueExpr">if ( params["sum_uch"].value != 1)
+{ true }
+else
+{ false }</expression>
+                                </structure>
+                            </list-property>
+                            <property name="resultSetColumn">count_sum</property>
+                        </data>
+                    </cell>
+                </row>
+            </footer>
+        </table>
+        <grid id="9150">
+            <property name="textAlign">center</property>
+            <property name="width">1400px</property>
+            <column id="9151"/>
+            <row id="9152">
+                <cell id="9153">
+                    <property name="textAlign">left</property>
+                    <table id="8145">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <property name="marginTop">0pt</property>
+                        <property name="marginLeft">0in</property>
+                        <property name="marginRight">0in</property>
+                        <property name="verticalAlign">middle</property>
+                        <property name="width">1500px</property>
+                        <property name="dataSet">Workreport</property>
+                        <list-property name="visibility">
+                            <structure>
+                                <property name="format">pdf</property>
+                                <expression name="valueExpr">true</expression>
+                            </structure>
+                            <structure>
+                                <property name="format">xls</property>
+                                <expression name="valueExpr">true</expression>
+                            </structure>
+                        </list-property>
+                        <list-property name="boundDataColumns">
+                            <structure>
+                                <property name="name">MESTO</property>
+                                <property name="displayName">MESTO</property>
+                                <expression name="expression">dataSetRow["MESTO"]</expression>
+                                <property name="dataType">string</property>
+                            </structure>
+                            <structure>
+                                <property name="name">TICKETID</property>
+                                <property name="displayName">TICKETID</property>
+                                <expression name="expression">dataSetRow["TICKETID"]</expression>
+                                <property name="dataType">string</property>
+                            </structure>
+                            <structure>
+                                <property name="name">REP</property>
+                                <property name="displayName">REP</property>
+                                <expression name="expression">dataSetRow["REP"]</expression>
+                                <property name="dataType">date</property>
+                            </structure>
+                            <structure>
+                                <property name="name">DISPLAYNAME</property>
+                                <property name="displayName">DISPLAYNAME</property>
+                                <expression name="expression">dataSetRow["DISPLAYNAME"]</expression>
+                                <property name="dataType">string</property>
+                            </structure>
+                            <structure>
+                                <property name="name">VID</property>
+                                <property name="displayName">VID</property>
+                                <expression name="expression">dataSetRow["VID"]</expression>
+                                <property name="dataType">string</property>
+                            </structure>
+                            <structure>
+                                <property name="name">SROK</property>
+                                <property name="displayName">SROK</property>
+                                <expression name="expression">dataSetRow["SROK"]</expression>
+                                <property name="dataType">date</property>
+                            </structure>
+                            <structure>
+                                <property name="name">PRIO</property>
+                                <property name="displayName">PRIO</property>
+                                <expression name="expression">dataSetRow["PRIO"]</expression>
+                                <property name="dataType">string</property>
+                            </structure>
+                            <structure>
+                                <property name="name">DAT</property>
+                                <property name="displayName">DAT</property>
+                                <expression name="expression">dataSetRow["DAT"]</expression>
+                                <property name="dataType">date</property>
+                            </structure>
+                            <structure>
+                                <property name="name">STATUS</property>
+                                <property name="displayName">STATUS</property>
+                                <expression name="expression">dataSetRow["STATUS"]</expression>
+                                <property name="dataType">string</property>
+                            </structure>
+                            <structure>
+                                <property name="name">Aggregation</property>
+                                <property name="displayName">inc_count</property>
+                                <property name="dataType">integer</property>
+                                <property name="aggregateFunction">COUNTDISTINCT</property>
+                                <list-property name="arguments">
+                                    <structure>
+                                        <property name="name">Expression</property>
+                                        <expression name="value">row["TICKETID"]</expression>
+                                    </structure>
+                                </list-property>
+                            </structure>
+                            <structure>
+                                <property name="name">workid</property>
+                                <property name="displayName">workid</property>
+                                <expression name="expression">dataSetRow["workid"]</expression>
+                                <property name="dataType">string</property>
+                            </structure>
+                            <structure>
+                                <property name="name">reg_title</property>
+                                <property name="displayName">reg_title</property>
+                                <expression name="expression">dataSetRow["reg_title"]</expression>
+                                <property name="dataType">string</property>
+                            </structure>
+                            <structure>
+                                <property name="name">asset</property>
+                                <property name="displayName">asset</property>
+                                <expression name="expression">dataSetRow["asset"]</expression>
+                                <property name="dataType">string</property>
+                            </structure>
+                        </list-property>
+                        <property name="pageBreakInterval">1000000</property>
+                        <column id="8194">
+                            <property name="width">115px</property>
+                        </column>
+                        <column id="8977">
+                            <property name="width">115px</property>
+                            <property name="suppressDuplicates">true</property>
+                        </column>
+                        <column id="8195">
+                            <property name="width">150px</property>
+                            <property name="suppressDuplicates">true</property>
+                        </column>
+                        <column id="8196">
+                            <property name="width">100px</property>
+                            <property name="suppressDuplicates">true</property>
+                        </column>
+                        <column id="8197">
+                            <property name="width">200px</property>
+                            <property name="suppressDuplicates">true</property>
+                        </column>
+                        <column id="8198">
+                            <property name="width">300px</property>
+                            <property name="suppressDuplicates">true</property>
+                        </column>
+                        <column id="8199">
+                            <property name="width">70px</property>
+                            <property name="suppressDuplicates">true</property>
+                        </column>
+                        <column id="8200">
+                            <property name="width">110px</property>
+                            <property name="suppressDuplicates">true</property>
+                        </column>
+                        <column id="8201">
+                            <property name="width">80px</property>
+                            <property name="suppressDuplicates">true</property>
+                        </column>
+                        <column id="8803">
+                            <property name="width">110px</property>
+                            <property name="suppressDuplicates">true</property>
+                        </column>
+                        <column id="8202">
+                            <property name="suppressDuplicates">true</property>
+                        </column>
+                        <header>
+                            <row id="8146">
+                                <cell id="8147">
+                                    <property name="borderBottomColor">#000000</property>
+                                    <property name="borderBottomStyle">solid</property>
+                                    <property name="borderBottomWidth">thin</property>
+                                    <property name="borderLeftColor">#000000</property>
+                                    <property name="borderLeftStyle">solid</property>
+                                    <property name="borderLeftWidth">thin</property>
+                                    <property name="borderRightColor">#000000</property>
+                                    <property name="borderRightStyle">solid</property>
+                                    <property name="borderRightWidth">thin</property>
+                                    <property name="borderTopColor">#000000</property>
+                                    <property name="borderTopStyle">solid</property>
+                                    <property name="borderTopWidth">thin</property>
+                                    <label id="8150">
+                                        <property name="fontSize">x-small</property>
+                                        <property name="fontWeight">bold</property>
+                                        <text-property name="text">Инцидент</text-property>
+                                    </label>
+                                </cell>
+                                <cell id="8974">
+                                    <property name="borderBottomColor">#000000</property>
+                                    <property name="borderBottomStyle">solid</property>
+                                    <property name="borderBottomWidth">thin</property>
+                                    <property name="borderLeftColor">#000000</property>
+                                    <property name="borderLeftStyle">solid</property>
+                                    <property name="borderLeftWidth">thin</property>
+                                    <property name="borderRightColor">#000000</property>
+                                    <property name="borderRightStyle">solid</property>
+                                    <property name="borderRightWidth">thin</property>
+                                    <property name="borderTopColor">#000000</property>
+                                    <property name="borderTopStyle">solid</property>
+                                    <property name="borderTopWidth">thin</property>
+                                    <label id="8815">
+                                        <property name="fontSize">x-small</property>
+                                        <property name="fontWeight">bold</property>
+                                        <text-property name="text">Рабочее Задание</text-property>
+                                    </label>
+                                </cell>
+                                <cell id="8149">
+                                    <property name="borderBottomColor">#000000</property>
+                                    <property name="borderBottomStyle">solid</property>
+                                    <property name="borderBottomWidth">thin</property>
+                                    <property name="borderLeftColor">#000000</property>
+                                    <property name="borderLeftStyle">solid</property>
+                                    <property name="borderLeftWidth">thin</property>
+                                    <property name="borderRightColor">#000000</property>
+                                    <property name="borderRightStyle">solid</property>
+                                    <property name="borderRightWidth">thin</property>
+                                    <property name="borderTopColor">#000000</property>
+                                    <property name="borderTopStyle">solid</property>
+                                    <property name="borderTopWidth">thin</property>
+                                    <label id="8148">
+                                        <property name="fontSize">x-small</property>
+                                        <property name="fontWeight">bold</property>
+                                        <text-property name="text">Местонахождение</text-property>
+                                    </label>
+                                </cell>
+                                <cell id="8151">
+                                    <property name="borderBottomColor">#000000</property>
+                                    <property name="borderBottomStyle">solid</property>
+                                    <property name="borderBottomWidth">thin</property>
+                                    <property name="borderLeftColor">#000000</property>
+                                    <property name="borderLeftStyle">solid</property>
+                                    <property name="borderLeftWidth">thin</property>
+                                    <property name="borderRightColor">#000000</property>
+                                    <property name="borderRightStyle">solid</property>
+                                    <property name="borderRightWidth">thin</property>
+                                    <property name="borderTopColor">#000000</property>
+                                    <property name="borderTopStyle">solid</property>
+                                    <property name="borderTopWidth">thin</property>
+                                    <label id="8152">
+                                        <property name="fontSize">x-small</property>
+                                        <property name="fontWeight">bold</property>
+                                        <text-property name="text">Дата регистрации</text-property>
+                                    </label>
+                                </cell>
+                                <cell id="8153">
+                                    <property name="borderBottomColor">#000000</property>
+                                    <property name="borderBottomStyle">solid</property>
+                                    <property name="borderBottomWidth">thin</property>
+                                    <property name="borderLeftColor">#000000</property>
+                                    <property name="borderLeftStyle">solid</property>
+                                    <property name="borderLeftWidth">thin</property>
+                                    <property name="borderRightColor">#000000</property>
+                                    <property name="borderRightStyle">solid</property>
+                                    <property name="borderRightWidth">thin</property>
+                                    <property name="borderTopColor">#000000</property>
+                                    <property name="borderTopStyle">solid</property>
+                                    <property name="borderTopWidth">thin</property>
+                                    <label id="8154">
+                                        <property name="fontSize">x-small</property>
+                                        <property name="fontWeight">bold</property>
+                                        <text-property name="text">Регистратор</text-property>
+                                    </label>
+                                </cell>
+                                <cell id="8155">
+                                    <property name="borderBottomColor">#000000</property>
+                                    <property name="borderBottomStyle">solid</property>
+                                    <property name="borderBottomWidth">thin</property>
+                                    <property name="borderLeftColor">#000000</property>
+                                    <property name="borderLeftStyle">solid</property>
+                                    <property name="borderLeftWidth">thin</property>
+                                    <property name="borderRightColor">#000000</property>
+                                    <property name="borderRightStyle">solid</property>
+                                    <property name="borderRightWidth">thin</property>
+                                    <property name="borderTopColor">#000000</property>
+                                    <property name="borderTopStyle">solid</property>
+                                    <property name="borderTopWidth">thin</property>
+                                    <label id="8156">
+                                        <property name="fontSize">x-small</property>
+                                        <property name="fontWeight">bold</property>
+                                        <text-property name="text">Описание</text-property>
+                                    </label>
+                                </cell>
+                                <cell id="8157">
+                                    <property name="borderBottomColor">#000000</property>
+                                    <property name="borderBottomStyle">solid</property>
+                                    <property name="borderBottomWidth">thin</property>
+                                    <property name="borderLeftColor">#000000</property>
+                                    <property name="borderLeftStyle">solid</property>
+                                    <property name="borderLeftWidth">thin</property>
+                                    <property name="borderRightColor">#000000</property>
+                                    <property name="borderRightStyle">solid</property>
+                                    <property name="borderRightWidth">thin</property>
+                                    <property name="borderTopColor">#000000</property>
+                                    <property name="borderTopStyle">solid</property>
+                                    <property name="borderTopWidth">thin</property>
+                                    <label id="8158">
+                                        <property name="fontSize">x-small</property>
+                                        <property name="fontWeight">bold</property>
+                                        <text-property name="text">Крайний срок</text-property>
+                                    </label>
+                                </cell>
+                                <cell id="8159">
+                                    <property name="borderBottomColor">#000000</property>
+                                    <property name="borderBottomStyle">solid</property>
+                                    <property name="borderBottomWidth">thin</property>
+                                    <property name="borderLeftColor">#000000</property>
+                                    <property name="borderLeftStyle">solid</property>
+                                    <property name="borderLeftWidth">thin</property>
+                                    <property name="borderRightColor">#000000</property>
+                                    <property name="borderRightStyle">solid</property>
+                                    <property name="borderRightWidth">thin</property>
+                                    <property name="borderTopColor">#000000</property>
+                                    <property name="borderTopStyle">solid</property>
+                                    <property name="borderTopWidth">thin</property>
+                                    <label id="8160">
+                                        <property name="fontSize">x-small</property>
+                                        <property name="fontWeight">bold</property>
+                                        <text-property name="text">Приоритет</text-property>
+                                    </label>
+                                </cell>
+                                <cell id="8161">
+                                    <property name="borderBottomColor">#000000</property>
+                                    <property name="borderBottomStyle">solid</property>
+                                    <property name="borderBottomWidth">thin</property>
+                                    <property name="borderLeftColor">#000000</property>
+                                    <property name="borderLeftStyle">solid</property>
+                                    <property name="borderLeftWidth">thin</property>
+                                    <property name="borderRightColor">#000000</property>
+                                    <property name="borderRightStyle">solid</property>
+                                    <property name="borderRightWidth">thin</property>
+                                    <property name="borderTopColor">#000000</property>
+                                    <property name="borderTopStyle">solid</property>
+                                    <property name="borderTopWidth">thin</property>
+                                    <label id="8829">
+                                        <property name="fontSize">x-small</property>
+                                        <property name="fontWeight">bold</property>
+                                        <text-property name="text">Дата устранения</text-property>
+                                    </label>
+                                </cell>
+                                <cell id="8800">
+                                    <property name="borderBottomColor">#000000</property>
+                                    <property name="borderBottomStyle">solid</property>
+                                    <property name="borderBottomWidth">thin</property>
+                                    <property name="borderLeftColor">#000000</property>
+                                    <property name="borderLeftStyle">solid</property>
+                                    <property name="borderLeftWidth">thin</property>
+                                    <property name="borderRightColor">#000000</property>
+                                    <property name="borderRightStyle">solid</property>
+                                    <property name="borderRightWidth">thin</property>
+                                    <property name="borderTopColor">#000000</property>
+                                    <property name="borderTopStyle">solid</property>
+                                    <property name="borderTopWidth">thin</property>
+                                    <label id="8164">
+                                        <property name="fontSize">x-small</property>
+                                        <property name="fontWeight">bold</property>
+                                        <text-property name="text">Статус</text-property>
+                                    </label>
+                                </cell>
+                                <cell id="8163">
+                                    <property name="borderBottomColor">#000000</property>
+                                    <property name="borderBottomStyle">solid</property>
+                                    <property name="borderBottomWidth">thin</property>
+                                    <property name="borderLeftColor">#000000</property>
+                                    <property name="borderLeftStyle">solid</property>
+                                    <property name="borderLeftWidth">thin</property>
+                                    <property name="borderRightColor">#000000</property>
+                                    <property name="borderRightStyle">solid</property>
+                                    <property name="borderRightWidth">thin</property>
+                                    <property name="borderTopColor">#000000</property>
+                                    <property name="borderTopStyle">solid</property>
+                                    <property name="borderTopWidth">thin</property>
+                                    <label id="8806">
+                                        <property name="fontSize">x-small</property>
+                                        <property name="fontWeight">bold</property>
+                                        <text-property name="text">Ответственный исполнитель</text-property>
+                                    </label>
+                                </cell>
+                            </row>
+                        </header>
+                    </table>
+                    <table id="9034">
+                        <property name="marginTop">-1pt</property>
+                        <property name="marginLeft">0in</property>
+                        <property name="marginRight">0in</property>
+                        <property name="verticalAlign">middle</property>
+                        <property name="width">1500px</property>
+                        <property name="dataSet">Workreport</property>
+                        <list-property name="visibility">
+                            <structure>
+                                <property name="format">pdf</property>
+                                <expression name="valueExpr">true</expression>
+                            </structure>
+                            <structure>
+                                <property name="format">xls</property>
+                                <expression name="valueExpr">true</expression>
+                            </structure>
+                        </list-property>
+                        <list-property name="boundDataColumns">
+                            <structure>
+                                <property name="name">MESTO</property>
+                                <property name="displayName">MESTO</property>
+                                <expression name="expression">dataSetRow["MESTO"]</expression>
+                                <property name="dataType">string</property>
+                            </structure>
+                            <structure>
+                                <property name="name">TICKETID</property>
+                                <property name="displayName">TICKETID</property>
+                                <expression name="expression">dataSetRow["TICKETID"]</expression>
+                                <property name="dataType">string</property>
+                            </structure>
+                            <structure>
+                                <property name="name">REP</property>
+                                <property name="displayName">REP</property>
+                                <expression name="expression">dataSetRow["REP"]</expression>
+                                <property name="dataType">date</property>
+                            </structure>
+                            <structure>
+                                <property name="name">DISPLAYNAME</property>
+                                <property name="displayName">DISPLAYNAME</property>
+                                <expression name="expression">dataSetRow["DISPLAYNAME"]</expression>
+                                <property name="dataType">string</property>
+                            </structure>
+                            <structure>
+                                <property name="name">VID</property>
+                                <property name="displayName">VID</property>
+                                <expression name="expression">dataSetRow["VID"]</expression>
+                                <property name="dataType">string</property>
+                            </structure>
+                            <structure>
+                                <property name="name">SROK</property>
+                                <property name="displayName">SROK</property>
+                                <expression name="expression">dataSetRow["SROK"]</expression>
+                                <property name="dataType">date</property>
+                            </structure>
+                            <structure>
+                                <property name="name">PRIO</property>
+                                <property name="displayName">PRIO</property>
+                                <expression name="expression">dataSetRow["PRIO"]</expression>
+                                <property name="dataType">string</property>
+                            </structure>
+                            <structure>
+                                <property name="name">DAT</property>
+                                <property name="displayName">DAT</property>
+                                <expression name="expression">dataSetRow["DAT"]</expression>
+                                <property name="dataType">date</property>
+                            </structure>
+                            <structure>
+                                <property name="name">STATUS</property>
+                                <property name="displayName">STATUS</property>
+                                <expression name="expression">dataSetRow["STATUS"]</expression>
+                                <property name="dataType">string</property>
+                            </structure>
+                            <structure>
+                                <property name="name">workid</property>
+                                <property name="displayName">workid</property>
+                                <expression name="expression">dataSetRow["workid"]</expression>
+                                <property name="dataType">string</property>
+                            </structure>
+                            <structure>
+                                <property name="name">reg_title</property>
+                                <property name="displayName">reg_title</property>
+                                <expression name="expression">dataSetRow["reg_title"]</expression>
+                                <property name="dataType">string</property>
+                            </structure>
+                            <structure>
+                                <property name="name">asset</property>
+                                <property name="displayName">asset</property>
+                                <expression name="expression">dataSetRow["asset"]</expression>
+                                <property name="dataType">string</property>
+                            </structure>
+                            <structure>
+                                <property name="name">podr</property>
+                                <property name="displayName">podr</property>
+                                <expression name="expression">dataSetRow["podr"]</expression>
+                                <property name="dataType">string</property>
+                            </structure>
+                            <structure>
+                                <property name="name">dif_podrs</property>
+                                <property name="dataType">integer</property>
+                                <simple-property-list name="aggregateOn">
+                                    <value>inc</value>
+                                </simple-property-list>
+                                <property name="aggregateFunction">COUNTDISTINCT</property>
+                                <list-property name="arguments">
+                                    <structure>
+                                        <property name="name">Expression</property>
+                                        <expression name="value">row["podr"]</expression>
+                                    </structure>
+                                </list-property>
+                            </structure>
+                            <structure>
+                                <property name="name">count_dis</property>
+                                <property name="dataType">integer</property>
+                                <property name="aggregateFunction">COUNTDISTINCT</property>
+                                <list-property name="arguments">
+                                    <structure>
+                                        <property name="name">Expression</property>
+                                        <expression name="value">row["TICKETID"]</expression>
+                                    </structure>
+                                </list-property>
+                            </structure>
+                            <structure>
+                                <property name="name">count_sum</property>
+                                <property name="dataType">integer</property>
+                                <property name="aggregateFunction">RUNNINGSUM</property>
+                                <list-property name="arguments">
+                                    <structure>
+                                        <property name="name">Expression</property>
+                                        <expression name="value">row["dif_podrs"]</expression>
+                                    </structure>
+                                </list-property>
+                            </structure>
+                            <structure>
+                                <property name="name">statusdate</property>
+                                <property name="displayName">statusdate</property>
+                                <expression name="expression">dataSetRow["statusdate"]</expression>
+                                <property name="dataType">string</property>
+                            </structure>
+                        </list-property>
+                        <expression name="bookmark">"scroll"</expression>
+                        <property name="pageBreakInterval">1000000</property>
+                        <list-property name="sort">
+                            <structure>
+                                <expression name="key">row["TICKETID"]</expression>
+                                <property name="direction">asc</property>
+                            </structure>
+                        </list-property>
+                        <column id="9139">
+                            <property name="width">115px</property>
+                        </column>
+                        <column id="9140">
+                            <property name="width">115px</property>
+                            <property name="suppressDuplicates">true</property>
+                        </column>
+                        <column id="9141">
+                            <property name="width">150px</property>
+                            <property name="suppressDuplicates">true</property>
+                        </column>
+                        <column id="9142">
+                            <property name="width">100px</property>
+                            <property name="suppressDuplicates">true</property>
+                        </column>
+                        <column id="9143">
+                            <property name="width">200px</property>
+                            <property name="suppressDuplicates">true</property>
+                        </column>
+                        <column id="9144">
+                            <property name="width">300px</property>
+                            <property name="suppressDuplicates">true</property>
+                        </column>
+                        <column id="9145">
+                            <property name="width">70px</property>
+                            <property name="suppressDuplicates">true</property>
+                        </column>
+                        <column id="9146">
+                            <property name="width">110px</property>
+                            <property name="suppressDuplicates">true</property>
+                        </column>
+                        <column id="9147">
+                            <property name="width">80px</property>
+                            <property name="suppressDuplicates">true</property>
+                        </column>
+                        <column id="9148">
+                            <property name="width">110px</property>
+                            <property name="suppressDuplicates">true</property>
+                        </column>
+                        <column id="9149">
+                            <property name="suppressDuplicates">true</property>
+                        </column>
+                        <group id="9058">
+                            <property name="groupName">inc</property>
+                            <property name="interval">none</property>
+                            <property name="sortDirection">asc</property>
+                            <expression name="keyExpr">row["TICKETID"]</expression>
+                            <structure name="toc">
+                                <expression name="expressionValue">row["TICKETID"]</expression>
+                            </structure>
+                            <property name="repeatHeader">true</property>
+                            <property name="hideDetail">false</property>
+                            <property name="pageBreakAfter">auto</property>
+                            <property name="pageBreakBefore">auto</property>
+                            <property name="pageBreakInside">auto</property>
+                            <header>
+                                <row id="9059">
+                                    <cell id="9060">
+                                        <property name="borderLeftColor">#000000</property>
+                                        <property name="borderLeftStyle">solid</property>
+                                        <property name="borderLeftWidth">thin</property>
+                                        <property name="borderRightColor">#000000</property>
+                                        <property name="borderRightStyle">solid</property>
+                                        <property name="borderRightWidth">thin</property>
+                                        <data id="9061">
+                                            <property name="resultSetColumn">TICKETID</property>
+                                            <structure name="action">
+                                                <property name="linkType">drill-through</property>
+                                                <property name="reportName">incidentCard.rptdesign</property>
+                                                <property name="targetWindow">_blank</property>
+                                                <property name="targetFileType">report-design</property>
+                                                <list-property name="paramBindings">
+                                                    <structure>
+                                                        <property name="paramName">where</property>
+                                                        <expression name="expression">"1"</expression>
+                                                    </structure>
+                                                    <structure>
+                                                        <property name="paramName">appname</property>
+                                                        <expression name="expression">params["appname"].value</expression>
+                                                    </structure>
+                                                    <structure>
+                                                        <property name="paramName">paramdelimiter</property>
+                                                        <expression name="expression">params["paramdelimiter"].value</expression>
+                                                    </structure>
+                                                    <structure>
+                                                        <property name="paramName">paramstring</property>
+                                                        <expression name="expression">params["paramstring"].value</expression>
+                                                    </structure>
+                                                    <structure>
+                                                        <property name="paramName">userName</property>
+                                                        <expression name="expression">params["userName"].value</expression>
+                                                    </structure>
+                                                    <structure>
+                                                        <property name="paramName">incidentId</property>
+                                                        <expression name="expression">row["TICKETID"]</expression>
+                                                    </structure>
+                                                </list-property>
+                                            </structure>
+                                        </data>
+                                    </cell>
+                                    <cell id="9062">
+                                        <property name="borderLeftColor">#000000</property>
+                                        <property name="borderLeftStyle">solid</property>
+                                        <property name="borderLeftWidth">thin</property>
+                                        <property name="borderRightColor">#000000</property>
+                                        <property name="borderRightStyle">solid</property>
+                                        <property name="borderRightWidth">thin</property>
+                                    </cell>
+                                    <cell id="9063">
+                                        <property name="borderLeftColor">#000000</property>
+                                        <property name="borderLeftStyle">solid</property>
+                                        <property name="borderLeftWidth">thin</property>
+                                        <property name="borderRightColor">#000000</property>
+                                        <property name="borderRightStyle">solid</property>
+                                        <property name="borderRightWidth">thin</property>
+                                    </cell>
+                                    <cell id="9064">
+                                        <property name="borderLeftColor">#000000</property>
+                                        <property name="borderLeftStyle">solid</property>
+                                        <property name="borderLeftWidth">thin</property>
+                                        <property name="borderRightColor">#000000</property>
+                                        <property name="borderRightStyle">solid</property>
+                                        <property name="borderRightWidth">thin</property>
+                                    </cell>
+                                    <cell id="9065">
+                                        <property name="borderLeftColor">#000000</property>
+                                        <property name="borderLeftStyle">solid</property>
+                                        <property name="borderLeftWidth">thin</property>
+                                        <property name="borderRightColor">#000000</property>
+                                        <property name="borderRightStyle">solid</property>
+                                        <property name="borderRightWidth">thin</property>
+                                    </cell>
+                                    <cell id="9066">
+                                        <property name="borderLeftColor">#000000</property>
+                                        <property name="borderLeftStyle">solid</property>
+                                        <property name="borderLeftWidth">thin</property>
+                                        <property name="borderRightColor">#000000</property>
+                                        <property name="borderRightStyle">solid</property>
+                                        <property name="borderRightWidth">thin</property>
+                                    </cell>
+                                    <cell id="9067">
+                                        <property name="borderLeftColor">#000000</property>
+                                        <property name="borderLeftStyle">solid</property>
+                                        <property name="borderLeftWidth">thin</property>
+                                        <property name="borderRightColor">#000000</property>
+                                        <property name="borderRightStyle">solid</property>
+                                        <property name="borderRightWidth">thin</property>
+                                    </cell>
+                                    <cell id="9068">
+                                        <property name="borderLeftColor">#000000</property>
+                                        <property name="borderLeftStyle">solid</property>
+                                        <property name="borderLeftWidth">thin</property>
+                                        <property name="borderRightColor">#000000</property>
+                                        <property name="borderRightStyle">solid</property>
+                                        <property name="borderRightWidth">thin</property>
+                                    </cell>
+                                    <cell id="9069">
+                                        <property name="borderLeftColor">#000000</property>
+                                        <property name="borderLeftStyle">solid</property>
+                                        <property name="borderLeftWidth">thin</property>
+                                        <property name="borderRightColor">#000000</property>
+                                        <property name="borderRightStyle">solid</property>
+                                        <property name="borderRightWidth">thin</property>
+                                    </cell>
+                                    <cell id="9070">
+                                        <property name="borderLeftColor">#000000</property>
+                                        <property name="borderLeftStyle">solid</property>
+                                        <property name="borderLeftWidth">thin</property>
+                                        <property name="borderRightColor">#000000</property>
+                                        <property name="borderRightStyle">solid</property>
+                                        <property name="borderRightWidth">thin</property>
+                                    </cell>
+                                    <cell id="9071">
+                                        <property name="borderLeftColor">#000000</property>
+                                        <property name="borderLeftStyle">solid</property>
+                                        <property name="borderLeftWidth">thin</property>
+                                        <property name="borderRightColor">#000000</property>
+                                        <property name="borderRightStyle">solid</property>
+                                        <property name="borderRightWidth">thin</property>
+                                    </cell>
+                                </row>
+                            </header>
+                            <footer>
+                                <row id="9072">
+                                    <cell id="9073">
+                                        <property name="borderBottomColor">#000000</property>
+                                        <property name="borderBottomStyle">solid</property>
+                                        <property name="borderBottomWidth">thin</property>
+                                        <property name="borderLeftColor">#000000</property>
+                                        <property name="borderLeftStyle">solid</property>
+                                        <property name="borderLeftWidth">thin</property>
+                                        <property name="borderRightColor">#000000</property>
+                                        <property name="borderRightStyle">solid</property>
+                                        <property name="borderRightWidth">thin</property>
+                                    </cell>
+                                    <cell id="9074">
+                                        <property name="borderBottomColor">#000000</property>
+                                        <property name="borderBottomStyle">solid</property>
+                                        <property name="borderBottomWidth">thin</property>
+                                        <property name="borderLeftColor">#000000</property>
+                                        <property name="borderLeftStyle">solid</property>
+                                        <property name="borderLeftWidth">thin</property>
+                                        <property name="borderRightColor">#000000</property>
+                                        <property name="borderRightStyle">solid</property>
+                                        <property name="borderRightWidth">thin</property>
+                                    </cell>
+                                    <cell id="9075">
+                                        <property name="borderBottomColor">#000000</property>
+                                        <property name="borderBottomStyle">solid</property>
+                                        <property name="borderBottomWidth">thin</property>
+                                        <property name="borderLeftColor">#000000</property>
+                                        <property name="borderLeftStyle">solid</property>
+                                        <property name="borderLeftWidth">thin</property>
+                                        <property name="borderRightColor">#000000</property>
+                                        <property name="borderRightStyle">solid</property>
+                                        <property name="borderRightWidth">thin</property>
+                                    </cell>
+                                    <cell id="9076">
+                                        <property name="borderBottomColor">#000000</property>
+                                        <property name="borderBottomStyle">solid</property>
+                                        <property name="borderBottomWidth">thin</property>
+                                        <property name="borderLeftColor">#000000</property>
+                                        <property name="borderLeftStyle">solid</property>
+                                        <property name="borderLeftWidth">thin</property>
+                                        <property name="borderRightColor">#000000</property>
+                                        <property name="borderRightStyle">solid</property>
+                                        <property name="borderRightWidth">thin</property>
+                                    </cell>
+                                    <cell id="9077">
+                                        <property name="borderBottomColor">#000000</property>
+                                        <property name="borderBottomStyle">solid</property>
+                                        <property name="borderBottomWidth">thin</property>
+                                        <property name="borderLeftColor">#000000</property>
+                                        <property name="borderLeftStyle">solid</property>
+                                        <property name="borderLeftWidth">thin</property>
+                                        <property name="borderRightColor">#000000</property>
+                                        <property name="borderRightStyle">solid</property>
+                                        <property name="borderRightWidth">thin</property>
+                                    </cell>
+                                    <cell id="9078">
+                                        <property name="borderBottomColor">#000000</property>
+                                        <property name="borderBottomStyle">solid</property>
+                                        <property name="borderBottomWidth">thin</property>
+                                        <property name="borderLeftColor">#000000</property>
+                                        <property name="borderLeftStyle">solid</property>
+                                        <property name="borderLeftWidth">thin</property>
+                                        <property name="borderRightColor">#000000</property>
+                                        <property name="borderRightStyle">solid</property>
+                                        <property name="borderRightWidth">thin</property>
+                                    </cell>
+                                    <cell id="9079">
+                                        <property name="borderBottomColor">#000000</property>
+                                        <property name="borderBottomStyle">solid</property>
+                                        <property name="borderBottomWidth">thin</property>
+                                        <property name="borderLeftColor">#000000</property>
+                                        <property name="borderLeftStyle">solid</property>
+                                        <property name="borderLeftWidth">thin</property>
+                                        <property name="borderRightColor">#000000</property>
+                                        <property name="borderRightStyle">solid</property>
+                                        <property name="borderRightWidth">thin</property>
+                                    </cell>
+                                    <cell id="9080">
+                                        <property name="borderBottomColor">#000000</property>
+                                        <property name="borderBottomStyle">solid</property>
+                                        <property name="borderBottomWidth">thin</property>
+                                        <property name="borderLeftColor">#000000</property>
+                                        <property name="borderLeftStyle">solid</property>
+                                        <property name="borderLeftWidth">thin</property>
+                                        <property name="borderRightColor">#000000</property>
+                                        <property name="borderRightStyle">solid</property>
+                                        <property name="borderRightWidth">thin</property>
+                                    </cell>
+                                    <cell id="9081">
+                                        <property name="borderBottomColor">#000000</property>
+                                        <property name="borderBottomStyle">solid</property>
+                                        <property name="borderBottomWidth">thin</property>
+                                        <property name="borderLeftColor">#000000</property>
+                                        <property name="borderLeftStyle">solid</property>
+                                        <property name="borderLeftWidth">thin</property>
+                                        <property name="borderRightColor">#000000</property>
+                                        <property name="borderRightStyle">solid</property>
+                                        <property name="borderRightWidth">thin</property>
+                                    </cell>
+                                    <cell id="9082">
+                                        <property name="borderBottomColor">#000000</property>
+                                        <property name="borderBottomStyle">solid</property>
+                                        <property name="borderBottomWidth">thin</property>
+                                        <property name="borderLeftColor">#000000</property>
+                                        <property name="borderLeftStyle">solid</property>
+                                        <property name="borderLeftWidth">thin</property>
+                                        <property name="borderRightColor">#000000</property>
+                                        <property name="borderRightStyle">solid</property>
+                                        <property name="borderRightWidth">thin</property>
+                                    </cell>
+                                    <cell id="9083">
+                                        <property name="borderBottomColor">#000000</property>
+                                        <property name="borderBottomStyle">solid</property>
+                                        <property name="borderBottomWidth">thin</property>
+                                        <property name="borderLeftColor">#000000</property>
+                                        <property name="borderLeftStyle">solid</property>
+                                        <property name="borderLeftWidth">thin</property>
+                                        <property name="borderRightColor">#000000</property>
+                                        <property name="borderRightStyle">solid</property>
+                                        <property name="borderRightWidth">thin</property>
+                                    </cell>
+                                </row>
+                            </footer>
+                        </group>
+                        <group id="9416">
+                            <property name="groupName">NewTableGroup2</property>
+                            <property name="interval">none</property>
+                            <property name="sortDirection">asc</property>
+                            <expression name="keyExpr">row["podr"]</expression>
+                            <structure name="toc">
+                                <expression name="expressionValue">row["podr"]</expression>
+                            </structure>
+                            <property name="repeatHeader">true</property>
+                            <property name="hideDetail">false</property>
+                            <property name="pageBreakAfter">auto</property>
+                            <property name="pageBreakBefore">auto</property>
+                            <property name="pageBreakInside">auto</property>
+                        </group>
+                        <detail>
+                            <row id="9109">
+                                <property name="suppressDuplicates">false</property>
+                                <cell id="9110">
+                                    <property name="borderLeftColor">#000000</property>
+                                    <property name="borderLeftStyle">solid</property>
+                                    <property name="borderLeftWidth">thin</property>
+                                    <property name="borderRightColor">#000000</property>
+                                    <property name="borderRightStyle">solid</property>
+                                    <property name="borderRightWidth">thin</property>
+                                </cell>
+                                <cell id="9111">
+                                    <property name="borderLeftColor">#000000</property>
+                                    <property name="borderLeftStyle">solid</property>
+                                    <property name="borderLeftWidth">thin</property>
+                                    <property name="borderRightColor">#000000</property>
+                                    <property name="borderRightStyle">solid</property>
+                                    <property name="borderRightWidth">thin</property>
+                                    <data id="9112">
+                                        <property name="paddingTop">1pt</property>
+                                        <property name="resultSetColumn">workid</property>
+                                    </data>
+                                </cell>
+                                <cell id="9113">
+                                    <property name="borderLeftColor">#000000</property>
+                                    <property name="borderLeftStyle">solid</property>
+                                    <property name="borderLeftWidth">thin</property>
+                                    <property name="borderRightColor">#000000</property>
+                                    <property name="borderRightStyle">solid</property>
+                                    <property name="borderRightWidth">thin</property>
+                                    <data id="9114">
+                                        <property name="resultSetColumn">MESTO</property>
+                                    </data>
+                                    <data id="9115">
+                                        <property name="paddingTop">2pt</property>
+                                        <property name="resultSetColumn">asset</property>
+                                    </data>
+                                </cell>
+                                <cell id="9116">
+                                    <property name="borderLeftColor">#000000</property>
+                                    <property name="borderLeftStyle">solid</property>
+                                    <property name="borderLeftWidth">thin</property>
+                                    <property name="borderRightColor">#000000</property>
+                                    <property name="borderRightStyle">solid</property>
+                                    <property name="borderRightWidth">thin</property>
+                                    <data id="9117">
+                                        <structure name="dateTimeFormat">
+                                            <property name="category">Medium Date</property>
+                                            <property name="pattern">Medium Date</property>
+                                        </structure>
+                                        <property name="resultSetColumn">REP</property>
+                                    </data>
+                                </cell>
+                                <cell id="9118">
+                                    <property name="borderLeftColor">#000000</property>
+                                    <property name="borderLeftStyle">solid</property>
+                                    <property name="borderLeftWidth">thin</property>
+                                    <property name="borderRightColor">#000000</property>
+                                    <property name="borderRightStyle">solid</property>
+                                    <property name="borderRightWidth">thin</property>
+                                    <data id="9119">
+                                        <property name="resultSetColumn">DISPLAYNAME</property>
+                                    </data>
+                                    <data id="9120">
+                                        <property name="resultSetColumn">reg_title</property>
+                                    </data>
+                                </cell>
+                                <cell id="9121">
+                                    <property name="borderLeftColor">#000000</property>
+                                    <property name="borderLeftStyle">solid</property>
+                                    <property name="borderLeftWidth">thin</property>
+                                    <property name="borderRightColor">#000000</property>
+                                    <property name="borderRightStyle">solid</property>
+                                    <property name="borderRightWidth">thin</property>
+                                    <data id="9122">
+                                        <property name="resultSetColumn">VID</property>
+                                    </data>
+                                </cell>
+                                <cell id="9123">
+                                    <property name="borderLeftColor">#000000</property>
+                                    <property name="borderLeftStyle">solid</property>
+                                    <property name="borderLeftWidth">thin</property>
+                                    <property name="borderRightColor">#000000</property>
+                                    <property name="borderRightStyle">solid</property>
+                                    <property name="borderRightWidth">thin</property>
+                                    <data id="9124">
+                                        <structure name="dateTimeFormat">
+                                            <property name="category">Medium Date</property>
+                                            <property name="pattern">Medium Date</property>
+                                        </structure>
+                                        <property name="resultSetColumn">SROK</property>
+                                    </data>
+                                </cell>
+                                <cell id="9125">
+                                    <property name="borderLeftColor">#000000</property>
+                                    <property name="borderLeftStyle">solid</property>
+                                    <property name="borderLeftWidth">thin</property>
+                                    <property name="borderRightColor">#000000</property>
+                                    <property name="borderRightStyle">solid</property>
+                                    <property name="borderRightWidth">thin</property>
+                                    <data id="9126">
+                                        <property name="resultSetColumn">PRIO</property>
+                                    </data>
+                                </cell>
+                                <cell id="9127">
+                                    <property name="borderLeftColor">#000000</property>
+                                    <property name="borderLeftStyle">solid</property>
+                                    <property name="borderLeftWidth">thin</property>
+                                    <property name="borderRightColor">#000000</property>
+                                    <property name="borderRightStyle">solid</property>
+                                    <property name="borderRightWidth">thin</property>
+                                    <data id="9128">
+                                        <property name="resultSetColumn">DAT</property>
+                                    </data>
+                                </cell>
+                                <cell id="9129">
+                                    <property name="borderLeftColor">#000000</property>
+                                    <property name="borderLeftStyle">solid</property>
+                                    <property name="borderLeftWidth">thin</property>
+                                    <property name="borderRightColor">#000000</property>
+                                    <property name="borderRightStyle">solid</property>
+                                    <property name="borderRightWidth">thin</property>
+                                    <data id="9130">
+                                        <property name="resultSetColumn">STATUS</property>
+                                    </data>
+                                    <data id="9490">
+                                        <property name="resultSetColumn">statusdate</property>
+                                    </data>
+                                </cell>
+                                <cell id="9131">
+                                    <property name="borderLeftColor">#000000</property>
+                                    <property name="borderLeftStyle">solid</property>
+                                    <property name="borderLeftWidth">thin</property>
+                                    <property name="borderRightColor">#000000</property>
+                                    <property name="borderRightStyle">solid</property>
+                                    <property name="borderRightWidth">thin</property>
+                                    <data id="9415">
+                                        <property name="resultSetColumn">podr</property>
+                                    </data>
+                                </cell>
+                            </row>
+                        </detail>
+                        <footer>
+                            <row id="9134">
+                                <cell id="9135">
+                                    <property name="borderBottomColor">#000000</property>
+                                    <property name="borderBottomStyle">solid</property>
+                                    <property name="borderBottomWidth">thin</property>
+                                    <property name="borderLeftColor">#000000</property>
+                                    <property name="borderLeftStyle">solid</property>
+                                    <property name="borderLeftWidth">thin</property>
+                                    <property name="borderRightColor">#000000</property>
+                                    <property name="borderRightStyle">solid</property>
+                                    <property name="borderRightWidth">1px</property>
+                                    <property name="borderTopColor">#000000</property>
+                                    <property name="borderTopStyle">solid</property>
+                                    <property name="borderTopWidth">thin</property>
+                                    <text-data id="9443">
+                                        <property name="fontWeight">bold</property>
+                                        <expression name="valueExpr">if ( params["sum_uch"].value == 1)
+{ 'Итого инцидентов по всем подразделениям : '}
+else
+{'Итого инцидентов : '}</expression>
+                                        <property name="contentType">html</property>
+                                    </text-data>
+                                </cell>
+                                <cell id="9137">
+                                    <property name="colSpan">10</property>
+                                    <property name="rowSpan">1</property>
+                                    <property name="fontWeight">bold</property>
+                                    <property name="borderBottomColor">#000000</property>
+                                    <property name="borderBottomStyle">solid</property>
+                                    <property name="borderBottomWidth">thin</property>
+                                    <property name="borderLeftColor">#000000</property>
+                                    <property name="borderLeftStyle">solid</property>
+                                    <property name="borderLeftWidth">thin</property>
+                                    <property name="borderRightColor">#000000</property>
+                                    <property name="borderRightStyle">solid</property>
+                                    <property name="borderRightWidth">1px</property>
+                                    <property name="borderTopColor">#000000</property>
+                                    <property name="borderTopStyle">solid</property>
+                                    <property name="borderTopWidth">thin</property>
+                                    <data id="9484">
+                                        <property name="fontWeight">bold</property>
+                                        <list-property name="visibility">
+                                            <structure>
+                                                <property name="format">all</property>
+                                                <expression name="valueExpr">if ( params["sum_uch"].value == 1)
+{ true }
+else
+{ false }</expression>
+                                            </structure>
+                                        </list-property>
+                                        <property name="resultSetColumn">count_dis</property>
+                                    </data>
+                                    <data id="9488">
+                                        <list-property name="visibility">
+                                            <structure>
+                                                <property name="format">all</property>
+                                                <expression name="valueExpr">if ( params["sum_uch"].value != 1)
+{ true }
+else
+{ false }</expression>
+                                            </structure>
+                                        </list-property>
+                                        <property name="resultSetColumn">count_sum</property>
+                                    </data>
+                                </cell>
+                            </row>
+                        </footer>
+                    </table>
+                    <text id="158">
+                        <property name="contentType">html</property>
+                        <text-property name="content"><![CDATA[<script type="text/javascript">
+
+
+function ScrollableTable (tableEl, tableHeight, tableWidth) {
+
+   
+
+    this.tableEl = tableEl;
+
+   
+
+    var tscroll = document.getElementById('scroll');
+
+    
+
+     
+
+    var tbody = this.tableEl.getElementsByTagName('tbody');
+
+    this.tbody = (tbody[0]) ? tbody[0] : null;
+
+ // окончание получения необходимых элементов страницы
+
+ 
+
+  // сохранение оригинальных величин
+
+    this.originalHeight = this.tableEl.clientHeight;
+
+    this.originalWidth = this.tableEl.clientWidth;
+
+ 
+
+    this.newHeight = parseInt(tableHeight);
+
+    this.newWidth = tableWidth ? parseInt(tableWidth) : this.originalWidth;
+
+ 
+
+    this.tableEl.style.height = 'auto';
+
+    this.tableEl.removeAttribute('height');
+
+ 
+
+    this.containerEl = this.tableEl.parentNode.insertBefore(document.createElement('div'), this.tableEl);
+
+    this.containerEl.appendChild(this.tableEl);
+
+    this.containerEl.style.height = this.newHeight + 'px';
+
+    this.containerEl.style.width = this.newWidth+25 + 'px';
+
+  
+
+ 
+
+    
+
+    if (!this.tbody) return;
+
+   // Форматирование хидера и тела таблицы
+
+ 
+
+        // окончание форматирования
+
+         
+
+        this.containerEl.style.overflowY = 'auto';
+
+        if (this.tableEl.parentElement.clientHeight - this.tableEl.offsetHeight < 0) {
+
+            this.tableEl.style.width = this.newWidth +'px';
+
+            
+
+        } else {
+
+            this.containerEl.style.overflowY = 'hidden';
+
+            this.tableEl.style.width = this.newWidth +'px';
+
+           }
+
+   
+
+        
+
+}
+
+</script>
+]]></text-property>
+                    </text>
+                    <text id="157">
+                        <property name="marginTop">auto</property>
+                        <property name="paddingTop">1pt</property>
+                        <property name="contentType">html</property>
+                        <text-property name="content"><![CDATA[<script type="text/javascript">
+	var t = new ScrollableTable(document.getElementById('scroll'), 400);
+</script>]]></text-property>
+                    </text>
+                </cell>
+            </row>
+        </grid>
+    </body>
+</report>

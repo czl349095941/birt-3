@@ -1,0 +1,2823 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<report xmlns="http://www.eclipse.org/birt/2005/design" version="3.2.17" id="1">
+    <property name="createdBy">Eclipse BIRT Designer Version 2.3.2.r232_20090202 Build &lt;2.3.2.v20090218-0730></property>
+    <property name="units">in</property>
+    <property name="comments">IBM Confidential
+
+OCO Source Materials
+
+5724-M19
+
+(C) COPYRIGHT IBM CORP. 2006
+
+The source code for this program is not published or otherwise
+divested of its trade secrets, irrespective of what has been
+deposited with the U.S. Copyright Office.</property>
+    <html-property name="description">This template will create a report with one or more groups, each having identical data fields, and contains three styles of charts.</html-property>
+    <method name="initialize"><![CDATA[importPackage(Packages.com.ibm.tivoli.maximo.report.script);
+
+mxReportScriptContext = MXReportScriptContext.initialize(reportContext);
+
+]]></method>
+    <method name="afterFactory"><![CDATA[MXReportScriptContext.close();]]></method>
+    <property name="theme">MaximoSystemLibrary.maximoTheme</property>
+    <text-property name="displayName">Tivoli Maximo Grouped Chart Template</text-property>
+    <list-property name="libraries">
+        <structure>
+            <property name="fileName">MaximoSystemLibrary.rptlibrary</property>
+            <property name="namespace">MaximoSystemLibrary</property>
+        </structure>
+    </list-property>
+    <parameters>
+        <scalar-parameter name="where" id="25">
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="isRequired">false</property>
+            <property name="controlType">text-box</property>
+            <property name="defaultValue">1=1</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="appname" id="240">
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="isRequired">false</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="paramdelimiter" id="241">
+            <property name="hidden">true</property>
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="isRequired">false</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="paramstring" id="242">
+            <property name="hidden">true</property>
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="isRequired">false</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="year" id="419">
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="isRequired">false</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="mroSite" id="628">
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="isRequired">false</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="status" id="7166">
+            <property name="hidden">true</property>
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="paramType">simple</property>
+            <property name="isRequired">false</property>
+            <property name="controlType">text-box</property>
+            <property name="defaultValue">"1=1"</property>
+            <property name="distinct">true</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="location" id="7196">
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="paramType">simple</property>
+            <property name="isRequired">false</property>
+            <property name="controlType">text-box</property>
+            <property name="distinct">true</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+    </parameters>
+    <data-sources>
+        <script-data-source name="maximoDataSource" id="64" extends="MaximoSystemLibrary.maximoDataSource"/>
+    </data-sources>
+    <data-sets>
+        <script-data-set name="1" id="1085">
+            <list-property name="resultSetHints">
+                <structure>
+                    <property name="position">1</property>
+                    <property name="name">ROWNUM</property>
+                    <property name="dataType">integer</property>
+                </structure>
+                <structure>
+                    <property name="position">2</property>
+                    <property name="name">DESCRIPTION</property>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="position">3</property>
+                    <property name="name">PLAN2008</property>
+                    <property name="dataType">float</property>
+                </structure>
+                <structure>
+                    <property name="position">4</property>
+                    <property name="name">FACT2008</property>
+                    <property name="dataType">float</property>
+                </structure>
+                <structure>
+                    <property name="position">5</property>
+                    <property name="name">PLAN2009</property>
+                    <property name="dataType">float</property>
+                </structure>
+                <structure>
+                    <property name="position">6</property>
+                    <property name="name">FACT2009</property>
+                    <property name="dataType">float</property>
+                </structure>
+                <structure>
+                    <property name="position">7</property>
+                    <property name="name">POTR</property>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="position">8</property>
+                    <property name="name">PLAN</property>
+                    <property name="dataType">float</property>
+                </structure>
+                <structure>
+                    <property name="position">9</property>
+                    <property name="name">BLUCH</property>
+                    <property name="dataType">float</property>
+                </structure>
+                <structure>
+                    <property name="position">10</property>
+                    <property name="name">PEREGON</property>
+                    <property name="dataType">float</property>
+                </structure>
+                <structure>
+                    <property name="position">11</property>
+                    <property name="name">LIKVID</property>
+                    <property name="dataType">float</property>
+                </structure>
+                <structure>
+                    <property name="position">12</property>
+                    <property name="name">PLANALMT</property>
+                    <property name="dataType">float</property>
+                </structure>
+                <structure>
+                    <property name="position">13</property>
+                    <property name="name">PLANPRSM</property>
+                    <property name="dataType">float</property>
+                </structure>
+                <structure>
+                    <property name="position">14</property>
+                    <property name="name">ST</property>
+                    <property name="dataType">float</property>
+                </structure>
+            </list-property>
+            <list-property name="columnHints">
+                <structure>
+                    <property name="columnName">ROWNUM</property>
+                </structure>
+                <structure>
+                    <property name="columnName">DESCRIPTION</property>
+                </structure>
+                <structure>
+                    <property name="columnName">PLAN2008</property>
+                </structure>
+                <structure>
+                    <property name="columnName">FACT2008</property>
+                </structure>
+                <structure>
+                    <property name="columnName">PLAN2009</property>
+                </structure>
+                <structure>
+                    <property name="columnName">FACT2009</property>
+                </structure>
+                <structure>
+                    <property name="columnName">PLAN</property>
+                </structure>
+                <structure>
+                    <property name="columnName">BLUCH</property>
+                </structure>
+                <structure>
+                    <property name="columnName">PEREGON</property>
+                </structure>
+                <structure>
+                    <property name="columnName">LIKVID</property>
+                </structure>
+                <structure>
+                    <property name="columnName">PLANALMT</property>
+                </structure>
+                <structure>
+                    <property name="columnName">PLANPRSM</property>
+                </structure>
+                <structure>
+                    <property name="columnName">ST</property>
+                </structure>
+                <structure>
+                    <property name="columnName">POTR</property>
+                </structure>
+            </list-property>
+            <structure name="cachedMetaData">
+                <list-property name="resultSet">
+                    <structure>
+                        <property name="position">1</property>
+                        <property name="name">ROWNUM</property>
+                        <property name="dataType">integer</property>
+                    </structure>
+                    <structure>
+                        <property name="position">2</property>
+                        <property name="name">DESCRIPTION</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">3</property>
+                        <property name="name">PLAN2008</property>
+                        <property name="dataType">float</property>
+                    </structure>
+                    <structure>
+                        <property name="position">4</property>
+                        <property name="name">FACT2008</property>
+                        <property name="dataType">float</property>
+                    </structure>
+                    <structure>
+                        <property name="position">5</property>
+                        <property name="name">PLAN2009</property>
+                        <property name="dataType">float</property>
+                    </structure>
+                    <structure>
+                        <property name="position">6</property>
+                        <property name="name">FACT2009</property>
+                        <property name="dataType">float</property>
+                    </structure>
+                    <structure>
+                        <property name="position">7</property>
+                        <property name="name">POTR</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">8</property>
+                        <property name="name">PLAN</property>
+                        <property name="dataType">float</property>
+                    </structure>
+                    <structure>
+                        <property name="position">9</property>
+                        <property name="name">BLUCH</property>
+                        <property name="dataType">float</property>
+                    </structure>
+                    <structure>
+                        <property name="position">10</property>
+                        <property name="name">PEREGON</property>
+                        <property name="dataType">float</property>
+                    </structure>
+                    <structure>
+                        <property name="position">11</property>
+                        <property name="name">LIKVID</property>
+                        <property name="dataType">float</property>
+                    </structure>
+                    <structure>
+                        <property name="position">12</property>
+                        <property name="name">PLANALMT</property>
+                        <property name="dataType">float</property>
+                    </structure>
+                    <structure>
+                        <property name="position">13</property>
+                        <property name="name">PLANPRSM</property>
+                        <property name="dataType">float</property>
+                    </structure>
+                    <structure>
+                        <property name="position">14</property>
+                        <property name="name">ST</property>
+                        <property name="dataType">float</property>
+                    </structure>
+                </list-property>
+            </structure>
+            <property name="dataSource">maximoDataSource</property>
+            <method name="open"><![CDATA[maximoDataSet = MXReportDataSetProvider.create(this.getDataSource().getName(), this.getName());
+maximoDataSet.open();
+
+var where = new String(params["where"]);
+params["where"]="";
+if(params["year"]=='')
+{params["where"]+= " extract (year from sysdate)";}
+else if(params["year"]!='')
+{params["where"]+= params["year"]}
+
+
+var status = new String(params["status"]);
+if(params["status"]!='')
+{status = " and " + MXReportSqlFormat.createParamWhereClause("masterpm.coordstatus",params["status"].toUpperCase())}
+else if(params["status"]=='')
+{status = " and 1 = 1 "};	
+
+params["location"] = (params["location"]).replace(/=/g,"");
+
+
+var sqlText = new String();
+
+sqlText = "  WITH   "
+ +"       PCH as     "
+ +"         (  select   "
+ +"         distinct l1.DESCRIPTION,    "
+ +"        l1.location    "
+ +"        from maximo.locations l1    "
+ +"        left outer join maximo.masterpm on (l1.location=masterpm.location)    "
+ +"         where l1.siteid ='"+ params["mroSite"]+"'"+"and l1.location='"+ params["location"]+"'" 
+ +"         ),    "
+ +"   year2plan as  "
+ +"   (  "
+ +"   select masterpm.location, sum (MASTERPM.TNORHOUR)/count(pm.pmnum) plan2008 from maximo.pm  "
+ +"   left join maximo.masterpm on pm.masterpm = masterpm.masterpmnum  "
+ +"   LEFT JOIN MAXIMO.WORKORDER ON WORKORDER.PMNUM = PM.PMNUM   "
+ +"   where (masterpm.namerab1 = '090000070831' or masterpm.namerab1 = '090000070832')  "
+ +"  and pm.siteid = '"+ params["mroSite"]+"'" 
+ +"   and masterpm.year = " + params["where"] + "-2" 
+ +"   GROUP BY MASTERPM.LOCATION  "
+ +"   ),  "
+ +"   year1plan as  "
+ +"   (  "
+ +"   select masterpm.location, sum (MASTERPM.TNORHOUR)/count(pm.pmnum)  plan2009 from maximo.pm  "
+ +"   left join maximo.masterpm on pm.masterpm = masterpm.masterpmnum  "
+ +"   where (masterpm.namerab1 = '090000070831' or masterpm.namerab1 = '090000070832')  "
+ +"   and pm.siteid =  '"+ params["mroSite"]+"'"
+ +"   and masterpm.year =" + params["where"] + "-1" 
+ +"   GROUP BY MASTERPM.LOCATION  "
+ +"   ),  "
+ +"   potr1 as  "
+ +"   (  "
+ +"   select masterpm.location, MASTERPM.DOPOBRAB01 potr from maximo.masterpm  "
+ +"   where masterpm.namerab1 = '090000070831'  "
+ +"   and masterpm.year =" + params["where"] 
+ +"   ),  "
+ +"   potr2 as  "
+ +"   (  "
+ +"   select masterpm.location, MASTERPM.DOPOBRAB01 potr from maximo.masterpm  "
+ +"   where masterpm.namerab1 = '090000070832'  "
+ +"   and masterpm.year =" + params["where"] 
+ +"   ),  "
+ +"   plan as  "
+ +"   (  "
+ +"   select masterpm.location,  sum (o1.plan) bluch,  "
+ +"   sum (o2.plan) peregon, sum (o3.plan) likvid  "
+ +"   from maximo.pm  "
+ +"   left join maximo.masterpm on pm.masterpm = masterpm.masterpmnum  "
+ +"     left JOIN MAXIMO.OBRABSPEC o1 ON PM.pmnum = o1.pmnum and o1.assetattrid='PMOBRAB01'  "
+ +"     left JOIN MAXIMO.OBRABSPEC o2 ON PM.pmnum = o2.pmnum and o2.assetattrid='PMOBRAB02'  "
+ +"     left JOIN MAXIMO.OBRABSPEC o3 ON PM.pmnum = o3.pmnum and o3.assetattrid='PMOBRAB03' "
+ +"   where (masterpm.namerab1 = '090000070831' or masterpm.namerab1 = '090000070832')  "
+ +"   and pm.siteid =  '"+ params["mroSite"]+"'"+"and masterpm.location='"+ params["location"]+"'"+status  
+ +"    and masterpm.year =  " +params["where"] 
+ +"    and pm.month is not null   "
+ +"    GROUP BY MASTERPM.LOCATION  "
+ +"   ),  "
+ +"   planalmt as  "
+ +"   (  "
+ +"   select masterpm.location, sum (MASTERPM.TNORHOUR)/count(pm.pmnum) plan  "
+ +"   from maximo.pm  "
+ +"   left join maximo.masterpm on pm.masterpm = masterpm.masterpmnum  "
+ +"   where masterpm.namerab1 = '090000070832'  "
+ +"   and pm.siteid =  '"+ params["mroSite"]+"'"+"and masterpm.location='"+ params["location"]+"'"+status  
+ +"    and masterpm.year =  " +params["where"] 
+ +"    and pm.month is not null   "
+ +"    GROUP BY MASTERPM.LOCATION  "
+ +"   ),  "
+ +"   planprsm1 as  "
+ +"   (  "
+ +"   select masterpm.location, sum (MASTERPM.TNORHOUR)/count(pm.pmnum) plan  "
+ +"   from maximo.pm  "
+ +"   left join maximo.masterpm on pm.masterpm = masterpm.masterpmnum  "
+ +"   where masterpm.namerab1 = '090000070831'  "
+ +"   and pm.siteid =  '"+ params["mroSite"]+"'"+"and masterpm.location='"+ params["location"]+"'"+status  
+ +"    and masterpm.year =  " +params["where"]  
+ +"    and pm.month is not null   "
+ +"    GROUP BY MASTERPM.LOCATION  "
+ +"   ) "
+ +"     "
+ +"   SELECT ROWNUM,  "
+ +"   PCH.DESCRIPTION,   "
+ +"   NVL (YEAR2PLAN.PLAN2008,0) PLAN2008,   "
+ +"   NVL (YEAR1PLAN.PLAN2009,0) PLAN2009,   "
+ +"   NVL (POTR1.POTR, 0) + NVL (POTR2.POTR,0) POTR,   "
+ +"   NVL (PLANALMT.PLAN,0)+NVL(PLANPRSM1.PLAN,0) PLAN,   "
+ +"   NVL (PLAN.BLUCH,0) BLUCH,   "
+ +"   NVL (PLAN.PEREGON,0) PEREGON,   "
+ +"   NVL (PLAN.LIKVID,0) LIKVID,  "
+ +"   NVL (PLANALMT.PLAN,0) PLANALMT,   "
+ +"   NVL(PLANPRSM1.PLAN,0)PLANPRSM "
+ +"    "
+ +"   FROM PCH  "
+ +"   left outer join year2plan on PCH.location = year2plan.location  "
+ +"   left outer join year1plan on PCH.location = year1plan.location  "
+ +"   left outer join potr1 on PCH.location = potr1.location  "
+ +"   left outer join potr2 on PCH.location = potr2.location  "
+ +"   left outer join plan on PCH.location = plan.location  "
+ +"   left outer join planalmt on PCH.location = planalmt.location  "
+ +"   left outer join planprsm1 on PCH.location = planprsm1.location  "
+
+;
+
+
+
+maximoDataSet.setQuery(sqlText);]]></method>
+            <method name="fetch"><![CDATA[if (!maximoDataSet.fetch())
+	return (false);
+
+row["ROWNUM"] = maximoDataSet.getString("ROWNUM");
+row["DESCRIPTION"] = maximoDataSet.getString("DESCRIPTION");
+row["PLAN2008"] = maximoDataSet.getString("PLAN2008");
+row["PLAN2009"] = maximoDataSet.getString("PLAN2009");
+row["POTR"] = maximoDataSet.getString("POTR");
+row["PLAN"] = maximoDataSet.getString("PLAN");
+row["BLUCH"] = maximoDataSet.getString("BLUCH");
+row["PEREGON"] = maximoDataSet.getString("PEREGON");
+row["LIKVID"] = maximoDataSet.getString("LIKVID");
+row["PLANALMT"] = maximoDataSet.getString("PLANALMT");
+row["PLANPRSM"] = maximoDataSet.getString("PLANPRSM");
+
+
+
+
+return (true);]]></method>
+        </script-data-set>
+        <script-data-set name="11" id="7078">
+            <list-property name="resultSetHints">
+                <structure>
+                    <property name="position">1</property>
+                    <property name="name">PLAN2008</property>
+                    <property name="dataType">float</property>
+                </structure>
+                <structure>
+                    <property name="position">2</property>
+                    <property name="name">FACT2008</property>
+                    <property name="dataType">float</property>
+                </structure>
+                <structure>
+                    <property name="position">3</property>
+                    <property name="name">PLAN2009</property>
+                    <property name="dataType">float</property>
+                </structure>
+                <structure>
+                    <property name="position">4</property>
+                    <property name="name">FACT2009</property>
+                    <property name="dataType">float</property>
+                </structure>
+                <structure>
+                    <property name="position">5</property>
+                    <property name="name">POTR</property>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="position">6</property>
+                    <property name="name">PLAN</property>
+                    <property name="dataType">float</property>
+                </structure>
+                <structure>
+                    <property name="position">7</property>
+                    <property name="name">BLUCH</property>
+                    <property name="dataType">float</property>
+                </structure>
+                <structure>
+                    <property name="position">8</property>
+                    <property name="name">PEREGON</property>
+                    <property name="dataType">float</property>
+                </structure>
+                <structure>
+                    <property name="position">9</property>
+                    <property name="name">LIKVID</property>
+                    <property name="dataType">float</property>
+                </structure>
+                <structure>
+                    <property name="position">10</property>
+                    <property name="name">PLANALMT</property>
+                    <property name="dataType">float</property>
+                </structure>
+                <structure>
+                    <property name="position">11</property>
+                    <property name="name">PLANPRSM</property>
+                    <property name="dataType">float</property>
+                </structure>
+                <structure>
+                    <property name="position">12</property>
+                    <property name="name">ST</property>
+                    <property name="dataType">float</property>
+                </structure>
+            </list-property>
+            <list-property name="columnHints">
+                <structure>
+                    <property name="columnName">PLAN2008</property>
+                </structure>
+                <structure>
+                    <property name="columnName">FACT2008</property>
+                </structure>
+                <structure>
+                    <property name="columnName">PLAN2009</property>
+                </structure>
+                <structure>
+                    <property name="columnName">FACT2009</property>
+                </structure>
+                <structure>
+                    <property name="columnName">PLAN</property>
+                </structure>
+                <structure>
+                    <property name="columnName">BLUCH</property>
+                </structure>
+                <structure>
+                    <property name="columnName">PEREGON</property>
+                </structure>
+                <structure>
+                    <property name="columnName">LIKVID</property>
+                </structure>
+                <structure>
+                    <property name="columnName">PLANALMT</property>
+                </structure>
+                <structure>
+                    <property name="columnName">PLANPRSM</property>
+                </structure>
+                <structure>
+                    <property name="columnName">ST</property>
+                </structure>
+                <structure>
+                    <property name="columnName">POTR</property>
+                </structure>
+            </list-property>
+            <structure name="cachedMetaData">
+                <list-property name="resultSet">
+                    <structure>
+                        <property name="position">1</property>
+                        <property name="name">PLAN2008</property>
+                        <property name="dataType">float</property>
+                    </structure>
+                    <structure>
+                        <property name="position">2</property>
+                        <property name="name">FACT2008</property>
+                        <property name="dataType">float</property>
+                    </structure>
+                    <structure>
+                        <property name="position">3</property>
+                        <property name="name">PLAN2009</property>
+                        <property name="dataType">float</property>
+                    </structure>
+                    <structure>
+                        <property name="position">4</property>
+                        <property name="name">FACT2009</property>
+                        <property name="dataType">float</property>
+                    </structure>
+                    <structure>
+                        <property name="position">5</property>
+                        <property name="name">POTR</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">6</property>
+                        <property name="name">PLAN</property>
+                        <property name="dataType">float</property>
+                    </structure>
+                    <structure>
+                        <property name="position">7</property>
+                        <property name="name">BLUCH</property>
+                        <property name="dataType">float</property>
+                    </structure>
+                    <structure>
+                        <property name="position">8</property>
+                        <property name="name">PEREGON</property>
+                        <property name="dataType">float</property>
+                    </structure>
+                    <structure>
+                        <property name="position">9</property>
+                        <property name="name">LIKVID</property>
+                        <property name="dataType">float</property>
+                    </structure>
+                    <structure>
+                        <property name="position">10</property>
+                        <property name="name">PLANALMT</property>
+                        <property name="dataType">float</property>
+                    </structure>
+                    <structure>
+                        <property name="position">11</property>
+                        <property name="name">PLANPRSM</property>
+                        <property name="dataType">float</property>
+                    </structure>
+                    <structure>
+                        <property name="position">12</property>
+                        <property name="name">ST</property>
+                        <property name="dataType">float</property>
+                    </structure>
+                </list-property>
+            </structure>
+            <property name="dataSource">maximoDataSource</property>
+            <method name="open"><![CDATA[maximoDataSet = MXReportDataSetProvider.create(this.getDataSource().getName(), this.getName());
+maximoDataSet.open();
+
+var where = new String(params["where"]);
+params["where"]="";
+
+if(params["year"]=='')
+{params["where"]+= " extract (year from sysdate) - 1";}
+else if(params["year"]!='')
+{params["where"]+= params["year"] - 1}
+
+
+var status = new String(params["status"]);
+status = " and masterpm.status in ('УТВЕРЖДЕН','APRSER','APRECH') "
+
+
+params["location"] = (params["location"]).replace(/=/g,"");
+
+
+var sqlText = new String();
+
+sqlText = "  WITH   "
+ +"       PCH as     "
+ +"         (  select   "
+ +"         distinct l1.DESCRIPTION,    "
+ +"        l1.location    "
+ +"        from maximo.locations l1    "
+ +"        left outer join maximo.masterpm on (l1.location=masterpm.location)    "
+ +"         where l1.siteid ='"+ params["mroSite"]+"'"+"and l1.location='"+ params["location"]+"'" 
+ +"         ),    "
+ +"   year2plan as  "
+ +"   (  "
+ +"   select masterpm.location, sum (MASTERPM.TNORHOUR)/count(pm.pmnum) plan2008 from maximo.pm  "
+ +"   left join maximo.masterpm on pm.masterpm = masterpm.masterpmnum  "
+ +"   LEFT JOIN MAXIMO.WORKORDER ON WORKORDER.PMNUM = PM.PMNUM   "
+ +"   where (masterpm.namerab1 = '090000070831' or masterpm.namerab1 = '090000070832')  "
+ +"  and pm.siteid ='"+ params["mroSite"]+"'"
+ +"   and masterpm.year = " + params["where"] + "-2" 
+ +"   GROUP BY MASTERPM.LOCATION  "
+ +"   ),  "
+ +"   year1plan as  "
+ +"   (  "
+ +"   select masterpm.location, sum (MASTERPM.TNORHOUR)/count(pm.pmnum)  plan2009 from maximo.pm  "
+ +"   left join maximo.masterpm on pm.masterpm = masterpm.masterpmnum  "
+ +"   where (masterpm.namerab1 = '090000070831' or masterpm.namerab1 = '090000070832')  "
+ +"   and pm.siteid =  '"+ params["mroSite"]+"'" 
+ +"   and masterpm.year =" + params["where"] + "-1" 
+ +"   GROUP BY MASTERPM.LOCATION  "
+ +"   ),  "
+ +"   potr1 as  "
+ +"   (  "
+ +"   select masterpm.location, MASTERPM.DOPOBRAB01 potr from maximo.masterpm  "
+ +"   where masterpm.namerab1 = '090000070831'  "
+ +"   and masterpm.year =" + params["where"] 
+ +"   ),  "
+ +"   potr2 as  "
+ +"   (  "
+ +"   select masterpm.location, MASTERPM.DOPOBRAB01 potr from maximo.masterpm  "
+ +"   where masterpm.namerab1 = '090000070832'  "
+ +"   and masterpm.year =" + params["where"] 
+ +"   ),  "
+ +"   plan as  "
+ +"   (  "
+ +"   select masterpm.location,  sum (o1.plan) bluch,  "
+ +"   sum (o2.plan) peregon, sum (o3.plan) likvid  "
+ +"   from maximo.pm  "
+ +"   left join maximo.masterpm on pm.masterpm = masterpm.masterpmnum  "
+ +"     left JOIN MAXIMO.OBRABSPEC o1 ON PM.pmnum = o1.pmnum and o1.assetattrid='PMOBRAB01'  "
+ +"     left JOIN MAXIMO.OBRABSPEC o2 ON PM.pmnum = o2.pmnum and o2.assetattrid='PMOBRAB02'  "
+ +"     left JOIN MAXIMO.OBRABSPEC o3 ON PM.pmnum = o3.pmnum and o3.assetattrid='PMOBRAB03' "
+ +"   where (masterpm.namerab1 = '090000070831' or masterpm.namerab1 = '090000070832')  "
+ +"   and pm.siteid =  '"+ params["mroSite"]+"'"+"and masterpm.location='"+ params["location"]+"'"+status  
+ +"    and masterpm.year =  " +params["where"]   
+ +"    and pm.month is not null   "
+ +"    GROUP BY MASTERPM.LOCATION  "
+ +"   ),  "
+ +"   planalmt as  "
+ +"   (  "
+ +"   select masterpm.location, sum (MASTERPM.TNORHOUR)/count(pm.pmnum) plan  "
+ +"   from maximo.pm  "
+ +"   left join maximo.masterpm on pm.masterpm = masterpm.masterpmnum  "
+ +"   where masterpm.namerab1 = '090000070832'  "
+ +"   and pm.siteid =  '"+ params["mroSite"]+"'"+"and masterpm.location='"+ params["location"]+"'"+status  
+ +"    and masterpm.year =  " +params["where"]  
+ +"    and pm.month is not null   "
+ +"    GROUP BY MASTERPM.LOCATION  "
+ +"   ),  "
+ +"   planprsm1 as  "
+ +"   (  "
+ +"   select masterpm.location, sum (MASTERPM.TNORHOUR)/count(pm.pmnum) plan  "
+ +"   from maximo.pm  "
+ +"   left join maximo.masterpm on pm.masterpm = masterpm.masterpmnum  "
+ +"   where masterpm.namerab1 = '090000070831'  "
+ +"   and pm.siteid =  '"+ params["mroSite"]+"'"+"and masterpm.location='"+ params["location"]+"'"+status  
+ +"    and masterpm.year =  " +params["where"]  
+ +"    and pm.month is not null   "
+ +"    GROUP BY MASTERPM.LOCATION  "
+ +"   ) "
+ +"     "
+ +"   SELECT "
+ +"   NVL (YEAR2PLAN.PLAN2008,0) PLAN2008,   "
+ +"   NVL (YEAR1PLAN.PLAN2009,0) PLAN2009,   "
+ +"   NVL (POTR1.POTR, 0) + NVL (POTR2.POTR,0) POTR,   "
+ +"   NVL (PLANALMT.PLAN,0)+NVL(PLANPRSM1.PLAN,0) PLAN,   "
+ +"   NVL (PLAN.BLUCH,0) BLUCH,   "
+ +"   NVL (PLAN.PEREGON,0) PEREGON,   "
+ +"   NVL (PLAN.LIKVID,0) LIKVID,  "
+ +"   NVL (PLANALMT.PLAN,0) PLANALMT,   "
+ +"   NVL(PLANPRSM1.PLAN,0)PLANPRSM "
+ +"    "
+ +"   FROM PCH  "
+ +"   left outer join year2plan on PCH.location = year2plan.location  "
+ +"   left outer join year1plan on PCH.location = year1plan.location  "
+ +"   left outer join potr1 on PCH.location = potr1.location  "
+ +"   left outer join potr2 on PCH.location = potr2.location  "
+ +"   left outer join plan on PCH.location = plan.location  "
+ +"   left outer join planalmt on PCH.location = planalmt.location  "
+ +"   left outer join planprsm1 on PCH.location = planprsm1.location  "
+
+;
+
+
+
+maximoDataSet.setQuery(sqlText);]]></method>
+            <method name="fetch"><![CDATA[if (!maximoDataSet.fetch())
+	return (false);
+
+
+row["PLAN2008"] = maximoDataSet.getString("PLAN2008");
+row["PLAN2009"] = maximoDataSet.getString("PLAN2009");
+row["POTR"] = maximoDataSet.getString("POTR");
+row["PLAN"] = maximoDataSet.getString("PLAN");
+row["BLUCH"] = maximoDataSet.getString("BLUCH");
+row["PEREGON"] = maximoDataSet.getString("PEREGON");
+row["LIKVID"] = maximoDataSet.getString("LIKVID");
+row["PLANALMT"] = maximoDataSet.getString("PLANALMT");
+row["PLANPRSM"] = maximoDataSet.getString("PLANPRSM");
+
+
+
+
+
+return (true);]]></method>
+        </script-data-set>
+        <script-data-set name="FIO" id="629">
+            <list-property name="resultSetHints">
+                <structure>
+                    <property name="position">1</property>
+                    <property name="name">DISPLAYNAME</property>
+                    <property name="dataType">string</property>
+                </structure>
+            </list-property>
+            <list-property name="columnHints">
+                <structure>
+                    <property name="columnName">DISPLAYNAME</property>
+                </structure>
+            </list-property>
+            <structure name="cachedMetaData">
+                <list-property name="resultSet">
+                    <structure>
+                        <property name="position">1</property>
+                        <property name="name">DISPLAYNAME</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                </list-property>
+            </structure>
+            <property name="dataSource">maximoDataSource</property>
+            <method name="open"><![CDATA[maximoDataSet = MXReportDataSetProvider.create(this.getDataSource().getName(), this.getName());
+	maximoDataSet.open();
+		var sqlText = new String();
+params["location"] = (params["location"]).replace(/=/g,"");	
+sqlText = ""
+ +" SELECT displayname       "
+ +" FROM   maximo.person "
+ +"        JOIN Maximo.Laborcraftrate "
+ +"        ON     Person.Personid             = Laborcraftrate.Laborcode "
+ +"        AND    Laborcraftrate.DEFAULTCRAFT = '1' "
+ +"        JOIN Maximo.Craft "
+ +"        ON     Laborcraftrate.Craft = Craft.Craft "
+ +" WHERE  person.department           = 'Служба пути' "
+ +" AND    craft.craft                 = '00000741' "
+ +" AND    status                      = 'АКТИВНО' "
+ +" AND    locationsite                = '"+ params["mroSite"]+"' ";
+ 
+	maximoDataSet.setQuery(sqlText);]]></method>
+            <method name="fetch"><![CDATA[if (!maximoDataSet.fetch())
+	   return (false);
+	// Add a line for each output column
+	row["DISPLAYNAME"] = maximoDataSet.getString("DISPLAYNAME");
+	return (true);]]></method>
+        </script-data-set>
+        <script-data-set name="site" id="632">
+            <list-property name="resultSetHints">
+                <structure>
+                    <property name="position">1</property>
+                    <property name="name">description</property>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="position">2</property>
+                    <property name="name">pch</property>
+                    <property name="dataType">string</property>
+                </structure>
+            </list-property>
+            <list-property name="columnHints">
+                <structure>
+                    <property name="columnName">description</property>
+                </structure>
+                <structure>
+                    <property name="columnName">pch</property>
+                </structure>
+            </list-property>
+            <structure name="cachedMetaData">
+                <list-property name="resultSet">
+                    <structure>
+                        <property name="position">1</property>
+                        <property name="name">description</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">2</property>
+                        <property name="name">pch</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                </list-property>
+            </structure>
+            <property name="dataSource">maximoDataSource</property>
+            <method name="open"><![CDATA[maximoDataSet = MXReportDataSetProvider.create(this.getDataSource().getName(), this.getName());
+	maximoDataSet.open();
+	
+	params["location"] = (params["location"]).replace(/=/g,"");
+	
+	var sqlText = new String();
+	sqlText = " select distinct site.description description, locations.description pch from maximo.site left join maximo.locations on locations.siteid = site.siteid "
+ +" where site.siteid =  '"+ params["mroSite"]+"'"+" and locations.location='"+ params["location"]+"'" 
+ ;
+	maximoDataSet.setQuery(sqlText);]]></method>
+            <method name="fetch"><![CDATA[if (!maximoDataSet.fetch())
+	   return (false);
+	// Add a line for each output column
+	row["description"] = maximoDataSet.getString("description");
+	row["pch"] = maximoDataSet.getString("pch");
+	
+	return (true);]]></method>
+        </script-data-set>
+    </data-sets>
+    <styles>
+        <style name="NewStyle" id="583">
+            <property name="borderBottomStyle">solid</property>
+            <property name="borderBottomWidth">thin</property>
+            <property name="borderLeftStyle">solid</property>
+            <property name="borderLeftWidth">thin</property>
+            <property name="borderRightStyle">solid</property>
+            <property name="borderRightWidth">thin</property>
+            <property name="borderTopStyle">solid</property>
+            <property name="borderTopWidth">thin</property>
+            <property name="textAlign">center</property>
+        </style>
+    </styles>
+    <page-setup>
+        <simple-master-page name="maximoLandscape" id="47" extends="MaximoSystemLibrary.maximoLandscape">
+            <property name="type">a4</property>
+            <property name="leftMargin">0.5in</property>
+            <overridden-values>
+                <ref-entry baseId="304" name="NewGrid2" id="304"/>
+                <ref-entry baseId="305" id="305"/>
+                <ref-entry baseId="306" id="306"/>
+                <ref-entry baseId="307" id="307"/>
+                <ref-entry baseId="308" id="308"/>
+                <ref-entry baseId="340" name="NewImage1" id="340">
+                    <property name="source">file</property>
+                    <expression name="uri">"IBM_logo_Black.gif"</expression>
+                    <property name="height">1px</property>
+                    <property name="width">3px</property>
+                </ref-entry>
+                <ref-entry baseId="309" id="309"/>
+                <ref-entry baseId="310" name="NewImage" id="310">
+                    <property name="height">1px</property>
+                    <property name="width">1px</property>
+                </ref-entry>
+                <ref-entry baseId="322" name="NewGrid" id="322">
+                    <list-property name="visibility">
+                        <structure>
+                            <property name="format">xls</property>
+                            <expression name="valueExpr">true</expression>
+                        </structure>
+                    </list-property>
+                </ref-entry>
+                <ref-entry baseId="323" id="323"/>
+                <ref-entry baseId="324" id="324"/>
+                <ref-entry baseId="325" id="325"/>
+                <ref-entry baseId="326" id="326"/>
+                <ref-entry baseId="328" name="NewText" id="328"/>
+                <ref-entry baseId="327" id="327"/>
+                <ref-entry baseId="329" name="NewGrid1" id="329"/>
+                <ref-entry baseId="330" id="330"/>
+                <ref-entry baseId="331" id="331"/>
+                <ref-entry baseId="332" id="332"/>
+                <ref-entry baseId="333" id="333"/>
+                <ref-entry baseId="334" id="334"/>
+                <ref-entry baseId="335" name="NewAutoText" id="335"/>
+                <ref-entry baseId="336" id="336"/>
+                <ref-entry baseId="337" name="NewText1" id="337"/>
+                <ref-entry baseId="338" id="338"/>
+                <ref-entry baseId="339" name="NewAutoText1" id="339"/>
+            </overridden-values>
+        </simple-master-page>
+    </page-setup>
+    <body>
+        <text id="544">
+            <property name="textAlign">right</property>
+            <property name="contentType">auto</property>
+            <text-property name="content"><![CDATA[Приложение №13]]></text-property>
+        </text>
+        <label id="545">
+            <property name="textAlign">right</property>
+            <text-property name="text">Утверждаю</text-property>
+        </label>
+        <label id="5287">
+            <property name="textAlign">right</property>
+            <text-property name="text">НЗ-ДИ                             ФИО</text-property>
+        </label>
+        <label id="624">
+            <property name="fontFamily">"Arial"</property>
+            <property name="fontSize">medium</property>
+            <property name="fontWeight">bold</property>
+            <property name="color">#000000</property>
+            <property name="textAlign">center</property>
+            <text-property name="text">План</text-property>
+        </label>
+        <label id="1151">
+            <property name="fontFamily">"Arial"</property>
+            <property name="fontSize">medium</property>
+            <property name="fontWeight">bold</property>
+            <property name="color">#000000</property>
+            <property name="textAlign">center</property>
+            <text-property name="text">по сварке рельсовых плетей (ПРСМ+алюминотерм.)</text-property>
+        </label>
+        <data id="7178">
+            <property name="fontFamily">"Arial"</property>
+            <property name="fontSize">medium</property>
+            <property name="fontWeight">bold</property>
+            <property name="textAlign">center</property>
+            <property name="dataSet">site</property>
+            <list-property name="boundDataColumns">
+                <structure>
+                    <property name="name">description</property>
+                    <property name="displayName">description</property>
+                    <expression name="expression">if (params["year"] != '') (' на ' + dataSetRow["pch"].replace(/\D{1,}$/,"") + ' '  +dataSetRow["description"].replace("ая","ой")
+ + ' ж.д. в ' + params["year"] + ' году' )
+ else (' на ' + dataSetRow["pch"].replace(/\D{1,}$/,"") + ' ' +dataSetRow["description"].replace("ая","ой")
+ + ' ж.д. в ' + BirtDateTime.year(new Date()) + ' году' )</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">description_1</property>
+                    <expression name="expression">dataSetRow["description"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">pch</property>
+                    <expression name="expression">dataSetRow["pch"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+            </list-property>
+            <property name="resultSetColumn">description</property>
+        </data>
+        <label id="625"/>
+        <table id="6911">
+            <property name="width">100%</property>
+            <property name="dataSet">1</property>
+            <list-property name="boundDataColumns">
+                <structure>
+                    <property name="name">ROWNUM</property>
+                    <expression name="expression">dataSetRow["ROWNUM"]</expression>
+                    <property name="dataType">integer</property>
+                </structure>
+                <structure>
+                    <property name="name">DESCRIPTION</property>
+                    <expression name="expression">dataSetRow["DESCRIPTION"].replace(/\D{1,}$/,"")</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">PLAN2008</property>
+                    <expression name="expression">dataSetRow["PLAN2008"]</expression>
+                    <property name="dataType">float</property>
+                </structure>
+                <structure>
+                    <property name="name">FACT2008</property>
+                    <expression name="expression">dataSetRow["FACT2008"]</expression>
+                    <property name="dataType">float</property>
+                </structure>
+                <structure>
+                    <property name="name">PLAN2009</property>
+                    <expression name="expression">dataSetRow["PLAN2009"]</expression>
+                    <property name="dataType">float</property>
+                </structure>
+                <structure>
+                    <property name="name">FACT2009</property>
+                    <expression name="expression">dataSetRow["FACT2009"]</expression>
+                    <property name="dataType">float</property>
+                </structure>
+                <structure>
+                    <property name="name">PLAN</property>
+                    <expression name="expression">dataSetRow["PLAN"]</expression>
+                    <property name="dataType">float</property>
+                </structure>
+                <structure>
+                    <property name="name">BLUCH</property>
+                    <expression name="expression">dataSetRow["BLUCH"]</expression>
+                    <property name="dataType">float</property>
+                </structure>
+                <structure>
+                    <property name="name">PEREGON</property>
+                    <expression name="expression">dataSetRow["PEREGON"]</expression>
+                    <property name="dataType">float</property>
+                </structure>
+                <structure>
+                    <property name="name">LIKVID</property>
+                    <expression name="expression">dataSetRow["LIKVID"]</expression>
+                    <property name="dataType">float</property>
+                </structure>
+                <structure>
+                    <property name="name">PLANALMT</property>
+                    <expression name="expression">dataSetRow["PLANALMT"]</expression>
+                    <property name="dataType">float</property>
+                </structure>
+                <structure>
+                    <property name="name">PLANPRSM</property>
+                    <expression name="expression">dataSetRow["PLANPRSM"]</expression>
+                    <property name="dataType">float</property>
+                </structure>
+                <structure>
+                    <property name="name">ST</property>
+                    <expression name="expression">dataSetRow["ST"]</expression>
+                    <property name="dataType">float</property>
+                </structure>
+                <structure>
+                    <property name="name">data item</property>
+                    <expression name="expression">Total.sum(row["PLAN2008"])</expression>
+                    <property name="dataType">any</property>
+                </structure>
+                <structure>
+                    <property name="name">data item_1</property>
+                    <expression name="expression">Total.sum(row["FACT2008"])</expression>
+                    <property name="dataType">any</property>
+                </structure>
+                <structure>
+                    <property name="name">data item_2</property>
+                    <expression name="expression">Total.sum(row["PLAN2009"])</expression>
+                    <property name="dataType">any</property>
+                </structure>
+                <structure>
+                    <property name="name">data item_3</property>
+                    <expression name="expression">Total.sum(row["FACT2009"])</expression>
+                    <property name="dataType">any</property>
+                </structure>
+                <structure>
+                    <property name="name">data item_4</property>
+                    <expression name="expression">Total.sum(row["PLAN"])</expression>
+                    <property name="dataType">any</property>
+                </structure>
+                <structure>
+                    <property name="name">data item_5</property>
+                    <expression name="expression">Total.sum(row["BLUCH"])</expression>
+                    <property name="dataType">any</property>
+                </structure>
+                <structure>
+                    <property name="name">data item_6</property>
+                    <expression name="expression">Total.sum(row["PEREGON"])</expression>
+                    <property name="dataType">any</property>
+                </structure>
+                <structure>
+                    <property name="name">data item_7</property>
+                    <expression name="expression">Total.sum(row["LIKVID"])</expression>
+                    <property name="dataType">any</property>
+                </structure>
+                <structure>
+                    <property name="name">data item_8</property>
+                    <expression name="expression">Total.sum(row["PLANALMT"])</expression>
+                    <property name="dataType">any</property>
+                </structure>
+                <structure>
+                    <property name="name">data item_9</property>
+                    <expression name="expression">Total.sum(row["PLANPRSM"])</expression>
+                    <property name="dataType">any</property>
+                </structure>
+                <structure>
+                    <property name="name">data item_10</property>
+                    <expression name="expression">Total.sum(row["ST"])</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">POTR</property>
+                    <property name="displayName">POTR</property>
+                    <expression name="expression">dataSetRow["POTR"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">Column Binding</property>
+                    <expression name="expression">Total.sum(row["POTR"])</expression>
+                    <property name="dataType">float</property>
+                </structure>
+                <structure>
+                    <property name="name">Column Binding_1</property>
+                    <expression name="expression">Total.sum(row["PLAN2008"])</expression>
+                    <property name="dataType">float</property>
+                </structure>
+                <structure>
+                    <property name="name">Column Binding_2</property>
+                    <expression name="expression">Total.sum(row["PLAN2008"])</expression>
+                    <property name="dataType">float</property>
+                </structure>
+                <structure>
+                    <property name="name">Column Binding_3</property>
+                    <expression name="expression">Total.sum(row["PLAN2009"])</expression>
+                    <property name="dataType">float</property>
+                </structure>
+                <structure>
+                    <property name="name">Column Binding_4</property>
+                    <expression name="expression">Total.sum(row["FACT2009"])</expression>
+                    <property name="dataType">float</property>
+                </structure>
+                <structure>
+                    <property name="name">Column Binding_5</property>
+                    <expression name="expression">Total.sum(row["PLAN"])</expression>
+                    <property name="dataType">float</property>
+                </structure>
+                <structure>
+                    <property name="name">Column Binding_6</property>
+                    <expression name="expression">Total.sum(row["BLUCH"])</expression>
+                    <property name="dataType">float</property>
+                </structure>
+                <structure>
+                    <property name="name">Column Binding_7</property>
+                    <expression name="expression">Total.sum(row["PEREGON"])</expression>
+                    <property name="dataType">float</property>
+                </structure>
+                <structure>
+                    <property name="name">Column Binding_8</property>
+                    <expression name="expression">Total.sum(row["LIKVID"])</expression>
+                    <property name="dataType">float</property>
+                </structure>
+                <structure>
+                    <property name="name">Column Binding_9</property>
+                    <expression name="expression">Total.sum(row["PLANALMT"])</expression>
+                    <property name="dataType">float</property>
+                </structure>
+                <structure>
+                    <property name="name">Column Binding_10</property>
+                    <expression name="expression">Total.sum(row["PLANPRSM"])</expression>
+                    <property name="dataType">float</property>
+                </structure>
+            </list-property>
+            <property name="pageBreakInterval">50</property>
+            <column id="6980"/>
+            <column id="6981"/>
+            <column id="6982"/>
+            <column id="6983"/>
+            <column id="6984"/>
+            <column id="6985"/>
+            <column id="7175"/>
+            <column id="6986"/>
+            <column id="6987"/>
+            <column id="6988"/>
+            <column id="6989"/>
+            <column id="6990"/>
+            <column id="6991"/>
+            <column id="6992"/>
+            <header>
+                <row id="7007">
+                    <property name="backgroundColor">#C0C0C0</property>
+                    <cell id="7008">
+                        <property name="colSpan">1</property>
+                        <property name="rowSpan">3</property>
+                        <property name="backgroundColor">#C0C0C0</property>
+                        <property name="fontFamily">"Arial"</property>
+                        <property name="fontWeight">bold</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <property name="textAlign">center</property>
+                        <property name="verticalAlign">middle</property>
+                        <label id="6914">
+                            <text-property name="text">№ п/п</text-property>
+                        </label>
+                    </cell>
+                    <cell id="7009">
+                        <property name="colSpan">1</property>
+                        <property name="rowSpan">3</property>
+                        <property name="backgroundColor">#C0C0C0</property>
+                        <property name="fontFamily">"Arial"</property>
+                        <property name="fontWeight">bold</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <property name="textAlign">center</property>
+                        <property name="verticalAlign">middle</property>
+                        <label id="6916">
+                            <text-property name="text">ПЧ (№ и наименование)</text-property>
+                        </label>
+                    </cell>
+                    <cell id="7010">
+                        <property name="colSpan">2</property>
+                        <property name="rowSpan">1</property>
+                        <property name="backgroundColor">#C0C0C0</property>
+                        <property name="fontFamily">"Arial"</property>
+                        <property name="fontWeight">bold</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <property name="textAlign">center</property>
+                        <property name="verticalAlign">middle</property>
+                        <data id="5293">
+                            <property name="fontFamily">"Arial"</property>
+                            <property name="fontSize">x-small</property>
+                            <property name="textAlign">center</property>
+                            <list-property name="boundDataColumns">
+                                <structure>
+                                    <property name="name">description2</property>
+                                    <expression name="expression">if (params["year"] != '') ( + params["year"]-2 + ' год' )
+ else ( + BirtDateTime.year(new Date())-2 + ' год' )</expression>
+                                    <property name="dataType">string</property>
+                                </structure>
+                            </list-property>
+                            <property name="resultSetColumn">description2</property>
+                        </data>
+                    </cell>
+                    <cell id="7012">
+                        <property name="colSpan">2</property>
+                        <property name="rowSpan">1</property>
+                        <property name="backgroundColor">#C0C0C0</property>
+                        <property name="fontFamily">"Arial"</property>
+                        <property name="fontWeight">bold</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <property name="textAlign">center</property>
+                        <property name="verticalAlign">middle</property>
+                        <data id="5296">
+                            <property name="fontFamily">"Arial"</property>
+                            <property name="fontSize">x-small</property>
+                            <property name="textAlign">center</property>
+                            <list-property name="boundDataColumns">
+                                <structure>
+                                    <property name="name">description1</property>
+                                    <expression name="expression">if (params["year"] != '') ( + params["year"]-1 + ' год' )
+ else ( + BirtDateTime.year(new Date())-1 + ' год' )</expression>
+                                    <property name="dataType">string</property>
+                                </structure>
+                            </list-property>
+                            <property name="resultSetColumn">description1</property>
+                        </data>
+                    </cell>
+                    <cell id="7168">
+                        <property name="colSpan">7</property>
+                        <property name="rowSpan">1</property>
+                        <property name="backgroundColor">#C0C0C0</property>
+                        <property name="fontFamily">"Arial"</property>
+                        <property name="fontWeight">bold</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <property name="textAlign">center</property>
+                        <property name="verticalAlign">middle</property>
+                        <data id="5303">
+                            <property name="fontFamily">"Arial"</property>
+                            <property name="fontSize">x-small</property>
+                            <property name="textAlign">center</property>
+                            <list-property name="boundDataColumns">
+                                <structure>
+                                    <property name="name">description0</property>
+                                    <expression name="expression">if (params["year"] != '') ( + params["year"] + ' год' )
+ else ( + BirtDateTime.year(new Date()) + ' год' )</expression>
+                                    <property name="dataType">string</property>
+                                </structure>
+                            </list-property>
+                            <property name="resultSetColumn">description0</property>
+                        </data>
+                    </cell>
+                    <cell id="7020">
+                        <property name="colSpan">1</property>
+                        <property name="rowSpan">3</property>
+                        <property name="backgroundColor">#C0C0C0</property>
+                        <property name="fontFamily">"Arial"</property>
+                        <property name="fontWeight">bold</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <property name="textAlign">center</property>
+                        <property name="verticalAlign">middle</property>
+                        <label id="6938">
+                            <text-property name="text">Стоимость работ</text-property>
+                        </label>
+                    </cell>
+                </row>
+                <row id="6993">
+                    <property name="backgroundColor">#C0C0C0</property>
+                    <cell id="6996">
+                        <property name="colSpan">1</property>
+                        <property name="rowSpan">2</property>
+                        <property name="backgroundColor">#C0C0C0</property>
+                        <property name="fontFamily">"Arial"</property>
+                        <property name="fontWeight">bold</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <property name="textAlign">center</property>
+                        <property name="verticalAlign">middle</property>
+                        <label id="6918">
+                            <text-property name="text">план (стык)</text-property>
+                        </label>
+                    </cell>
+                    <cell id="6997">
+                        <property name="colSpan">1</property>
+                        <property name="rowSpan">2</property>
+                        <property name="backgroundColor">#C0C0C0</property>
+                        <property name="fontFamily">"Arial"</property>
+                        <property name="fontWeight">bold</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <property name="textAlign">center</property>
+                        <property name="verticalAlign">middle</property>
+                        <label id="6920">
+                            <text-property name="text">выполнение (стык)</text-property>
+                        </label>
+                    </cell>
+                    <cell id="6998">
+                        <property name="colSpan">1</property>
+                        <property name="rowSpan">2</property>
+                        <property name="backgroundColor">#C0C0C0</property>
+                        <property name="fontFamily">"Arial"</property>
+                        <property name="fontWeight">bold</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <property name="textAlign">center</property>
+                        <property name="verticalAlign">middle</property>
+                        <label id="6922">
+                            <text-property name="text">план (стык)</text-property>
+                        </label>
+                    </cell>
+                    <cell id="6999">
+                        <property name="colSpan">1</property>
+                        <property name="rowSpan">2</property>
+                        <property name="backgroundColor">#C0C0C0</property>
+                        <property name="fontFamily">"Arial"</property>
+                        <property name="fontWeight">bold</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <property name="textAlign">center</property>
+                        <property name="verticalAlign">middle</property>
+                        <label id="6924">
+                            <text-property name="text">выполнение (стык)</text-property>
+                        </label>
+                    </cell>
+                    <cell id="7169">
+                        <property name="colSpan">1</property>
+                        <property name="rowSpan">2</property>
+                        <property name="backgroundColor">#C0C0C0</property>
+                        <property name="fontFamily">"Arial"</property>
+                        <property name="fontWeight">bold</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <property name="textAlign">center</property>
+                        <property name="verticalAlign">middle</property>
+                        <text id="7195">
+                            <property name="textAlign">justify</property>
+                            <property name="contentType">auto</property>
+                            <text-property name="content"><![CDATA[Потребность в сварке стыков (стык)]]></text-property>
+                        </text>
+                    </cell>
+                    <cell id="7000">
+                        <property name="colSpan">1</property>
+                        <property name="rowSpan">2</property>
+                        <property name="backgroundColor">#C0C0C0</property>
+                        <property name="fontFamily">"Arial"</property>
+                        <property name="fontWeight">bold</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <property name="textAlign">center</property>
+                        <property name="verticalAlign">middle</property>
+                        <label id="6926">
+                            <text-property name="text">План всего (стык)</text-property>
+                        </label>
+                    </cell>
+                    <cell id="7001">
+                        <property name="colSpan">3</property>
+                        <property name="rowSpan">1</property>
+                        <property name="backgroundColor">#C0C0C0</property>
+                        <property name="fontFamily">"Arial"</property>
+                        <property name="fontWeight">bold</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <property name="textAlign">center</property>
+                        <property name="verticalAlign">middle</property>
+                        <label id="7035">
+                            <text-property name="text">в том числе </text-property>
+                        </label>
+                    </cell>
+                    <cell id="7004">
+                        <property name="colSpan">1</property>
+                        <property name="rowSpan">2</property>
+                        <property name="backgroundColor">#C0C0C0</property>
+                        <property name="fontFamily">"Arial"</property>
+                        <property name="fontWeight">bold</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <property name="textAlign">center</property>
+                        <property name="verticalAlign">middle</property>
+                        <label id="6934">
+                            <text-property name="text">из них сварка стыков алюминотермитным способом </text-property>
+                        </label>
+                    </cell>
+                    <cell id="7005">
+                        <property name="colSpan">1</property>
+                        <property name="rowSpan">2</property>
+                        <property name="backgroundColor">#C0C0C0</property>
+                        <property name="fontFamily">"Arial"</property>
+                        <property name="fontWeight">bold</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <property name="textAlign">center</property>
+                        <property name="verticalAlign">middle</property>
+                        <label id="6936">
+                            <text-property name="text">сварка стыков на участках работ комплексами путевых машин </text-property>
+                        </label>
+                    </cell>
+                </row>
+                <row id="6912">
+                    <property name="backgroundColor">#C0C0C0</property>
+                    <cell id="6927">
+                        <property name="backgroundColor">#C0C0C0</property>
+                        <property name="fontFamily">"Arial"</property>
+                        <property name="fontWeight">bold</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <property name="textAlign">center</property>
+                        <property name="verticalAlign">middle</property>
+                        <label id="6928">
+                            <text-property name="text">сварка плетей длиной в блок-участок</text-property>
+                        </label>
+                    </cell>
+                    <cell id="6929">
+                        <property name="backgroundColor">#C0C0C0</property>
+                        <property name="fontFamily">"Arial"</property>
+                        <property name="fontWeight">bold</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <property name="textAlign">center</property>
+                        <property name="verticalAlign">middle</property>
+                        <label id="6930">
+                            <text-property name="text">сварка плетей длиной в перегон</text-property>
+                        </label>
+                    </cell>
+                    <cell id="6931">
+                        <property name="backgroundColor">#C0C0C0</property>
+                        <property name="fontFamily">"Arial"</property>
+                        <property name="fontWeight">bold</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <property name="textAlign">center</property>
+                        <property name="verticalAlign">middle</property>
+                        <label id="6932">
+                            <text-property name="text">ликвидация мест временного восстановления плетей </text-property>
+                        </label>
+                    </cell>
+                </row>
+                <row id="7021">
+                    <property name="backgroundColor">#C0C0C0</property>
+                    <cell id="7022">
+                        <property name="backgroundColor">#C0C0C0</property>
+                        <property name="fontFamily">"Arial"</property>
+                        <property name="fontWeight">bold</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <property name="textAlign">center</property>
+                        <property name="verticalAlign">middle</property>
+                        <label id="7036">
+                            <text-property name="text">1</text-property>
+                        </label>
+                    </cell>
+                    <cell id="7023">
+                        <property name="backgroundColor">#C0C0C0</property>
+                        <property name="fontFamily">"Arial"</property>
+                        <property name="fontWeight">bold</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <property name="textAlign">center</property>
+                        <property name="verticalAlign">middle</property>
+                        <label id="7037">
+                            <text-property name="text">2</text-property>
+                        </label>
+                    </cell>
+                    <cell id="7024">
+                        <property name="backgroundColor">#C0C0C0</property>
+                        <property name="fontFamily">"Arial"</property>
+                        <property name="fontWeight">bold</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <property name="textAlign">center</property>
+                        <property name="verticalAlign">middle</property>
+                        <label id="7038">
+                            <text-property name="text">3</text-property>
+                        </label>
+                    </cell>
+                    <cell id="7025">
+                        <property name="backgroundColor">#C0C0C0</property>
+                        <property name="fontFamily">"Arial"</property>
+                        <property name="fontWeight">bold</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <property name="textAlign">center</property>
+                        <property name="verticalAlign">middle</property>
+                        <label id="7039">
+                            <text-property name="text">4</text-property>
+                        </label>
+                    </cell>
+                    <cell id="7026">
+                        <property name="backgroundColor">#C0C0C0</property>
+                        <property name="fontFamily">"Arial"</property>
+                        <property name="fontWeight">bold</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <property name="textAlign">center</property>
+                        <property name="verticalAlign">middle</property>
+                        <label id="7040">
+                            <text-property name="text">5</text-property>
+                        </label>
+                    </cell>
+                    <cell id="7027">
+                        <property name="backgroundColor">#C0C0C0</property>
+                        <property name="fontFamily">"Arial"</property>
+                        <property name="fontWeight">bold</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <property name="textAlign">center</property>
+                        <property name="verticalAlign">middle</property>
+                        <label id="7041">
+                            <text-property name="text">6</text-property>
+                        </label>
+                    </cell>
+                    <cell id="7171">
+                        <property name="backgroundColor">#C0C0C0</property>
+                        <property name="fontFamily">"Arial"</property>
+                        <property name="fontWeight">bold</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <property name="textAlign">center</property>
+                        <property name="verticalAlign">middle</property>
+                        <label id="7042">
+                            <text-property name="text">7</text-property>
+                        </label>
+                    </cell>
+                    <cell id="7028">
+                        <property name="backgroundColor">#C0C0C0</property>
+                        <property name="fontFamily">"Arial"</property>
+                        <property name="fontWeight">bold</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <property name="textAlign">center</property>
+                        <property name="verticalAlign">middle</property>
+                        <label id="7043">
+                            <text-property name="text">8</text-property>
+                        </label>
+                    </cell>
+                    <cell id="7029">
+                        <property name="backgroundColor">#C0C0C0</property>
+                        <property name="fontFamily">"Arial"</property>
+                        <property name="fontWeight">bold</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <property name="textAlign">center</property>
+                        <property name="verticalAlign">middle</property>
+                        <label id="7044">
+                            <text-property name="text">9</text-property>
+                        </label>
+                    </cell>
+                    <cell id="7030">
+                        <property name="backgroundColor">#C0C0C0</property>
+                        <property name="fontFamily">"Arial"</property>
+                        <property name="fontWeight">bold</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <property name="textAlign">center</property>
+                        <property name="verticalAlign">middle</property>
+                        <label id="7045">
+                            <text-property name="text">10</text-property>
+                        </label>
+                    </cell>
+                    <cell id="7031">
+                        <property name="backgroundColor">#C0C0C0</property>
+                        <property name="fontFamily">"Arial"</property>
+                        <property name="fontWeight">bold</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <property name="textAlign">center</property>
+                        <property name="verticalAlign">middle</property>
+                        <label id="7046">
+                            <text-property name="text">11</text-property>
+                        </label>
+                    </cell>
+                    <cell id="7032">
+                        <property name="backgroundColor">#C0C0C0</property>
+                        <property name="fontFamily">"Arial"</property>
+                        <property name="fontWeight">bold</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <property name="textAlign">center</property>
+                        <property name="verticalAlign">middle</property>
+                        <label id="7047">
+                            <text-property name="text">12</text-property>
+                        </label>
+                    </cell>
+                    <cell id="7033">
+                        <property name="backgroundColor">#C0C0C0</property>
+                        <property name="fontFamily">"Arial"</property>
+                        <property name="fontWeight">bold</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <property name="textAlign">center</property>
+                        <property name="verticalAlign">middle</property>
+                        <label id="7048">
+                            <text-property name="text">13</text-property>
+                        </label>
+                    </cell>
+                    <cell id="7034">
+                        <property name="backgroundColor">#C0C0C0</property>
+                        <property name="fontFamily">"Arial"</property>
+                        <property name="fontWeight">bold</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <property name="textAlign">center</property>
+                        <property name="verticalAlign">middle</property>
+                        <label id="7193">
+                            <text-property name="text">14</text-property>
+                        </label>
+                    </cell>
+                </row>
+            </header>
+            <detail>
+                <row id="6939">
+                    <property name="textAlign">center</property>
+                    <cell id="6940">
+                        <property name="backgroundColor">#F5EFFC</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <data id="6941">
+                            <property name="textAlign">center</property>
+                            <property name="resultSetColumn">ROWNUM</property>
+                        </data>
+                    </cell>
+                    <cell id="6942">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <data id="6943">
+                            <property name="resultSetColumn">DESCRIPTION</property>
+                        </data>
+                    </cell>
+                    <cell id="6944">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <data id="6945">
+                            <property name="resultSetColumn">PLAN2008</property>
+                        </data>
+                    </cell>
+                    <cell id="6946">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                    </cell>
+                    <cell id="6948">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <data id="6949">
+                            <property name="resultSetColumn">PLAN2009</property>
+                        </data>
+                    </cell>
+                    <cell id="6950">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                    </cell>
+                    <cell id="7172">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <data id="7176">
+                            <property name="resultSetColumn">POTR</property>
+                        </data>
+                    </cell>
+                    <cell id="6952">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <data id="6953">
+                            <property name="resultSetColumn">PLAN</property>
+                        </data>
+                    </cell>
+                    <cell id="6954">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <data id="6955">
+                            <property name="resultSetColumn">BLUCH</property>
+                        </data>
+                    </cell>
+                    <cell id="6956">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <data id="6957">
+                            <property name="resultSetColumn">PEREGON</property>
+                        </data>
+                    </cell>
+                    <cell id="6958">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <data id="6959">
+                            <property name="resultSetColumn">LIKVID</property>
+                        </data>
+                    </cell>
+                    <cell id="6960">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <data id="6961">
+                            <property name="resultSetColumn">PLANALMT</property>
+                        </data>
+                    </cell>
+                    <cell id="6962">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <data id="6963">
+                            <property name="resultSetColumn">PLANPRSM</property>
+                        </data>
+                    </cell>
+                    <cell id="6964">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                    </cell>
+                </row>
+            </detail>
+            <footer>
+                <row id="7222">
+                    <property name="backgroundColor">#C0C0C0</property>
+                    <property name="textAlign">center</property>
+                    <list-property name="visibility">
+                        <structure>
+                            <property name="format">all</property>
+                            <expression name="valueExpr">true</expression>
+                        </structure>
+                    </list-property>
+                    <cell id="7223">
+                        <property name="colSpan">2</property>
+                        <property name="rowSpan">1</property>
+                        <property name="backgroundColor">#C0C0C0</property>
+                        <property name="fontFamily">"Arial"</property>
+                        <property name="fontWeight">bold</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <property name="textAlign">center</property>
+                        <property name="verticalAlign">middle</property>
+                        <label id="7063">
+                            <property name="textAlign">right</property>
+                            <text-property name="text">Дорога</text-property>
+                        </label>
+                    </cell>
+                    <cell id="7225">
+                        <property name="backgroundColor">#C0C0C0</property>
+                        <property name="fontWeight">bold</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <data id="7197">
+                            <property name="resultSetColumn">Column Binding_1</property>
+                        </data>
+                    </cell>
+                    <cell id="7226">
+                        <property name="backgroundColor">#C0C0C0</property>
+                        <property name="fontWeight">bold</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                    </cell>
+                    <cell id="7227">
+                        <property name="backgroundColor">#C0C0C0</property>
+                        <property name="fontWeight">bold</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <data id="7199">
+                            <property name="resultSetColumn">Column Binding_3</property>
+                        </data>
+                    </cell>
+                    <cell id="7228">
+                        <property name="backgroundColor">#C0C0C0</property>
+                        <property name="fontWeight">bold</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                    </cell>
+                    <cell id="7229">
+                        <property name="backgroundColor">#C0C0C0</property>
+                        <property name="fontWeight">bold</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <data id="7192">
+                            <property name="resultSetColumn">Column Binding</property>
+                        </data>
+                    </cell>
+                    <cell id="7230">
+                        <property name="backgroundColor">#C0C0C0</property>
+                        <property name="fontWeight">bold</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <data id="7201">
+                            <property name="resultSetColumn">Column Binding_5</property>
+                        </data>
+                    </cell>
+                    <cell id="7231">
+                        <property name="backgroundColor">#C0C0C0</property>
+                        <property name="fontWeight">bold</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <data id="7202">
+                            <property name="resultSetColumn">Column Binding_6</property>
+                        </data>
+                    </cell>
+                    <cell id="7232">
+                        <property name="backgroundColor">#C0C0C0</property>
+                        <property name="fontWeight">bold</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <data id="7203">
+                            <property name="resultSetColumn">Column Binding_7</property>
+                        </data>
+                    </cell>
+                    <cell id="7233">
+                        <property name="backgroundColor">#C0C0C0</property>
+                        <property name="fontWeight">bold</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <data id="7204">
+                            <property name="resultSetColumn">Column Binding_8</property>
+                        </data>
+                    </cell>
+                    <cell id="7234">
+                        <property name="backgroundColor">#C0C0C0</property>
+                        <property name="fontWeight">bold</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <data id="7205">
+                            <property name="resultSetColumn">Column Binding_9</property>
+                        </data>
+                    </cell>
+                    <cell id="7235">
+                        <property name="backgroundColor">#C0C0C0</property>
+                        <property name="fontWeight">bold</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <data id="7206">
+                            <property name="resultSetColumn">Column Binding_10</property>
+                        </data>
+                    </cell>
+                    <cell id="7236">
+                        <property name="backgroundColor">#C0C0C0</property>
+                        <property name="fontWeight">bold</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                    </cell>
+                </row>
+                <row id="6966">
+                    <property name="textAlign">center</property>
+                    <cell id="6967">
+                        <property name="colSpan">2</property>
+                        <property name="rowSpan">1</property>
+                        <property name="backgroundColor">#C0C0C0</property>
+                        <property name="fontFamily">"Arial"</property>
+                        <property name="fontWeight">bold</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <property name="textAlign">center</property>
+                        <property name="verticalAlign">middle</property>
+                        <data id="7064">
+                            <property name="fontFamily">"Arial"</property>
+                            <property name="fontSize">x-small</property>
+                            <property name="textAlign">right</property>
+                            <list-property name="boundDataColumns">
+                                <structure>
+                                    <property name="name">description1</property>
+                                    <expression name="expression">if (params["year"] != '') ( + params["year"]-1 + ' год' )
+ else ( + BirtDateTime.year(new Date())-1 + ' год' )</expression>
+                                    <property name="dataType">string</property>
+                                </structure>
+                            </list-property>
+                            <property name="resultSetColumn">description1</property>
+                        </data>
+                    </cell>
+                    <cell id="6969">
+                        <property name="backgroundColor">#C0C0C0</property>
+                        <property name="fontWeight">bold</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <data id="7180">
+                            <property name="dataSet">11</property>
+                            <list-property name="boundDataColumns">
+                                <structure>
+                                    <property name="name">PLAN2008</property>
+                                    <property name="displayName">PLAN2008</property>
+                                    <expression name="expression">dataSetRow["PLAN2008"]</expression>
+                                    <property name="dataType">float</property>
+                                </structure>
+                            </list-property>
+                            <property name="resultSetColumn">PLAN2008</property>
+                        </data>
+                    </cell>
+                    <cell id="6970">
+                        <property name="backgroundColor">#C0C0C0</property>
+                        <property name="fontWeight">bold</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                    </cell>
+                    <cell id="6971">
+                        <property name="backgroundColor">#C0C0C0</property>
+                        <property name="fontWeight">bold</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <data id="7182">
+                            <property name="dataSet">11</property>
+                            <list-property name="boundDataColumns">
+                                <structure>
+                                    <property name="name">PLAN2009</property>
+                                    <property name="displayName">PLAN2009</property>
+                                    <expression name="expression">dataSetRow["PLAN2009"]</expression>
+                                    <property name="dataType">float</property>
+                                </structure>
+                            </list-property>
+                            <property name="resultSetColumn">PLAN2009</property>
+                        </data>
+                    </cell>
+                    <cell id="6972">
+                        <property name="backgroundColor">#C0C0C0</property>
+                        <property name="fontWeight">bold</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                    </cell>
+                    <cell id="7174">
+                        <property name="backgroundColor">#C0C0C0</property>
+                        <property name="fontWeight">bold</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <data id="7184">
+                            <property name="dataSet">11</property>
+                            <list-property name="boundDataColumns">
+                                <structure>
+                                    <property name="name">POTR</property>
+                                    <property name="displayName">POTR</property>
+                                    <expression name="expression">dataSetRow["POTR"]</expression>
+                                    <property name="dataType">string</property>
+                                </structure>
+                            </list-property>
+                            <property name="resultSetColumn">POTR</property>
+                        </data>
+                    </cell>
+                    <cell id="6973">
+                        <property name="backgroundColor">#C0C0C0</property>
+                        <property name="fontWeight">bold</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <data id="7185">
+                            <property name="dataSet">11</property>
+                            <list-property name="boundDataColumns">
+                                <structure>
+                                    <property name="name">PLAN</property>
+                                    <property name="displayName">PLAN</property>
+                                    <expression name="expression">dataSetRow["PLAN"]</expression>
+                                    <property name="dataType">float</property>
+                                </structure>
+                            </list-property>
+                            <property name="resultSetColumn">PLAN</property>
+                        </data>
+                    </cell>
+                    <cell id="6974">
+                        <property name="backgroundColor">#C0C0C0</property>
+                        <property name="fontWeight">bold</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <data id="7186">
+                            <property name="dataSet">11</property>
+                            <list-property name="boundDataColumns">
+                                <structure>
+                                    <property name="name">BLUCH</property>
+                                    <property name="displayName">BLUCH</property>
+                                    <expression name="expression">dataSetRow["BLUCH"]</expression>
+                                    <property name="dataType">float</property>
+                                </structure>
+                            </list-property>
+                            <property name="resultSetColumn">BLUCH</property>
+                        </data>
+                    </cell>
+                    <cell id="6975">
+                        <property name="backgroundColor">#C0C0C0</property>
+                        <property name="fontWeight">bold</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <data id="7187">
+                            <property name="dataSet">11</property>
+                            <list-property name="boundDataColumns">
+                                <structure>
+                                    <property name="name">PEREGON</property>
+                                    <property name="displayName">PEREGON</property>
+                                    <expression name="expression">dataSetRow["PEREGON"]</expression>
+                                    <property name="dataType">float</property>
+                                </structure>
+                            </list-property>
+                            <property name="resultSetColumn">PEREGON</property>
+                        </data>
+                    </cell>
+                    <cell id="6976">
+                        <property name="backgroundColor">#C0C0C0</property>
+                        <property name="fontWeight">bold</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <data id="7188">
+                            <property name="dataSet">11</property>
+                            <list-property name="boundDataColumns">
+                                <structure>
+                                    <property name="name">LIKVID</property>
+                                    <property name="displayName">LIKVID</property>
+                                    <expression name="expression">dataSetRow["LIKVID"]</expression>
+                                    <property name="dataType">float</property>
+                                </structure>
+                            </list-property>
+                            <property name="resultSetColumn">LIKVID</property>
+                        </data>
+                    </cell>
+                    <cell id="6977">
+                        <property name="backgroundColor">#C0C0C0</property>
+                        <property name="fontWeight">bold</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <data id="7189">
+                            <property name="dataSet">11</property>
+                            <list-property name="boundDataColumns">
+                                <structure>
+                                    <property name="name">PLANALMT</property>
+                                    <property name="displayName">PLANALMT</property>
+                                    <expression name="expression">dataSetRow["PLANALMT"]</expression>
+                                    <property name="dataType">float</property>
+                                </structure>
+                            </list-property>
+                            <property name="resultSetColumn">PLANALMT</property>
+                        </data>
+                    </cell>
+                    <cell id="6978">
+                        <property name="backgroundColor">#C0C0C0</property>
+                        <property name="fontWeight">bold</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <data id="7190">
+                            <property name="dataSet">11</property>
+                            <list-property name="boundDataColumns">
+                                <structure>
+                                    <property name="name">PLANPRSM</property>
+                                    <property name="displayName">PLANPRSM</property>
+                                    <expression name="expression">dataSetRow["PLANPRSM"]</expression>
+                                    <property name="dataType">float</property>
+                                </structure>
+                            </list-property>
+                            <property name="resultSetColumn">PLANPRSM</property>
+                        </data>
+                    </cell>
+                    <cell id="6979">
+                        <property name="backgroundColor">#C0C0C0</property>
+                        <property name="fontWeight">bold</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                    </cell>
+                </row>
+            </footer>
+        </table>
+        <text id="622">
+            <property name="fontSize">small</property>
+            <property name="contentType">auto</property>
+            <text-property name="content"><![CDATA[Начальник службы пути]]></text-property>
+        </text>
+        <data id="630">
+            <property name="fontSize">small</property>
+            <property name="dataSet">FIO</property>
+            <list-property name="boundDataColumns">
+                <structure>
+                    <property name="name">DISPLAYNAME</property>
+                    <expression name="expression">dataSetRow["DISPLAYNAME"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+            </list-property>
+            <property name="resultSetColumn">DISPLAYNAME</property>
+        </data>
+    </body>
+</report>

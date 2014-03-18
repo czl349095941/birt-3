@@ -1,0 +1,1810 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<report xmlns="http://www.eclipse.org/birt/2005/design" version="3.2.17" id="1">
+    <property name="createdBy">Eclipse BIRT Designer Version 2.3.2.r232_20090202 Build &lt;2.3.2.v20090218-0730></property>
+    <property name="units">in</property>
+    <text-property name="title">otvodi</text-property>
+    <property name="comments">IBM Confidential
+
+OCO Source Materials
+
+5724-M19
+
+(C) COPYRIGHT IBM CORP. 2006
+
+The source code for this program is not published or otherwise
+divested of its trade secrets, irrespective of what has been
+deposited with the U.S. Copyright Office.</property>
+    <html-property name="description">This template will create a report with one or more groups, each having identical data fields, and contains three styles of charts.</html-property>
+    <method name="initialize"><![CDATA[importPackage(Packages.com.ibm.tivoli.maximo.report.script);
+
+mxReportScriptContext = MXReportScriptContext.initialize(reportContext);
+mxReportScriptContext.setDefaultLogLevel("DEBUG");
+mxReportScriptContext.setDefaultLogFile("c:/temp/tetttt.txt");
+
+
+]]></method>
+    <method name="afterFactory"><![CDATA[MXReportScriptContext.close();]]></method>
+    <property name="theme">MaximoSystemLibrary.maximoTheme</property>
+    <text-property name="displayName">Tivoli Maximo Grouped Chart Template</text-property>
+    <list-property name="libraries">
+        <structure>
+            <property name="fileName">MaximoSystemLibrary.rptlibrary</property>
+            <property name="namespace">MaximoSystemLibrary</property>
+        </structure>
+    </list-property>
+    <parameters>
+        <scalar-parameter name="where" id="25">
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="paramType">simple</property>
+            <property name="isRequired">true</property>
+            <property name="controlType">text-box</property>
+            <property name="defaultValue">1=1</property>
+            <property name="distinct">true</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="appname" id="240">
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="isRequired">false</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="paramdelimiter" id="241">
+            <property name="hidden">true</property>
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="isRequired">false</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="paramstring" id="242">
+            <property name="hidden">true</property>
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="isRequired">false</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="par" id="7814">
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="paramType">simple</property>
+            <text-property name="promptText">Дата</text-property>
+            <property name="isRequired">true</property>
+            <property name="controlType">text-box</property>
+            <property name="distinct">true</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="userName" id="7480">
+            <property name="hidden">true</property>
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="paramType">simple</property>
+            <property name="isRequired">false</property>
+            <property name="controlType">text-box</property>
+            <property name="distinct">true</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="mroSite" id="9077">
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="paramType">simple</property>
+            <text-property name="promptText">Дорога</text-property>
+            <property name="controlType">text-box</property>
+            <property name="distinct">true</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+    </parameters>
+    <data-sources>
+        <script-data-source name="maximoDataSource" id="64" extends="MaximoSystemLibrary.maximoDataSource"/>
+    </data-sources>
+    <data-sets>
+        <script-data-set name="Workreport" id="368">
+            <list-property name="resultSetHints">
+                <structure>
+                    <property name="position">1</property>
+                    <property name="name">description</property>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="position">2</property>
+                    <property name="name">region</property>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="position">3</property>
+                    <property name="name">nom</property>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="position">4</property>
+                    <property name="name">razb_vsp</property>
+                    <property name="dataType">integer</property>
+                </structure>
+                <structure>
+                    <property name="position">5</property>
+                    <property name="name">razb_vsp_ustr</property>
+                    <property name="dataType">integer</property>
+                </structure>
+                <structure>
+                    <property name="position">6</property>
+                    <property name="name">obr_girbic</property>
+                    <property name="dataType">integer</property>
+                </structure>
+                <structure>
+                    <property name="position">7</property>
+                    <property name="name">obr_girbic_ustr</property>
+                    <property name="dataType">integer</property>
+                </structure>
+                <structure>
+                    <property name="position">8</property>
+                    <property name="name">razb_vsp_ustr_d</property>
+                    <property name="dataType">integer</property>
+                </structure>
+                <structure>
+                    <property name="position">9</property>
+                    <property name="name">obr_girbic_ustr_d</property>
+                    <property name="dataType">integer</property>
+                </structure>
+                <structure>
+                    <property name="position">10</property>
+                    <property name="name">location</property>
+                    <property name="dataType">string</property>
+                </structure>
+            </list-property>
+            <list-property name="columnHints">
+                <structure>
+                    <property name="columnName">description</property>
+                </structure>
+                <structure>
+                    <property name="columnName">region</property>
+                </structure>
+                <structure>
+                    <property name="columnName">nom</property>
+                </structure>
+                <structure>
+                    <property name="columnName">razb_vsp</property>
+                </structure>
+                <structure>
+                    <property name="columnName">razb_vsp_ustr</property>
+                </structure>
+                <structure>
+                    <property name="columnName">obr_girbic</property>
+                </structure>
+                <structure>
+                    <property name="columnName">obr_girbic_ustr</property>
+                </structure>
+                <structure>
+                    <property name="columnName">razb_vsp_ustr_d</property>
+                </structure>
+                <structure>
+                    <property name="columnName">obr_girbic_ustr_d</property>
+                </structure>
+                <structure>
+                    <property name="columnName">ots_scb</property>
+                </structure>
+                <structure>
+                    <property name="columnName">pred</property>
+                </structure>
+                <structure>
+                    <property name="columnName">stan</property>
+                </structure>
+                <structure>
+                    <property name="columnName">end_km</property>
+                </structure>
+                <structure>
+                    <property name="columnName">stanid</property>
+                </structure>
+                <structure>
+                    <property name="columnName">location</property>
+                </structure>
+            </list-property>
+            <structure name="cachedMetaData">
+                <list-property name="resultSet">
+                    <structure>
+                        <property name="position">1</property>
+                        <property name="name">description</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">2</property>
+                        <property name="name">region</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">3</property>
+                        <property name="name">nom</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">4</property>
+                        <property name="name">razb_vsp</property>
+                        <property name="dataType">integer</property>
+                    </structure>
+                    <structure>
+                        <property name="position">5</property>
+                        <property name="name">razb_vsp_ustr</property>
+                        <property name="dataType">integer</property>
+                    </structure>
+                    <structure>
+                        <property name="position">6</property>
+                        <property name="name">obr_girbic</property>
+                        <property name="dataType">integer</property>
+                    </structure>
+                    <structure>
+                        <property name="position">7</property>
+                        <property name="name">obr_girbic_ustr</property>
+                        <property name="dataType">integer</property>
+                    </structure>
+                    <structure>
+                        <property name="position">8</property>
+                        <property name="name">razb_vsp_ustr_d</property>
+                        <property name="dataType">integer</property>
+                    </structure>
+                    <structure>
+                        <property name="position">9</property>
+                        <property name="name">obr_girbic_ustr_d</property>
+                        <property name="dataType">integer</property>
+                    </structure>
+                    <structure>
+                        <property name="position">10</property>
+                        <property name="name">location</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                </list-property>
+            </structure>
+            <property name="dataSource">maximoDataSource</property>
+            <method name="open"><![CDATA[maximoDataSet = MXReportDataSetProvider.create(this.getDataSource().getName(), this.getName());
+	maximoDataSet.open();
+	var sqlText = new String();
+
+//var siteid = new String(params["userName"]);
+
+//siteid = " ( select distinct defsite from maximo.maxuser where loginid = '" + params["userName"] + "' )";
+//siteid = "24"
+
+
+var start = new String(params["par"]);
+start = "to_date ('"+params["par"]+"','DD.MM.YY')"
+
+
+	sqlText =  ""
+ +" SELECT NVL(A1.APRED, A1.PRED) location, "
+ +"     LOC.DESCRIPTION, "
+ +"     LOC.DESCRIPTION NOM, "
+ +"     '' region, "
+ +"     count(distinct "
+ +"     CASE "
+ +"       WHEN a1.CLASSIDMAIN = '090004000562' and a1.status NOT IN ('ЗАВ_ДИСП','УСТРАНЕН','ЗАКРЫТО','USTRANEN' ) "
+ +"       THEN A1.TICKETID "
+ +"     END )AS RAZB_VSP, "
+ +"      "
+ +"     count(distinct "
+ +"     CASE "
+ +"       WHEN a1.CLASSIDMAIN = '090004000562' "
+ +"       AND to_date ( a1.reportdate,'DD.MM.YY') = "+start
+ +"       AND a1.status      IN ('ЗАВ_ДИСП','УСТРАНЕН','ЗАКРЫТО','USTRANEN' ) "
+ +"       THEN A1.TICKETID "
+ +"     END )AS RAZB_VSP_USTR_D, "
+ +"      "
+ +"     count(distinct "
+ +"     CASE "
+ +"       WHEN a1.CLASSIDMAIN = '090004000562' "
+ +"       AND a1.status      IN ('ЗАВ_ДИСП','УСТРАНЕН','ЗАКРЫТО','USTRANEN' ) "
+ +"       THEN A1.TICKETID "
+ +"     END )AS RAZB_VSP_USTR, "
+ +"      "
+ +"     count(distinct "
+ +"     CASE "
+ +"       WHEN a1.CLASSIDMAIN IN ('090001005513','090001003374','090004000558') and a1.status NOT IN ('ЗАВ_ДИСП','УСТРАНЕН','ЗАКРЫТО','USTRANEN' ) "
+ +"       THEN A1.TICKETID "
+ +"     END )AS OBR_GIRBIC, "
+ +"      "
+ +"     count(distinct "
+ +"     CASE "
+ +"       WHEN a1.CLASSIDMAIN IN ('090001005513','090001003374','090004000558') "
+ +"       AND to_date ( a1.reportdate,'DD.MM.YY') = "+start
+ +"       AND a1.status       IN ('ЗАВ_ДИСП','УСТРАНЕН','ЗАКРЫТО','USTRANEN' ) "
+ +"       THEN A1.TICKETID "
+ +"     END )AS OBR_GIRBIC_USTR_D, "
+ +"      "
+ +"     count(distinct "
+ +"     CASE "
+ +"       WHEN a1.CLASSIDMAIN IN ('090001005513','090001003374','090004000558') "
+ +"       AND a1.status       IN ('ЗАВ_ДИСП','УСТРАНЕН','ЗАКРЫТО','USTRANEN' ) "
+ +"       THEN A1.TICKETID "
+ +"     END )AS OBR_GIRBIC_USTR "
+ +"      "
+ +"   FROM MAXIMO.TK_REP A1 "
+ +"   join MAXIMO.PREDS loc "
+ +"   ON NVL(A1.APRED, A1.PRED) = LOC.LOCATION "
+ +"   AND A1.SITEID             = LOC.SITEID "
+ +"   where a1.h         ='090004000002' "
+ +"   AND a1.STATUS!     ='УДАЛЕНО' "
+ +"   AND EXTRACT (YEAR FROM A1.REPORTDATE) = EXTRACT (YEAR FROM "+start+") "
+ +"   AND A1.SITEID = '"+params["mroSite"]+"'"
+ +"   and a1.CLASSIDMAIN IN ('090001005513','090001003374','090004000558', '090004000562') "
+ +"   GROUP BY NVL(A1.APRED, A1.PRED), "
+ +"     loc.description "
+
+;
+
+	maximoDataSet.setQuery(sqlText);]]></method>
+            <method name="fetch"><![CDATA[if (!maximoDataSet.fetch())
+     return (false);
+
+
+row["description"] = maximoDataSet.getString("description");   
+row["region"] = maximoDataSet.getString("region");   
+row["nom"] = maximoDataSet.getString("nom");   
+row["location"] = maximoDataSet.getString("location");   
+row["razb_vsp"] = maximoDataSet.getInteger("razb_vsp");
+row["razb_vsp_ustr"] = maximoDataSet.getInteger("razb_vsp_ustr"); 
+row["obr_girbic"] = maximoDataSet.getInteger("obr_girbic"); 
+row["obr_girbic_ustr"] = maximoDataSet.getInteger("obr_girbic_ustr"); 
+row["razb_vsp_ustr_d"] = maximoDataSet.getInteger("razb_vsp_ustr_d");
+row["obr_girbic_ustr_d"] = maximoDataSet.getInteger("obr_girbic_ustr_d");
+
+
+return (true);]]></method>
+        </script-data-set>
+        <script-data-set name="start" id="7817">
+            <list-property name="resultSetHints">
+                <structure>
+                    <property name="position">1</property>
+                    <property name="name">DAT</property>
+                    <property name="dataType">string</property>
+                </structure>
+            </list-property>
+            <list-property name="columnHints">
+                <structure>
+                    <property name="columnName">DAT</property>
+                </structure>
+            </list-property>
+            <structure name="cachedMetaData">
+                <list-property name="resultSet">
+                    <structure>
+                        <property name="position">1</property>
+                        <property name="name">DAT</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                </list-property>
+            </structure>
+            <property name="dataSource">maximoDataSource</property>
+            <method name="open"><![CDATA[maximoDataSet = MXReportDataSetProvider.create(this.getDataSource().getName(), this.getName());
+	maximoDataSet.open();
+	
+
+var par = new String(params["par"]);
+
+
+
+par = "to_date ('"+params["par"]+"','DD.MM.YY')"
+
+
+	var sqlText = new String();
+
+	sqlText =     " select trim (cast (extract (day from " + par + ") as char (10)))|| "
+ +" case  "
+ +"      when extract (month from " + par + ") = 1 then ' января ' "
+ +"      when extract (month from " + par + ") = 2 then ' февраля ' "
+ +"      when extract (month from " + par + ") = 3 then ' марта ' "
+ +"      when extract (month from " + par + ") = 4 then ' апреля ' "
+ +"      when extract (month from " + par + ") = 5 then ' мая ' "
+ +"      when extract (month from " + par + ") = 6 then ' июня ' "
+ +"      when extract (month from " + par + ") = 7 then ' июля ' "
+ +"      when extract (month from " + par + ") = 8 then ' августа ' "
+ +"      when extract (month from " + par + ") = 9 then ' сентября ' "
+ +"      when extract (month from " + par + ") = 10 then ' октября ' "
+ +"      when extract (month from " + par + ") = 11 then ' ноября ' "
+ +"      when extract (month from " + par + ") = 12 then ' декабря ' "
+ +"      else '' end|| "
+ +" trim (cast (extract (year from " + par + ") as char (10)))|| "
+ +" ' г.' DAT "
+ +" from dual "
+;
+
+	maximoDataSet.setQuery(sqlText);]]></method>
+            <method name="fetch"><![CDATA[if (!maximoDataSet.fetch())
+	   return (false);
+
+row["DAT"] = maximoDataSet.getString("DAT");
+
+
+	return (true);]]></method>
+        </script-data-set>
+        <script-data-set name="site" id="7885">
+            <list-property name="resultSetHints">
+                <structure>
+                    <property name="position">1</property>
+                    <property name="name">description</property>
+                    <property name="dataType">string</property>
+                </structure>
+            </list-property>
+            <list-property name="columnHints">
+                <structure>
+                    <property name="columnName">description</property>
+                </structure>
+            </list-property>
+            <structure name="cachedMetaData">
+                <list-property name="resultSet">
+                    <structure>
+                        <property name="position">1</property>
+                        <property name="name">description</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                </list-property>
+            </structure>
+            <property name="dataSource">maximoDataSource</property>
+            <method name="open"><![CDATA[maximoDataSet = MXReportDataSetProvider.create(this.getDataSource().getName(), this.getName());
+	maximoDataSet.open();
+
+//var siteid = new String(params["userName"]);
+
+//if(params["siteid"]=='')
+//{siteid = " ( select distinct defsite from maximo.maxuser where userid = upper ('" + params["userName"] + "') )";}
+//else if(params["siteid"]!='')
+//{siteid = (params["siteid"]).replace("=","");}
+//siteid = " ( select distinct defsite from maximo.maxuser where loginid = '" + params["userName"] + "' )";
+
+
+
+	var sqlText = new String();
+
+	sqlText = " select description "
+ + "  from maximo.site "
+ + "  where siteid = '"+params["mroSite"]+"'"
+ ;
+	maximoDataSet.setQuery(sqlText);]]></method>
+            <method name="fetch"><![CDATA[if (!maximoDataSet.fetch())
+	   return (false);
+	// Add a line for each output column
+	row["description"] = maximoDataSet.getString("description");
+	return (true);]]></method>
+        </script-data-set>
+    </data-sets>
+    <styles>
+        <style name="NewStyle" id="583">
+            <property name="borderBottomStyle">solid</property>
+            <property name="borderBottomWidth">thin</property>
+            <property name="borderLeftStyle">solid</property>
+            <property name="borderLeftWidth">thin</property>
+            <property name="borderRightStyle">solid</property>
+            <property name="borderRightWidth">thin</property>
+            <property name="borderTopStyle">solid</property>
+            <property name="borderTopWidth">thin</property>
+            <property name="textAlign">center</property>
+        </style>
+    </styles>
+    <page-setup>
+        <simple-master-page name="maximoLandscape" id="47" extends="MaximoSystemLibrary.maximoLandscape">
+            <property name="type">a4</property>
+            <overridden-values>
+                <ref-entry baseId="304" name="NewGrid2" id="304"/>
+                <ref-entry baseId="305" id="305"/>
+                <ref-entry baseId="306" id="306"/>
+                <ref-entry baseId="307" id="307"/>
+                <ref-entry baseId="308" id="308"/>
+                <ref-entry baseId="340" name="NewImage1" id="340">
+                    <property name="source">file</property>
+                    <expression name="uri">"IBM_logo_Black.gif"</expression>
+                    <property name="height">1px</property>
+                    <property name="width">3px</property>
+                </ref-entry>
+                <ref-entry baseId="309" id="309"/>
+                <ref-entry baseId="310" name="NewImage" id="310">
+                    <property name="height">1px</property>
+                    <property name="width">1px</property>
+                </ref-entry>
+                <ref-entry baseId="322" name="NewGrid" id="322">
+                    <list-property name="visibility">
+                        <structure>
+                            <property name="format">xls</property>
+                            <expression name="valueExpr">true</expression>
+                        </structure>
+                        <structure>
+                            <property name="format">pdf</property>
+                            <expression name="valueExpr">true</expression>
+                        </structure>
+                    </list-property>
+                </ref-entry>
+                <ref-entry baseId="323" id="323"/>
+                <ref-entry baseId="324" id="324"/>
+                <ref-entry baseId="325" id="325"/>
+                <ref-entry baseId="326" id="326"/>
+                <ref-entry baseId="328" name="NewText" id="328"/>
+                <ref-entry baseId="327" id="327"/>
+                <ref-entry baseId="329" name="NewGrid1" id="329"/>
+                <ref-entry baseId="330" id="330"/>
+                <ref-entry baseId="331" id="331"/>
+                <ref-entry baseId="332" id="332"/>
+                <ref-entry baseId="333" id="333"/>
+                <ref-entry baseId="334" id="334"/>
+                <ref-entry baseId="335" name="NewAutoText" id="335"/>
+                <ref-entry baseId="336" id="336"/>
+                <ref-entry baseId="337" name="NewText1" id="337"/>
+                <ref-entry baseId="338" id="338"/>
+                <ref-entry baseId="339" name="NewAutoText1" id="339"/>
+            </overridden-values>
+        </simple-master-page>
+    </page-setup>
+    <body>
+        <grid id="8747">
+            <property name="textAlign">center</property>
+            <property name="width">100%</property>
+            <column id="8748"/>
+            <row id="8749">
+                <cell id="8750">
+                    <label id="8845">
+                        <property name="fontSize">x-large</property>
+                        <property name="fontWeight">bold</property>
+                        <text-property name="text">45. Приведение полосы отвода в образцовое состояние на станциях по состоянию</text-property>
+                    </label>
+                </cell>
+            </row>
+            <row id="8751">
+                <cell id="8752">
+                    <data id="9005">
+                        <property name="fontSize">large</property>
+                        <property name="fontWeight">bold</property>
+                        <property name="dataSet">start</property>
+                        <list-property name="boundDataColumns">
+                            <structure>
+                                <property name="name">DAT</property>
+                                <property name="displayName">DAT</property>
+                                <expression name="expression">'на '+dataSetRow["DAT"]</expression>
+                                <property name="dataType">string</property>
+                            </structure>
+                        </list-property>
+                        <property name="resultSetColumn">DAT</property>
+                    </data>
+                </cell>
+            </row>
+            <row id="8753">
+                <cell id="8754">
+                    <data id="7886">
+                        <property name="fontSize">large</property>
+                        <property name="fontWeight">bold</property>
+                        <property name="textAlign">center</property>
+                        <property name="dataSet">site</property>
+                        <list-property name="boundDataColumns">
+                            <structure>
+                                <property name="name">description</property>
+                                <property name="displayName">description</property>
+                                <expression name="expression">dataSetRow["description"] + ' железная дорога'</expression>
+                                <property name="dataType">string</property>
+                            </structure>
+                        </list-property>
+                        <property name="resultSetColumn">description</property>
+                    </data>
+                </cell>
+            </row>
+            <row id="8755">
+                <property name="height">1cm</property>
+                <cell id="8756"/>
+            </row>
+            <row id="8757">
+                <cell id="8758">
+                    <grid id="8905">
+                        <property name="width">95%</property>
+                        <column id="8906"/>
+                        <row id="8907">
+                            <cell id="8908">
+                                <property name="textAlign">left</property>
+                                <table id="8686">
+                                    <property name="marginTop">0pt</property>
+                                    <property name="width">1400px</property>
+                                    <property name="dataSet">Workreport</property>
+                                    <property name="pageBreakInterval">40000000</property>
+                                    <column id="8739">
+                                        <property name="width">220px</property>
+                                        <property name="suppressDuplicates">true</property>
+                                    </column>
+                                    <column id="8740">
+                                        <property name="width">120px</property>
+                                    </column>
+                                    <column id="8913">
+                                        <property name="width">120px</property>
+                                    </column>
+                                    <column id="8741">
+                                        <property name="width">120px</property>
+                                    </column>
+                                    <column id="8742">
+                                        <property name="width">120px</property>
+                                    </column>
+                                    <column id="8743">
+                                        <property name="width">120px</property>
+                                    </column>
+                                    <column id="8744">
+                                        <property name="width">120px</property>
+                                    </column>
+                                    <header>
+                                        <row id="8779">
+                                            <property name="height">8mm</property>
+                                            <property name="backgroundColor">#8BCBF5</property>
+                                            <cell id="8780">
+                                                <property name="colSpan">1</property>
+                                                <property name="rowSpan">2</property>
+                                                <property name="borderBottomColor">#000000</property>
+                                                <property name="borderBottomStyle">solid</property>
+                                                <property name="borderBottomWidth">thin</property>
+                                                <property name="borderLeftColor">#000000</property>
+                                                <property name="borderLeftStyle">solid</property>
+                                                <property name="borderLeftWidth">thin</property>
+                                                <property name="borderRightColor">#000000</property>
+                                                <property name="borderRightStyle">solid</property>
+                                                <property name="borderRightWidth">thin</property>
+                                                <property name="borderTopColor">#000000</property>
+                                                <property name="borderTopStyle">solid</property>
+                                                <property name="borderTopWidth">thin</property>
+                                                <property name="paddingTop">0pt</property>
+                                                <property name="paddingLeft">0pt</property>
+                                                <property name="paddingBottom">0pt</property>
+                                                <property name="paddingRight">0pt</property>
+                                                <property name="textAlign">center</property>
+                                                <label id="8803">
+                                                    <property name="fontSize">x-small</property>
+                                                    <property name="fontWeight">bold</property>
+                                                    <text-property name="text">Предприятие</text-property>
+                                                </label>
+                                            </cell>
+                                            <cell id="8781">
+                                                <property name="colSpan">3</property>
+                                                <property name="rowSpan">1</property>
+                                                <property name="borderBottomColor">#000000</property>
+                                                <property name="borderBottomStyle">solid</property>
+                                                <property name="borderBottomWidth">thin</property>
+                                                <property name="borderLeftColor">#000000</property>
+                                                <property name="borderLeftStyle">solid</property>
+                                                <property name="borderLeftWidth">thin</property>
+                                                <property name="borderRightColor">#000000</property>
+                                                <property name="borderRightStyle">solid</property>
+                                                <property name="borderRightWidth">thin</property>
+                                                <property name="borderTopColor">#000000</property>
+                                                <property name="borderTopStyle">solid</property>
+                                                <property name="borderTopWidth">thin</property>
+                                                <property name="paddingTop">0pt</property>
+                                                <property name="paddingLeft">0pt</property>
+                                                <property name="paddingBottom">0pt</property>
+                                                <property name="paddingRight">0pt</property>
+                                                <property name="textAlign">center</property>
+                                                <label id="8802">
+                                                    <property name="fontSize">x-small</property>
+                                                    <property name="fontWeight">bold</property>
+                                                    <text-property name="text">Разбросанность материалов ВСП</text-property>
+                                                </label>
+                                            </cell>
+                                            <cell id="8783">
+                                                <property name="colSpan">3</property>
+                                                <property name="rowSpan">1</property>
+                                                <property name="fontSize">x-small</property>
+                                                <property name="borderBottomColor">#000000</property>
+                                                <property name="borderBottomStyle">solid</property>
+                                                <property name="borderBottomWidth">thin</property>
+                                                <property name="borderLeftColor">#000000</property>
+                                                <property name="borderLeftStyle">solid</property>
+                                                <property name="borderLeftWidth">thin</property>
+                                                <property name="borderRightColor">#000000</property>
+                                                <property name="borderRightStyle">solid</property>
+                                                <property name="borderRightWidth">thin</property>
+                                                <property name="borderTopColor">#000000</property>
+                                                <property name="borderTopStyle">solid</property>
+                                                <property name="borderTopWidth">thin</property>
+                                                <property name="paddingTop">0pt</property>
+                                                <property name="paddingLeft">0pt</property>
+                                                <property name="paddingBottom">0pt</property>
+                                                <property name="paddingRight">0pt</property>
+                                                <property name="textAlign">center</property>
+                                                <label id="8914">
+                                                    <property name="fontSize">x-small</property>
+                                                    <property name="fontWeight">bold</property>
+                                                    <text-property name="text">Зарастание кустарником и травой (требуется обработка гербицидом)</text-property>
+                                                </label>
+                                            </cell>
+                                        </row>
+                                        <row id="9033">
+                                            <property name="height">8mm</property>
+                                            <property name="backgroundColor">#8BCBF5</property>
+                                            <cell id="9035">
+                                                <property name="borderBottomColor">#000000</property>
+                                                <property name="borderBottomStyle">solid</property>
+                                                <property name="borderBottomWidth">thin</property>
+                                                <property name="borderLeftColor">#000000</property>
+                                                <property name="borderLeftStyle">solid</property>
+                                                <property name="borderLeftWidth">thin</property>
+                                                <property name="borderRightColor">#000000</property>
+                                                <property name="borderRightStyle">solid</property>
+                                                <property name="borderRightWidth">thin</property>
+                                                <property name="borderTopColor">#000000</property>
+                                                <property name="borderTopStyle">solid</property>
+                                                <property name="borderTopWidth">thin</property>
+                                                <property name="paddingTop">0pt</property>
+                                                <property name="paddingLeft">0pt</property>
+                                                <property name="paddingBottom">0pt</property>
+                                                <property name="paddingRight">0pt</property>
+                                                <property name="textAlign">center</property>
+                                                <label id="9044">
+                                                    <property name="fontSize">x-small</property>
+                                                    <property name="fontWeight">bold</property>
+                                                    <text-property name="text">треб. убрать</text-property>
+                                                </label>
+                                            </cell>
+                                            <cell id="9036">
+                                                <property name="borderBottomColor">#000000</property>
+                                                <property name="borderBottomStyle">solid</property>
+                                                <property name="borderBottomWidth">thin</property>
+                                                <property name="borderLeftColor">#000000</property>
+                                                <property name="borderLeftStyle">solid</property>
+                                                <property name="borderLeftWidth">thin</property>
+                                                <property name="borderRightColor">#000000</property>
+                                                <property name="borderRightStyle">solid</property>
+                                                <property name="borderRightWidth">thin</property>
+                                                <property name="borderTopColor">#000000</property>
+                                                <property name="borderTopStyle">solid</property>
+                                                <property name="borderTopWidth">thin</property>
+                                                <property name="paddingTop">0pt</property>
+                                                <property name="paddingLeft">0pt</property>
+                                                <property name="paddingBottom">0pt</property>
+                                                <property name="paddingRight">0pt</property>
+                                                <property name="textAlign">center</property>
+                                                <label id="9045">
+                                                    <property name="fontSize">x-small</property>
+                                                    <property name="fontWeight">bold</property>
+                                                    <text-property name="text">убрано за день</text-property>
+                                                </label>
+                                            </cell>
+                                            <cell id="9037">
+                                                <property name="borderBottomColor">#000000</property>
+                                                <property name="borderBottomStyle">solid</property>
+                                                <property name="borderBottomWidth">thin</property>
+                                                <property name="borderLeftColor">#000000</property>
+                                                <property name="borderLeftStyle">solid</property>
+                                                <property name="borderLeftWidth">thin</property>
+                                                <property name="borderRightColor">#000000</property>
+                                                <property name="borderRightStyle">solid</property>
+                                                <property name="borderRightWidth">thin</property>
+                                                <property name="borderTopColor">#000000</property>
+                                                <property name="borderTopStyle">solid</property>
+                                                <property name="borderTopWidth">thin</property>
+                                                <property name="paddingTop">0pt</property>
+                                                <property name="paddingLeft">0pt</property>
+                                                <property name="paddingBottom">0pt</property>
+                                                <property name="paddingRight">0pt</property>
+                                                <property name="textAlign">center</property>
+                                                <label id="9046">
+                                                    <property name="fontSize">x-small</property>
+                                                    <property name="fontWeight">bold</property>
+                                                    <text-property name="text">убрано всего за год</text-property>
+                                                </label>
+                                            </cell>
+                                            <cell id="9038">
+                                                <property name="fontSize">x-small</property>
+                                                <property name="borderBottomColor">#000000</property>
+                                                <property name="borderBottomStyle">solid</property>
+                                                <property name="borderBottomWidth">thin</property>
+                                                <property name="borderLeftColor">#000000</property>
+                                                <property name="borderLeftStyle">solid</property>
+                                                <property name="borderLeftWidth">thin</property>
+                                                <property name="borderRightColor">#000000</property>
+                                                <property name="borderRightStyle">solid</property>
+                                                <property name="borderRightWidth">thin</property>
+                                                <property name="borderTopColor">#000000</property>
+                                                <property name="borderTopStyle">solid</property>
+                                                <property name="borderTopWidth">thin</property>
+                                                <property name="paddingTop">0pt</property>
+                                                <property name="paddingLeft">0pt</property>
+                                                <property name="paddingBottom">0pt</property>
+                                                <property name="paddingRight">0pt</property>
+                                                <property name="textAlign">center</property>
+                                                <label id="9047">
+                                                    <property name="fontSize">x-small</property>
+                                                    <property name="fontWeight">bold</property>
+                                                    <text-property name="text">треб. обработать</text-property>
+                                                </label>
+                                            </cell>
+                                            <cell id="9039">
+                                                <property name="fontSize">x-small</property>
+                                                <property name="borderBottomColor">#000000</property>
+                                                <property name="borderBottomStyle">solid</property>
+                                                <property name="borderBottomWidth">thin</property>
+                                                <property name="borderLeftColor">#000000</property>
+                                                <property name="borderLeftStyle">solid</property>
+                                                <property name="borderLeftWidth">thin</property>
+                                                <property name="borderRightColor">#000000</property>
+                                                <property name="borderRightStyle">solid</property>
+                                                <property name="borderRightWidth">thin</property>
+                                                <property name="borderTopColor">#000000</property>
+                                                <property name="borderTopStyle">solid</property>
+                                                <property name="borderTopWidth">thin</property>
+                                                <property name="paddingTop">0pt</property>
+                                                <property name="paddingLeft">0pt</property>
+                                                <property name="paddingBottom">0pt</property>
+                                                <property name="paddingRight">0pt</property>
+                                                <property name="textAlign">center</property>
+                                                <label id="9048">
+                                                    <property name="fontSize">x-small</property>
+                                                    <property name="fontWeight">bold</property>
+                                                    <text-property name="text">обработано за день</text-property>
+                                                </label>
+                                            </cell>
+                                            <cell id="9040">
+                                                <property name="fontSize">x-small</property>
+                                                <property name="borderBottomColor">#000000</property>
+                                                <property name="borderBottomStyle">solid</property>
+                                                <property name="borderBottomWidth">thin</property>
+                                                <property name="borderLeftColor">#000000</property>
+                                                <property name="borderLeftStyle">solid</property>
+                                                <property name="borderLeftWidth">thin</property>
+                                                <property name="borderRightColor">#000000</property>
+                                                <property name="borderRightStyle">solid</property>
+                                                <property name="borderRightWidth">thin</property>
+                                                <property name="borderTopColor">#000000</property>
+                                                <property name="borderTopStyle">solid</property>
+                                                <property name="borderTopWidth">thin</property>
+                                                <property name="paddingTop">0pt</property>
+                                                <property name="paddingLeft">0pt</property>
+                                                <property name="paddingBottom">0pt</property>
+                                                <property name="paddingRight">0pt</property>
+                                                <property name="textAlign">center</property>
+                                                <label id="9049">
+                                                    <property name="fontSize">x-small</property>
+                                                    <property name="fontWeight">bold</property>
+                                                    <text-property name="text">обработано всего за год</text-property>
+                                                </label>
+                                            </cell>
+                                        </row>
+                                    </header>
+                                </table>
+                                <table id="8846">
+                                    <property name="marginTop">0pt</property>
+                                    <property name="width">1400px</property>
+                                    <property name="dataSet">Workreport</property>
+                                    <list-property name="boundDataColumns">
+                                        <structure>
+                                            <property name="name">description</property>
+                                            <property name="displayName">description</property>
+                                            <expression name="expression">dataSetRow["description"]</expression>
+                                            <property name="dataType">string</property>
+                                        </structure>
+                                        <structure>
+                                            <property name="name">nom</property>
+                                            <property name="displayName">nom</property>
+                                            <expression name="expression">dataSetRow["nom"]</expression>
+                                            <property name="dataType">string</property>
+                                        </structure>
+                                        <structure>
+                                            <property name="name">region</property>
+                                            <property name="displayName">region</property>
+                                            <expression name="expression">dataSetRow["region"]</expression>
+                                            <property name="dataType">string</property>
+                                        </structure>
+                                        <structure>
+                                            <property name="name">razb_vsp</property>
+                                            <property name="displayName">razb_vsp</property>
+                                            <expression name="expression">dataSetRow["razb_vsp"]</expression>
+                                            <property name="dataType">integer</property>
+                                        </structure>
+                                        <structure>
+                                            <property name="name">razb_vsp_ustr</property>
+                                            <property name="displayName">razb_vsp_ustr</property>
+                                            <expression name="expression">dataSetRow["razb_vsp_ustr"]</expression>
+                                            <property name="dataType">integer</property>
+                                        </structure>
+                                        <structure>
+                                            <property name="name">razb_vsp_ustr_d</property>
+                                            <property name="displayName">razb_vsp_ustr_d</property>
+                                            <expression name="expression">dataSetRow["razb_vsp_ustr_d"]</expression>
+                                            <property name="dataType">integer</property>
+                                        </structure>
+                                        <structure>
+                                            <property name="name">obr_girbic</property>
+                                            <property name="displayName">obr_girbic</property>
+                                            <expression name="expression">dataSetRow["obr_girbic"]</expression>
+                                            <property name="dataType">integer</property>
+                                        </structure>
+                                        <structure>
+                                            <property name="name">obr_girbic_ustr_d</property>
+                                            <property name="displayName">obr_girbic_ustr_d</property>
+                                            <expression name="expression">dataSetRow["obr_girbic_ustr_d"]</expression>
+                                            <property name="dataType">integer</property>
+                                        </structure>
+                                        <structure>
+                                            <property name="name">obr_girbic_ustr</property>
+                                            <property name="displayName">obr_girbic_ustr</property>
+                                            <expression name="expression">dataSetRow["obr_girbic_ustr"]</expression>
+                                            <property name="dataType">integer</property>
+                                        </structure>
+                                        <structure>
+                                            <property name="name">Aggregation</property>
+                                            <property name="dataType">integer</property>
+                                            <simple-property-list name="aggregateOn">
+                                                <value>region</value>
+                                            </simple-property-list>
+                                            <property name="aggregateFunction">SUM</property>
+                                            <list-property name="arguments">
+                                                <structure>
+                                                    <property name="name">Expression</property>
+                                                    <expression name="value">row["razb_vsp"]</expression>
+                                                </structure>
+                                            </list-property>
+                                        </structure>
+                                        <structure>
+                                            <property name="name">Aggregation_1</property>
+                                            <property name="dataType">integer</property>
+                                            <simple-property-list name="aggregateOn">
+                                                <value>region</value>
+                                            </simple-property-list>
+                                            <property name="aggregateFunction">SUM</property>
+                                            <list-property name="arguments">
+                                                <structure>
+                                                    <property name="name">Expression</property>
+                                                    <expression name="value">row["razb_vsp_ustr_d"]</expression>
+                                                </structure>
+                                            </list-property>
+                                        </structure>
+                                        <structure>
+                                            <property name="name">Aggregation_2</property>
+                                            <property name="dataType">integer</property>
+                                            <simple-property-list name="aggregateOn">
+                                                <value>region</value>
+                                            </simple-property-list>
+                                            <property name="aggregateFunction">SUM</property>
+                                            <list-property name="arguments">
+                                                <structure>
+                                                    <property name="name">Expression</property>
+                                                    <expression name="value">row["razb_vsp_ustr"]</expression>
+                                                </structure>
+                                            </list-property>
+                                        </structure>
+                                        <structure>
+                                            <property name="name">Aggregation_3</property>
+                                            <property name="dataType">integer</property>
+                                            <simple-property-list name="aggregateOn">
+                                                <value>region</value>
+                                            </simple-property-list>
+                                            <property name="aggregateFunction">SUM</property>
+                                            <list-property name="arguments">
+                                                <structure>
+                                                    <property name="name">Expression</property>
+                                                    <expression name="value">row["obr_girbic"]</expression>
+                                                </structure>
+                                            </list-property>
+                                        </structure>
+                                        <structure>
+                                            <property name="name">Aggregation_4</property>
+                                            <property name="dataType">integer</property>
+                                            <simple-property-list name="aggregateOn">
+                                                <value>region</value>
+                                            </simple-property-list>
+                                            <property name="aggregateFunction">SUM</property>
+                                            <list-property name="arguments">
+                                                <structure>
+                                                    <property name="name">Expression</property>
+                                                    <expression name="value">row["obr_girbic_ustr_d"]</expression>
+                                                </structure>
+                                            </list-property>
+                                        </structure>
+                                        <structure>
+                                            <property name="name">Aggregation_5</property>
+                                            <property name="dataType">integer</property>
+                                            <simple-property-list name="aggregateOn">
+                                                <value>region</value>
+                                            </simple-property-list>
+                                            <property name="aggregateFunction">SUM</property>
+                                            <list-property name="arguments">
+                                                <structure>
+                                                    <property name="name">Expression</property>
+                                                    <expression name="value">row["obr_girbic_ustr"]</expression>
+                                                </structure>
+                                            </list-property>
+                                        </structure>
+                                        <structure>
+                                            <property name="name">all1</property>
+                                            <property name="dataType">integer</property>
+                                            <property name="aggregateFunction">SUM</property>
+                                            <list-property name="arguments">
+                                                <structure>
+                                                    <property name="name">Expression</property>
+                                                    <expression name="value">row["razb_vsp"]</expression>
+                                                </structure>
+                                            </list-property>
+                                        </structure>
+                                        <structure>
+                                            <property name="name">all2</property>
+                                            <property name="dataType">integer</property>
+                                            <property name="aggregateFunction">SUM</property>
+                                            <list-property name="arguments">
+                                                <structure>
+                                                    <property name="name">Expression</property>
+                                                    <expression name="value">row["razb_vsp_ustr_d"]</expression>
+                                                </structure>
+                                            </list-property>
+                                        </structure>
+                                        <structure>
+                                            <property name="name">all3</property>
+                                            <property name="dataType">integer</property>
+                                            <property name="aggregateFunction">SUM</property>
+                                            <list-property name="arguments">
+                                                <structure>
+                                                    <property name="name">Expression</property>
+                                                    <expression name="value">row["razb_vsp_ustr"]</expression>
+                                                </structure>
+                                            </list-property>
+                                        </structure>
+                                        <structure>
+                                            <property name="name">all4</property>
+                                            <property name="dataType">integer</property>
+                                            <property name="aggregateFunction">SUM</property>
+                                            <list-property name="arguments">
+                                                <structure>
+                                                    <property name="name">Expression</property>
+                                                    <expression name="value">row["obr_girbic"]</expression>
+                                                </structure>
+                                            </list-property>
+                                        </structure>
+                                        <structure>
+                                            <property name="name">all5</property>
+                                            <property name="dataType">integer</property>
+                                            <property name="aggregateFunction">SUM</property>
+                                            <list-property name="arguments">
+                                                <structure>
+                                                    <property name="name">Expression</property>
+                                                    <expression name="value">row["obr_girbic_ustr_d"]</expression>
+                                                </structure>
+                                            </list-property>
+                                        </structure>
+                                        <structure>
+                                            <property name="name">all6</property>
+                                            <property name="dataType">integer</property>
+                                            <property name="aggregateFunction">SUM</property>
+                                            <list-property name="arguments">
+                                                <structure>
+                                                    <property name="name">Expression</property>
+                                                    <expression name="value">row["obr_girbic_ustr"]</expression>
+                                                </structure>
+                                            </list-property>
+                                        </structure>
+                                        <structure>
+                                            <property name="name">location</property>
+                                            <property name="displayName">location</property>
+                                            <expression name="expression">dataSetRow["location"]</expression>
+                                            <property name="dataType">string</property>
+                                        </structure>
+                                    </list-property>
+                                    <expression name="bookmark">"scroll"</expression>
+                                    <property name="pageBreakInterval">40000000</property>
+                                    <list-property name="sort">
+                                        <structure>
+                                            <expression name="key">row["nom"].replace(/^\D{1,}/, "").replace (/\D{1,}$/, "")*1</expression>
+                                            <property name="direction">asc</property>
+                                        </structure>
+                                    </list-property>
+                                    <column id="8896">
+                                        <property name="width">220px</property>
+                                        <property name="suppressDuplicates">true</property>
+                                    </column>
+                                    <column id="8897">
+                                        <property name="width">120px</property>
+                                        <property name="suppressDuplicates">false</property>
+                                    </column>
+                                    <column id="8911">
+                                        <property name="width">120px</property>
+                                        <property name="suppressDuplicates">false</property>
+                                    </column>
+                                    <column id="8898">
+                                        <property name="width">120px</property>
+                                    </column>
+                                    <column id="8899">
+                                        <property name="width">120px</property>
+                                        <property name="suppressDuplicates">false</property>
+                                    </column>
+                                    <column id="8900">
+                                        <property name="width">120px</property>
+                                        <property name="suppressDuplicates">false</property>
+                                    </column>
+                                    <column id="8901">
+                                        <property name="width">120px</property>
+                                        <property name="suppressDuplicates">false</property>
+                                    </column>
+                                    <group id="9009">
+                                        <property name="groupName">region</property>
+                                        <property name="interval">none</property>
+                                        <property name="sortDirection">asc</property>
+                                        <expression name="keyExpr">row["region"]</expression>
+                                        <structure name="toc">
+                                            <expression name="expressionValue">row["region"]</expression>
+                                        </structure>
+                                        <property name="repeatHeader">true</property>
+                                        <property name="hideDetail">false</property>
+                                        <property name="pageBreakAfter">auto</property>
+                                        <property name="pageBreakBefore">auto</property>
+                                        <property name="pageBreakInside">auto</property>
+                                    </group>
+                                    <detail>
+                                        <row id="8877">
+                                            <property name="height">4mm</property>
+                                            <property name="verticalAlign">middle</property>
+                                            <cell id="8878">
+                                                <property name="borderLeftColor">#000000</property>
+                                                <property name="borderLeftStyle">solid</property>
+                                                <property name="borderLeftWidth">thin</property>
+                                                <property name="borderRightColor">#000000</property>
+                                                <property name="borderRightStyle">solid</property>
+                                                <property name="borderRightWidth">thin</property>
+                                                <property name="borderTopColor">#000000</property>
+                                                <property name="borderTopStyle">solid</property>
+                                                <property name="borderTopWidth">1px</property>
+                                                <property name="paddingTop">0pt</property>
+                                                <property name="paddingLeft">0pt</property>
+                                                <property name="paddingBottom">0pt</property>
+                                                <property name="paddingRight">0pt</property>
+                                                <property name="textAlign">left</property>
+                                                <data id="9007">
+                                                    <list-property name="visibility">
+                                                        <structure>
+                                                            <property name="format">all</property>
+                                                            <expression name="valueExpr">true</expression>
+                                                        </structure>
+                                                    </list-property>
+                                                    <property name="resultSetColumn">nom</property>
+                                                </data>
+                                                <data id="9006">
+                                                    <property name="paddingTop">3pt</property>
+                                                    <property name="paddingLeft">5pt</property>
+                                                    <property name="paddingBottom">3pt</property>
+                                                    <property name="resultSetColumn">description</property>
+                                                </data>
+                                            </cell>
+                                            <cell id="8880">
+                                                <property name="borderLeftColor">#000000</property>
+                                                <property name="borderLeftStyle">solid</property>
+                                                <property name="borderLeftWidth">thin</property>
+                                                <property name="borderRightColor">#000000</property>
+                                                <property name="borderRightStyle">solid</property>
+                                                <property name="borderRightWidth">thin</property>
+                                                <property name="borderTopColor">#000000</property>
+                                                <property name="borderTopStyle">solid</property>
+                                                <property name="borderTopWidth">1px</property>
+                                                <property name="paddingTop">0pt</property>
+                                                <property name="paddingLeft">0pt</property>
+                                                <property name="paddingBottom">0pt</property>
+                                                <property name="paddingRight">0pt</property>
+                                                <property name="textAlign">left</property>
+                                                <data id="9050">
+                                                    <property name="paddingTop">3pt</property>
+                                                    <property name="paddingLeft">5pt</property>
+                                                    <property name="paddingBottom">3pt</property>
+                                                    <property name="resultSetColumn">razb_vsp</property>
+                                                    <structure name="action">
+                                                        <property name="linkType">drill-through</property>
+                                                        <property name="reportName">inc_polosa_otv-nn.rptdesign</property>
+                                                        <property name="targetWindow">_blank</property>
+                                                        <property name="targetFileType">report-design</property>
+                                                        <list-property name="paramBindings">
+                                                            <structure>
+                                                                <property name="paramName">where</property>
+                                                                <expression name="expression">1</expression>
+                                                            </structure>
+                                                            <structure>
+                                                                <property name="paramName">appname</property>
+                                                                <expression name="expression">params["appname"].value</expression>
+                                                            </structure>
+                                                            <structure>
+                                                                <property name="paramName">paramdelimiter</property>
+                                                                <expression name="expression">params["paramdelimiter"].value</expression>
+                                                            </structure>
+                                                            <structure>
+                                                                <property name="paramName">paramstring</property>
+                                                                <expression name="expression">params["paramstring"].value</expression>
+                                                            </structure>
+                                                            <structure>
+                                                                <property name="paramName">userName</property>
+                                                                <expression name="expression">params["userName"].value</expression>
+                                                            </structure>
+                                                            <structure>
+                                                                <property name="paramName">par</property>
+                                                                <expression name="expression">params["par"].value</expression>
+                                                            </structure>
+                                                            <structure>
+                                                                <property name="paramName">locationId</property>
+                                                                <expression name="expression">row["location"]</expression>
+                                                            </structure>
+                                                            <structure>
+                                                                <property name="paramName">status</property>
+                                                                <expression name="expression">0</expression>
+                                                            </structure>
+                                                        </list-property>
+                                                    </structure>
+                                                </data>
+                                            </cell>
+                                            <cell id="8909">
+                                                <property name="borderLeftColor">#000000</property>
+                                                <property name="borderLeftStyle">solid</property>
+                                                <property name="borderLeftWidth">thin</property>
+                                                <property name="borderRightColor">#000000</property>
+                                                <property name="borderRightStyle">solid</property>
+                                                <property name="borderRightWidth">thin</property>
+                                                <property name="borderTopColor">#000000</property>
+                                                <property name="borderTopStyle">solid</property>
+                                                <property name="borderTopWidth">1px</property>
+                                                <property name="paddingTop">0pt</property>
+                                                <property name="paddingLeft">0pt</property>
+                                                <property name="paddingBottom">0pt</property>
+                                                <property name="paddingRight">0pt</property>
+                                                <property name="textAlign">left</property>
+                                                <data id="9052">
+                                                    <property name="paddingTop">3pt</property>
+                                                    <property name="paddingLeft">5pt</property>
+                                                    <property name="paddingBottom">3pt</property>
+                                                    <property name="resultSetColumn">razb_vsp_ustr_d</property>
+                                                    <structure name="action">
+                                                        <property name="linkType">drill-through</property>
+                                                        <property name="reportName">inc_polosa_otv-nn.rptdesign</property>
+                                                        <property name="targetWindow">_blank</property>
+                                                        <property name="targetFileType">report-design</property>
+                                                        <list-property name="paramBindings">
+                                                            <structure>
+                                                                <property name="paramName">where</property>
+                                                                <expression name="expression">1</expression>
+                                                            </structure>
+                                                            <structure>
+                                                                <property name="paramName">appname</property>
+                                                                <expression name="expression">params["appname"].value</expression>
+                                                            </structure>
+                                                            <structure>
+                                                                <property name="paramName">paramdelimiter</property>
+                                                                <expression name="expression">params["paramdelimiter"].value</expression>
+                                                            </structure>
+                                                            <structure>
+                                                                <property name="paramName">paramstring</property>
+                                                                <expression name="expression">params["paramstring"].value</expression>
+                                                            </structure>
+                                                            <structure>
+                                                                <property name="paramName">userName</property>
+                                                                <expression name="expression">params["userName"].value</expression>
+                                                            </structure>
+                                                            <structure>
+                                                                <property name="paramName">par</property>
+                                                                <expression name="expression">params["par"].value</expression>
+                                                            </structure>
+                                                            <structure>
+                                                                <property name="paramName">locationId</property>
+                                                                <expression name="expression">row["location"]</expression>
+                                                            </structure>
+                                                            <structure>
+                                                                <property name="paramName">status</property>
+                                                                <expression name="expression">2</expression>
+                                                            </structure>
+                                                        </list-property>
+                                                    </structure>
+                                                </data>
+                                            </cell>
+                                            <cell id="8882">
+                                                <property name="borderLeftColor">#000000</property>
+                                                <property name="borderLeftStyle">solid</property>
+                                                <property name="borderLeftWidth">thin</property>
+                                                <property name="borderRightColor">#000000</property>
+                                                <property name="borderRightStyle">solid</property>
+                                                <property name="borderRightWidth">thin</property>
+                                                <property name="borderTopColor">#000000</property>
+                                                <property name="borderTopStyle">solid</property>
+                                                <property name="borderTopWidth">1px</property>
+                                                <property name="paddingTop">0pt</property>
+                                                <property name="paddingLeft">0pt</property>
+                                                <property name="paddingBottom">0pt</property>
+                                                <property name="paddingRight">0pt</property>
+                                                <property name="textAlign">left</property>
+                                                <data id="9051">
+                                                    <property name="paddingTop">3pt</property>
+                                                    <property name="paddingLeft">5pt</property>
+                                                    <property name="paddingBottom">3pt</property>
+                                                    <property name="resultSetColumn">razb_vsp_ustr</property>
+                                                    <structure name="action">
+                                                        <property name="linkType">drill-through</property>
+                                                        <property name="reportName">inc_polosa_otv-nn.rptdesign</property>
+                                                        <property name="targetWindow">_blank</property>
+                                                        <property name="targetFileType">report-design</property>
+                                                        <list-property name="paramBindings">
+                                                            <structure>
+                                                                <property name="paramName">where</property>
+                                                                <expression name="expression">1</expression>
+                                                            </structure>
+                                                            <structure>
+                                                                <property name="paramName">appname</property>
+                                                                <expression name="expression">params["appname"].value</expression>
+                                                            </structure>
+                                                            <structure>
+                                                                <property name="paramName">paramdelimiter</property>
+                                                                <expression name="expression">params["paramdelimiter"].value</expression>
+                                                            </structure>
+                                                            <structure>
+                                                                <property name="paramName">paramstring</property>
+                                                                <expression name="expression">params["paramstring"].value</expression>
+                                                            </structure>
+                                                            <structure>
+                                                                <property name="paramName">userName</property>
+                                                                <expression name="expression">params["userName"].value</expression>
+                                                            </structure>
+                                                            <structure>
+                                                                <property name="paramName">par</property>
+                                                                <expression name="expression">params["par"].value</expression>
+                                                            </structure>
+                                                            <structure>
+                                                                <property name="paramName">locationId</property>
+                                                                <expression name="expression">row["location"]</expression>
+                                                            </structure>
+                                                            <structure>
+                                                                <property name="paramName">status</property>
+                                                                <expression name="expression">1</expression>
+                                                            </structure>
+                                                        </list-property>
+                                                    </structure>
+                                                </data>
+                                            </cell>
+                                            <cell id="8884">
+                                                <property name="borderLeftColor">#000000</property>
+                                                <property name="borderLeftStyle">solid</property>
+                                                <property name="borderLeftWidth">thin</property>
+                                                <property name="borderRightColor">#000000</property>
+                                                <property name="borderRightStyle">solid</property>
+                                                <property name="borderRightWidth">thin</property>
+                                                <property name="borderTopColor">#000000</property>
+                                                <property name="borderTopStyle">solid</property>
+                                                <property name="borderTopWidth">1px</property>
+                                                <property name="paddingTop">0pt</property>
+                                                <property name="paddingLeft">0pt</property>
+                                                <property name="paddingBottom">0pt</property>
+                                                <property name="paddingRight">0pt</property>
+                                                <property name="textAlign">left</property>
+                                                <data id="9053">
+                                                    <property name="paddingTop">3pt</property>
+                                                    <property name="paddingLeft">5pt</property>
+                                                    <property name="paddingBottom">3pt</property>
+                                                    <property name="resultSetColumn">obr_girbic</property>
+                                                    <structure name="action">
+                                                        <property name="linkType">drill-through</property>
+                                                        <property name="reportName">inc_polosa_otv-nn.rptdesign</property>
+                                                        <property name="targetWindow">_blank</property>
+                                                        <property name="targetFileType">report-design</property>
+                                                        <list-property name="paramBindings">
+                                                            <structure>
+                                                                <property name="paramName">where</property>
+                                                                <expression name="expression">1</expression>
+                                                            </structure>
+                                                            <structure>
+                                                                <property name="paramName">appname</property>
+                                                                <expression name="expression">params["appname"].value</expression>
+                                                            </structure>
+                                                            <structure>
+                                                                <property name="paramName">paramdelimiter</property>
+                                                                <expression name="expression">params["paramdelimiter"].value</expression>
+                                                            </structure>
+                                                            <structure>
+                                                                <property name="paramName">paramstring</property>
+                                                                <expression name="expression">params["paramstring"].value</expression>
+                                                            </structure>
+                                                            <structure>
+                                                                <property name="paramName">userName</property>
+                                                                <expression name="expression">params["userName"].value</expression>
+                                                            </structure>
+                                                            <structure>
+                                                                <property name="paramName">par</property>
+                                                                <expression name="expression">params["par"].value</expression>
+                                                            </structure>
+                                                            <structure>
+                                                                <property name="paramName">locationId</property>
+                                                                <expression name="expression">row["location"]</expression>
+                                                            </structure>
+                                                            <structure>
+                                                                <property name="paramName">status</property>
+                                                                <expression name="expression">3</expression>
+                                                            </structure>
+                                                        </list-property>
+                                                    </structure>
+                                                </data>
+                                            </cell>
+                                            <cell id="8886">
+                                                <property name="borderLeftColor">#000000</property>
+                                                <property name="borderLeftStyle">solid</property>
+                                                <property name="borderLeftWidth">thin</property>
+                                                <property name="borderRightColor">#000000</property>
+                                                <property name="borderRightStyle">solid</property>
+                                                <property name="borderRightWidth">thin</property>
+                                                <property name="borderTopColor">#000000</property>
+                                                <property name="borderTopStyle">solid</property>
+                                                <property name="borderTopWidth">1px</property>
+                                                <property name="paddingTop">0pt</property>
+                                                <property name="paddingLeft">0pt</property>
+                                                <property name="paddingBottom">0pt</property>
+                                                <property name="paddingRight">0pt</property>
+                                                <property name="textAlign">left</property>
+                                                <data id="9054">
+                                                    <property name="paddingTop">3pt</property>
+                                                    <property name="paddingLeft">5pt</property>
+                                                    <property name="paddingBottom">3pt</property>
+                                                    <property name="resultSetColumn">obr_girbic_ustr_d</property>
+                                                    <structure name="action">
+                                                        <property name="linkType">drill-through</property>
+                                                        <property name="reportName">inc_polosa_otv-nn.rptdesign</property>
+                                                        <property name="targetWindow">_blank</property>
+                                                        <property name="targetFileType">report-design</property>
+                                                        <list-property name="paramBindings">
+                                                            <structure>
+                                                                <property name="paramName">where</property>
+                                                                <expression name="expression">1</expression>
+                                                            </structure>
+                                                            <structure>
+                                                                <property name="paramName">appname</property>
+                                                                <expression name="expression">params["appname"].value</expression>
+                                                            </structure>
+                                                            <structure>
+                                                                <property name="paramName">paramdelimiter</property>
+                                                                <expression name="expression">params["paramdelimiter"].value</expression>
+                                                            </structure>
+                                                            <structure>
+                                                                <property name="paramName">paramstring</property>
+                                                                <expression name="expression">params["paramstring"].value</expression>
+                                                            </structure>
+                                                            <structure>
+                                                                <property name="paramName">userName</property>
+                                                                <expression name="expression">params["userName"].value</expression>
+                                                            </structure>
+                                                            <structure>
+                                                                <property name="paramName">par</property>
+                                                                <expression name="expression">params["par"].value</expression>
+                                                            </structure>
+                                                            <structure>
+                                                                <property name="paramName">locationId</property>
+                                                                <expression name="expression">row["location"]</expression>
+                                                            </structure>
+                                                            <structure>
+                                                                <property name="paramName">status</property>
+                                                                <expression name="expression">5</expression>
+                                                            </structure>
+                                                        </list-property>
+                                                    </structure>
+                                                </data>
+                                            </cell>
+                                            <cell id="8888">
+                                                <property name="borderLeftColor">#000000</property>
+                                                <property name="borderLeftStyle">solid</property>
+                                                <property name="borderLeftWidth">thin</property>
+                                                <property name="borderRightColor">#000000</property>
+                                                <property name="borderRightStyle">solid</property>
+                                                <property name="borderRightWidth">thin</property>
+                                                <property name="borderTopColor">#000000</property>
+                                                <property name="borderTopStyle">solid</property>
+                                                <property name="borderTopWidth">1px</property>
+                                                <property name="paddingTop">0pt</property>
+                                                <property name="paddingLeft">0pt</property>
+                                                <property name="paddingBottom">0pt</property>
+                                                <property name="paddingRight">0pt</property>
+                                                <property name="textAlign">left</property>
+                                                <data id="9055">
+                                                    <property name="paddingTop">3pt</property>
+                                                    <property name="paddingLeft">5pt</property>
+                                                    <property name="paddingBottom">3pt</property>
+                                                    <property name="resultSetColumn">obr_girbic_ustr</property>
+                                                    <structure name="action">
+                                                        <property name="linkType">drill-through</property>
+                                                        <property name="reportName">inc_polosa_otv-nn.rptdesign</property>
+                                                        <property name="targetWindow">_blank</property>
+                                                        <property name="targetFileType">report-design</property>
+                                                        <list-property name="paramBindings">
+                                                            <structure>
+                                                                <property name="paramName">where</property>
+                                                                <expression name="expression">1</expression>
+                                                            </structure>
+                                                            <structure>
+                                                                <property name="paramName">appname</property>
+                                                                <expression name="expression">params["appname"].value</expression>
+                                                            </structure>
+                                                            <structure>
+                                                                <property name="paramName">paramdelimiter</property>
+                                                                <expression name="expression">params["paramdelimiter"].value</expression>
+                                                            </structure>
+                                                            <structure>
+                                                                <property name="paramName">paramstring</property>
+                                                                <expression name="expression">params["paramstring"].value</expression>
+                                                            </structure>
+                                                            <structure>
+                                                                <property name="paramName">userName</property>
+                                                                <expression name="expression">params["userName"].value</expression>
+                                                            </structure>
+                                                            <structure>
+                                                                <property name="paramName">par</property>
+                                                                <expression name="expression">params["par"].value</expression>
+                                                            </structure>
+                                                            <structure>
+                                                                <property name="paramName">locationId</property>
+                                                                <expression name="expression">row["location"]</expression>
+                                                            </structure>
+                                                            <structure>
+                                                                <property name="paramName">status</property>
+                                                                <expression name="expression">4</expression>
+                                                            </structure>
+                                                        </list-property>
+                                                    </structure>
+                                                </data>
+                                            </cell>
+                                        </row>
+                                    </detail>
+                                    <footer>
+                                        <row id="9062">
+                                            <cell id="9063">
+                                                <property name="borderBottomColor">#000000</property>
+                                                <property name="borderBottomStyle">solid</property>
+                                                <property name="borderBottomWidth">2px</property>
+                                                <property name="borderLeftColor">#000000</property>
+                                                <property name="borderLeftStyle">solid</property>
+                                                <property name="borderLeftWidth">thin</property>
+                                                <property name="borderRightColor">#000000</property>
+                                                <property name="borderRightStyle">solid</property>
+                                                <property name="borderRightWidth">thin</property>
+                                                <property name="borderTopColor">#000000</property>
+                                                <property name="borderTopStyle">solid</property>
+                                                <property name="borderTopWidth">2px</property>
+                                                <label id="9070">
+                                                    <property name="fontWeight">bold</property>
+                                                    <property name="paddingTop">3pt</property>
+                                                    <property name="paddingLeft">5pt</property>
+                                                    <property name="paddingBottom">3pt</property>
+                                                    <text-property name="text">Итого :</text-property>
+                                                </label>
+                                            </cell>
+                                            <cell id="9064">
+                                                <property name="borderBottomColor">#000000</property>
+                                                <property name="borderBottomStyle">solid</property>
+                                                <property name="borderBottomWidth">2px</property>
+                                                <property name="borderLeftColor">#000000</property>
+                                                <property name="borderLeftStyle">solid</property>
+                                                <property name="borderLeftWidth">thin</property>
+                                                <property name="borderRightColor">#000000</property>
+                                                <property name="borderRightStyle">solid</property>
+                                                <property name="borderRightWidth">thin</property>
+                                                <property name="borderTopColor">#000000</property>
+                                                <property name="borderTopStyle">solid</property>
+                                                <property name="borderTopWidth">2px</property>
+                                                <data id="9071">
+                                                    <property name="fontWeight">bold</property>
+                                                    <property name="paddingTop">3pt</property>
+                                                    <property name="paddingLeft">5pt</property>
+                                                    <property name="paddingBottom">3pt</property>
+                                                    <property name="resultSetColumn">all1</property>
+                                                </data>
+                                            </cell>
+                                            <cell id="9065">
+                                                <property name="borderBottomColor">#000000</property>
+                                                <property name="borderBottomStyle">solid</property>
+                                                <property name="borderBottomWidth">2px</property>
+                                                <property name="borderLeftColor">#000000</property>
+                                                <property name="borderLeftStyle">solid</property>
+                                                <property name="borderLeftWidth">thin</property>
+                                                <property name="borderRightColor">#000000</property>
+                                                <property name="borderRightStyle">solid</property>
+                                                <property name="borderRightWidth">thin</property>
+                                                <property name="borderTopColor">#000000</property>
+                                                <property name="borderTopStyle">solid</property>
+                                                <property name="borderTopWidth">2px</property>
+                                                <data id="9072">
+                                                    <property name="fontWeight">bold</property>
+                                                    <property name="paddingTop">3pt</property>
+                                                    <property name="paddingLeft">5pt</property>
+                                                    <property name="paddingBottom">3pt</property>
+                                                    <property name="resultSetColumn">all2</property>
+                                                </data>
+                                            </cell>
+                                            <cell id="9066">
+                                                <property name="borderBottomColor">#000000</property>
+                                                <property name="borderBottomStyle">solid</property>
+                                                <property name="borderBottomWidth">2px</property>
+                                                <property name="borderLeftColor">#000000</property>
+                                                <property name="borderLeftStyle">solid</property>
+                                                <property name="borderLeftWidth">thin</property>
+                                                <property name="borderRightColor">#000000</property>
+                                                <property name="borderRightStyle">solid</property>
+                                                <property name="borderRightWidth">thin</property>
+                                                <property name="borderTopColor">#000000</property>
+                                                <property name="borderTopStyle">solid</property>
+                                                <property name="borderTopWidth">2px</property>
+                                                <data id="9073">
+                                                    <property name="fontWeight">bold</property>
+                                                    <property name="paddingTop">3pt</property>
+                                                    <property name="paddingLeft">5pt</property>
+                                                    <property name="paddingBottom">3pt</property>
+                                                    <property name="resultSetColumn">all3</property>
+                                                </data>
+                                            </cell>
+                                            <cell id="9067">
+                                                <property name="borderBottomColor">#000000</property>
+                                                <property name="borderBottomStyle">solid</property>
+                                                <property name="borderBottomWidth">2px</property>
+                                                <property name="borderLeftColor">#000000</property>
+                                                <property name="borderLeftStyle">solid</property>
+                                                <property name="borderLeftWidth">thin</property>
+                                                <property name="borderRightColor">#000000</property>
+                                                <property name="borderRightStyle">solid</property>
+                                                <property name="borderRightWidth">thin</property>
+                                                <property name="borderTopColor">#000000</property>
+                                                <property name="borderTopStyle">solid</property>
+                                                <property name="borderTopWidth">2px</property>
+                                                <data id="9074">
+                                                    <property name="fontWeight">bold</property>
+                                                    <property name="paddingTop">3pt</property>
+                                                    <property name="paddingLeft">5pt</property>
+                                                    <property name="paddingBottom">3pt</property>
+                                                    <property name="resultSetColumn">all4</property>
+                                                </data>
+                                            </cell>
+                                            <cell id="9068">
+                                                <property name="borderBottomColor">#000000</property>
+                                                <property name="borderBottomStyle">solid</property>
+                                                <property name="borderBottomWidth">2px</property>
+                                                <property name="borderLeftColor">#000000</property>
+                                                <property name="borderLeftStyle">solid</property>
+                                                <property name="borderLeftWidth">thin</property>
+                                                <property name="borderRightColor">#000000</property>
+                                                <property name="borderRightStyle">solid</property>
+                                                <property name="borderRightWidth">thin</property>
+                                                <property name="borderTopColor">#000000</property>
+                                                <property name="borderTopStyle">solid</property>
+                                                <property name="borderTopWidth">2px</property>
+                                                <data id="9075">
+                                                    <property name="fontWeight">bold</property>
+                                                    <property name="paddingTop">3pt</property>
+                                                    <property name="paddingLeft">5pt</property>
+                                                    <property name="paddingBottom">3pt</property>
+                                                    <property name="resultSetColumn">all5</property>
+                                                </data>
+                                            </cell>
+                                            <cell id="9069">
+                                                <property name="borderBottomColor">#000000</property>
+                                                <property name="borderBottomStyle">solid</property>
+                                                <property name="borderBottomWidth">2px</property>
+                                                <property name="borderLeftColor">#000000</property>
+                                                <property name="borderLeftStyle">solid</property>
+                                                <property name="borderLeftWidth">thin</property>
+                                                <property name="borderRightColor">#000000</property>
+                                                <property name="borderRightStyle">solid</property>
+                                                <property name="borderRightWidth">thin</property>
+                                                <property name="borderTopColor">#000000</property>
+                                                <property name="borderTopStyle">solid</property>
+                                                <property name="borderTopWidth">2px</property>
+                                                <data id="9076">
+                                                    <property name="fontWeight">bold</property>
+                                                    <property name="paddingTop">3pt</property>
+                                                    <property name="paddingLeft">5pt</property>
+                                                    <property name="paddingBottom">3pt</property>
+                                                    <property name="resultSetColumn">all6</property>
+                                                </data>
+                                            </cell>
+                                        </row>
+                                    </footer>
+                                </table>
+                            </cell>
+                        </row>
+                    </grid>
+                </cell>
+            </row>
+        </grid>
+        <text id="158">
+            <property name="contentType">html</property>
+            <text-property name="content"><![CDATA[<script type="text/javascript">
+
+
+function ScrollableTable (tableEl, tableHeight, tableWidth) {
+
+   
+
+    this.tableEl = tableEl;
+
+   
+
+    var tscroll = document.getElementById('scroll');
+
+    
+
+     
+
+    var tbody = this.tableEl.getElementsByTagName('tbody');
+
+    this.tbody = (tbody[0]) ? tbody[0] : null;
+
+ // окончание получения необходимых элементов страницы
+
+ 
+
+  // сохранение оригинальных величин
+
+    this.originalHeight = this.tableEl.clientHeight;
+
+    this.originalWidth = this.tableEl.clientWidth;
+
+ 
+
+    this.newHeight = parseInt(tableHeight);
+
+    this.newWidth = tableWidth ? parseInt(tableWidth) : this.originalWidth;
+
+ 
+
+    this.tableEl.style.height = 'auto';
+
+    this.tableEl.removeAttribute('height');
+
+ 
+
+    this.containerEl = this.tableEl.parentNode.insertBefore(document.createElement('div'), this.tableEl);
+
+    this.containerEl.appendChild(this.tableEl);
+
+    this.containerEl.style.height = this.newHeight + 'px';
+
+    this.containerEl.style.width = this.newWidth+25 + 'px';
+
+  
+
+ 
+
+    
+
+    if (!this.tbody) return;
+
+   // Форматирование хидера и тела таблицы
+
+ 
+
+        // окончание форматирования
+
+         
+
+        this.containerEl.style.overflowY = 'auto';
+
+        if (this.tableEl.parentElement.clientHeight - this.tableEl.offsetHeight < 0) {
+
+            this.tableEl.style.width = this.newWidth +'px';
+
+            
+
+        } else {
+
+            this.containerEl.style.overflowY = 'hidden';
+
+            this.tableEl.style.width = this.newWidth +'px';
+
+           }
+
+   
+
+        
+
+}
+
+</script>
+]]></text-property>
+        </text>
+        <text id="157">
+            <property name="marginTop">auto</property>
+            <property name="paddingTop">1pt</property>
+            <property name="contentType">html</property>
+            <text-property name="content"><![CDATA[<script type="text/javascript">
+	var t = new ScrollableTable(document.getElementById('scroll'), 400);
+</script>]]></text-property>
+        </text>
+    </body>
+</report>
