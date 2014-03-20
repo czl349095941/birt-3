@@ -1,0 +1,418 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="pu74_4" language="groovy" pageWidth="842" pageHeight="595" orientation="Landscape" columnWidth="802" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="c8ade837-03fd-4f88-adeb-3e037309a895">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="mroSite" class="java.lang.String">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="podr" class="java.lang.String">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="year" class="java.lang.String">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="month" class="java.lang.String">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[WITH WORKO AS
+        (SELECT wonum                     ,
+                WO.BRIGAD_LOCATION        ,
+                ACTFINISH                 ,
+                Wo.Description                       description,
+                TO_CHAR (wo.Actfinish, 'dd.mm.yyyy') reportdate ,
+                WO.FAKTMEASURE                                  ,
+                WO.PLAN_WO                                      ,
+                Wo.Fakt_Wo                                      ,
+                siteid
+        FROM    MAXIMO.WORKORDER WO
+        WHERE   WO.TYPEWORKORDER = 'Путевые обходчики'
+                AND WO.STATUS IN ('ТЕХОТДЕЛ', 'ЗАКРЫТО', 'ЗАВ_ДИСП', 'ЗАВЕРШ', 'ДОРАБОТКА')
+                AND WO.L_PRED =
+                (SELECT DISTINCT CASE WHEN pred.siteid = '17' THEN pred.location ELSE pred.parent END pred
+                FROM    MAXIMO.LOCHIERARCHY podr
+                        JOIN MAXIMO.LOCHIERARCHY PRED
+                                ON      podr.parent     = pred.location
+                                        AND podr.SITEID = pred.SITEID
+                        JOIN MAXIMO.LOCATIONS LOC1
+                                ON      LOC1.LOCATION   = PRED.LOCATION
+                                        AND LOC1.SITEID = PRED.SITEID
+                        JOIN maximo.locations loc2
+                                ON      LOC2.LOCATION   = PRED.parent
+                                        AND LOC2.SITEID = PRED.SITEID
+                WHERE   podr.location                   = $P{podr}
+                        AND PODR.SITEID                 = $P{mroSite}
+                        AND LOC1.STATUS                 = 'РАБОТАЕТ'
+                        AND LOC2.STATUS                 = 'РАБОТАЕТ'
+                        AND PRED.SYSTEMID               = 'ОС'
+                        AND podr.systemid               = 'ОС'
+                )
+                AND WO.SITEID                     = $P{mroSite}
+                AND WO.BRIGAD_LOCATION            = $P{podr}
+                AND TO_CHAR(WO.ACTFINISH, 'YYYY') = $P{year}
+                AND TO_CHAR(wo.Actfinish, 'MM')   = $P{month}
+        )
+        ,
+        labtr AS
+        (SELECT LABTRANS.REFWO           ,
+                LABTRANS.SITEID          ,
+                LABORCRAFTRATE.SKILLLEVEL,
+                LABTRANS.LABORCODE       ,
+                LABTRANS.SIGNALIST       ,
+                LABTRANS.craft           ,
+                LABTRANS.labor_hour
+        FROM    MAXIMO.LABTRANS
+                JOIN MAXIMO.LABORCRAFTRATE
+                        ON      LABORCRAFTRATE.LABORCODE = LABTRANS.LABORCODE
+        WHERE   LABTRANS.LABORCODE             IS NOT NULL
+                AND LABORCRAFTRATE.DEFAULTCRAFT          = '1'
+                AND LABTRANS.SITEID                      = $P{mroSite}
+                AND LABTRANS.REFWO IN
+                (SELECT WONUM
+                FROM    WORKO
+                )
+        )
+SELECT  SYS_XMLAGG(xmlelement(COL, PERSON.DISPLAYNAME
+                || ' ('
+                ||PERSON.TPPERSON
+                || '), ')).EXTRACT('/ROWSET/COL/text()').getclobval() FIO ,
+        TO_CHAR (SUBSTR((ast.description
+                || ' (от '
+                || mult.STARTMEASUREKM
+                || ' км '
+                || mult.STARTMEASUREPIK
+                || ' пк '
+                || mult.STARTMEASUREM
+                || ' м до '
+                || ' км '
+                || mult.ENDMEASUREPIK
+                || ' пк '
+                || MULT.ENDMEASUREM
+                || ' м) '),1,2000)) mesto ,
+        WORKO.DESCRIPTION                 ,
+        worko.reportdate                  ,
+        WORKO.FAKTMEASURE                 ,
+        Worko.Plan_Wo Vup                 ,
+        Worko.Fakt_Wo Zad                 ,
+        MULT.ASSESSMENT
+FROM    worko
+        LEFT JOIN MAXIMO.multiassetlocci mult
+                ON      Worko.wonum          = mult.recordkey
+                        AND MULT.RECORDCLASS = 'РАБОЧЕЕЗАДАНИЕ'
+                        AND Worko.siteid     = mult.siteid
+        LEFT JOIN maximo.asset ast
+                ON      mult.assetnum   =ast.assetnum
+                        AND MULT.SITEID = AST.SITEID
+        JOIN LABTR
+                ON      WORKO.WONUM      = LABTR.REFWO
+                        AND WORKO.SITEID = LABTR.SITEID
+        LEFT JOIN MAXIMO.PERSON
+                ON      PERSON.PERSONID = LABTR.LABORCODE
+GROUP BY TO_CHAR (SUBSTR((ast.description
+                || ' (от '
+                || mult.STARTMEASUREKM
+                || ' км '
+                || mult.STARTMEASUREPIK
+                || ' пк '
+                || mult.STARTMEASUREM
+                || ' м до '
+                || ' км '
+                || mult.ENDMEASUREPIK
+                || ' пк '
+                || MULT.ENDMEASUREM
+                || ' м) '),1,2000)),
+        WORKO.DESCRIPTION          ,
+        worko.reportdate           ,
+        WORKO.FAKTMEASURE          ,
+        Worko.Plan_Wo              ,
+        WORKO.FAKT_WO              ,
+        MULT.ASSESSMENT]]>
+	</queryString>
+	<field name="FIO" class="java.lang.String"/>
+	<field name="MESTO" class="java.lang.String"/>
+	<field name="DESCRIPTION" class="java.lang.String"/>
+	<field name="REPORTDATE" class="java.lang.String"/>
+	<field name="FAKTMEASURE" class="java.lang.String"/>
+	<field name="VUP" class="java.math.BigDecimal"/>
+	<field name="ZAD" class="java.math.BigDecimal"/>
+	<field name="ASSESSMENT" class="java.lang.String"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="78" splitType="Stretch"/>
+	</title>
+	<pageHeader>
+		<band height="35" splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band height="30" splitType="Stretch">
+			<staticText>
+				<reportElement mode="Transparent" x="0" y="0" width="19" height="30" forecolor="#000000" backcolor="#FFFFFF" uuid="d0172aec-641f-4695-bc8c-f666a9e1fae3"/>
+				<box>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="Times New Roman" size="9" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[№ п/п.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="19" y="0" width="209" height="30" forecolor="#000000" backcolor="#FFFFFF" uuid="b8ba2a25-d244-4a84-a6a5-b76b86503f1a"/>
+				<box>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="Times New Roman" size="9" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[Фамилия путевого обходчика]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="228" y="0" width="203" height="30" forecolor="#000000" backcolor="#FFFFFF" uuid="09a39c0b-721a-48c8-b6cc-981b05ea6179"/>
+				<box>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="Times New Roman" size="9" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[Обслуживаемый участок (№№ км пути)]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="431" y="0" width="100" height="30" forecolor="#000000" backcolor="#FFFFFF" uuid="fae52fef-5b7d-4fc7-9767-5e5b11a4f4bd"/>
+				<box>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="Times New Roman" size="9" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[Место и наименование заданных работ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="531" y="0" width="53" height="30" forecolor="#000000" backcolor="#FFFFFF" uuid="03e70c4c-2ce5-4cef-81e1-6f1e4bb25241"/>
+				<box>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="Times New Roman" size="9" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[Срок исполнения]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="584" y="0" width="50" height="30" forecolor="#000000" backcolor="#FFFFFF" uuid="065bf521-5c9e-4c8c-bf32-f74bba2933a1"/>
+				<box>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="Times New Roman" size="9" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[Единица измерения]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="634" y="0" width="33" height="30" forecolor="#000000" backcolor="#FFFFFF" uuid="44605397-8ffa-4347-837c-85d6962d5e04"/>
+				<box>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="Times New Roman" size="9" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[Задано]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="667" y="0" width="52" height="30" forecolor="#000000" backcolor="#FFFFFF" uuid="7aee9eda-67c4-49f1-877d-568f35a10a44"/>
+				<box>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="Times New Roman" size="9" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[Выполнено]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="719" y="0" width="83" height="30" forecolor="#000000" backcolor="#FFFFFF" uuid="862ac761-220c-4c8a-b963-e2183560fd48"/>
+				<box>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="Times New Roman" size="9" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[Оценка обслуживаемого участка]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="30" splitType="Stretch">
+			<textField pattern="" isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="19" y="0" width="209" height="30" forecolor="#000000" backcolor="#FFFFFF" uuid="773e9fdd-6b2f-4892-863a-cddfdd1d5c33"/>
+				<box>
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{FIO}]]></textFieldExpression>
+			</textField>
+			<textField pattern="" isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="0" y="0" width="19" height="30" forecolor="#000000" backcolor="#FFFFFF" uuid="fbeedb53-9335-4f23-969a-00b9eadf986c"/>
+				<box>
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+					<paragraph lineSpacing="Single" leftIndent="2" rightIndent="2" spacingBefore="2" spacingAfter="2"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{REPORT_COUNT}]]></textFieldExpression>
+			</textField>
+			<textField pattern="" isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="228" y="0" width="203" height="30" forecolor="#000000" backcolor="#FFFFFF" uuid="efb2a213-959c-469e-a3eb-a6c21091c291"/>
+				<box>
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{MESTO}]]></textFieldExpression>
+			</textField>
+			<textField pattern="" isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="431" y="0" width="100" height="30" forecolor="#000000" backcolor="#FFFFFF" uuid="f336b8e5-1535-486e-8295-bd38355e1e51"/>
+				<box>
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{DESCRIPTION}]]></textFieldExpression>
+			</textField>
+			<textField pattern="" isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="531" y="0" width="53" height="30" forecolor="#000000" backcolor="#FFFFFF" uuid="3874db0e-86ce-4a43-be23-13f358335dbf"/>
+				<box>
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{REPORTDATE}]]></textFieldExpression>
+			</textField>
+			<textField pattern="" isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="584" y="0" width="50" height="30" forecolor="#000000" backcolor="#FFFFFF" uuid="c921e3f4-cb84-41c4-8667-d7cf9e3a7c6c"/>
+				<box>
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{FAKTMEASURE}]]></textFieldExpression>
+			</textField>
+			<textField pattern="" isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="634" y="0" width="33" height="30" forecolor="#000000" backcolor="#FFFFFF" uuid="76e7074e-4a66-48ba-954f-e85475db37b6"/>
+				<box>
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{VUP}]]></textFieldExpression>
+			</textField>
+			<textField pattern="" isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="667" y="0" width="52" height="30" forecolor="#000000" backcolor="#FFFFFF" uuid="4b804ee4-6cba-49f9-aac8-3c345f4c3c65"/>
+				<box>
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{ZAD}]]></textFieldExpression>
+			</textField>
+			<textField pattern="" isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="719" y="0" width="83" height="30" forecolor="#000000" backcolor="#FFFFFF" uuid="cdd57e3d-bf60-4445-9e3a-c907480f68fb"/>
+				<box>
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{ASSESSMENT}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band height="45" splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band height="54" splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band height="42" splitType="Stretch"/>
+	</summary>
+</jasperReport>
