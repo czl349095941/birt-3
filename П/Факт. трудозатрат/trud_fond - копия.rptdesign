@@ -1059,7 +1059,7 @@ sqlText = "   WITH trud AS "
  +"   FROM MAXIMO.LOCATIONSPEC "
  +"   WHERE ASSETATTRID = 'TIP_PREDPR' "
  +"   AND NUMVALUE      = 3 "
- +"   AND siteid        = '1' "
+ +"   AND siteid        = '"+params["mroSite"]+"' "
  +"   ) "
  +"   WHERE labor.status = 'АКТИВНО' "
  +"   AND laborcode     IN "
@@ -1068,7 +1068,7 @@ sqlText = "   WITH trud AS "
  +"   WHERE CRAFT     IN ('00000205', 'МНТР_ПТ') "
  +"   AND DEFAULTCRAFT = 1 "
  +"   ) "
- +"   AND labor.worksite = '1' "
+ +"   AND labor.worksite = '"+params["mroSite"]+"' "
  +"   GROUP BY WORKLOCATION "
  +"   ), "
  +"   FAKT AS "
@@ -1087,7 +1087,7 @@ sqlText = "   WITH trud AS "
  +"   from MAXIMO.WORKORDER   "
  +"   where workorder.actfinish between to_date ('01.03.14') and to_date ('31.03.14')+1   "
  +"   and  workorder.l_pred  in (select location from maximo.locationspec where assetattrid = 'TIP_PREDPR' and numvalue = 3)  "
- +"   and workorder.siteid = '1' "
+ +"   and workorder.siteid = '"+params["mroSite"]+"' "
  +"   group by workorder.l_pred, case when workorder.actfinish  between TO_DATE ('20.03.14') and TO_DATE ('20.03.14')+1 then 1 else 0 end "
  +"   ) "
  +"   group by l_pred  "
@@ -1099,8 +1099,8 @@ sqlText = "   WITH trud AS "
  +"   NVL (PLAN.PLAN1, 0) PLAN1, "
  +"   ROUND (NVL (FAKT.FAKT2, 0),2) FAKT2, "
  +"   ROUND (NVL (FAKT.FAKT1, 0),2) FAKT1, "
- +"   FAKT.CW2, "
- +"   FAKT.CW1 "
+ +"   NVL (FAKT.CW2, 0) CW2, "
+ +"   NVL (FAKT.CW1, 0) CW1 "
  +"   FROM MAXIMO.PREDS "
  +"   JOIN PLAN "
  +"   ON PREDS.LOCATION = PLAN.WORKLOCATION "
@@ -1110,7 +1110,7 @@ sqlText = "   WITH trud AS "
  +"   ON LOCATIONSPEC.LOCATION     = PREDS.LOCATION "
  +"   AND LOCATIONSPEC.SITEID      = PREDS.SITEID "
  +"   AND LOCATIONSPEC.ASSETATTRID = 'NOM' "
- +"   WHERE PREDS.SITEID           = '1' "
+ +"   WHERE PREDS.SITEID           = '"+params["mroSite"]+"' "
  +"   ORDER BY LOCATIONSPEC.NUMVALUE "
  
  
@@ -2039,7 +2039,7 @@ return (true);]]></method>
             <property name="marginLeft">10pt</property>
             <property name="marginBottom">10pt</property>
             <property name="marginRight">10pt</property>
-            <property name="textAlign">center</property>
+            <property name="textAlign">left</property>
             <property name="width">100%</property>
             <property name="dataSet">maximo</property>
             <list-property name="boundDataColumns">
@@ -2195,17 +2195,17 @@ return (true);]]></method>
                 </structure>
                 <structure>
                     <property name="name">Column Binding_3</property>
-                    <expression name="expression">dataSetRow["FAKT1"]/dataSetRow["CW1"]</expression>
+                    <expression name="expression">BirtMath.round(dataSetRow["FAKT1"]/dataSetRow["CW1"],2)</expression>
                     <property name="dataType">decimal</property>
                 </structure>
                 <structure>
                     <property name="name">Column Binding_4</property>
-                    <expression name="expression">row["Aggregation_3"]/row["Aggregation_5"]</expression>
+                    <expression name="expression">BirtMath.round(row["Aggregation_3"]/row["Aggregation_5"],2)</expression>
                     <property name="dataType">decimal</property>
                 </structure>
                 <structure>
                     <property name="name">Column Binding_5</property>
-                    <expression name="expression">row["Aggregation_4"]/row["Aggregation_6"]</expression>
+                    <expression name="expression">BirtMath.round(row["Aggregation_4"]/row["Aggregation_6"],2)</expression>
                     <property name="dataType">decimal</property>
                 </structure>
                 <structure>
