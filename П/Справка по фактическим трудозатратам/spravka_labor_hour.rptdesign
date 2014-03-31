@@ -306,16 +306,16 @@ sqlText =  ""
  +" 		  NVL(SUM(CASE WHEN TYPEWORKORDER IN ('Прочее') AND WO.OTHERWORK = 'Подход к месту работы' THEN WO.LABOR_HOUR END),0)  PASSEGEWORK, "
  +"           NVL(SUM(CASE WHEN TYPEWORKORDER IN ('Прочее') AND WO.OTHERWORK = 'Пропуск поездов' THEN WO.LABOR_HOUR END),0)        PASSTRAIN  , "
  +"           NVL(SUM(CASE WHEN TYPEWORKORDER IN ('Прочее') AND WO.OTHERWORK = 'Ограждение места работ' THEN WO.LABOR_HOUR END),0) FENCINGPATH, "
- +"           NVL(SUM(CASE WHEN TYPEWORKORDER IN ('Прочее') AND WO.OTHERWORK = 'Осмотр пути' THEN WO.LABOR_HOUR END),0) OSMOTR, "
+ +"           NVL(SUM(CASE WHEN (TYPEWORKORDER IN ('Прочее') AND WO.OTHERWORK = 'Осмотр пути') or TYPEWORKORDER = 'Путевые обходчики' THEN WO.LABOR_HOUR END),0) OSMOTR, "
  +"           NVL(SUM(CASE WHEN TYPEWORKORDER IN ('Внеплановое', 'Плановое', 'Сопутствующая работа') AND JP.CLASSSTRUCTUREID IN "
  +"                               ( SELECT CLASSSTRUCTUREID "
  +"                               from maximo.CLASSSTRUCTURE where parent  = '090000028742' "
  +"                               ) "
  +"                     THEN WO.LABOR_HOUR END),0)                                       SNOW, "
  +"           'Замещение бригадиров, дежурных по переездам' ZAM, "
- +"           NVL(SUM(CASE WHEN TYPEWORKORDER IN ('Прочее') AND WO.OTHERWORK = 'Сопровождение дефектоскопной тележки' THEN WO.LABOR_HOUR END),0) TELEGA, "
+ +"           NVL(SUM(CASE WHEN TYPEWORKORDER IN ('Прочее') AND WO.OTHERWORK = 'Сопровождение дефектоскопн/путеизмер тележки' THEN WO.LABOR_HOUR END),0) TELEGA, "
  +"           'Капитальный, средний ремонт пути' KAP_REM, "
- +"           NVL(SUM(CASE WHEN TYPEWORKORDER IN ('Прочее') AND WO.OTHERWORK not in ('Осмотр пути', 'Сопровождение дефектоскопной тележки') THEN WO.LABOR_HOUR END),0) proch "
+ +"           NVL(SUM(CASE WHEN TYPEWORKORDER IN ('Прочее') AND WO.OTHERWORK not in ('Осмотр пути', 'Сопровождение дефектоскопн/путеизмер тележки') THEN WO.LABOR_HOUR END),0) proch "
  +" FROM      MAXIMO.WORKORDER WO "
  +"           LEFT JOIN MAXIMO.WOJPRELATION JPT "
  +"           ON        JPT.WONUM          = WO.WONUM "
@@ -327,7 +327,7 @@ sqlText =  ""
  +" AND       extract (year from wo.Actfinish) = "+params["year"]
  +" AND       WO.L_PRED                     = '" + (params["pred"]).replace("=","") + "'"
  +" AND WO.STATUS     IN ('ТЕХОТДЕЛ', 'ЗАКРЫТО', 'ЗАВ_ДИСП', 'ЗАВЕРШ', 'ДОРАБОТКА') "
- +" AND TYPEWORKORDER IN ('Внеплановое', 'Плановое', 'Сопутствующая работа', 'Прочее') group by wo.l_podr, loc.ALNVALUE"
+ +" AND TYPEWORKORDER IN ('Внеплановое', 'Плановое', 'Сопутствующая работа', 'Прочее', 'Путевые обходчики') group by wo.l_podr, loc.ALNVALUE"
 
 ;
 
@@ -772,7 +772,7 @@ params["year"]=BirtDateTime.year(BirtDateTime.now());
                 <structure>
                     <property name="name">pch_TELEGA</property>
                     <property name="dataType">float</property>
-                    <property name="aggregateFunction">AVE</property>
+                    <property name="aggregateFunction">SUM</property>
                     <list-property name="arguments">
                         <structure>
                             <property name="name">Expression</property>
