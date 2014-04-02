@@ -1,0 +1,1196 @@
+﻿﻿<?xml version="1.0" encoding="UTF-8"?>
+<report xmlns="http://www.eclipse.org/birt/2005/design" version="3.2.17" id="1">
+    <property name="createdBy">Eclipse BIRT Designer Version 2.3.2.r232_20090202 Build &lt;2.3.2.v20090218-0730></property>
+    <property name="units">in</property>
+    <property name="comments">IBM Confidential
+
+OCO Source Materials
+
+5724-M19
+
+(C) COPYRIGHT IBM CORP. 2006
+
+The source code for this program is not published or otherwise
+divested of its trade secrets, irrespective of what has been
+deposited with the U.S. Copyright Office.</property>
+    <html-property name="description">This template will create a report with one or more groups, each having identical data fields, and contains three styles of charts.</html-property>
+    <method name="initialize"><![CDATA[importPackage(Packages.com.ibm.tivoli.maximo.report.script);
+
+mxReportScriptContext = MXReportScriptContext.initialize(reportContext);
+
+var finishStr= new String(params["fin"].value);
+if (finishStr.length==8)
+{
+var date = new Date(   2000+ Number( finishStr.substr(6,2) ), Number( finishStr.substr(3,2) ) - 1 , finishStr.substr(0,2) ) ;
+var now = new Date();
+
+if( date.getDate()== now.getDate() &amp;&amp; date.getMonth()==now.getMonth() &amp;&amp; date.getFullYear()==now.getFullYear() )
+{
+	finishStr = date.getDate()+"."+( date.getMonth()+1 )+"."+ ( date.getFullYear() - 2000 ) +" "+now.getHours()+":"+now.getMinutes()+":"+now.getSeconds();
+}
+else 
+	finishStr = date.getDate()+"."+( date.getMonth()+1 )+"."+ ( date.getFullYear() - 2000 ) +" 23:59:59"
+
+}]]></method>
+    <method name="afterFactory"><![CDATA[MXReportScriptContext.close();]]></method>
+    <property name="theme">MaximoSystemLibrary.maximoTheme</property>
+    <text-property name="displayName">Tivoli Maximo Grouped Chart Template</text-property>
+    <list-property name="libraries">
+        <structure>
+            <property name="fileName">MaximoSystemLibrary.rptlibrary</property>
+            <property name="namespace">MaximoSystemLibrary</property>
+        </structure>
+    </list-property>
+    <parameters>
+        <scalar-parameter name="where" id="25">
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="paramType">simple</property>
+            <property name="isRequired">true</property>
+            <property name="controlType">text-box</property>
+            <property name="defaultValue">1=1</property>
+            <property name="distinct">true</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="appname" id="240">
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="isRequired">false</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="paramdelimiter" id="241">
+            <property name="hidden">true</property>
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="isRequired">false</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="paramstring" id="242">
+            <property name="hidden">true</property>
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="isRequired">false</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="userName" id="7480">
+            <property name="hidden">true</property>
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="paramType">simple</property>
+            <property name="isRequired">false</property>
+            <property name="controlType">text-box</property>
+            <property name="distinct">true</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="par" id="7814">
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="paramType">simple</property>
+            <property name="isRequired">false</property>
+            <property name="controlType">text-box</property>
+            <property name="distinct">true</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="fin" id="7947">
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="paramType">simple</property>
+            <property name="isRequired">false</property>
+            <property name="controlType">text-box</property>
+            <property name="distinct">true</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="locationId" id="8365">
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="paramType">simple</property>
+            <property name="isRequired">false</property>
+            <property name="controlType">text-box</property>
+            <property name="distinct">true</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="status" id="10600">
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="paramType">simple</property>
+            <property name="isRequired">false</property>
+            <property name="controlType">text-box</property>
+            <property name="distinct">true</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+    </parameters>
+    <data-sources>
+        <script-data-source name="maximoDataSource" id="64" extends="MaximoSystemLibrary.maximoDataSource"/>
+    </data-sources>
+    <data-sets>
+        <script-data-set name="Workreport" id="368">
+            <list-property name="resultSetHints">
+                <structure>
+                    <property name="position">1</property>
+                    <property name="name">inc_count</property>
+                    <property name="dataType">integer</property>
+                </structure>
+                <structure>
+                    <property name="position">2</property>
+                    <property name="name">locationId</property>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="position">3</property>
+                    <property name="name">description</property>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="position">4</property>
+                    <property name="name">inc_sys</property>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="position">5</property>
+                    <property name="name">inc_vid</property>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="position">6</property>
+                    <property name="name">vidnum</property>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="position">7</property>
+                    <property name="name">clasnum</property>
+                    <property name="dataType">string</property>
+                </structure>
+            </list-property>
+            <list-property name="columnHints">
+                <structure>
+                    <property name="columnName">inc_count</property>
+                </structure>
+                <structure>
+                    <property name="columnName">locationId</property>
+                </structure>
+                <structure>
+                    <property name="columnName">description</property>
+                </structure>
+                <structure>
+                    <property name="columnName">inc_sys</property>
+                </structure>
+                <structure>
+                    <property name="columnName">inc_vid</property>
+                </structure>
+                <structure>
+                    <property name="columnName">vidnum</property>
+                </structure>
+                <structure>
+                    <property name="columnName">clasnum</property>
+                </structure>
+            </list-property>
+            <structure name="cachedMetaData">
+                <list-property name="resultSet">
+                    <structure>
+                        <property name="position">1</property>
+                        <property name="name">inc_count</property>
+                        <property name="dataType">integer</property>
+                    </structure>
+                    <structure>
+                        <property name="position">2</property>
+                        <property name="name">locationId</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">3</property>
+                        <property name="name">description</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">4</property>
+                        <property name="name">inc_sys</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">5</property>
+                        <property name="name">inc_vid</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">6</property>
+                        <property name="name">vidnum</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">7</property>
+                        <property name="name">clasnum</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                </list-property>
+            </structure>
+            <property name="dataSource">maximoDataSource</property>
+            <method name="open"><![CDATA[maximoDataSet = MXReportDataSetProvider.create(this.getDataSource().getName(), this.getName());
+	maximoDataSet.open();
+	var sqlText = new String();
+
+var siteid = new String(params["userName"]);
+
+siteid = " ( select distinct defsite from maximo.maxuser where loginid = '" + params["userName"] + "' )";
+//siteid = "24"
+
+var start = new String(params["par"]);
+
+start = "to_date ('"+params["par"]+"','DD.MM.YY')"
+
+var finish = new String(finishStr);
+finish = "to_date ('"+finishStr+"','DD.MM.YY HH24:MI:SS')"
+
+var locationId = new String(params["locationId"]);
+var allLocation = new String(0);
+
+if(params["locationId"]!='')
+{	locationId = "'" + (params["locationId"]).replace(/=/g,"") + "'";
+	locationId = locationId.replace(/,/g,"','");
+}
+else
+{
+	allLocation = 1;
+	locationId=0;
+}
+
+
+
+var status = new String("'"+params["status"]+"'");
+if(params["status"]!='')
+{status = "'"+params["status"].replace("=","")+"'"}
+else 
+{	status = '0' ;}
+
+
+
+sqlText = "select count(distinct inc.ticketid) inc_count, spc.location locationId, spc2.NUMVALUE, spc1.alnvalue||', '||spc3.alnvalue description, inc.cl_sys inc_sys, inc.cl_vid inc_vid, inc.vidnum vidnum, inc.clasnum clasnum " 
++"       from  maximo.LOCATIONSPEC spc    "
++"        left join maximo.LOCATIONSPEC spc1 on spc1.location=spc.location and spc1.siteid = spc.siteid and spc1.ASSETATTRID = 'SNAME'   "
++"          left join maximo.LOCATIONSPEC spc2 on spc2.location=spc.location and spc2.siteid = spc.siteid and spc2.ASSETATTRID = 'NOM'   "
++"           left join maximo.LOCATIONSPEC spc3 on spc3.location=spc.location and spc3.siteid = spc.siteid and spc3.ASSETATTRID = 'SNAME2'  " 
++"     left join (select i.ticketid ticketid, (case when i.extsystemid is not null then nvl( ma.pred, i.pred) else ma.pred end ) pred, i.siteid siteid, cl_sys.description cl_sys, cl_vid.description cl_vid, nvl(i.classidmain,nvl(i.classid_group,i.classid_element)) vidnum, i.classid_object clasnum from MAXIMO.incident i  "
+ 
+
++"         	 join (select RECORDKEY, RECORDCLASS, PODR, ISPRIMARY, SITEID, pred from  MAXIMO.multiassetlocci "
++"                    ) ma on i.ticketid = ma.recordkey and i.siteid = ma.siteid and ma.RECORDCLASS= 'ИНЦИДЕНТ' and ma.ISPRIMARY= 0 "
+
+  
+ 
++"                   join MAXIMO.classstructure cl_sys on i.classid_object=cl_sys.classstructureid  "
++"                   join MAXIMO.classstructure cl_vid on cl_vid.classstructureid=nvl(i.classidmain,nvl(i.classid_group,i.classid_element))  "
++"                where i.status != 'УДАЛЕНО'  "
++"                       and  nvl(i.extsystemid,1) != 703    and i.h in ('090004000004')  "
+ +"		and  i.reportdate  between " + start + " and  " + finish + " "
+ 
+ +"		 AND 1 = case when " +status+ " = '0' then 1 "
+ +"				 when " +status+ " != '0'  and  i.status not in  ('ОБЪЕДИНЕН', 'ЛОЖНЫЙ','ЗАВ_ДИСП', 'УСТРАНЕН', 'ЗАКРЫТО') then 1 end " 
+ 
++"               )inc on inc.pred=spc.location and inc.siteid = spc.siteid   "
++"  where  spc.siteid =  " +siteid+ " and spc.ASSETATTRID = 'TIP_PREDPR' and spc.NUMVALUE in (5)   "
++"  			and 1=( case when ("+allLocation+" = 0 and spc.location in ("+locationId+")) then 1  "
++"							 when ("+allLocation+" = 1)  then 1 "
++" 						else 0 end )  "
++" 	group by spc.location, spc2.NUMVALUE, spc1.alnvalue||', '||spc3.alnvalue, inc.cl_sys, inc.cl_vid, inc.vidnum, inc.clasnum     "
++"     order by spc2.NUMVALUE, inc.cl_sys, inc.cl_vid   " ;
+
+
+
+
+	maximoDataSet.setQuery(sqlText);]]></method>
+            <method name="fetch"><![CDATA[if (!maximoDataSet.fetch())
+     return (false);
+
+row["inc_count"] = maximoDataSet.getInteger("inc_count");
+row["locationId"] = maximoDataSet.getString("locationId");
+row["description"] = maximoDataSet.getString("description");
+row["inc_sys"] = maximoDataSet.getString("inc_sys");
+row["inc_vid"] = maximoDataSet.getString("inc_vid");   
+row["vidnum"] = maximoDataSet.getString("vidnum");   
+row["clasnum"] = maximoDataSet.getString("clasnum");  
+return (true);]]></method>
+        </script-data-set>
+        <script-data-set name="site" id="7885">
+            <list-property name="resultSetHints">
+                <structure>
+                    <property name="position">1</property>
+                    <property name="name">description</property>
+                    <property name="dataType">string</property>
+                </structure>
+            </list-property>
+            <list-property name="columnHints">
+                <structure>
+                    <property name="columnName">description</property>
+                </structure>
+            </list-property>
+            <structure name="cachedMetaData">
+                <list-property name="resultSet">
+                    <structure>
+                        <property name="position">1</property>
+                        <property name="name">description</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                </list-property>
+            </structure>
+            <property name="dataSource">maximoDataSource</property>
+            <method name="open"><![CDATA[maximoDataSet = MXReportDataSetProvider.create(this.getDataSource().getName(), this.getName());
+	maximoDataSet.open();
+
+var siteid = new String(params["userName"]);
+
+siteid = " ( select distinct defsite from maximo.maxuser where loginid = '" + params["userName"] + "' )";
+
+
+
+	var sqlText = new String();
+
+	sqlText = " select description "
+ + "  from maximo.site "
+ + "  where siteid = " + siteid
+ ;
+	maximoDataSet.setQuery(sqlText);]]></method>
+            <method name="fetch"><![CDATA[if (!maximoDataSet.fetch())
+	   return (false);
+	// Add a line for each output column
+	row["description"] = maximoDataSet.getString("description");
+	return (true);]]></method>
+        </script-data-set>
+    </data-sets>
+    <cubes>
+        <tabular-cube name="Data Cube - Workreport" id="8316">
+            <property name="dimensions">
+                <tabular-dimension name="Group" id="8317">
+                    <property name="defaultHierarchy">NewTabularHierarchy</property>
+                    <property name="hierarchies">
+                        <tabular-hierarchy name="NewTabularHierarchy" id="8318">
+                            <property name="levels">
+                                <tabular-level name="description" id="8319">
+                                    <property name="dataType">string</property>
+                                    <property name="columnName">description</property>
+                                </tabular-level>
+                                <tabular-level name="locationId" id="8369">
+                                    <property name="dataType">string</property>
+                                    <property name="columnName">locationId</property>
+                                </tabular-level>
+                            </property>
+                        </tabular-hierarchy>
+                    </property>
+                </tabular-dimension>
+                <tabular-dimension name="Group1" id="8321">
+                    <property name="defaultHierarchy">NewTabularHierarchy1</property>
+                    <property name="hierarchies">
+                        <tabular-hierarchy name="NewTabularHierarchy1" id="8322">
+                            <property name="levels">
+                                <tabular-level name="inc_sys" id="8323">
+                                    <property name="dataType">string</property>
+                                    <property name="columnName">inc_sys</property>
+                                </tabular-level>
+                                <tabular-level name="clasnum" id="8385">
+                                    <property name="dataType">string</property>
+                                    <property name="columnName">clasnum</property>
+                                </tabular-level>
+                            </property>
+                        </tabular-hierarchy>
+                    </property>
+                </tabular-dimension>
+                <tabular-dimension name="Group2" id="8327">
+                    <property name="defaultHierarchy">NewTabularHierarchy2</property>
+                    <property name="hierarchies">
+                        <tabular-hierarchy name="NewTabularHierarchy2" id="8328">
+                            <property name="levels">
+                                <tabular-level name="inc_vid" id="8329">
+                                    <property name="dataType">string</property>
+                                    <property name="columnName">inc_vid</property>
+                                </tabular-level>
+                                <tabular-level name="vidnum" id="8379">
+                                    <property name="dataType">string</property>
+                                    <property name="columnName">vidnum</property>
+                                </tabular-level>
+                            </property>
+                        </tabular-hierarchy>
+                    </property>
+                </tabular-dimension>
+            </property>
+            <property name="measureGroups">
+                <tabular-measure-group name="Summary Field" id="8325">
+                    <property name="measures">
+                        <tabular-measure name="inc_count" id="8326">
+                            <expression name="measureExpression">dataSetRow["inc_count"]</expression>
+                            <property name="dataType">integer</property>
+                        </tabular-measure>
+                    </property>
+                </tabular-measure-group>
+            </property>
+            <property name="dataSet">Workreport</property>
+        </tabular-cube>
+    </cubes>
+    <styles>
+        <style name="NewStyle" id="583">
+            <property name="borderBottomStyle">solid</property>
+            <property name="borderBottomWidth">thin</property>
+            <property name="borderLeftStyle">solid</property>
+            <property name="borderLeftWidth">thin</property>
+            <property name="borderRightStyle">solid</property>
+            <property name="borderRightWidth">thin</property>
+            <property name="borderTopStyle">solid</property>
+            <property name="borderTopWidth">thin</property>
+            <property name="textAlign">center</property>
+        </style>
+    </styles>
+    <page-setup>
+        <simple-master-page name="maximoLandscape" id="47" extends="MaximoSystemLibrary.maximoLandscape">
+            <property name="type">a4</property>
+            <overridden-values>
+                <ref-entry baseId="304" name="NewGrid2" id="304"/>
+                <ref-entry baseId="305" id="305"/>
+                <ref-entry baseId="306" id="306"/>
+                <ref-entry baseId="307" id="307"/>
+                <ref-entry baseId="308" id="308"/>
+                <ref-entry baseId="340" name="NewImage1" id="340">
+                    <property name="source">file</property>
+                    <expression name="uri">"IBM_logo_Black.gif"</expression>
+                    <property name="height">1px</property>
+                    <property name="width">3px</property>
+                </ref-entry>
+                <ref-entry baseId="309" id="309"/>
+                <ref-entry baseId="310" name="NewImage" id="310">
+                    <property name="height">1px</property>
+                    <property name="width">1px</property>
+                </ref-entry>
+                <ref-entry baseId="322" name="NewGrid" id="322">
+                    <list-property name="visibility">
+                        <structure>
+                            <property name="format">xls</property>
+                            <expression name="valueExpr">true</expression>
+                        </structure>
+                        <structure>
+                            <property name="format">pdf</property>
+                            <expression name="valueExpr">true</expression>
+                        </structure>
+                    </list-property>
+                </ref-entry>
+                <ref-entry baseId="323" id="323"/>
+                <ref-entry baseId="324" id="324"/>
+                <ref-entry baseId="325" id="325"/>
+                <ref-entry baseId="326" id="326"/>
+                <ref-entry baseId="328" name="NewText" id="328"/>
+                <ref-entry baseId="327" id="327"/>
+                <ref-entry baseId="329" name="NewGrid1" id="329"/>
+                <ref-entry baseId="330" id="330"/>
+                <ref-entry baseId="331" id="331"/>
+                <ref-entry baseId="332" id="332"/>
+                <ref-entry baseId="333" id="333"/>
+                <ref-entry baseId="334" id="334"/>
+                <ref-entry baseId="335" name="NewAutoText" id="335"/>
+                <ref-entry baseId="336" id="336"/>
+                <ref-entry baseId="337" name="NewText1" id="337"/>
+                <ref-entry baseId="338" id="338"/>
+                <ref-entry baseId="339" name="NewAutoText1" id="339"/>
+            </overridden-values>
+        </simple-master-page>
+    </page-setup>
+    <body>
+        <label id="721">
+            <property name="fontSize">large</property>
+            <property name="fontWeight">bold</property>
+            <property name="textAlign">center</property>
+            <text-property name="text">13. Справка об устранении инцидентов по группам устройств и систем по хозяйству Ш</text-property>
+        </label>
+        <data id="10599">
+            <property name="fontSize">large</property>
+            <property name="fontWeight">bold</property>
+            <property name="textAlign">center</property>
+            <list-property name="boundDataColumns">
+                <structure>
+                    <property name="name">dates</property>
+                    <expression name="expression">var finishStr= new String(params["fin"].value);
+var startStr= new String(params["par"].value);
+var date1 = new Date(   2000+ Number( startStr.substr(6,2) ), Number( startStr.substr(3,2) ) - 1 , startStr.substr(0,2) ) ;
+var date_pos = new Number ( finishStr.indexOf('.',0) );
+var month_pos = new Number( finishStr.indexOf('.', (date_pos+1) ) );
+
+var date2 = new Date(   2000+ Number( finishStr.substr( (month_pos+1) ,2 ) ),  Number(  finishStr.substr( (date_pos+1) , (month_pos -  (date_pos+1)  )  ) ) - 1 , finishStr.substr( 0,date_pos ) ) ;
+'с '+BirtDateTime.day(date1)+' '+BirtDateTime.month(date1, 2)+' '+BirtDateTime.year(date1)+' г.' + ' по ' + BirtDateTime.day(date2)+' '+BirtDateTime.month(date2, 2)+' '+BirtDateTime.year(date2)+' г.'</expression>
+                    <property name="dataType">string</property>
+                </structure>
+            </list-property>
+            <property name="resultSetColumn">dates</property>
+        </data>
+        <data id="7886">
+            <property name="fontSize">large</property>
+            <property name="fontWeight">bold</property>
+            <property name="textAlign">center</property>
+            <property name="dataSet">site</property>
+            <list-property name="boundDataColumns">
+                <structure>
+                    <property name="name">description</property>
+                    <property name="displayName">description</property>
+                    <expression name="expression">dataSetRow["description"] + ' железная дорога'</expression>
+                    <property name="dataType">string</property>
+                </structure>
+            </list-property>
+            <property name="resultSetColumn">description</property>
+        </data>
+        <extended-item extensionName="Crosstab" extensionVersion="2.3.0" id="8313">
+            <property name="emptyCellValue">0</property>
+            <property name="measures">
+                <extended-item extensionName="MeasureView" id="8344">
+                    <property name="measure">inc_count</property>
+                    <property name="detail">
+                        <extended-item extensionName="AggregationCell" id="8345">
+                            <property name="aggregationOnRow">Group2/vidnum</property>
+                            <property name="aggregationOnColumn">Group/locationId</property>
+                            <property name="textAlign">left</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">1px</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">1px</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">1px</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">1px</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="content">
+                                <data id="8346">
+                                    <property name="paddingLeft">5pt</property>
+                                    <property name="resultSetColumn">inc_count_Group2/vidnum_Group/locationId</property>
+                                    <structure name="action">
+                                        <property name="linkType">drill-through</property>
+                                        <property name="reportName">inc_vid-sh-nn.rptdesign</property>
+                                        <property name="targetWindow">_blank</property>
+                                        <property name="targetFileType">report-design</property>
+                                        <list-property name="paramBindings">
+                                            <structure>
+                                                <property name="paramName">where</property>
+                                                <expression name="expression">1</expression>
+                                            </structure>
+                                            <structure>
+                                                <property name="paramName">paramdelimiter</property>
+                                                <expression name="expression">params["paramdelimiter"].value</expression>
+                                            </structure>
+                                            <structure>
+                                                <property name="paramName">appname</property>
+                                                <expression name="expression">params["appname"].value</expression>
+                                            </structure>
+                                            <structure>
+                                                <property name="paramName">paramstring</property>
+                                                <expression name="expression">params["paramstring"].value</expression>
+                                            </structure>
+                                            <structure>
+                                                <property name="paramName">userName</property>
+                                                <expression name="expression">params["userName"].value</expression>
+                                            </structure>
+                                            <structure>
+                                                <property name="paramName">par</property>
+                                                <expression name="expression">params["par"].value</expression>
+                                            </structure>
+                                            <structure>
+                                                <property name="paramName">fin</property>
+                                                <expression name="expression">finishStr</expression>
+                                            </structure>
+                                            <structure>
+                                                <property name="paramName">locationId</property>
+                                                <expression name="expression">data["locationId"]</expression>
+                                            </structure>
+                                            <structure>
+                                                <property name="paramName">vid</property>
+                                                <expression name="expression">data["vidnum"]</expression>
+                                            </structure>
+                                            <structure>
+                                                <property name="paramName">clas</property>
+                                                <expression name="expression">data["clasnum"]</expression>
+                                            </structure>
+                                            <structure>
+                                                <property name="paramName">status</property>
+                                                <expression name="expression">params["status"].value</expression>
+                                            </structure>
+                                        </list-property>
+                                    </structure>
+                                </data>
+                            </property>
+                        </extended-item>
+                    </property>
+                    <property name="aggregations">
+                        <extended-item extensionName="AggregationCell" id="8358">
+                            <property name="aggregationOnRow">Group1/inc_sys</property>
+                            <property name="textAlign">center</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">thin</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">thin</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">thin</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">thin</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="content">
+                                <data id="8359">
+                                    <property name="paddingLeft">5pt</property>
+                                    <property name="textAlign">left</property>
+                                    <property name="resultSetColumn">inc_count_Group1/inc_sys</property>
+                                </data>
+                            </property>
+                        </extended-item>
+                        <extended-item extensionName="AggregationCell" id="8362">
+                            <property name="textAlign">center</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">thin</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">thin</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">thin</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">thin</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="content">
+                                <data id="8363">
+                                    <property name="fontWeight">bold</property>
+                                    <property name="paddingLeft">5pt</property>
+                                    <property name="textAlign">left</property>
+                                    <property name="resultSetColumn">inc_count</property>
+                                </data>
+                            </property>
+                        </extended-item>
+                        <extended-item extensionName="AggregationCell" id="8374">
+                            <property name="aggregationOnRow">Group1/inc_sys</property>
+                            <property name="aggregationOnColumn">Group/locationId</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">thin</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">thin</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">thin</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">thin</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="content">
+                                <data id="8375">
+                                    <property name="paddingLeft">5pt</property>
+                                    <property name="resultSetColumn">inc_count_Group1/inc_sys_Group/locationId</property>
+                                </data>
+                            </property>
+                        </extended-item>
+                        <extended-item extensionName="AggregationCell" id="8376">
+                            <property name="aggregationOnColumn">Group/locationId</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">thin</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">thin</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">thin</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">thin</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="paddingLeft">1pt</property>
+                            <property name="content">
+                                <data id="8377">
+                                    <property name="fontWeight">bold</property>
+                                    <property name="paddingLeft">5pt</property>
+                                    <property name="resultSetColumn">inc_count_Group/locationId</property>
+                                </data>
+                            </property>
+                        </extended-item>
+                        <extended-item extensionName="AggregationCell" id="8382">
+                            <property name="aggregationOnRow">Group2/vidnum</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">1px</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">1px</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">1px</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">1px</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="content">
+                                <data id="8383">
+                                    <property name="paddingLeft">5pt</property>
+                                    <property name="resultSetColumn">inc_count_Group2/vidnum</property>
+                                </data>
+                            </property>
+                        </extended-item>
+                    </property>
+                    <property name="header">
+                        <extended-item extensionName="CrosstabCell" id="8347">
+                            <property name="content">
+                                <label id="8348">
+                                    <property name="paddingLeft">5pt</property>
+                                    <list-property name="visibility">
+                                        <structure>
+                                            <property name="format">all</property>
+                                            <expression name="valueExpr">true</expression>
+                                        </structure>
+                                    </list-property>
+                                    <text-property name="text">inc_count</text-property>
+                                </label>
+                            </property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">1px</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">1px</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">1px</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">1px</property>
+                            <property name="borderRightColor">#000000</property>
+                        </extended-item>
+                    </property>
+                </extended-item>
+            </property>
+            <property name="rows">
+                <extended-item extensionName="CrosstabView" id="8335">
+                    <property name="grandTotal">
+                        <extended-item extensionName="CrosstabCell" id="8353">
+                            <property name="content">
+                                <label id="8356">
+                                    <property name="fontWeight">bold</property>
+                                    <property name="paddingLeft">5pt</property>
+                                    <property name="paddingRight">10pt</property>
+                                    <property name="textAlign">left</property>
+                                    <text-property name="text">Итого</text-property>
+                                </label>
+                            </property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">thin</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">thin</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">thin</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">thin</property>
+                            <property name="borderRightColor">#000000</property>
+                        </extended-item>
+                    </property>
+                    <property name="views">
+                        <extended-item extensionName="DimensionView" id="8336">
+                            <property name="dimension">Group1</property>
+                            <property name="levels">
+                                <extended-item extensionName="LevelView" name="NewLevel View1" id="8337">
+                                    <property name="level">Group1/inc_sys</property>
+                                    <property name="member">
+                                        <extended-item extensionName="CrosstabCell" id="8338">
+                                            <property name="content">
+                                                <data name="inc_sys" id="8339">
+                                                    <property name="fontSize">x-small</property>
+                                                    <property name="fontWeight">bold</property>
+                                                    <property name="paddingLeft">5pt</property>
+                                                    <property name="textAlign">left</property>
+                                                    <property name="resultSetColumn">inc_sys</property>
+                                                </data>
+                                            </property>
+                                            <property name="verticalAlign">middle</property>
+                                            <property name="borderTopStyle">solid</property>
+                                            <property name="borderTopWidth">thin</property>
+                                            <property name="borderTopColor">#000000</property>
+                                            <property name="borderLeftStyle">solid</property>
+                                            <property name="borderLeftWidth">thin</property>
+                                            <property name="borderLeftColor">#000000</property>
+                                            <property name="borderBottomStyle">solid</property>
+                                            <property name="borderBottomWidth">thin</property>
+                                            <property name="borderBottomColor">#000000</property>
+                                            <property name="borderRightStyle">solid</property>
+                                            <property name="borderRightWidth">thin</property>
+                                            <property name="borderRightColor">#000000</property>
+                                        </extended-item>
+                                    </property>
+                                    <property name="aggregationHeader">
+                                        <extended-item extensionName="CrosstabCell" id="8349">
+                                            <property name="content">
+                                                <data name="inc_sys_TOTAL" id="8352">
+                                                    <property name="paddingLeft">5pt</property>
+                                                    <property name="textAlign">left</property>
+                                                    <property name="resultSetColumn">inc_sys_TOTAL</property>
+                                                </data>
+                                            </property>
+                                            <property name="borderTopStyle">solid</property>
+                                            <property name="borderTopWidth">thin</property>
+                                            <property name="borderTopColor">#000000</property>
+                                            <property name="borderLeftStyle">solid</property>
+                                            <property name="borderLeftWidth">thin</property>
+                                            <property name="borderLeftColor">#000000</property>
+                                            <property name="borderBottomStyle">solid</property>
+                                            <property name="borderBottomWidth">thin</property>
+                                            <property name="borderBottomColor">#000000</property>
+                                            <property name="borderRightStyle">solid</property>
+                                            <property name="borderRightWidth">thin</property>
+                                            <property name="borderRightColor">#000000</property>
+                                        </extended-item>
+                                    </property>
+                                </extended-item>
+                                <extended-item extensionName="LevelView" name="NewLevel View5" id="8386">
+                                    <property name="level">Group1/clasnum</property>
+                                    <property name="member">
+                                        <extended-item extensionName="CrosstabCell" id="8387">
+                                            <property name="content">
+                                                <data name="clasnum" id="8388">
+                                                    <list-property name="visibility">
+                                                        <structure>
+                                                            <property name="format">all</property>
+                                                            <expression name="valueExpr">true</expression>
+                                                        </structure>
+                                                    </list-property>
+                                                    <property name="resultSetColumn">clasnum</property>
+                                                </data>
+                                            </property>
+                                        </extended-item>
+                                    </property>
+                                </extended-item>
+                            </property>
+                        </extended-item>
+                        <extended-item extensionName="DimensionView" id="8340">
+                            <property name="dimension">Group2</property>
+                            <property name="levels">
+                                <extended-item extensionName="LevelView" name="NewLevel View2" id="8341">
+                                    <property name="level">Group2/inc_vid</property>
+                                    <property name="member">
+                                        <extended-item extensionName="CrosstabCell" id="8342">
+                                            <property name="content">
+                                                <data name="inc_vid" id="8343">
+                                                    <property name="paddingLeft">5pt</property>
+                                                    <property name="textAlign">left</property>
+                                                    <property name="resultSetColumn">inc_vid</property>
+                                                </data>
+                                            </property>
+                                            <property name="borderTopStyle">solid</property>
+                                            <property name="borderTopWidth">1px</property>
+                                            <property name="borderTopColor">#000000</property>
+                                            <property name="borderBottomStyle">solid</property>
+                                            <property name="borderBottomWidth">1px</property>
+                                            <property name="borderBottomColor">#000000</property>
+                                        </extended-item>
+                                    </property>
+                                </extended-item>
+                                <extended-item extensionName="LevelView" name="NewLevel View4" id="8380">
+                                    <property name="level">Group2/vidnum</property>
+                                    <property name="member">
+                                        <extended-item extensionName="CrosstabCell" id="8381">
+                                            <property name="content">
+                                                <data name="vidnum" id="8384">
+                                                    <list-property name="visibility">
+                                                        <structure>
+                                                            <property name="format">all</property>
+                                                            <expression name="valueExpr">true</expression>
+                                                        </structure>
+                                                    </list-property>
+                                                    <property name="resultSetColumn">vidnum</property>
+                                                </data>
+                                            </property>
+                                            <property name="borderTopStyle">solid</property>
+                                            <property name="borderTopWidth">1px</property>
+                                            <property name="borderTopColor">#000000</property>
+                                            <property name="borderBottomStyle">solid</property>
+                                            <property name="borderBottomWidth">1px</property>
+                                            <property name="borderBottomColor">#000000</property>
+                                            <property name="borderRightStyle">solid</property>
+                                            <property name="borderRightWidth">1px</property>
+                                            <property name="borderRightColor">#000000</property>
+                                        </extended-item>
+                                    </property>
+                                </extended-item>
+                            </property>
+                        </extended-item>
+                    </property>
+                </extended-item>
+            </property>
+            <property name="columns">
+                <extended-item extensionName="CrosstabView" id="8330">
+                    <property name="grandTotal">
+                        <extended-item extensionName="CrosstabCell" id="8357">
+                            <property name="content">
+                                <label id="8364">
+                                    <property name="fontSize">x-small</property>
+                                    <property name="fontWeight">bold</property>
+                                    <property name="textAlign">center</property>
+                                    <text-property name="text">Итого</text-property>
+                                </label>
+                            </property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">thin</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">thin</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">thin</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">thin</property>
+                            <property name="borderRightColor">#000000</property>
+                        </extended-item>
+                    </property>
+                    <property name="views">
+                        <extended-item extensionName="DimensionView" id="8331">
+                            <property name="dimension">Group</property>
+                            <property name="levels">
+                                <extended-item extensionName="LevelView" name="NewLevel View" id="8332">
+                                    <property name="level">Group/description</property>
+                                    <property name="member">
+                                        <extended-item extensionName="CrosstabCell" id="8333">
+                                            <property name="content">
+                                                <data name="description" id="8334">
+                                                    <property name="fontSize">x-small</property>
+                                                    <property name="fontWeight">bold</property>
+                                                    <property name="resultSetColumn">description</property>
+                                                </data>
+                                            </property>
+                                            <property name="textAlign">center</property>
+                                            <property name="borderTopStyle">solid</property>
+                                            <property name="borderTopWidth">thin</property>
+                                            <property name="borderTopColor">#000000</property>
+                                            <property name="borderLeftStyle">solid</property>
+                                            <property name="borderLeftWidth">thin</property>
+                                            <property name="borderLeftColor">#000000</property>
+                                            <property name="borderRightStyle">solid</property>
+                                            <property name="borderRightWidth">thin</property>
+                                            <property name="borderRightColor">#000000</property>
+                                        </extended-item>
+                                    </property>
+                                </extended-item>
+                                <extended-item extensionName="LevelView" name="NewLevel View3" id="8372">
+                                    <property name="level">Group/locationId</property>
+                                    <property name="member">
+                                        <extended-item extensionName="CrosstabCell" id="8373">
+                                            <property name="content">
+                                                <data name="locationId" id="8378">
+                                                    <list-property name="visibility">
+                                                        <structure>
+                                                            <property name="format">all</property>
+                                                            <expression name="valueExpr">true</expression>
+                                                        </structure>
+                                                    </list-property>
+                                                    <property name="resultSetColumn">locationId</property>
+                                                </data>
+                                            </property>
+                                            <property name="borderLeftStyle">solid</property>
+                                            <property name="borderLeftWidth">thin</property>
+                                            <property name="borderLeftColor">#000000</property>
+                                            <property name="borderBottomStyle">solid</property>
+                                            <property name="borderBottomWidth">thin</property>
+                                            <property name="borderBottomColor">#000000</property>
+                                            <property name="borderRightStyle">solid</property>
+                                            <property name="borderRightWidth">thin</property>
+                                            <property name="borderRightColor">#000000</property>
+                                        </extended-item>
+                                    </property>
+                                </extended-item>
+                            </property>
+                        </extended-item>
+                    </property>
+                </extended-item>
+            </property>
+            <property name="header">
+                <extended-item extensionName="CrosstabCell" id="8314">
+                    <property name="content">
+                        <data id="10601">
+                            <property name="resultSetColumn">des</property>
+                        </data>
+                    </property>
+                    <property name="borderTopStyle">solid</property>
+                    <property name="borderTopWidth">thin</property>
+                    <property name="borderTopColor">#000000</property>
+                    <property name="borderLeftStyle">solid</property>
+                    <property name="borderLeftWidth">thin</property>
+                    <property name="borderLeftColor">#000000</property>
+                    <property name="borderBottomStyle">solid</property>
+                    <property name="borderBottomWidth">thin</property>
+                    <property name="borderBottomColor">#000000</property>
+                    <property name="borderRightStyle">solid</property>
+                    <property name="borderRightWidth">thin</property>
+                    <property name="borderRightColor">#000000</property>
+                </extended-item>
+            </property>
+            <property name="cube">Data Cube - Workreport</property>
+            <list-property name="boundDataColumns">
+                <structure>
+                    <property name="name">description</property>
+                    <expression name="expression">dimension["Group"]["description"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">inc_sys</property>
+                    <expression name="expression">dimension["Group1"]["inc_sys"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">inc_vid</property>
+                    <expression name="expression">dimension["Group2"]["inc_vid"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">inc_count_Group2/inc_vid_Group/description</property>
+                    <expression name="expression">measure["inc_count"]</expression>
+                    <property name="dataType">integer</property>
+                    <simple-property-list name="aggregateOn">
+                        <value>Group2/inc_vid</value>
+                        <value>Group/description</value>
+                    </simple-property-list>
+                    <property name="aggregateFunction">sum</property>
+                </structure>
+                <structure>
+                    <property name="name">inc_count_Group1/inc_sys_Group/description</property>
+                    <expression name="expression">measure["inc_count"]</expression>
+                    <property name="dataType">integer</property>
+                    <simple-property-list name="aggregateOn">
+                        <value>Group1/inc_sys</value>
+                        <value>Group/description</value>
+                    </simple-property-list>
+                    <property name="aggregateFunction">sum</property>
+                </structure>
+                <structure>
+                    <property name="name">inc_sys_TOTAL</property>
+                    <expression name="expression">'Итого'</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">inc_count_Group/description</property>
+                    <expression name="expression">measure["inc_count"]</expression>
+                    <property name="dataType">integer</property>
+                    <simple-property-list name="aggregateOn">
+                        <value>Group/description</value>
+                    </simple-property-list>
+                    <property name="aggregateFunction">sum</property>
+                </structure>
+                <structure>
+                    <property name="name">inc_count_Group1/inc_sys</property>
+                    <expression name="expression">measure["inc_count"]</expression>
+                    <property name="dataType">integer</property>
+                    <simple-property-list name="aggregateOn">
+                        <value>Group1/inc_sys</value>
+                    </simple-property-list>
+                    <property name="aggregateFunction">sum</property>
+                </structure>
+                <structure>
+                    <property name="name">inc_count_Group2/inc_vid</property>
+                    <expression name="expression">measure["inc_count"]</expression>
+                    <property name="dataType">integer</property>
+                    <simple-property-list name="aggregateOn">
+                        <value>Group2/inc_vid</value>
+                    </simple-property-list>
+                    <property name="aggregateFunction">sum</property>
+                </structure>
+                <structure>
+                    <property name="name">inc_count</property>
+                    <expression name="expression">measure["inc_count"]</expression>
+                    <property name="dataType">integer</property>
+                    <property name="aggregateFunction">sum</property>
+                </structure>
+                <structure>
+                    <property name="name">locationId</property>
+                    <expression name="expression">dimension["Group"]["locationId"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">inc_count_Group1/inc_sys_Group/locationId</property>
+                    <expression name="expression">measure["inc_count"]</expression>
+                    <property name="dataType">integer</property>
+                    <simple-property-list name="aggregateOn">
+                        <value>Group1/inc_sys</value>
+                        <value>Group/locationId</value>
+                    </simple-property-list>
+                    <property name="aggregateFunction">sum</property>
+                </structure>
+                <structure>
+                    <property name="name">inc_count_Group/locationId</property>
+                    <expression name="expression">measure["inc_count"]</expression>
+                    <property name="dataType">integer</property>
+                    <simple-property-list name="aggregateOn">
+                        <value>Group/locationId</value>
+                    </simple-property-list>
+                    <property name="aggregateFunction">sum</property>
+                </structure>
+                <structure>
+                    <property name="name">inc_count_Group2/inc_vid_Group/locationId</property>
+                    <expression name="expression">measure["inc_count"]</expression>
+                    <property name="dataType">integer</property>
+                    <simple-property-list name="aggregateOn">
+                        <value>Group2/inc_vid</value>
+                        <value>Group/locationId</value>
+                    </simple-property-list>
+                    <property name="aggregateFunction">sum</property>
+                </structure>
+                <structure>
+                    <property name="name">vidnum</property>
+                    <expression name="expression">dimension["Group2"]["vidnum"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">inc_count_Group2/vidnum</property>
+                    <expression name="expression">measure["inc_count"]</expression>
+                    <property name="dataType">integer</property>
+                    <simple-property-list name="aggregateOn">
+                        <value>Group2/vidnum</value>
+                    </simple-property-list>
+                    <property name="aggregateFunction">sum</property>
+                </structure>
+                <structure>
+                    <property name="name">inc_count_Group2/vidnum_Group/locationId</property>
+                    <expression name="expression">measure["inc_count"]</expression>
+                    <property name="dataType">integer</property>
+                    <simple-property-list name="aggregateOn">
+                        <value>Group2/vidnum</value>
+                        <value>Group/locationId</value>
+                    </simple-property-list>
+                    <property name="aggregateFunction">sum</property>
+                </structure>
+                <structure>
+                    <property name="name">clasnum</property>
+                    <expression name="expression">dimension["Group1"]["clasnum"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">des</property>
+                    <expression name="expression">if (params["status"].value == '1')
+{
+'Количество неустраненных инцидентов'
+}
+else 
+'Количество инцидентов'</expression>
+                    <property name="dataType">string</property>
+                </structure>
+            </list-property>
+        </extended-item>
+    </body>
+</report>
