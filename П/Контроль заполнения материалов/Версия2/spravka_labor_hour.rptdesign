@@ -1,0 +1,1670 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<report xmlns="http://www.eclipse.org/birt/2005/design" version="3.2.17" id="1">
+    <property name="createdBy">Eclipse BIRT Designer Version 2.3.2.r232_20090202 Build &lt;2.3.2.v20090218-0730></property>
+    <property name="units">in</property>
+    <text-property name="title">Справка по фактическим трудозатратам по предприятию за месяц</text-property>
+    <property name="comments">IBM Confidential
+
+OCO Source Materials
+
+5724-M19
+
+(C) COPYRIGHT IBM CORP. 2006
+
+The source code for this program is not published or otherwise
+divested of its trade secrets, irrespective of what has been
+deposited with the U.S. Copyright Office.</property>
+    <html-property name="description">This template will create a report with one or more groups, each having identical data fields, and contains three styles of charts.</html-property>
+    <method name="initialize"><![CDATA[importPackage(Packages.com.ibm.tivoli.maximo.report.script);
+
+mxReportScriptContext = MXReportScriptContext.initialize(reportContext);
+
+
+mxReportScriptContext = MXReportScriptContext.initialize(reportContext);
+mxReportScriptContext.setDefaultLogLevel("DEBUG");
+mxReportScriptContext.setDefaultLogFile("c:/temp/tetttt.txt");
+]]></method>
+    <method name="afterFactory"><![CDATA[MXReportScriptContext.close();]]></method>
+    <property name="theme">MaximoSystemLibrary.maximoTheme</property>
+    <text-property name="displayName">Tivoli Maximo Grouped Chart Template</text-property>
+    <list-property name="libraries">
+        <structure>
+            <property name="fileName">MaximoSystemLibrary.rptlibrary</property>
+            <property name="namespace">MaximoSystemLibrary</property>
+        </structure>
+    </list-property>
+    <parameters>
+        <scalar-parameter name="where" id="25">
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="isRequired">false</property>
+            <property name="controlType">text-box</property>
+            <property name="defaultValue">1=1</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="appname" id="240">
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="isRequired">false</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="mroSite" id="7964">
+            <property name="valueType">static</property>
+            <property name="dataType">integer</property>
+            <property name="paramType">simple</property>
+            <text-property name="promptText">Дорога</text-property>
+            <property name="isRequired">true</property>
+            <property name="controlType">text-box</property>
+            <property name="distinct">true</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="month" id="13304">
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="paramType">simple</property>
+            <text-property name="promptText">Месяц</text-property>
+            <property name="isRequired">false</property>
+            <property name="controlType">text-box</property>
+            <property name="distinct">true</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="year" id="13305">
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="paramType">simple</property>
+            <text-property name="promptText">Год</text-property>
+            <property name="isRequired">false</property>
+            <property name="controlType">text-box</property>
+            <property name="distinct">true</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="pred" id="17062">
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="paramType">simple</property>
+            <text-property name="promptText">Дистанция</text-property>
+            <property name="isRequired">true</property>
+            <property name="controlType">text-box</property>
+            <property name="distinct">true</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="visible" id="17682">
+            <property name="valueType">static</property>
+            <property name="dataType">integer</property>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <property name="defaultValue">0</property>
+            <property name="distinct">true</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+    </parameters>
+    <data-sources>
+        <script-data-source name="maximoDataSource" id="64" extends="MaximoSystemLibrary.maximoDataSource"/>
+    </data-sources>
+    <data-sets>
+        <script-data-set name="11" id="7971">
+            <list-property name="resultSetHints">
+                <structure>
+                    <property name="position">1</property>
+                    <property name="name">L_PODR</property>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="position">2</property>
+                    <property name="name">L_PODR_D</property>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="position">3</property>
+                    <property name="name">JPNUM</property>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="position">4</property>
+                    <property name="name">ALL_WO</property>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="position">5</property>
+                    <property name="name">ALL_TK</property>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="position">6</property>
+                    <property name="name">YESNO</property>
+                    <property name="dataType">string</property>
+                </structure>
+            </list-property>
+            <list-property name="columnHints">
+                <structure>
+                    <property name="columnName">ITEM_GOST</property>
+                </structure>
+                <structure>
+                    <property name="columnName">ITEM_RAZMER</property>
+                </structure>
+                <structure>
+                    <property name="columnName">ZAM</property>
+                </structure>
+                <structure>
+                    <property name="columnName">TELEGA</property>
+                </structure>
+                <structure>
+                    <property name="columnName">KAP_REM</property>
+                </structure>
+                <structure>
+                    <property name="columnName">PROCH</property>
+                </structure>
+                <structure>
+                    <property name="columnName">L_PODR</property>
+                </structure>
+                <structure>
+                    <property name="columnName">L_PODR_D</property>
+                </structure>
+                <structure>
+                    <property name="columnName">JPNUM</property>
+                </structure>
+                <structure>
+                    <property name="columnName">ALL_WO</property>
+                </structure>
+                <structure>
+                    <property name="columnName">ALL_TK</property>
+                </structure>
+                <structure>
+                    <property name="columnName">YESNO</property>
+                </structure>
+            </list-property>
+            <structure name="cachedMetaData">
+                <list-property name="resultSet">
+                    <structure>
+                        <property name="position">1</property>
+                        <property name="name">L_PODR</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">2</property>
+                        <property name="name">L_PODR_D</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">3</property>
+                        <property name="name">JPNUM</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">4</property>
+                        <property name="name">ALL_WO</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">5</property>
+                        <property name="name">ALL_TK</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">6</property>
+                        <property name="name">YESNO</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                </list-property>
+            </structure>
+            <property name="dataSource">maximoDataSource</property>
+            <method name="open"><![CDATA[maximoDataSet = MXReportDataSetProvider.create(this.getDataSource().getName(), this.getName());
+maximoDataSet.open();
+
+if(params["year"]=='' || params["year"] == null || params["year"] == '""' )
+params["year"]=BirtDateTime.year(BirtDateTime.now());
+
+if(params["month"]=='' || params["month"] == null || params["month"] == '""' ) 
+params["month"]=BirtDateTime.month(BirtDateTime.now())
+else if (params["month"]!=BirtDateTime.month(BirtDateTime.now())) {params["month"] = params["month"].replace("=","")};
+
+
+var sqlText = new String();
+
+sqlText = "" 
++"WITH WO AS " 
++"        ( SELECT wo.wonum, " 
++"                wo.siteid, " 
++"                l_podr, " 
++"                jp.jpnum " 
++"        FROM    MAXIMO.WORKORDER WO " 
++"                LEFT JOIN MAXIMO.wojprelation jpr " 
++"                        ON      wo.wonum               = jpr.wonum " 
++"                                AND JPR.USETHISMEASURE = '1' " 
++"                LEFT JOIN Maximo.Jobplan jp " 
++"                        ON      JP.JOBPLANID = JPR.JOBPLANID " 
++"                                AND jp.JOBPLANID IN ('17107', '17106', '16919', '16675', '16690', '16674', '16694', '16648', '16656') " 
++"        WHERE   wo.STATUS                        IN ( 'ТЕХОТДЕЛ' , 'ЗАКРЫТО', 'ЗАВ_ДИСП', 'ЗАВЕРШ', 'ДОРАБОТКА' ) " 
++"                AND wo.siteid                     = '24' " 
++"                AND WO.L_PRED                     = 'PRED_1369' " 
++"                AND TO_CHAR(WO.ACTFINISH, 'YYYY') = '2014' " 
++"                AND TO_CHAR(WO.ACTFINISH, 'MM')   = '03' " 
++"        ) " 
++"        , " 
++"        MATUSE AS " 
++"        (SELECT wo.wonum, " 
++"                COUNT (Matusetrans.Itemnum) matuse " 
++"        FROM    wo " 
++"                JOIN Maximo.Matusetrans " 
++"                        ON      wo.Wonum      = Matusetrans.Refwo " 
++"        WHERE   MATUSETRANS.ITEMNUM IS NOT NULL " 
++"        GROUP BY WO.WONUM " 
++"        ) " 
++"        , " 
++"        UNWORK AS " 
++"        (SELECT wo.wonum, " 
++"                COUNT (UNWORKITEM.ITEMNUM) unwork " 
++"        FROM    wo " 
++"                JOIN Maximo.Unworkitem " 
++"                        ON      Unworkitem.Wonum = wo.Wonum " 
++"        WHERE   UNWORKITEM.ITEMNUM     IS NOT NULL " 
++"        GROUP BY wo.wonum " 
++"        ) " 
++"SELECT  WO.L_PODR, " 
++"        podrs.description                                                      podr_d, " 
++"        NVL(wo.jpnum, 'другая ТНК')                                            jpnum, " 
++"        COUNT (WO.WONUM)                                                       ALL_WO, " 
++"        COUNT(WO.JPNUM)                                                        ALL_TK, " 
++"        SUM(CASE WHEN unwork.unwork >0 OR matuse.matuse > 0 THEN 1 ELSE 0 END) yesno " 
++"FROM    wo " 
++"        LEFT JOIN matuse " 
++"                ON      WO.WONUM = MATUSE.WONUM " 
++"        LEFT JOIN unwork " 
++"                ON      WO.WONUM = UNWORK.WONUM " 
++"        JOIN MAXIMO.PODRS " 
++"                ON      WO.L_PODR     = PODRS.location " 
++"                        AND WO.SITEID = PODRS.SITEID " 
++"GROUP BY WO.L_PODR, " 
++"        podrs.description , " 
++"        NVL(wo.jpnum, 'другая ТНК')"
+ ;
+
+
+maximoDataSet.setQuery(sqlText);]]></method>
+            <method name="fetch"><![CDATA[if (!maximoDataSet.fetch())
+	return (false);
+row["L_PODR"] = maximoDataSet.getString("L_PODR");
+row["L_PODR_D"] = maximoDataSet.getString("PODR_D");
+row["JPNUM"] = maximoDataSet.getString("JPNUM");
+row["ALL_WO"] = maximoDataSet.getString("ALL_WO");
+row["ALL_TK"] = maximoDataSet.getString("ALL_TK");
+row["YESNO"] = maximoDataSet.getString("YESNO");
+
+	
+return (true);]]></method>
+        </script-data-set>
+        <script-data-set name="label" id="13864">
+            <list-property name="resultSetHints">
+                <structure>
+                    <property name="position">1</property>
+                    <property name="name">M</property>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="position">2</property>
+                    <property name="name">SITE</property>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="position">3</property>
+                    <property name="name">PODR</property>
+                    <property name="dataType">string</property>
+                </structure>
+            </list-property>
+            <list-property name="columnHints">
+                <structure>
+                    <property name="columnName">M</property>
+                </structure>
+                <structure>
+                    <property name="columnName">BALLAST_USTR</property>
+                </structure>
+                <structure>
+                    <property name="columnName">PODREZ</property>
+                </structure>
+                <structure>
+                    <property name="columnName">PODREZ_USTR</property>
+                </structure>
+                <structure>
+                    <property name="columnName">RAZGON</property>
+                </structure>
+                <structure>
+                    <property name="columnName">RAZGON_USTR</property>
+                </structure>
+                <structure>
+                    <property name="columnName">UGON</property>
+                </structure>
+                <structure>
+                    <property name="columnName">UGON_USTR</property>
+                </structure>
+                <structure>
+                    <property name="columnName">d</property>
+                </structure>
+                <structure>
+                    <property name="columnName">site</property>
+                </structure>
+                <structure>
+                    <property name="columnName">SITE</property>
+                </structure>
+                <structure>
+                    <property name="columnName">PODR</property>
+                </structure>
+            </list-property>
+            <structure name="cachedMetaData">
+                <list-property name="resultSet">
+                    <structure>
+                        <property name="position">1</property>
+                        <property name="name">M</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">2</property>
+                        <property name="name">SITE</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">3</property>
+                        <property name="name">PODR</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                </list-property>
+            </structure>
+            <property name="dataSource">maximoDataSource</property>
+            <method name="open"><![CDATA[maximoDataSet = MXReportDataSetProvider.create(this.getDataSource().getName(), this.getName());
+maximoDataSet.open();
+
+if(params["month"]=='' || params["month"] == null || params["month"] == '""' ) 
+params["month"]=BirtDateTime.month(BirtDateTime.now())
+else if (params["month"]!=BirtDateTime.month(BirtDateTime.now())) {params["month"] = params["month"].replace("=","")};
+
+
+var sqlText = new String();
+
+sqlText = " "     
+  +" SELECT LSPC.ALNVALUE PODR   , "
+ +"        SITE.DESCRIPTION SITE, ( "
+ +"        CASE "
+ +"               WHEN "+params["month"]+" = 1 "
+ +"               THEN ' январь ' "
+ +"               WHEN "+params["month"]+" = 2 "
+ +"               THEN ' февраль ' "
+ +"               WHEN "+params["month"]+" = 3 "
+ +"               THEN ' март ' "
+ +"               WHEN "+params["month"]+" = 4 "
+ +"               THEN ' апрель ' "
+ +"               WHEN "+params["month"]+" = 5 "
+ +"               THEN ' май ' "
+ +"               WHEN "+params["month"]+" = 6 "
+ +"               THEN ' июнь ' "
+ +"               WHEN "+params["month"]+" = 7 "
+ +"               THEN ' июль ' "
+ +"               WHEN "+params["month"]+" = 8 "
+ +"               THEN ' август ' "
+ +"               WHEN "+params["month"]+" = 9 "
+ +"               THEN ' сентябрь ' "
+ +"               WHEN "+params["month"]+" = 10 "
+ +"               THEN ' октябрь ' "
+ +"               WHEN "+params["month"]+" = 11 "
+ +"               THEN ' ноябрь ' "
+ +"               WHEN "+params["month"]+" = 12 "
+ +"               THEN ' декабрь ' "
+ +"               ELSE '' "
+ +"        END) M "
+ +" FROM   MAXIMO.LOCATIONSPEC LSPC "
+ +"        JOIN maximo.site "
+ +"        ON     LSPC.SITEID = SITE.SITEID "
+ +" WHERE  LSPC.ASSETATTRID   = 'SNAME' "
+ +" AND    lspc.siteid        = '"+params["mroSite"]+"' "
+ +" AND    LSPC.LOCATION      = '" + (params["pred"]).replace("=","") + "' "
+ 
+;
+
+
+maximoDataSet.setQuery(sqlText);]]></method>
+            <method name="fetch"><![CDATA[if (!maximoDataSet.fetch())
+	return (false);
+
+row["M"] = maximoDataSet.getString("M");
+row["PODR"] = maximoDataSet.getString("PODR");
+row["SITE"] = maximoDataSet.getString("SITE");
+
+return (true);]]></method>
+        </script-data-set>
+    </data-sets>
+    <cubes>
+        <tabular-cube name="Data Cube" id="17529">
+            <property name="dimensions">
+                <tabular-dimension name="Group" id="17530">
+                    <property name="defaultHierarchy">NewTabularHierarchy</property>
+                    <property name="hierarchies">
+                        <tabular-hierarchy name="NewTabularHierarchy" id="17531">
+                            <property name="levels">
+                                <tabular-level name="L_PODR" id="17532">
+                                    <property name="dataType">string</property>
+                                    <property name="columnName">L_PODR</property>
+                                </tabular-level>
+                                <tabular-level name="L_PODR_D" id="17569">
+                                    <property name="dataType">string</property>
+                                    <property name="columnName">L_PODR_D</property>
+                                </tabular-level>
+                            </property>
+                        </tabular-hierarchy>
+                    </property>
+                </tabular-dimension>
+                <tabular-dimension name="Group1" id="17533">
+                    <property name="defaultHierarchy">NewTabularHierarchy1</property>
+                    <property name="hierarchies">
+                        <tabular-hierarchy name="NewTabularHierarchy1" id="17534">
+                            <property name="levels">
+                                <tabular-level name="JPNUM" id="17535">
+                                    <property name="dataType">string</property>
+                                    <property name="columnName">JPNUM</property>
+                                </tabular-level>
+                            </property>
+                        </tabular-hierarchy>
+                    </property>
+                </tabular-dimension>
+            </property>
+            <property name="measureGroups">
+                <tabular-measure-group name="Summary Field" id="17536">
+                    <property name="measures">
+                        <tabular-measure name="ALL_WO" id="17537">
+                            <expression name="measureExpression">dataSetRow["ALL_WO"]</expression>
+                            <property name="dataType">string</property>
+                        </tabular-measure>
+                    </property>
+                </tabular-measure-group>
+                <tabular-measure-group name="Summary Field1" id="17538">
+                    <property name="measures">
+                        <tabular-measure name="ALL_TK" id="17539">
+                            <expression name="measureExpression">dataSetRow["ALL_TK"]</expression>
+                            <property name="dataType">string</property>
+                        </tabular-measure>
+                    </property>
+                </tabular-measure-group>
+                <tabular-measure-group name="Summary Field2" id="17540">
+                    <property name="measures">
+                        <tabular-measure name="YESNO" id="17541">
+                            <expression name="measureExpression">dataSetRow["YESNO"]</expression>
+                            <property name="dataType">string</property>
+                        </tabular-measure>
+                    </property>
+                </tabular-measure-group>
+            </property>
+            <property name="dataSet">11</property>
+        </tabular-cube>
+    </cubes>
+    <page-setup>
+        <simple-master-page name="maximoLandscape" id="47" extends="MaximoSystemLibrary.maximoLandscape">
+            <property name="type">a4</property>
+            <overridden-values>
+                <ref-entry baseId="304" name="NewGrid2" id="304"/>
+                <ref-entry baseId="305" id="305"/>
+                <ref-entry baseId="306" id="306"/>
+                <ref-entry baseId="307" id="307"/>
+                <ref-entry baseId="308" id="308"/>
+                <ref-entry baseId="340" name="NewImage1" id="340">
+                    <property name="source">file</property>
+                    <expression name="uri">"IBM_logo_Black.gif"</expression>
+                    <property name="height">1px</property>
+                    <property name="width">3px</property>
+                </ref-entry>
+                <ref-entry baseId="309" id="309"/>
+                <ref-entry baseId="310" name="NewImage" id="310">
+                    <property name="height">1px</property>
+                    <property name="width">3px</property>
+                </ref-entry>
+                <ref-entry baseId="322" name="NewGrid" id="322"/>
+                <ref-entry baseId="323" id="323"/>
+                <ref-entry baseId="324" id="324"/>
+                <ref-entry baseId="325" id="325"/>
+                <ref-entry baseId="326" id="326"/>
+                <ref-entry baseId="328" name="NewText" id="328">
+                    <list-property name="visibility">
+                        <structure>
+                            <property name="format">all</property>
+                            <expression name="valueExpr">true</expression>
+                        </structure>
+                    </list-property>
+                </ref-entry>
+                <ref-entry baseId="327" id="327"/>
+                <ref-entry baseId="329" name="NewGrid1" id="329"/>
+                <ref-entry baseId="330" id="330"/>
+                <ref-entry baseId="331" id="331"/>
+                <ref-entry baseId="332" id="332"/>
+                <ref-entry baseId="333" id="333"/>
+                <ref-entry baseId="334" id="334"/>
+                <ref-entry baseId="335" name="NewAutoText" id="335">
+                    <list-property name="visibility">
+                        <structure>
+                            <property name="format">all</property>
+                            <expression name="valueExpr">true</expression>
+                        </structure>
+                    </list-property>
+                </ref-entry>
+                <ref-entry baseId="336" id="336"/>
+                <ref-entry baseId="337" name="NewText1" id="337">
+                    <list-property name="visibility">
+                        <structure>
+                            <property name="format">all</property>
+                            <expression name="valueExpr">true</expression>
+                        </structure>
+                    </list-property>
+                </ref-entry>
+                <ref-entry baseId="338" id="338"/>
+                <ref-entry baseId="339" name="NewAutoText1" id="339">
+                    <list-property name="visibility">
+                        <structure>
+                            <property name="format">all</property>
+                            <expression name="valueExpr">true</expression>
+                        </structure>
+                    </list-property>
+                </ref-entry>
+            </overridden-values>
+        </simple-master-page>
+    </page-setup>
+    <body>
+        <extended-item extensionName="Crosstab" extensionVersion="2.3.0" id="17600">
+            <property name="measures">
+                <extended-item extensionName="MeasureView" id="17614">
+                    <property name="measure">ALL_WO</property>
+                    <property name="detail">
+                        <extended-item extensionName="AggregationCell" id="17615">
+                            <property name="aggregationOnRow">Group/L_PODR_D</property>
+                            <property name="aggregationOnColumn">Group1/JPNUM</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">thin</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">thin</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">thin</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">thin</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="content">
+                                <data id="17616">
+                                    <list-property name="visibility">
+                                        <structure>
+                                            <property name="format">all</property>
+                                            <expression name="valueExpr">data["JPNUM"] == "другая ТНК"</expression>
+                                        </structure>
+                                    </list-property>
+                                    <property name="resultSetColumn">ALL_WO_Group/L_PODR_D_Group1/JPNUM</property>
+                                </data>
+                            </property>
+                        </extended-item>
+                    </property>
+                    <property name="aggregations">
+                        <extended-item extensionName="AggregationCell" id="17635">
+                            <property name="aggregationOnRow">Group/L_PODR_D</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">thin</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">thin</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">thin</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">thin</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="content">
+                                <data id="17636">
+                                    <property name="resultSetColumn">ALL_WO_Group/L_PODR_D</property>
+                                </data>
+                            </property>
+                        </extended-item>
+                    </property>
+                    <property name="header">
+                        <extended-item extensionName="CrosstabCell" id="17617">
+                            <property name="content">
+                                <label id="17618">
+                                    <list-property name="visibility">
+                                        <structure>
+                                            <property name="format">all</property>
+                                            <expression name="valueExpr">data["JPNUM"] == "другая ТНК"</expression>
+                                        </structure>
+                                    </list-property>
+                                    <text-property name="text">ALL_WO</text-property>
+                                </label>
+                            </property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">thin</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">thin</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">thin</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">thin</property>
+                            <property name="borderRightColor">#000000</property>
+                        </extended-item>
+                    </property>
+                </extended-item>
+                <extended-item extensionName="MeasureView" id="17619">
+                    <property name="measure">ALL_TK</property>
+                    <property name="detail">
+                        <extended-item extensionName="AggregationCell" id="17620">
+                            <property name="aggregationOnRow">Group/L_PODR_D</property>
+                            <property name="aggregationOnColumn">Group1/JPNUM</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">thin</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">thin</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">thin</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">thin</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="content">
+                                <data id="17621">
+                                    <list-property name="visibility">
+                                        <structure>
+                                            <property name="format">all</property>
+                                            <expression name="valueExpr">data["JPNUM"] == "другая ТНК"</expression>
+                                        </structure>
+                                    </list-property>
+                                    <property name="resultSetColumn">ALL_TK_Group/L_PODR_D_Group1/JPNUM</property>
+                                </data>
+                            </property>
+                        </extended-item>
+                    </property>
+                    <property name="aggregations">
+                        <extended-item extensionName="AggregationCell" id="17637">
+                            <property name="aggregationOnRow">Group/L_PODR_D</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">thin</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">thin</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">thin</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">thin</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="content">
+                                <data id="17638">
+                                    <property name="resultSetColumn">ALL_TK_Group/L_PODR_D</property>
+                                </data>
+                            </property>
+                        </extended-item>
+                    </property>
+                    <property name="header">
+                        <extended-item extensionName="CrosstabCell" id="17622">
+                            <property name="content">
+                                <label id="17623">
+                                    <list-property name="visibility">
+                                        <structure>
+                                            <property name="format">all</property>
+                                            <expression name="valueExpr">data["JPNUM"] == "другая ТНК"</expression>
+                                        </structure>
+                                    </list-property>
+                                    <text-property name="text">ALL_TK</text-property>
+                                </label>
+                            </property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">thin</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">thin</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">thin</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">thin</property>
+                            <property name="borderRightColor">#000000</property>
+                        </extended-item>
+                    </property>
+                </extended-item>
+                <extended-item extensionName="MeasureView" id="17624">
+                    <property name="measure">YESNO</property>
+                    <property name="detail">
+                        <extended-item extensionName="AggregationCell" id="17625">
+                            <property name="aggregationOnRow">Group/L_PODR_D</property>
+                            <property name="aggregationOnColumn">Group1/JPNUM</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">thin</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">thin</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">thin</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">thin</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="content">
+                                <data id="17626">
+                                    <list-property name="visibility">
+                                        <structure>
+                                            <property name="format">all</property>
+                                            <expression name="valueExpr">data["JPNUM"] == "другая ТНК"</expression>
+                                        </structure>
+                                    </list-property>
+                                    <property name="resultSetColumn">YESNO_Group/L_PODR_D_Group1/JPNUM</property>
+                                </data>
+                            </property>
+                        </extended-item>
+                    </property>
+                    <property name="aggregations">
+                        <extended-item extensionName="AggregationCell" id="17639">
+                            <property name="aggregationOnRow">Group/L_PODR_D</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">thin</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">thin</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">thin</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">thin</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="content">
+                                <data id="17640">
+                                    <property name="resultSetColumn">YESNO_Group/L_PODR_D</property>
+                                </data>
+                            </property>
+                        </extended-item>
+                    </property>
+                    <property name="header">
+                        <extended-item extensionName="CrosstabCell" id="17627">
+                            <property name="content">
+                                <label id="17628">
+                                    <list-property name="visibility">
+                                        <structure>
+                                            <property name="format">all</property>
+                                            <expression name="valueExpr">data["JPNUM"] == "другая ТНК"</expression>
+                                        </structure>
+                                    </list-property>
+                                    <text-property name="text">YESNO</text-property>
+                                </label>
+                            </property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">thin</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">thin</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">thin</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">thin</property>
+                            <property name="borderRightColor">#000000</property>
+                        </extended-item>
+                    </property>
+                </extended-item>
+            </property>
+            <property name="rows">
+                <extended-item extensionName="CrosstabView" id="17602">
+                    <property name="views">
+                        <extended-item extensionName="DimensionView" id="17603">
+                            <property name="dimension">Group</property>
+                            <property name="levels">
+                                <extended-item extensionName="LevelView" name="NewLevel View1" id="17607">
+                                    <property name="level">Group/L_PODR_D</property>
+                                    <property name="sort">
+                                        <sort-element>
+                                            <expression name="key">data["L_PODR_D"]</expression>
+                                            <property name="direction">asc</property>
+                                        </sort-element>
+                                    </property>
+                                    <property name="member">
+                                        <extended-item extensionName="CrosstabCell" id="17608">
+                                            <property name="content">
+                                                <data name="L_PODR_D" id="17609">
+                                                    <property name="fontWeight">normal</property>
+                                                    <property name="resultSetColumn">L_PODR_D</property>
+                                                </data>
+                                            </property>
+                                            <property name="borderTopStyle">solid</property>
+                                            <property name="borderTopWidth">thin</property>
+                                            <property name="borderTopColor">#000000</property>
+                                            <property name="borderLeftStyle">solid</property>
+                                            <property name="borderLeftWidth">thin</property>
+                                            <property name="borderLeftColor">#000000</property>
+                                            <property name="borderBottomStyle">solid</property>
+                                            <property name="borderBottomWidth">thin</property>
+                                            <property name="borderBottomColor">#000000</property>
+                                            <property name="borderRightStyle">solid</property>
+                                            <property name="borderRightWidth">thin</property>
+                                            <property name="borderRightColor">#000000</property>
+                                        </extended-item>
+                                    </property>
+                                </extended-item>
+                            </property>
+                        </extended-item>
+                    </property>
+                </extended-item>
+            </property>
+            <property name="columns">
+                <extended-item extensionName="CrosstabView" id="17629">
+                    <property name="grandTotal">
+                        <extended-item extensionName="CrosstabCell" id="17634">
+                            <property name="content">
+                                <label id="17641">
+                                    <text-property name="text">Grand Total</text-property>
+                                </label>
+                            </property>
+                        </extended-item>
+                    </property>
+                    <property name="views">
+                        <extended-item extensionName="DimensionView" id="17610">
+                            <property name="dimension">Group1</property>
+                            <property name="levels">
+                                <extended-item extensionName="LevelView" name="NewLevel View2" id="17611">
+                                    <property name="level">Group1/JPNUM</property>
+                                    <property name="member">
+                                        <extended-item extensionName="CrosstabCell" id="17612">
+                                            <property name="content">
+                                                <data name="JPNUM" id="17613">
+                                                    <list-property name="visibility">
+                                                        <structure>
+                                                            <property name="format">all</property>
+                                                            <expression name="valueExpr">data["JPNUM"] == "другая ТНК"</expression>
+                                                        </structure>
+                                                    </list-property>
+                                                    <property name="resultSetColumn">JPNUM</property>
+                                                </data>
+                                            </property>
+                                            <property name="borderTopStyle">solid</property>
+                                            <property name="borderTopWidth">thin</property>
+                                            <property name="borderTopColor">#000000</property>
+                                            <property name="borderLeftStyle">solid</property>
+                                            <property name="borderLeftWidth">thin</property>
+                                            <property name="borderLeftColor">#000000</property>
+                                            <property name="borderBottomStyle">solid</property>
+                                            <property name="borderBottomWidth">thin</property>
+                                            <property name="borderBottomColor">#000000</property>
+                                            <property name="borderRightStyle">solid</property>
+                                            <property name="borderRightWidth">thin</property>
+                                            <property name="borderRightColor">#000000</property>
+                                        </extended-item>
+                                    </property>
+                                </extended-item>
+                            </property>
+                        </extended-item>
+                    </property>
+                </extended-item>
+            </property>
+            <property name="header">
+                <extended-item extensionName="CrosstabCell" id="17601">
+                    <property name="content">
+                        <grid id="17685">
+                            <property name="width">100%</property>
+                            <column id="17686"/>
+                            <column id="17687"/>
+                            <row id="17688">
+                                <cell id="17689">
+                                    <property name="colSpan">1</property>
+                                    <property name="rowSpan">3</property>
+                                    <text id="17697">
+                                        <property name="contentType">auto</property>
+                                        <text-property name="content"><![CDATA[Отсортировать по]]></text-property>
+                                    </text>
+                                </cell>
+                                <cell id="17690">
+                                    <data id="17699">
+                                        <property name="resultSetColumn">pd</property>
+                                        <structure name="action">
+                                            <property name="linkType">drill-through</property>
+                                            <property name="reportName">spravka_labor_hour.rptdesign</property>
+                                            <property name="targetWindow">_top</property>
+                                            <property name="targetFileType">report-design</property>
+                                            <list-property name="paramBindings">
+                                                <structure>
+                                                    <property name="paramName">mroSite</property>
+                                                    <expression name="expression">params["mroSite"].value</expression>
+                                                </structure>
+                                                <structure>
+                                                    <property name="paramName">month</property>
+                                                    <expression name="expression">params["month"].value</expression>
+                                                </structure>
+                                                <structure>
+                                                    <property name="paramName">year</property>
+                                                    <expression name="expression">params["year"].value</expression>
+                                                </structure>
+                                                <structure>
+                                                    <property name="paramName">pred</property>
+                                                    <expression name="expression">params["pred"].value</expression>
+                                                </structure>
+                                                <structure>
+                                                    <property name="paramName">visible</property>
+                                                    <expression name="expression">0</expression>
+                                                </structure>
+                                            </list-property>
+                                        </structure>
+                                    </data>
+                                </cell>
+                            </row>
+                            <row id="17691">
+                                <cell id="17693">
+                                    <data id="17700">
+                                        <property name="resultSetColumn">rz</property>
+                                        <structure name="action">
+                                            <property name="linkType">drill-through</property>
+                                            <property name="reportName">spravka_labor_hour.rptdesign</property>
+                                            <property name="targetWindow">_top</property>
+                                            <property name="targetFileType">report-design</property>
+                                            <list-property name="paramBindings">
+                                                <structure>
+                                                    <property name="paramName">mroSite</property>
+                                                    <expression name="expression">params["mroSite"].value</expression>
+                                                </structure>
+                                                <structure>
+                                                    <property name="paramName">month</property>
+                                                    <expression name="expression">params["month"].value</expression>
+                                                </structure>
+                                                <structure>
+                                                    <property name="paramName">year</property>
+                                                    <expression name="expression">params["year"].value</expression>
+                                                </structure>
+                                                <structure>
+                                                    <property name="paramName">pred</property>
+                                                    <expression name="expression">params["pred"].value</expression>
+                                                </structure>
+                                                <structure>
+                                                    <property name="paramName">visible</property>
+                                                    <expression name="expression">1</expression>
+                                                </structure>
+                                            </list-property>
+                                        </structure>
+                                    </data>
+                                </cell>
+                            </row>
+                            <row id="17694">
+                                <cell id="17696"/>
+                            </row>
+                        </grid>
+                    </property>
+                </extended-item>
+            </property>
+            <property name="cube">Data Cube</property>
+            <list-property name="visibility">
+                <structure>
+                    <property name="format">all</property>
+                    <expression name="valueExpr">params["visible"].value != 0</expression>
+                </structure>
+            </list-property>
+            <list-property name="boundDataColumns">
+                <structure>
+                    <property name="name">L_PODR_D</property>
+                    <expression name="expression">dimension["Group"]["L_PODR_D"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">JPNUM</property>
+                    <expression name="expression">dimension["Group1"]["JPNUM"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">ALL_WO_Group1/JPNUM</property>
+                    <expression name="expression">measure["ALL_WO"]</expression>
+                    <property name="dataType">string</property>
+                    <simple-property-list name="aggregateOn">
+                        <value>Group1/JPNUM</value>
+                    </simple-property-list>
+                    <property name="aggregateFunction">sum</property>
+                </structure>
+                <structure>
+                    <property name="name">ALL_TK_Group1/JPNUM</property>
+                    <expression name="expression">measure["ALL_TK"]</expression>
+                    <property name="dataType">string</property>
+                    <simple-property-list name="aggregateOn">
+                        <value>Group1/JPNUM</value>
+                    </simple-property-list>
+                    <property name="aggregateFunction">sum</property>
+                </structure>
+                <structure>
+                    <property name="name">YESNO_Group1/JPNUM</property>
+                    <expression name="expression">measure["YESNO"]</expression>
+                    <property name="dataType">string</property>
+                    <simple-property-list name="aggregateOn">
+                        <value>Group1/JPNUM</value>
+                    </simple-property-list>
+                    <property name="aggregateFunction">sum</property>
+                </structure>
+                <structure>
+                    <property name="name">ALL_WO_Group/L_PODR_D</property>
+                    <expression name="expression">measure["ALL_WO"]</expression>
+                    <property name="dataType">string</property>
+                    <simple-property-list name="aggregateOn">
+                        <value>Group/L_PODR_D</value>
+                    </simple-property-list>
+                    <property name="aggregateFunction">sum</property>
+                </structure>
+                <structure>
+                    <property name="name">ALL_TK_Group/L_PODR_D</property>
+                    <expression name="expression">measure["ALL_TK"]</expression>
+                    <property name="dataType">string</property>
+                    <simple-property-list name="aggregateOn">
+                        <value>Group/L_PODR_D</value>
+                    </simple-property-list>
+                    <property name="aggregateFunction">sum</property>
+                </structure>
+                <structure>
+                    <property name="name">YESNO_Group/L_PODR_D</property>
+                    <expression name="expression">measure["YESNO"]</expression>
+                    <property name="dataType">string</property>
+                    <simple-property-list name="aggregateOn">
+                        <value>Group/L_PODR_D</value>
+                    </simple-property-list>
+                    <property name="aggregateFunction">sum</property>
+                </structure>
+                <structure>
+                    <property name="name">ALL_WO_Group/L_PODR_D_Group1/JPNUM</property>
+                    <expression name="expression">measure["ALL_WO"]</expression>
+                    <property name="dataType">string</property>
+                    <simple-property-list name="aggregateOn">
+                        <value>Group/L_PODR_D</value>
+                        <value>Group1/JPNUM</value>
+                    </simple-property-list>
+                    <property name="aggregateFunction">sum</property>
+                </structure>
+                <structure>
+                    <property name="name">ALL_TK_Group/L_PODR_D_Group1/JPNUM</property>
+                    <expression name="expression">measure["ALL_TK"]</expression>
+                    <property name="dataType">string</property>
+                    <simple-property-list name="aggregateOn">
+                        <value>Group/L_PODR_D</value>
+                        <value>Group1/JPNUM</value>
+                    </simple-property-list>
+                    <property name="aggregateFunction">sum</property>
+                </structure>
+                <structure>
+                    <property name="name">YESNO_Group/L_PODR_D_Group1/JPNUM</property>
+                    <expression name="expression">measure["YESNO"]</expression>
+                    <property name="dataType">string</property>
+                    <simple-property-list name="aggregateOn">
+                        <value>Group/L_PODR_D</value>
+                        <value>Group1/JPNUM</value>
+                    </simple-property-list>
+                    <property name="aggregateFunction">sum</property>
+                </structure>
+                <structure>
+                    <property name="name">pd</property>
+                    <expression name="expression">"Подразделению"</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">rz</property>
+                    <expression name="expression">"Количеству РЗ"</expression>
+                    <property name="dataType">string</property>
+                </structure>
+            </list-property>
+        </extended-item>
+        <extended-item extensionName="Crosstab" extensionVersion="2.3.0" id="17647">
+            <property name="measures">
+                <extended-item extensionName="MeasureView" id="17648">
+                    <property name="measure">ALL_WO</property>
+                    <property name="detail">
+                        <extended-item extensionName="AggregationCell" id="17649">
+                            <property name="aggregationOnRow">Group/L_PODR_D</property>
+                            <property name="aggregationOnColumn">Group1/JPNUM</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">thin</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">thin</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">thin</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">thin</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="content">
+                                <data id="17650">
+                                    <list-property name="visibility">
+                                        <structure>
+                                            <property name="format">all</property>
+                                            <expression name="valueExpr">data["JPNUM"] == "другая ТНК"</expression>
+                                        </structure>
+                                    </list-property>
+                                    <property name="resultSetColumn">ALL_WO_Group/L_PODR_D_Group1/JPNUM</property>
+                                </data>
+                            </property>
+                        </extended-item>
+                    </property>
+                    <property name="aggregations">
+                        <extended-item extensionName="AggregationCell" id="17651">
+                            <property name="aggregationOnRow">Group/L_PODR_D</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">thin</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">thin</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">thin</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">thin</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="content">
+                                <data id="17652">
+                                    <property name="resultSetColumn">ALL_WO_Group/L_PODR_D</property>
+                                </data>
+                            </property>
+                        </extended-item>
+                    </property>
+                    <property name="header">
+                        <extended-item extensionName="CrosstabCell" id="17653">
+                            <property name="content">
+                                <label id="17654">
+                                    <list-property name="visibility">
+                                        <structure>
+                                            <property name="format">all</property>
+                                            <expression name="valueExpr">data["JPNUM"] == "другая ТНК"</expression>
+                                        </structure>
+                                    </list-property>
+                                    <text-property name="text">ALL_WO</text-property>
+                                </label>
+                            </property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">thin</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">thin</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">thin</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">thin</property>
+                            <property name="borderRightColor">#000000</property>
+                        </extended-item>
+                    </property>
+                </extended-item>
+                <extended-item extensionName="MeasureView" id="17655">
+                    <property name="measure">ALL_TK</property>
+                    <property name="detail">
+                        <extended-item extensionName="AggregationCell" id="17656">
+                            <property name="aggregationOnRow">Group/L_PODR_D</property>
+                            <property name="aggregationOnColumn">Group1/JPNUM</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">thin</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">thin</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">thin</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">thin</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="content">
+                                <data id="17657">
+                                    <list-property name="visibility">
+                                        <structure>
+                                            <property name="format">all</property>
+                                            <expression name="valueExpr">data["JPNUM"] == "другая ТНК"</expression>
+                                        </structure>
+                                    </list-property>
+                                    <property name="resultSetColumn">ALL_TK_Group/L_PODR_D_Group1/JPNUM</property>
+                                </data>
+                            </property>
+                        </extended-item>
+                    </property>
+                    <property name="aggregations">
+                        <extended-item extensionName="AggregationCell" id="17658">
+                            <property name="aggregationOnRow">Group/L_PODR_D</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">thin</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">thin</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">thin</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">thin</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="content">
+                                <data id="17659">
+                                    <property name="resultSetColumn">ALL_TK_Group/L_PODR_D</property>
+                                </data>
+                            </property>
+                        </extended-item>
+                    </property>
+                    <property name="header">
+                        <extended-item extensionName="CrosstabCell" id="17660">
+                            <property name="content">
+                                <label id="17661">
+                                    <list-property name="visibility">
+                                        <structure>
+                                            <property name="format">all</property>
+                                            <expression name="valueExpr">data["JPNUM"] == "другая ТНК"</expression>
+                                        </structure>
+                                    </list-property>
+                                    <text-property name="text">ALL_TK</text-property>
+                                </label>
+                            </property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">thin</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">thin</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">thin</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">thin</property>
+                            <property name="borderRightColor">#000000</property>
+                        </extended-item>
+                    </property>
+                </extended-item>
+                <extended-item extensionName="MeasureView" id="17662">
+                    <property name="measure">YESNO</property>
+                    <property name="detail">
+                        <extended-item extensionName="AggregationCell" id="17663">
+                            <property name="aggregationOnRow">Group/L_PODR_D</property>
+                            <property name="aggregationOnColumn">Group1/JPNUM</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">thin</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">thin</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">thin</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">thin</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="content">
+                                <data id="17664">
+                                    <list-property name="visibility">
+                                        <structure>
+                                            <property name="format">all</property>
+                                            <expression name="valueExpr">data["JPNUM"] == "другая ТНК"</expression>
+                                        </structure>
+                                    </list-property>
+                                    <property name="resultSetColumn">YESNO_Group/L_PODR_D_Group1/JPNUM</property>
+                                </data>
+                            </property>
+                        </extended-item>
+                    </property>
+                    <property name="aggregations">
+                        <extended-item extensionName="AggregationCell" id="17665">
+                            <property name="aggregationOnRow">Group/L_PODR_D</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">thin</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">thin</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">thin</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">thin</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="content">
+                                <data id="17666">
+                                    <property name="resultSetColumn">YESNO_Group/L_PODR_D</property>
+                                </data>
+                            </property>
+                        </extended-item>
+                    </property>
+                    <property name="header">
+                        <extended-item extensionName="CrosstabCell" id="17667">
+                            <property name="content">
+                                <label id="17668">
+                                    <list-property name="visibility">
+                                        <structure>
+                                            <property name="format">all</property>
+                                            <expression name="valueExpr">data["JPNUM"] == "другая ТНК"</expression>
+                                        </structure>
+                                    </list-property>
+                                    <text-property name="text">YESNO</text-property>
+                                </label>
+                            </property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">thin</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">thin</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">thin</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">thin</property>
+                            <property name="borderRightColor">#000000</property>
+                        </extended-item>
+                    </property>
+                </extended-item>
+            </property>
+            <property name="rows">
+                <extended-item extensionName="CrosstabView" id="17669">
+                    <property name="views">
+                        <extended-item extensionName="DimensionView" id="17670">
+                            <property name="dimension">Group</property>
+                            <property name="levels">
+                                <extended-item extensionName="LevelView" name="NewLevel View11" id="17671">
+                                    <property name="level">Group/L_PODR_D</property>
+                                    <property name="sort">
+                                        <sort-element>
+                                            <expression name="key">data["ALL_WO_Group/L_PODR_D"]</expression>
+                                            <property name="direction">asc</property>
+                                        </sort-element>
+                                    </property>
+                                    <property name="member">
+                                        <extended-item extensionName="CrosstabCell" id="17672">
+                                            <property name="content">
+                                                <data name="L_PODR_D1" id="17673">
+                                                    <property name="fontWeight">normal</property>
+                                                    <property name="resultSetColumn">L_PODR_D</property>
+                                                </data>
+                                            </property>
+                                            <property name="borderTopStyle">solid</property>
+                                            <property name="borderTopWidth">thin</property>
+                                            <property name="borderTopColor">#000000</property>
+                                            <property name="borderLeftStyle">solid</property>
+                                            <property name="borderLeftWidth">thin</property>
+                                            <property name="borderLeftColor">#000000</property>
+                                            <property name="borderBottomStyle">solid</property>
+                                            <property name="borderBottomWidth">thin</property>
+                                            <property name="borderBottomColor">#000000</property>
+                                            <property name="borderRightStyle">solid</property>
+                                            <property name="borderRightWidth">thin</property>
+                                            <property name="borderRightColor">#000000</property>
+                                        </extended-item>
+                                    </property>
+                                </extended-item>
+                            </property>
+                        </extended-item>
+                    </property>
+                </extended-item>
+            </property>
+            <property name="columns">
+                <extended-item extensionName="CrosstabView" id="17674">
+                    <property name="grandTotal">
+                        <extended-item extensionName="CrosstabCell" id="17675">
+                            <property name="content">
+                                <label id="17676">
+                                    <text-property name="text">Grand Total</text-property>
+                                </label>
+                            </property>
+                        </extended-item>
+                    </property>
+                    <property name="views">
+                        <extended-item extensionName="DimensionView" id="17677">
+                            <property name="dimension">Group1</property>
+                            <property name="levels">
+                                <extended-item extensionName="LevelView" name="NewLevel View21" id="17678">
+                                    <property name="level">Group1/JPNUM</property>
+                                    <property name="member">
+                                        <extended-item extensionName="CrosstabCell" id="17679">
+                                            <property name="content">
+                                                <data name="JPNUM1" id="17680">
+                                                    <list-property name="visibility">
+                                                        <structure>
+                                                            <property name="format">all</property>
+                                                            <expression name="valueExpr">data["JPNUM"] == "другая ТНК"</expression>
+                                                        </structure>
+                                                    </list-property>
+                                                    <property name="resultSetColumn">JPNUM</property>
+                                                </data>
+                                            </property>
+                                            <property name="borderTopStyle">solid</property>
+                                            <property name="borderTopWidth">thin</property>
+                                            <property name="borderTopColor">#000000</property>
+                                            <property name="borderLeftStyle">solid</property>
+                                            <property name="borderLeftWidth">thin</property>
+                                            <property name="borderLeftColor">#000000</property>
+                                            <property name="borderBottomStyle">solid</property>
+                                            <property name="borderBottomWidth">thin</property>
+                                            <property name="borderBottomColor">#000000</property>
+                                            <property name="borderRightStyle">solid</property>
+                                            <property name="borderRightWidth">thin</property>
+                                            <property name="borderRightColor">#000000</property>
+                                        </extended-item>
+                                    </property>
+                                </extended-item>
+                            </property>
+                        </extended-item>
+                    </property>
+                </extended-item>
+            </property>
+            <property name="header">
+                <extended-item extensionName="CrosstabCell" id="17681">
+                    <property name="content">
+                        <grid id="17701">
+                            <property name="width">100%</property>
+                            <column id="17702"/>
+                            <column id="17703"/>
+                            <row id="17704">
+                                <cell id="17705">
+                                    <property name="colSpan">1</property>
+                                    <property name="rowSpan">3</property>
+                                    <text id="17706">
+                                        <property name="contentType">auto</property>
+                                        <text-property name="content"><![CDATA[Отсортировать по]]></text-property>
+                                    </text>
+                                </cell>
+                                <cell id="17707">
+                                    <data id="17708">
+                                        <property name="resultSetColumn">pd</property>
+                                        <structure name="action">
+                                            <property name="linkType">drill-through</property>
+                                            <property name="reportName">spravka_labor_hour.rptdesign</property>
+                                            <property name="targetWindow">_top</property>
+                                            <property name="targetFileType">report-design</property>
+                                            <list-property name="paramBindings">
+                                                <structure>
+                                                    <property name="paramName">mroSite</property>
+                                                    <expression name="expression">params["mroSite"].value</expression>
+                                                </structure>
+                                                <structure>
+                                                    <property name="paramName">month</property>
+                                                    <expression name="expression">params["month"].value</expression>
+                                                </structure>
+                                                <structure>
+                                                    <property name="paramName">year</property>
+                                                    <expression name="expression">params["year"].value</expression>
+                                                </structure>
+                                                <structure>
+                                                    <property name="paramName">pred</property>
+                                                    <expression name="expression">params["pred"].value</expression>
+                                                </structure>
+                                                <structure>
+                                                    <property name="paramName">visible</property>
+                                                    <expression name="expression">0</expression>
+                                                </structure>
+                                            </list-property>
+                                        </structure>
+                                    </data>
+                                </cell>
+                            </row>
+                            <row id="17709">
+                                <cell id="17710">
+                                    <data id="17711">
+                                        <property name="resultSetColumn">rz</property>
+                                        <structure name="action">
+                                            <property name="linkType">drill-through</property>
+                                            <property name="reportName">spravka_labor_hour.rptdesign</property>
+                                            <property name="targetWindow">_top</property>
+                                            <property name="targetFileType">report-design</property>
+                                            <list-property name="paramBindings">
+                                                <structure>
+                                                    <property name="paramName">mroSite</property>
+                                                    <expression name="expression">params["mroSite"].value</expression>
+                                                </structure>
+                                                <structure>
+                                                    <property name="paramName">month</property>
+                                                    <expression name="expression">params["month"].value</expression>
+                                                </structure>
+                                                <structure>
+                                                    <property name="paramName">year</property>
+                                                    <expression name="expression">params["year"].value</expression>
+                                                </structure>
+                                                <structure>
+                                                    <property name="paramName">pred</property>
+                                                    <expression name="expression">params["pred"].value</expression>
+                                                </structure>
+                                                <structure>
+                                                    <property name="paramName">visible</property>
+                                                    <expression name="expression">1</expression>
+                                                </structure>
+                                            </list-property>
+                                        </structure>
+                                    </data>
+                                </cell>
+                            </row>
+                            <row id="17712">
+                                <cell id="17713"/>
+                            </row>
+                        </grid>
+                    </property>
+                </extended-item>
+            </property>
+            <property name="cube">Data Cube</property>
+            <list-property name="visibility">
+                <structure>
+                    <property name="format">all</property>
+                    <expression name="valueExpr">params["visible"].value !=1</expression>
+                </structure>
+            </list-property>
+            <list-property name="boundDataColumns">
+                <structure>
+                    <property name="name">L_PODR_D</property>
+                    <expression name="expression">dimension["Group"]["L_PODR_D"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">JPNUM</property>
+                    <expression name="expression">dimension["Group1"]["JPNUM"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">ALL_WO_Group1/JPNUM</property>
+                    <expression name="expression">measure["ALL_WO"]</expression>
+                    <property name="dataType">string</property>
+                    <simple-property-list name="aggregateOn">
+                        <value>Group1/JPNUM</value>
+                    </simple-property-list>
+                    <property name="aggregateFunction">sum</property>
+                </structure>
+                <structure>
+                    <property name="name">ALL_TK_Group1/JPNUM</property>
+                    <expression name="expression">measure["ALL_TK"]</expression>
+                    <property name="dataType">string</property>
+                    <simple-property-list name="aggregateOn">
+                        <value>Group1/JPNUM</value>
+                    </simple-property-list>
+                    <property name="aggregateFunction">sum</property>
+                </structure>
+                <structure>
+                    <property name="name">YESNO_Group1/JPNUM</property>
+                    <expression name="expression">measure["YESNO"]</expression>
+                    <property name="dataType">string</property>
+                    <simple-property-list name="aggregateOn">
+                        <value>Group1/JPNUM</value>
+                    </simple-property-list>
+                    <property name="aggregateFunction">sum</property>
+                </structure>
+                <structure>
+                    <property name="name">ALL_WO_Group/L_PODR_D</property>
+                    <expression name="expression">measure["ALL_WO"]</expression>
+                    <property name="dataType">string</property>
+                    <simple-property-list name="aggregateOn">
+                        <value>Group/L_PODR_D</value>
+                    </simple-property-list>
+                    <property name="aggregateFunction">sum</property>
+                </structure>
+                <structure>
+                    <property name="name">ALL_TK_Group/L_PODR_D</property>
+                    <expression name="expression">measure["ALL_TK"]</expression>
+                    <property name="dataType">string</property>
+                    <simple-property-list name="aggregateOn">
+                        <value>Group/L_PODR_D</value>
+                    </simple-property-list>
+                    <property name="aggregateFunction">sum</property>
+                </structure>
+                <structure>
+                    <property name="name">YESNO_Group/L_PODR_D</property>
+                    <expression name="expression">measure["YESNO"]</expression>
+                    <property name="dataType">string</property>
+                    <simple-property-list name="aggregateOn">
+                        <value>Group/L_PODR_D</value>
+                    </simple-property-list>
+                    <property name="aggregateFunction">sum</property>
+                </structure>
+                <structure>
+                    <property name="name">ALL_WO_Group/L_PODR_D_Group1/JPNUM</property>
+                    <expression name="expression">measure["ALL_WO"]</expression>
+                    <property name="dataType">string</property>
+                    <simple-property-list name="aggregateOn">
+                        <value>Group/L_PODR_D</value>
+                        <value>Group1/JPNUM</value>
+                    </simple-property-list>
+                    <property name="aggregateFunction">sum</property>
+                </structure>
+                <structure>
+                    <property name="name">ALL_TK_Group/L_PODR_D_Group1/JPNUM</property>
+                    <expression name="expression">measure["ALL_TK"]</expression>
+                    <property name="dataType">string</property>
+                    <simple-property-list name="aggregateOn">
+                        <value>Group/L_PODR_D</value>
+                        <value>Group1/JPNUM</value>
+                    </simple-property-list>
+                    <property name="aggregateFunction">sum</property>
+                </structure>
+                <structure>
+                    <property name="name">YESNO_Group/L_PODR_D_Group1/JPNUM</property>
+                    <expression name="expression">measure["YESNO"]</expression>
+                    <property name="dataType">string</property>
+                    <simple-property-list name="aggregateOn">
+                        <value>Group/L_PODR_D</value>
+                        <value>Group1/JPNUM</value>
+                    </simple-property-list>
+                    <property name="aggregateFunction">sum</property>
+                </structure>
+                <structure>
+                    <property name="name">pd</property>
+                    <expression name="expression">"Подразделению"</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">rz</property>
+                    <expression name="expression">"Количеству РЗ"</expression>
+                    <property name="dataType">string</property>
+                </structure>
+            </list-property>
+        </extended-item>
+    </body>
+</report>
