@@ -546,10 +546,10 @@ sqlText = ""
  +"         ( SELECT COUNT (r.laborcode) "
  +"         FROM    maximo.WPLABOR r "
  +"         WHERE   r.wonum =wo.wonum "
- +"         )                                              Kplan , "
- +"         ROUND (wo.JPDURATION*wo.PLAN_WO/J1.NUMVALUE,2) plantime, "
+ +"         )                                                                      Kplan , "
+ +"         ROUND (NVL(wo.JPDURATION, WO.NOKOEFDURATION)*wo.PLAN_WO/J1.NUMVALUE,2) plantime, "
  +"         wo.PLAN_WO , "
- +"         WO.LABOR_HOUR FACTTIME , "
+ +"         ROUND (NVL(wo.JPDURATION, WO.NOKOEFDURATION)*wo.fakt_WO/J1.NUMVALUE,2) FACTTIME , "
  +"         WO.FAKT_WO , "
  +"         wo.CAUTION predupr , "
  +"         ''         SIGNAL , "
@@ -622,10 +622,12 @@ sqlText = ""
  +"         CAST (NULL AS INTEGER)                                                                                           PP , "
  +"         CAST (NULL AS INTEGER)                                                                                           VP , "
  +"         CAST (NULL AS CHAR (1000))                                                                                       PRIM "
- +" FROM    WONUM wo "
+ +" FROM    WONUM WO "
+ +" WHERE   TYPEWORKORDER IN ('Прочее', 'Путевые обходчики') "
  +" GROUP BY podrId , "
  +"         podr , "
  +"         NVL( CASE WHEN TYPEWORKORDER IN ('Путевые обходчики') THEN 'Осмотр пути' ELSE WO.OTHERWORK END, 'Прочие работы') "
+
 ;
 
 	maximoDataSet.setQuery(sqlText);]]></method>
@@ -1149,9 +1151,6 @@ row["RK"] = maximoDataSet.getString("RK");
                 <cell id="8203"/>
             </row>
         </grid>
-        <label id="8233">
-            <text-property name="text">План промеров пути ПД, ПДБ</text-property>
-        </label>
         <grid id="8598">
             <property name="textAlign">center</property>
             <property name="width">100%</property>
@@ -1518,12 +1517,6 @@ else ( 'К факт = 0  (чел) / '+ BirtMath.round(row["Aggregation_1"],2)+' 
                                     <column id="8802">
                                         <property name="width">105px</property>
                                     </column>
-                                    <column id="8804">
-                                        <property name="width">120px</property>
-                                    </column>
-                                    <column id="8805">
-                                        <property name="width">100px</property>
-                                    </column>
                                     <column id="8806">
                                         <property name="width">100px</property>
                                     </column>
@@ -1835,50 +1828,6 @@ else ( 'К факт = 0  (чел) / '+ BirtMath.round(row["Aggregation_1"],2)+' 
                                                 <property name="textAlign">center</property>
                                                 <label id="8625">
                                                     <text-property name="text">Форма предупреждения, № предупреждения</text-property>
-                                                </label>
-                                            </cell>
-                                            <cell id="9894">
-                                                <property name="colSpan">1</property>
-                                                <property name="rowSpan">2</property>
-                                                <property name="backgroundColor">#C0C0C0</property>
-                                                <property name="fontWeight">bold</property>
-                                                <property name="borderBottomColor">#000000</property>
-                                                <property name="borderBottomStyle">solid</property>
-                                                <property name="borderBottomWidth">thin</property>
-                                                <property name="borderLeftColor">#000000</property>
-                                                <property name="borderLeftStyle">solid</property>
-                                                <property name="borderLeftWidth">thin</property>
-                                                <property name="borderRightColor">#000000</property>
-                                                <property name="borderRightStyle">solid</property>
-                                                <property name="borderRightWidth">thin</property>
-                                                <property name="borderTopColor">#000000</property>
-                                                <property name="borderTopStyle">solid</property>
-                                                <property name="borderTopWidth">thin</property>
-                                                <property name="textAlign">center</property>
-                                                <label id="8631">
-                                                    <text-property name="text">План промеров пути ПД, ПДБ</text-property>
-                                                </label>
-                                            </cell>
-                                            <cell id="9895">
-                                                <property name="colSpan">1</property>
-                                                <property name="rowSpan">2</property>
-                                                <property name="backgroundColor">#C0C0C0</property>
-                                                <property name="fontWeight">bold</property>
-                                                <property name="borderBottomColor">#000000</property>
-                                                <property name="borderBottomStyle">solid</property>
-                                                <property name="borderBottomWidth">thin</property>
-                                                <property name="borderLeftColor">#000000</property>
-                                                <property name="borderLeftStyle">solid</property>
-                                                <property name="borderLeftWidth">thin</property>
-                                                <property name="borderRightColor">#000000</property>
-                                                <property name="borderRightStyle">solid</property>
-                                                <property name="borderRightWidth">thin</property>
-                                                <property name="borderTopColor">#000000</property>
-                                                <property name="borderTopStyle">solid</property>
-                                                <property name="borderTopWidth">thin</property>
-                                                <property name="textAlign">center</property>
-                                                <label id="8633">
-                                                    <text-property name="text">Выполненный промер пути ПД, ПДБ</text-property>
                                                 </label>
                                             </cell>
                                             <cell id="9896">
@@ -2315,48 +2264,6 @@ else ( 'К факт = 0  (чел) / '+ BirtMath.round(row["Aggregation_1"],2)+' 
                                                     <text-property name="text">14</text-property>
                                                 </label>
                                             </cell>
-                                            <cell id="9914">
-                                                <property name="backgroundColor">#C0C0C0</property>
-                                                <property name="fontWeight">bold</property>
-                                                <property name="borderBottomColor">#000000</property>
-                                                <property name="borderBottomStyle">solid</property>
-                                                <property name="borderBottomWidth">thin</property>
-                                                <property name="borderLeftColor">#000000</property>
-                                                <property name="borderLeftStyle">solid</property>
-                                                <property name="borderLeftWidth">thin</property>
-                                                <property name="borderRightColor">#000000</property>
-                                                <property name="borderRightStyle">solid</property>
-                                                <property name="borderRightWidth">thin</property>
-                                                <property name="borderTopColor">#000000</property>
-                                                <property name="borderTopStyle">solid</property>
-                                                <property name="borderTopWidth">thin</property>
-                                                <property name="textAlign">center</property>
-                                                <label id="8675">
-                                                    <property name="fontWeight">normal</property>
-                                                    <text-property name="text">15</text-property>
-                                                </label>
-                                            </cell>
-                                            <cell id="9915">
-                                                <property name="backgroundColor">#C0C0C0</property>
-                                                <property name="fontWeight">bold</property>
-                                                <property name="borderBottomColor">#000000</property>
-                                                <property name="borderBottomStyle">solid</property>
-                                                <property name="borderBottomWidth">thin</property>
-                                                <property name="borderLeftColor">#000000</property>
-                                                <property name="borderLeftStyle">solid</property>
-                                                <property name="borderLeftWidth">thin</property>
-                                                <property name="borderRightColor">#000000</property>
-                                                <property name="borderRightStyle">solid</property>
-                                                <property name="borderRightWidth">thin</property>
-                                                <property name="borderTopColor">#000000</property>
-                                                <property name="borderTopStyle">solid</property>
-                                                <property name="borderTopWidth">thin</property>
-                                                <property name="textAlign">center</property>
-                                                <label id="8677">
-                                                    <property name="fontWeight">normal</property>
-                                                    <text-property name="text">16</text-property>
-                                                </label>
-                                            </cell>
                                             <cell id="9916">
                                                 <property name="backgroundColor">#C0C0C0</property>
                                                 <property name="fontWeight">bold</property>
@@ -2534,7 +2441,7 @@ else ('РК = ' + dataSetRow["RK"] +  ' (чел)' )</expression>
                                                 <property name="borderTopStyle">solid</property>
                                                 <property name="borderTopWidth">thin</property>
                                             </cell>
-                                            <cell id="9779">
+                                            <cell id="9781">
                                                 <property name="borderBottomColor">#000000</property>
                                                 <property name="borderBottomStyle">solid</property>
                                                 <property name="borderBottomWidth">thin</property>
@@ -2544,22 +2451,6 @@ else ('РК = ' + dataSetRow["RK"] +  ' (чел)' )</expression>
                                                 <data id="9795">
                                                     <property name="resultSetColumn">kfackt_all</property>
                                                 </data>
-                                            </cell>
-                                            <cell id="9780">
-                                                <property name="borderBottomColor">#000000</property>
-                                                <property name="borderBottomStyle">solid</property>
-                                                <property name="borderBottomWidth">thin</property>
-                                                <property name="borderTopColor">#000000</property>
-                                                <property name="borderTopStyle">solid</property>
-                                                <property name="borderTopWidth">thin</property>
-                                            </cell>
-                                            <cell id="9781">
-                                                <property name="borderBottomColor">#000000</property>
-                                                <property name="borderBottomStyle">solid</property>
-                                                <property name="borderBottomWidth">thin</property>
-                                                <property name="borderTopColor">#000000</property>
-                                                <property name="borderTopStyle">solid</property>
-                                                <property name="borderTopWidth">thin</property>
                                             </cell>
                                         </row>
                                     </header>
@@ -2753,7 +2644,7 @@ else ('Ксп = ' + dataSetRow["KSP"] + '  (чел)' )</expression>
                                                     </data>
                                                 </cell>
                                                 <cell id="8708">
-                                                    <property name="colSpan">3</property>
+                                                    <property name="colSpan">1</property>
                                                     <property name="rowSpan">1</property>
                                                     <property name="borderBottomColor">#000000</property>
                                                     <property name="borderBottomStyle">solid</property>
@@ -3027,34 +2918,6 @@ else ('Ксп = ' + dataSetRow["KSP"] + '  (чел)' )</expression>
                                                     <property name="borderTopStyle">solid</property>
                                                     <property name="borderTopWidth">thin</property>
                                                 </cell>
-                                                <cell id="8731">
-                                                    <property name="borderBottomColor">#000000</property>
-                                                    <property name="borderBottomStyle">solid</property>
-                                                    <property name="borderBottomWidth">thin</property>
-                                                    <property name="borderLeftColor">#000000</property>
-                                                    <property name="borderLeftStyle">solid</property>
-                                                    <property name="borderLeftWidth">thin</property>
-                                                    <property name="borderRightColor">#000000</property>
-                                                    <property name="borderRightStyle">solid</property>
-                                                    <property name="borderRightWidth">thin</property>
-                                                    <property name="borderTopColor">#000000</property>
-                                                    <property name="borderTopStyle">solid</property>
-                                                    <property name="borderTopWidth">thin</property>
-                                                </cell>
-                                                <cell id="8732">
-                                                    <property name="borderBottomColor">#000000</property>
-                                                    <property name="borderBottomStyle">solid</property>
-                                                    <property name="borderBottomWidth">thin</property>
-                                                    <property name="borderLeftColor">#000000</property>
-                                                    <property name="borderLeftStyle">solid</property>
-                                                    <property name="borderLeftWidth">thin</property>
-                                                    <property name="borderRightColor">#000000</property>
-                                                    <property name="borderRightStyle">solid</property>
-                                                    <property name="borderRightWidth">thin</property>
-                                                    <property name="borderTopColor">#000000</property>
-                                                    <property name="borderTopStyle">solid</property>
-                                                    <property name="borderTopWidth">thin</property>
-                                                </cell>
                                                 <cell id="8733">
                                                     <property name="borderBottomColor">#000000</property>
                                                     <property name="borderBottomStyle">solid</property>
@@ -3308,34 +3171,6 @@ else ('Ксп = ' + dataSetRow["KSP"] + '  (чел)' )</expression>
                                                         <property name="resultSetColumn">PREDUPR</property>
                                                     </data>
                                                 </cell>
-                                                <cell id="9725">
-                                                    <property name="borderLeftColor">#000000</property>
-                                                    <property name="borderLeftStyle">solid</property>
-                                                    <property name="borderLeftWidth">thin</property>
-                                                    <property name="borderRightColor">#000000</property>
-                                                    <property name="borderRightStyle">solid</property>
-                                                    <property name="borderRightWidth">thin</property>
-                                                    <property name="borderTopColor">#000000</property>
-                                                    <property name="borderTopStyle">solid</property>
-                                                    <property name="borderTopWidth">thin</property>
-                                                    <data id="8762">
-                                                        <property name="resultSetColumn">PP</property>
-                                                    </data>
-                                                </cell>
-                                                <cell id="9726">
-                                                    <property name="borderLeftColor">#000000</property>
-                                                    <property name="borderLeftStyle">solid</property>
-                                                    <property name="borderLeftWidth">thin</property>
-                                                    <property name="borderRightColor">#000000</property>
-                                                    <property name="borderRightStyle">solid</property>
-                                                    <property name="borderRightWidth">thin</property>
-                                                    <property name="borderTopColor">#000000</property>
-                                                    <property name="borderTopStyle">solid</property>
-                                                    <property name="borderTopWidth">thin</property>
-                                                    <data id="8764">
-                                                        <property name="resultSetColumn">VP</property>
-                                                    </data>
-                                                </cell>
                                                 <cell id="9727">
                                                     <property name="borderLeftColor">#000000</property>
                                                     <property name="borderLeftStyle">solid</property>
@@ -3479,22 +3314,6 @@ else ('Ксп = ' + dataSetRow["KSP"] + '  (чел)' )</expression>
                                                 <property name="borderRightWidth">thin</property>
                                             </cell>
                                             <cell id="8755">
-                                                <property name="borderLeftColor">#000000</property>
-                                                <property name="borderLeftStyle">solid</property>
-                                                <property name="borderLeftWidth">thin</property>
-                                                <property name="borderRightColor">#000000</property>
-                                                <property name="borderRightStyle">solid</property>
-                                                <property name="borderRightWidth">thin</property>
-                                            </cell>
-                                            <cell id="8759">
-                                                <property name="borderLeftColor">#000000</property>
-                                                <property name="borderLeftStyle">solid</property>
-                                                <property name="borderLeftWidth">thin</property>
-                                                <property name="borderRightColor">#000000</property>
-                                                <property name="borderRightStyle">solid</property>
-                                                <property name="borderRightWidth">thin</property>
-                                            </cell>
-                                            <cell id="8761">
                                                 <property name="borderLeftColor">#000000</property>
                                                 <property name="borderLeftStyle">solid</property>
                                                 <property name="borderLeftWidth">thin</property>
@@ -3757,34 +3576,6 @@ else ('Ксп = ' + dataSetRow["KSP"] + '  (чел)' )</expression>
                                                 <property name="borderTopWidth">thin</property>
                                             </cell>
                                             <cell id="8786">
-                                                <property name="borderBottomColor">#000000</property>
-                                                <property name="borderBottomStyle">solid</property>
-                                                <property name="borderBottomWidth">thin</property>
-                                                <property name="borderLeftColor">#000000</property>
-                                                <property name="borderLeftStyle">solid</property>
-                                                <property name="borderLeftWidth">thin</property>
-                                                <property name="borderRightColor">#000000</property>
-                                                <property name="borderRightStyle">solid</property>
-                                                <property name="borderRightWidth">thin</property>
-                                                <property name="borderTopColor">#000000</property>
-                                                <property name="borderTopStyle">solid</property>
-                                                <property name="borderTopWidth">thin</property>
-                                            </cell>
-                                            <cell id="8788">
-                                                <property name="borderBottomColor">#000000</property>
-                                                <property name="borderBottomStyle">solid</property>
-                                                <property name="borderBottomWidth">thin</property>
-                                                <property name="borderLeftColor">#000000</property>
-                                                <property name="borderLeftStyle">solid</property>
-                                                <property name="borderLeftWidth">thin</property>
-                                                <property name="borderRightColor">#000000</property>
-                                                <property name="borderRightStyle">solid</property>
-                                                <property name="borderRightWidth">thin</property>
-                                                <property name="borderTopColor">#000000</property>
-                                                <property name="borderTopStyle">solid</property>
-                                                <property name="borderTopWidth">thin</property>
-                                            </cell>
-                                            <cell id="8789">
                                                 <property name="borderBottomColor">#000000</property>
                                                 <property name="borderBottomStyle">solid</property>
                                                 <property name="borderBottomWidth">thin</property>
