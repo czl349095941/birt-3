@@ -2,7 +2,7 @@
 <report xmlns="http://www.eclipse.org/birt/2005/design" version="3.2.17" id="1">
     <property name="createdBy">Eclipse BIRT Designer Version 2.3.2.r232_20090202 Build &lt;2.3.2.v20090218-0730></property>
     <property name="units">in</property>
-    <text-property name="title">Контроль заполнения материалов по предприятию за период</text-property>
+    <text-property name="title">Контроль заполнения средств малой механизации по предприятию за период</text-property>
     <property name="comments">IBM Confidential
 
 OCO Source Materials
@@ -235,58 +235,67 @@ sqlText = ""
 //+"                AND TO_CHAR(WO.ACTFINISH, 'MM')   = '03' " 
 +"        ) " 
 +"        , " 
- +"        WO AS " 
-+"        ( SELECT wo.wonum, " 
-+"                wo.siteid, " 
-+"                l_podr, " 
-+"                JP.JPNUM " 
-+"        FROM    all_WO wo " 
-+"                JOIN MAXIMO.wojprelation jpr " 
-+"                        ON      wo.wonum               = jpr.wonum " 
-+"                                AND JPR.USETHISMEASURE = '1' " 
-+"                JOIN Maximo.Jobplan jp " 
-+"                        ON      JP.JOBPLANID = JPR.JOBPLANID " 
-+"                                AND jp.JOBPLANID IN ('17107', '17106', '16919', '16675', '16690', '16674', '16694', '16648', '16656') " 
-+"        ) " 
-+"        , " 
-+"        MATUSE AS " 
-+"        (SELECT wo.wonum, " 
-+"                COUNT (Matusetrans.Itemnum) matuse " 
-+"        FROM    wo " 
-+"                JOIN Maximo.Matusetrans " 
-+"                        ON      wo.Wonum      = Matusetrans.Refwo " 
-+"        WHERE   MATUSETRANS.ITEMNUM IS NOT NULL " 
-+"        GROUP BY WO.WONUM " 
-+"        ) " 
-+"        , " 
-+"        UNWORK AS " 
-+"        (SELECT wo.wonum, " 
-+"                COUNT (UNWORKITEM.ITEMNUM) unwork " 
-+"        FROM    wo " 
-+"                JOIN Maximo.Unworkitem " 
-+"                        ON      Unworkitem.Wonum = wo.Wonum " 
-+"        WHERE   UNWORKITEM.ITEMNUM     IS NOT NULL " 
-+"        GROUP BY wo.wonum " 
-+"        ) " 
-+"SELECT  ALL_WO.L_PODR, " 
-+"        LOC.DESCRIPTION                                                        PODR_D, " 
-+"        MIN(ALL_WO.ACTFINISH)                                                  MIN_DATE, " 
-+"        MAX(all_WO.ACTFINISH)                                                  MAX_DATE, " 
-+"        COUNT (all_WO.WONUM)                                                   ALL_WO, " 
-+"        COUNT(WO.JPNUM)                                                        ALL_TK, " 
-+"        SUM(CASE WHEN UNWORK.UNWORK >0 OR MATUSE.MATUSE > 0 THEN 1 ELSE 0 END) YESNO " 
-+"FROM    ALL_WO " 
-+"        LEFT JOIN WO " 
-+"                ON      ALL_WO.WONUM = WO.WONUM " 
-+"        LEFT JOIN matuse " 
-+"                ON      WO.WONUM = MATUSE.WONUM " 
-+"        LEFT JOIN unwork " 
-+"                ON      WO.WONUM = UNWORK.WONUM " 
-+"        JOIN MAXIMO.LOCATIONS LOC " 
-+"                ON      ALL_WO.L_PODR     = loc.location " 
-+"                        AND ALL_WO.SITEID = loc.SITEID " 
-+"GROUP BY ALL_WO.L_PODR, " 
-+"        loc.description"
+ +"         WO AS "
+ +"         ( SELECT wo.wonum, "
+ +"                 wo.siteid, "
+ +"                 L_PODR , "
+ +"                 JP.JPNUM "
+ +"         FROM    all_WO wo "
+ +"                 JOIN MAXIMO.wojprelation jpr "
+ +"                         ON      wo.wonum               = jpr.wonum "
+ +"                                 AND JPR.USETHISMEASURE = '1' "
+ +"                 JOIN MAXIMO.JOBPLAN JP "
+ +"                         ON      Jp.jobplanid = jpr.jobplanid "
+ +"                 JOIN maximo.jobtool tool "
+ +"                         ON      jp.jpnum = tool.jpnum "
+ +"                 JOIN maximo.item "
+ +"                         ON      TOOL.ITEMNUM        = ITEM.ITEMNUM "
+ +"                                 AND ITEM.MAXIMOTYPE = 10 "
+ +"         ) "
+ +"         , "
+ +"         tool AS "
+ +"         (SELECT WO.WONUM, "
+ +"                 COUNT (tool.Itemnum) tool "
+ +"         FROM    WO "
+ +"                 JOIN MAXIMO.TOOLTRANS tool "
+ +"                         ON      WO.WONUM      = TOOL.REFWO "
+ +"                                 AND WO.SITEID = TOOL.SITEID "
+ +"                 JOIN MAXIMO.ITEM "
+ +"                         ON      TOOL.ITEMNUM        = ITEM.ITEMNUM "
+ +"                                 AND ITEM.MAXIMOTYPE = 10 "
+ +"         GROUP BY WO.WONUM "
+ +"         ) "
+ +"         , "
+ +"         wpt AS "
+ +"         (SELECT wo.wonum, "
+ +"                 COUNT (wpt.ITEMNUM) wpt "
+ +"         FROM    WO "
+ +"                 JOIN Maximo.WPTOOL wpt "
+ +"                         ON      WPT.WONUM = WO.WONUM "
+ +"                 JOIN MAXIMO.ITEM "
+ +"                         ON      wpT.ITEMNUM         = ITEM.ITEMNUM "
+ +"                                 AND ITEM.MAXIMOTYPE = 10 "
+ +"         GROUP BY wo.wonum "
+ +"         ) "
+ +" SELECT  ALL_WO.L_PODR, "
+ +"         LOC.DESCRIPTION                                              PODR_D, "
+ +"         MIN(ALL_WO.ACTFINISH)                                        MIN_DATE, "
+ +"         MAX(all_WO.ACTFINISH)                                        MAX_DATE, "
+ +"         COUNT (all_WO.WONUM)                                         ALL_WO, "
+ +"         COUNT(WO.JPNUM)                                              ALL_TK, "
+ +"         SUM(CASE WHEN tool.tool >0 OR wpt.wpt > 0 THEN 1 ELSE 0 END) YESNO "
+ +" FROM    ALL_WO "
+ +"         LEFT JOIN WO "
+ +"                 ON      ALL_WO.WONUM = WO.WONUM "
+ +"         LEFT JOIN tool "
+ +"                 ON      WO.WONUM = tool.WONUM "
+ +"         LEFT JOIN WPT "
+ +"                 ON      WO.WONUM = wpt.WONUM "
+ +"         JOIN MAXIMO.LOCATIONS LOC "
+ +"                 ON      ALL_WO.L_PODR     = loc.location "
+ +"                         AND ALL_WO.SITEID = loc.SITEID "
+ +" GROUP BY ALL_WO.L_PODR, "
+ +"         loc.description "
  ;
 
 
@@ -535,7 +544,7 @@ return (true);]]></method>
                 <structure>
                     <property name="name">PRED_D</property>
                     <property name="displayName">PRED_D</property>
-                    <expression name="expression">"Контроль заполнения материалов по " + dataSetRow["PRED_D"] +" "+ dataSetRow["SITE_D"].replace("ая", "ой") + " ж. д. за период с " + params["date1"].value + " по " + params["date2"].value</expression>
+                    <expression name="expression">"Контроль заполнения средств малой механизации по " + dataSetRow["PRED_D"] +" "+ dataSetRow["SITE_D"].replace("ая", "ой") + " ж. д. за период с " + params["date1"].value + " по " + params["date2"].value</expression>
                     <property name="dataType">string</property>
                 </structure>
             </list-property>
@@ -732,10 +741,10 @@ return (true);]]></method>
                         <property name="borderTopWidth">thin</property>
                         <property name="textAlign">center</property>
                         <label id="17725">
-                            <text-property name="text">Рабочие задания с указанием материалов</text-property>
+                            <text-property name="text">Рабочие задания с указанием средств малой механизации (СММ)</text-property>
                             <structure name="action">
                                 <property name="linkType">drill-through</property>
-                                <property name="reportName">material_control_pred_cube.rptdesign</property>
+                                <property name="reportName">smm_control_pred_cube.rptdesign</property>
                                 <property name="targetWindow">_blank</property>
                                 <property name="targetFileType">report-design</property>
                                 <list-property name="paramBindings">
@@ -827,7 +836,7 @@ return (true);]]></method>
                         <property name="borderTopWidth">thin</property>
                         <property name="textAlign">center</property>
                         <label id="17727">
-                            <text-property name="text">Заполнены материалы</text-property>
+                            <text-property name="text">Заполнены СММ</text-property>
                         </label>
                     </cell>
                     <cell id="17780">
@@ -847,7 +856,7 @@ return (true);]]></method>
                         <property name="borderTopWidth">thin</property>
                         <property name="textAlign">center</property>
                         <label id="17779">
-                            <text-property name="text">% рабочих заданий с незаполненными материалами</text-property>
+                            <text-property name="text">% рабочих заданий с незаполненными СММ</text-property>
                         </label>
                     </cell>
                 </row>
@@ -1016,7 +1025,7 @@ return (true);]]></method>
                             <property name="resultSetColumn">L_PODR_D</property>
                             <structure name="action">
                                 <property name="linkType">drill-through</property>
-                                <property name="reportName">material_control_brig.rptdesign</property>
+                                <property name="reportName">smm_control_brig.rptdesign</property>
                                 <property name="targetWindow">_blank</property>
                                 <property name="targetFileType">report-design</property>
                                 <list-property name="paramBindings">

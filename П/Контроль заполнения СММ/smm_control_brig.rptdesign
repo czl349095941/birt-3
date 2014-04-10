@@ -2,7 +2,7 @@
 <report xmlns="http://www.eclipse.org/birt/2005/design" version="3.2.17" id="1">
     <property name="createdBy">Eclipse BIRT Designer Version 2.3.2.r232_20090202 Build &lt;2.3.2.v20090218-0730></property>
     <property name="units">in</property>
-    <text-property name="title">Контроль заполнения материалов по предприятию за период</text-property>
+    <text-property name="title">Список рабочих заданий с незаполненными СММ</text-property>
     <property name="comments">IBM Confidential
 
 OCO Source Materials
@@ -53,11 +53,30 @@ mxReportScriptContext.setDefaultLogFile("c:/temp/tetttt.txt");
                 <property name="category">Unformatted</property>
             </structure>
         </scalar-parameter>
-        <scalar-parameter name="mroSite" id="7964">
+        <scalar-parameter name="paramdelimiter" id="241">
+            <property name="hidden">true</property>
             <property name="valueType">static</property>
-            <property name="dataType">integer</property>
+            <property name="dataType">string</property>
+            <property name="isRequired">false</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="paramstring" id="242">
+            <property name="hidden">true</property>
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="isRequired">false</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="date1" id="6552">
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
             <property name="paramType">simple</property>
-            <text-property name="promptText">Дорога</text-property>
             <property name="isRequired">true</property>
             <property name="controlType">text-box</property>
             <property name="distinct">true</property>
@@ -65,36 +84,31 @@ mxReportScriptContext.setDefaultLogFile("c:/temp/tetttt.txt");
                 <property name="category">Unformatted</property>
             </structure>
         </scalar-parameter>
-        <scalar-parameter name="pred" id="17062">
+        <scalar-parameter name="date2" id="8646">
             <property name="valueType">static</property>
             <property name="dataType">string</property>
             <property name="paramType">simple</property>
-            <text-property name="promptText">Дистанция</text-property>
-            <property name="isRequired">true</property>
             <property name="controlType">text-box</property>
             <property name="distinct">true</property>
             <structure name="format">
                 <property name="category">Unformatted</property>
             </structure>
         </scalar-parameter>
-        <scalar-parameter name="date1" id="17788">
+        <scalar-parameter name="mroSite" id="9100">
             <property name="valueType">static</property>
             <property name="dataType">string</property>
             <property name="paramType">simple</property>
-            <text-property name="promptText">Начало периода</text-property>
-            <property name="isRequired">true</property>
+            <property name="isRequired">false</property>
             <property name="controlType">text-box</property>
             <property name="distinct">true</property>
             <structure name="format">
                 <property name="category">Unformatted</property>
             </structure>
         </scalar-parameter>
-        <scalar-parameter name="date2" id="17789">
+        <scalar-parameter name="podr" id="9102">
             <property name="valueType">static</property>
             <property name="dataType">string</property>
             <property name="paramType">simple</property>
-            <text-property name="promptText">Конец периода</text-property>
-            <property name="isRequired">true</property>
             <property name="controlType">text-box</property>
             <property name="distinct">true</property>
             <structure name="format">
@@ -106,16 +120,16 @@ mxReportScriptContext.setDefaultLogFile("c:/temp/tetttt.txt");
         <script-data-source name="maximoDataSource" id="64" extends="MaximoSystemLibrary.maximoDataSource"/>
     </data-sources>
     <data-sets>
-        <script-data-set name="11" id="7971">
+        <script-data-set name="1" id="1085">
             <list-property name="resultSetHints">
                 <structure>
                     <property name="position">1</property>
-                    <property name="name">L_PODR</property>
+                    <property name="name">WONUM</property>
                     <property name="dataType">string</property>
                 </structure>
                 <structure>
                     <property name="position">2</property>
-                    <property name="name">L_PODR_D</property>
+                    <property name="name">TYPEWORKORDER</property>
                     <property name="dataType">string</property>
                 </structure>
                 <structure>
@@ -125,68 +139,103 @@ mxReportScriptContext.setDefaultLogFile("c:/temp/tetttt.txt");
                 </structure>
                 <structure>
                     <property name="position">4</property>
-                    <property name="name">ALL_WO</property>
+                    <property name="name">STATUS</property>
                     <property name="dataType">string</property>
                 </structure>
                 <structure>
                     <property name="position">5</property>
-                    <property name="name">ALL_TK</property>
+                    <property name="name">REPORTDATE</property>
                     <property name="dataType">string</property>
                 </structure>
                 <structure>
                     <property name="position">6</property>
-                    <property name="name">YESNO</property>
+                    <property name="name">CRITICDATE</property>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="position">7</property>
+                    <property name="name">ACTFINISH</property>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="position">8</property>
+                    <property name="name">DESCRIPTION</property>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="position">9</property>
+                    <property name="name">SUPERVISOR</property>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="position">10</property>
+                    <property name="name">WORKORDERID</property>
                     <property name="dataType">string</property>
                 </structure>
             </list-property>
             <list-property name="columnHints">
                 <structure>
-                    <property name="columnName">ITEM_GOST</property>
-                </structure>
-                <structure>
-                    <property name="columnName">ITEM_RAZMER</property>
-                </structure>
-                <structure>
-                    <property name="columnName">ZAM</property>
-                </structure>
-                <structure>
-                    <property name="columnName">TELEGA</property>
-                </structure>
-                <structure>
-                    <property name="columnName">KAP_REM</property>
-                </structure>
-                <structure>
-                    <property name="columnName">PROCH</property>
-                </structure>
-                <structure>
-                    <property name="columnName">L_PODR</property>
-                </structure>
-                <structure>
-                    <property name="columnName">L_PODR_D</property>
+                    <property name="columnName">WONUM</property>
                 </structure>
                 <structure>
                     <property name="columnName">JPNUM</property>
                 </structure>
                 <structure>
-                    <property name="columnName">ALL_WO</property>
+                    <property name="columnName">STATUS</property>
                 </structure>
                 <structure>
-                    <property name="columnName">ALL_TK</property>
+                    <property name="columnName">ACTFINISH</property>
                 </structure>
                 <structure>
-                    <property name="columnName">YESNO</property>
+                    <property name="columnName">DESCRIPTION</property>
+                </structure>
+                <structure>
+                    <property name="columnName">SUPERVISOR</property>
+                </structure>
+                <structure>
+                    <property name="columnName">V_F1</property>
+                </structure>
+                <structure>
+                    <property name="columnName">V_F0</property>
+                </structure>
+                <structure>
+                    <property name="columnName">H_F1</property>
+                </structure>
+                <structure>
+                    <property name="columnName">H_F0</property>
+                </structure>
+                <structure>
+                    <property name="columnName">VSEGO1</property>
+                </structure>
+                <structure>
+                    <property name="columnName">VSEGO0</property>
+                </structure>
+                <structure>
+                    <property name="columnName">DESC</property>
+                </structure>
+                <structure>
+                    <property name="columnName">REPORTDATE</property>
+                </structure>
+                <structure>
+                    <property name="columnName">CRITICDATE</property>
+                </structure>
+                <structure>
+                    <property name="columnName">TYPEWORKORDER</property>
+                </structure>
+                <structure>
+                    <property name="columnName">WORKORDERID</property>
                 </structure>
             </list-property>
             <structure name="cachedMetaData">
                 <list-property name="resultSet">
                     <structure>
                         <property name="position">1</property>
-                        <property name="name">L_PODR</property>
+                        <property name="name">WONUM</property>
                         <property name="dataType">string</property>
                     </structure>
                     <structure>
                         <property name="position">2</property>
-                        <property name="name">L_PODR_D</property>
+                        <property name="name">TYPEWORKORDER</property>
                         <property name="dataType">string</property>
                     </structure>
                     <structure>
@@ -196,17 +245,37 @@ mxReportScriptContext.setDefaultLogFile("c:/temp/tetttt.txt");
                     </structure>
                     <structure>
                         <property name="position">4</property>
-                        <property name="name">ALL_WO</property>
+                        <property name="name">STATUS</property>
                         <property name="dataType">string</property>
                     </structure>
                     <structure>
                         <property name="position">5</property>
-                        <property name="name">ALL_TK</property>
+                        <property name="name">REPORTDATE</property>
                         <property name="dataType">string</property>
                     </structure>
                     <structure>
                         <property name="position">6</property>
-                        <property name="name">YESNO</property>
+                        <property name="name">CRITICDATE</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">7</property>
+                        <property name="name">ACTFINISH</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">8</property>
+                        <property name="name">DESCRIPTION</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">9</property>
+                        <property name="name">SUPERVISOR</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">10</property>
+                        <property name="name">WORKORDERID</property>
                         <property name="dataType">string</property>
                     </structure>
                 </list-property>
@@ -215,89 +284,104 @@ mxReportScriptContext.setDefaultLogFile("c:/temp/tetttt.txt");
             <method name="open"><![CDATA[maximoDataSet = MXReportDataSetProvider.create(this.getDataSource().getName(), this.getName());
 maximoDataSet.open();
 
-params["pred"] = params["pred"].replace("=", "")
+
+
+//var locationId = new String(params["loc"]);
+//locationId = "'" + (params["loc"]).replace(/=/g,"") + "'";
+//locationId = locationId.replace(/,/g,"','");
+
+//var status = new String(params["status"]);
+//status = "'" + (params["status"]).replace(/=/g,"") + "'";
+//status = status.replace(/,/g,"','");
+
 
 var sqlText = new String();
 
 sqlText = "" 
-+"WITH ALL_WO AS " 
-+"        ( SELECT wo.wonum, " 
-+"                WO.SITEID, " 
-+"                BRIGAD_LOCATION L_PODR, " 
-+"                WO.ACTFINISH " 
-+"        FROM    MAXIMO.WORKORDER WO " 
-+"        WHERE   BRIGAD_LOCATION IS NOT NULL " 
-+"                AND wo.STATUS IN ( 'ТЕХОТДЕЛ' , 'ЗАКРЫТО', 'ЗАВ_ДИСП', 'ЗАВЕРШ', 'ДОРАБОТКА' ) " 
-+"                AND wo.siteid                     = '"+params["mroSite"]+"'"  
-+"                AND WO.L_PRED                     = '"+params["pred"]+"'" 
-+"				  and wo.actfinish between to_date('"+params["date1"]+"') and to_date ('"+params["date2"]+"')+1 "
-//+"                AND TO_CHAR(WO.ACTFINISH, 'YYYY') = '2014' " 
-//+"                AND TO_CHAR(WO.ACTFINISH, 'MM')   = '03' " 
-+"        ) " 
-+"        , " 
- +"        WO AS " 
-+"        ( SELECT wo.wonum, " 
-+"                wo.siteid, " 
-+"                l_podr, " 
-+"                JP.JPNUM " 
-+"        FROM    all_WO wo " 
-+"                JOIN MAXIMO.wojprelation jpr " 
-+"                        ON      wo.wonum               = jpr.wonum " 
-+"                                AND JPR.USETHISMEASURE = '1' " 
-+"                JOIN Maximo.Jobplan jp " 
-+"                        ON      JP.JOBPLANID = JPR.JOBPLANID " 
-+"                                AND jp.JOBPLANID IN ('17107', '17106', '16919', '16675', '16690', '16674', '16694', '16648', '16656') " 
-+"        ) " 
-+"        , " 
-+"        MATUSE AS " 
-+"        (SELECT wo.wonum, " 
-+"                COUNT (Matusetrans.Itemnum) matuse " 
-+"        FROM    wo " 
-+"                JOIN Maximo.Matusetrans " 
-+"                        ON      wo.Wonum      = Matusetrans.Refwo " 
-+"        WHERE   MATUSETRANS.ITEMNUM IS NOT NULL " 
-+"        GROUP BY WO.WONUM " 
-+"        ) " 
-+"        , " 
-+"        UNWORK AS " 
-+"        (SELECT wo.wonum, " 
-+"                COUNT (UNWORKITEM.ITEMNUM) unwork " 
-+"        FROM    wo " 
-+"                JOIN Maximo.Unworkitem " 
-+"                        ON      Unworkitem.Wonum = wo.Wonum " 
-+"        WHERE   UNWORKITEM.ITEMNUM     IS NOT NULL " 
-+"        GROUP BY wo.wonum " 
-+"        ) " 
-+"SELECT  ALL_WO.L_PODR, " 
-+"        LOC.DESCRIPTION                                                        PODR_D, " 
-+"        MIN(ALL_WO.ACTFINISH)                                                  MIN_DATE, " 
-+"        MAX(all_WO.ACTFINISH)                                                  MAX_DATE, " 
-+"        COUNT (all_WO.WONUM)                                                   ALL_WO, " 
-+"        COUNT(WO.JPNUM)                                                        ALL_TK, " 
-+"        SUM(CASE WHEN UNWORK.UNWORK >0 OR MATUSE.MATUSE > 0 THEN 1 ELSE 0 END) YESNO " 
-+"FROM    ALL_WO " 
-+"        LEFT JOIN WO " 
-+"                ON      ALL_WO.WONUM = WO.WONUM " 
-+"        LEFT JOIN matuse " 
-+"                ON      WO.WONUM = MATUSE.WONUM " 
-+"        LEFT JOIN unwork " 
-+"                ON      WO.WONUM = UNWORK.WONUM " 
-+"        JOIN MAXIMO.LOCATIONS LOC " 
-+"                ON      ALL_WO.L_PODR     = loc.location " 
-+"                        AND ALL_WO.SITEID = loc.SITEID " 
-+"GROUP BY ALL_WO.L_PODR, " 
-+"        loc.description"
- ;
++"SELECT  wo.workorderid, " 
++"        wo.WONUM, " 
++"        wo.TYPEWORKORDER, " 
++"        JP.JPNUM, " 
++"        sd.description STATUS, " 
++"        wo.REPORTDATE, " 
++"        wo.CRITICDATE, " 
++"        wo.ACTFINISH, " 
++"        wo.DESCRIPTION, " 
++"        p1.displayname SUPERVISOR " 
++"FROM    MAXIMO.WORKORDER WO " 
++"        LEFT JOIN MAXIMO.PERSON P1 " 
++"                ON      WO.SUPERVISOR = P1.PERSONID " 
++"                        AND WO.SITEID = P1.LOCATIONSITE " 
++"        LEFT JOIN MAXIMO.PERSON P2 " 
++"                ON      WO.CREWID2    = P2.PERSONID " 
++"                        AND WO.SITEID = P2.LOCATIONSITE " 
++"        LEFT JOIN MAXIMO.WOJPRELATION WOJP " 
++"                ON      WO.WONUM                = WOJP.WONUM " 
++"                        AND WOJP.USETHISMEASURE = 1 " 
++"        LEFT JOIN MAXIMO.JOBPLAN JP " 
++"                ON      WOJP.JOBPLANID = JP.JOBPLANID " 
++"        LEFT JOIN maximo.synonymdomain sd " 
++"                ON      wo.status       = sd.VALUE " 
++"                        AND SD.DOMAINID = 'WOSTATUS' " 
+ +" WHERE   WO.BRIGAD_LOCATION    IS NOT NULL "
+ +"         AND EXISTS "
+ +"         (SELECT 1 "
+ +"         FROM    MAXIMO.wojprelation jpr "
+ +"                 JOIN MAXIMO.JOBPLAN JP "
+ +"                         ON      Jp.jobplanid = jpr.jobplanid "
+ +"                 JOIN maximo.jobtool tool "
+ +"                         ON      jp.jpnum = tool.jpnum "
+ +"                 JOIN maximo.item "
+ +"                         ON      TOOL.ITEMNUM        = ITEM.ITEMNUM "
+ +"                                 AND ITEM.MAXIMOTYPE = 10 "
+ +"         WHERE   JPR.USETHISMEASURE                  = '1' "
+ +"                 AND jpr.wonum                       = wo.wonum "
+ +"         ) "
+ +"         AND "
+ +"         ( "
+ +"                 NOT EXISTS "
+ +"                 (SELECT 1 "
+ +"                 FROM    MAXIMO.TOOLTRANS tool "
+ +"                         JOIN MAXIMO.ITEM "
+ +"                                 ON      TOOL.ITEMNUM = ITEM.ITEMNUM "
+ +"                 WHERE   ITEM.MAXIMOTYPE              = 10 "
+ +"                         AND WO.WONUM                 = tool.REFWO "
+ +"                 ) "
+ +"                 AND NOT EXISTS "
+ +"                 (SELECT 1 "
+ +"                 FROM    Maximo.WPTOOL wpt "
+ +"                         JOIN MAXIMO.ITEM "
+ +"                                 ON      wpT.ITEMNUM = ITEM.ITEMNUM "
+ +"                 WHERE   ITEM.MAXIMOTYPE             = 10 "
+ +"                         AND wpt.WONUM               = WO.WONUM "
+ +"                 ) "
+ +"         ) "
++"        AND wo.STATUS IN ( 'ТЕХОТДЕЛ' , 'ЗАКРЫТО', 'ЗАВ_ДИСП', 'ЗАВЕРШ', 'ДОРАБОТКА' )"
++"        AND wo.siteid                     = '"+params["mroSite"]+"'"  
++"   	  and wo.l_PODR = '" + params["podr"].replace("=","") + "'"
++"		  and wo.actfinish between to_date('"+params["date1"]+"') and to_date ('"+params["date2"]+"')+1 "
+;
 
 
 maximoDataSet.setQuery(sqlText);]]></method>
             <method name="fetch"><![CDATA[if (!maximoDataSet.fetch())
 	return (false);
-row["L_PODR"] = maximoDataSet.getString("L_PODR");
-row["L_PODR_D"] = maximoDataSet.getString("PODR_D");
-row["ALL_WO"] = maximoDataSet.getString("ALL_WO");
-row["ALL_TK"] = maximoDataSet.getString("ALL_TK");
-row["YESNO"] = maximoDataSet.getString("YESNO");
+
+row["WORKORDERID"] = maximoDataSet.getString("WORKORDERID");
+row["WONUM"] = maximoDataSet.getString("WONUM");
+row["TYPEWORKORDER"] = maximoDataSet.getString("TYPEWORKORDER");
+row["JPNUM"] = maximoDataSet.getString("JPNUM");
+row["STATUS"] = maximoDataSet.getString("STATUS");
+row["REPORTDATE"] = maximoDataSet.getString("REPORTDATE");
+row["CRITICDATE"] = maximoDataSet.getString("CRITICDATE");
+row["ACTFINISH"] = maximoDataSet.getString("ACTFINISH");
+row["DESCRIPTION"] = maximoDataSet.getString("DESCRIPTION");
+row["SUPERVISOR"] = maximoDataSet.getString("SUPERVISOR");
+
+
+
+
+
 
 	
 return (true);]]></method>
@@ -368,18 +452,18 @@ return (true);]]></method>
             <method name="open"><![CDATA[maximoDataSet = MXReportDataSetProvider.create(this.getDataSource().getName(), this.getName());
 maximoDataSet.open();
 
-params["pred"] = params["pred"].replace("=", "")
+params["podr"] = params["podr"].replace("=", "")
 
 var sqlText = new String();
 
 sqlText = "" 
-+"SELECT  preds.description pred_d, " 
++"SELECT  podrs.description pred_d, " 
 +"        site.description  site_d " 
-+"FROM    maximo.preds " 
++"FROM    maximo.podrs " 
 +"        JOIN maximo.site " 
-+"                ON      preds.siteid = site.siteid " 
-+"WHERE   preds.siteid                 = '"+params["mroSite"]+"'" 
-+"        AND preds.location           = '"+params["pred"]+"'"   
++"                ON      podrs.siteid = site.siteid " 
++"WHERE   podrs.siteid                 = '"+params["mroSite"]+"'" 
++"        AND podrs.location           = '"+params["podr"]+"'"   
  
 ;
 
@@ -394,74 +478,18 @@ row["SITE_D"] = maximoDataSet.getString("SITE_D");
 return (true);]]></method>
         </script-data-set>
     </data-sets>
-    <cubes>
-        <tabular-cube name="Data Cube" id="17529">
-            <property name="dimensions">
-                <tabular-dimension name="Group" id="17530">
-                    <property name="defaultHierarchy">NewTabularHierarchy</property>
-                    <property name="hierarchies">
-                        <tabular-hierarchy name="NewTabularHierarchy" id="17531">
-                            <property name="levels">
-                                <tabular-level name="L_PODR" id="17532">
-                                    <property name="dataType">string</property>
-                                    <property name="columnName">L_PODR</property>
-                                </tabular-level>
-                                <tabular-level name="L_PODR_D" id="17569">
-                                    <property name="dataType">string</property>
-                                    <property name="columnName">L_PODR_D</property>
-                                </tabular-level>
-                            </property>
-                        </tabular-hierarchy>
-                    </property>
-                </tabular-dimension>
-                <tabular-dimension name="Group1" id="17533">
-                    <property name="defaultHierarchy">NewTabularHierarchy1</property>
-                    <property name="hierarchies">
-                        <tabular-hierarchy name="NewTabularHierarchy1" id="17534">
-                            <property name="levels">
-                                <tabular-level name="JPNUM" id="17535">
-                                    <property name="dataType">string</property>
-                                    <property name="columnName">JPNUM</property>
-                                </tabular-level>
-                            </property>
-                        </tabular-hierarchy>
-                    </property>
-                </tabular-dimension>
-            </property>
-            <property name="measureGroups">
-                <tabular-measure-group name="Summary Field" id="17536">
-                    <property name="measures">
-                        <tabular-measure name="ALL_WO" id="17537">
-                            <expression name="measureExpression">dataSetRow["ALL_WO"]</expression>
-                            <property name="dataType">string</property>
-                        </tabular-measure>
-                    </property>
-                </tabular-measure-group>
-                <tabular-measure-group name="Summary Field1" id="17538">
-                    <property name="measures">
-                        <tabular-measure name="ALL_TK" id="17539">
-                            <expression name="measureExpression">dataSetRow["ALL_TK"]</expression>
-                            <property name="dataType">string</property>
-                        </tabular-measure>
-                    </property>
-                </tabular-measure-group>
-                <tabular-measure-group name="Summary Field2" id="17540">
-                    <property name="measures">
-                        <tabular-measure name="YESNO" id="17541">
-                            <expression name="measureExpression">dataSetRow["YESNO"]</expression>
-                            <property name="dataType">string</property>
-                        </tabular-measure>
-                    </property>
-                </tabular-measure-group>
-            </property>
-            <property name="dataSet">11</property>
-        </tabular-cube>
-    </cubes>
     <page-setup>
         <simple-master-page name="maximoLandscape" id="47" extends="MaximoSystemLibrary.maximoLandscape">
             <property name="type">a4</property>
             <overridden-values>
-                <ref-entry baseId="304" name="NewGrid2" id="304"/>
+                <ref-entry baseId="304" name="NewGrid2" id="304">
+                    <list-property name="visibility">
+                        <structure>
+                            <property name="format">all</property>
+                            <expression name="valueExpr">true</expression>
+                        </structure>
+                    </list-property>
+                </ref-entry>
                 <ref-entry baseId="305" id="305"/>
                 <ref-entry baseId="306" id="306"/>
                 <ref-entry baseId="307" id="307"/>
@@ -477,7 +505,14 @@ return (true);]]></method>
                     <property name="height">1px</property>
                     <property name="width">3px</property>
                 </ref-entry>
-                <ref-entry baseId="322" name="NewGrid" id="322"/>
+                <ref-entry baseId="322" name="NewGrid" id="322">
+                    <list-property name="visibility">
+                        <structure>
+                            <property name="format">all</property>
+                            <expression name="valueExpr">true</expression>
+                        </structure>
+                    </list-property>
+                </ref-entry>
                 <ref-entry baseId="323" id="323"/>
                 <ref-entry baseId="324" id="324"/>
                 <ref-entry baseId="325" id="325"/>
@@ -535,27 +570,21 @@ return (true);]]></method>
                 <structure>
                     <property name="name">PRED_D</property>
                     <property name="displayName">PRED_D</property>
-                    <expression name="expression">"Контроль заполнения материалов по " + dataSetRow["PRED_D"] +" "+ dataSetRow["SITE_D"].replace("ая", "ой") + " ж. д. за период с " + params["date1"].value + " по " + params["date2"].value</expression>
+                    <expression name="expression">"Список рабочих заданий с незаполненными средствами малой механизации по " + dataSetRow["PRED_D"] +" "+ dataSetRow["SITE_D"].replace("ая", "ой") + " ж. д. за период с " + params["date1"].value + " по " + params["date2"].value</expression>
                     <property name="dataType">string</property>
                 </structure>
             </list-property>
             <property name="resultSetColumn">PRED_D</property>
         </data>
-        <label id="17792"/>
-        <table id="17714">
+        <label id="13149"/>
+        <table id="9103">
             <property name="width">100%</property>
-            <property name="dataSet">11</property>
+            <property name="dataSet">1</property>
             <list-property name="boundDataColumns">
                 <structure>
-                    <property name="name">L_PODR</property>
-                    <property name="displayName">L_PODR</property>
-                    <expression name="expression">dataSetRow["L_PODR"]</expression>
-                    <property name="dataType">string</property>
-                </structure>
-                <structure>
-                    <property name="name">L_PODR_D</property>
-                    <property name="displayName">L_PODR_D</property>
-                    <expression name="expression">dataSetRow["L_PODR_D"]</expression>
+                    <property name="name">WONUM</property>
+                    <property name="displayName">WONUM</property>
+                    <expression name="expression">dataSetRow["WONUM"]</expression>
                     <property name="dataType">string</property>
                 </structure>
                 <structure>
@@ -565,76 +594,71 @@ return (true);]]></method>
                     <property name="dataType">string</property>
                 </structure>
                 <structure>
-                    <property name="name">ALL_WO</property>
-                    <property name="displayName">ALL_WO</property>
-                    <expression name="expression">dataSetRow["ALL_WO"]</expression>
+                    <property name="name">STATUS</property>
+                    <property name="displayName">STATUS</property>
+                    <expression name="expression">dataSetRow["STATUS"]</expression>
                     <property name="dataType">string</property>
                 </structure>
                 <structure>
-                    <property name="name">ALL_TK</property>
-                    <property name="displayName">ALL_TK</property>
-                    <expression name="expression">dataSetRow["ALL_TK"]</expression>
+                    <property name="name">ACTFINISH</property>
+                    <property name="displayName">ACTFINISH</property>
+                    <expression name="expression">dataSetRow["ACTFINISH"]</expression>
+                    <property name="dataType">date</property>
+                </structure>
+                <structure>
+                    <property name="name">DESCRIPTION</property>
+                    <property name="displayName">DESCRIPTION</property>
+                    <expression name="expression">dataSetRow["DESCRIPTION"]</expression>
                     <property name="dataType">string</property>
                 </structure>
                 <structure>
-                    <property name="name">YESNO</property>
-                    <property name="displayName">YESNO</property>
-                    <expression name="expression">dataSetRow["YESNO"]</expression>
+                    <property name="name">SUPERVISOR</property>
+                    <property name="displayName">SUPERVISOR</property>
+                    <expression name="expression">dataSetRow["SUPERVISOR"]</expression>
                     <property name="dataType">string</property>
                 </structure>
                 <structure>
-                    <property name="name">mat_no</property>
-                    <expression name="expression">if (dataSetRow["ALL_TK"] != null &amp; dataSetRow["ALL_TK"] != 0 )
-(dataSetRow["ALL_TK"]-dataSetRow["YESNO"])/dataSetRow["ALL_TK"]</expression>
-                    <property name="dataType">float</property>
+                    <property name="name">REPORTDATE</property>
+                    <property name="displayName">REPORTDATE</property>
+                    <expression name="expression">dataSetRow["REPORTDATE"]</expression>
+                    <property name="dataType">date</property>
                 </structure>
                 <structure>
-                    <property name="name">sum_wo</property>
+                    <property name="name">Aggregation</property>
                     <property name="dataType">integer</property>
-                    <property name="aggregateFunction">SUM</property>
+                    <property name="aggregateFunction">RUNNINGCOUNT</property>
                     <list-property name="arguments">
                         <structure>
                             <property name="name">Expression</property>
-                            <expression name="value">row["ALL_WO"]</expression>
                         </structure>
                     </list-property>
                 </structure>
                 <structure>
-                    <property name="name">sum_tk</property>
-                    <property name="dataType">integer</property>
-                    <property name="aggregateFunction">SUM</property>
-                    <list-property name="arguments">
-                        <structure>
-                            <property name="name">Expression</property>
-                            <expression name="value">row["ALL_TK"]</expression>
-                        </structure>
-                    </list-property>
+                    <property name="name">CRITICDATE</property>
+                    <property name="displayName">CRITICDATE</property>
+                    <expression name="expression">dataSetRow["CRITICDATE"]</expression>
+                    <property name="dataType">date</property>
                 </structure>
                 <structure>
-                    <property name="name">sum_yesno</property>
-                    <property name="dataType">integer</property>
-                    <property name="aggregateFunction">SUM</property>
-                    <list-property name="arguments">
-                        <structure>
-                            <property name="name">Expression</property>
-                            <expression name="value">row["YESNO"]</expression>
-                        </structure>
-                    </list-property>
+                    <property name="name">TYPEWORKORDER</property>
+                    <property name="displayName">TYPEWORKORDER</property>
+                    <expression name="expression">dataSetRow["TYPEWORKORDER"]</expression>
+                    <property name="dataType">string</property>
                 </structure>
                 <structure>
-                    <property name="name">t_mat_no</property>
-                    <expression name="expression">if (row["sum_tk"] != null &amp; row["sum_tk"] != 0 )
-(row["sum_tk"]-row["sum_yesno"])/row["sum_tk"]</expression>
-                    <property name="dataType">float</property>
+                    <property name="name">WORKORDERID</property>
+                    <property name="displayName">WORKORDERID</property>
+                    <expression name="expression">dataSetRow["WORKORDERID"]</expression>
+                    <property name="dataType">string</property>
                 </structure>
             </list-property>
             <list-property name="sort">
                 <structure>
-                    <expression name="key">row["mat_no"]</expression>
-                    <property name="direction">desc</property>
+                    <expression name="key">row["WONUM"]</expression>
+                    <property name="direction">asc</property>
                 </structure>
             </list-property>
-            <column id="17748">
+            <column id="9177">
                 <list-property name="visibility">
                     <structure>
                         <property name="format">all</property>
@@ -642,16 +666,20 @@ return (true);]]></method>
                     </structure>
                 </list-property>
             </column>
-            <column id="17749"/>
-            <column id="17751"/>
-            <column id="17752"/>
-            <column id="17753"/>
-            <column id="17777"/>
+            <column id="9153"/>
+            <column id="9137"/>
+            <column id="9171"/>
+            <column id="9138"/>
+            <column id="9139"/>
+            <column id="9147"/>
+            <column id="9159"/>
+            <column id="9140"/>
+            <column id="9141"/>
+            <column id="9142"/>
             <header>
-                <row id="17715">
-                    <cell id="17716">
-                        <property name="backgroundColor">#C0C0C0</property>
-                        <property name="fontWeight">bold</property>
+                <row id="9104">
+                    <property name="backgroundColor">silver</property>
+                    <cell id="9174">
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
                         <property name="borderBottomWidth">thin</property>
@@ -664,16 +692,11 @@ return (true);]]></method>
                         <property name="borderTopColor">#000000</property>
                         <property name="borderTopStyle">solid</property>
                         <property name="borderTopWidth">thin</property>
-                        <property name="textAlign">center</property>
-                        <label id="17717">
-                            <text-property name="text">L_PODR</text-property>
+                        <label id="9178">
+                            <text-property name="text">WORKORDERID</text-property>
                         </label>
                     </cell>
-                    <cell id="17718">
-                        <property name="colSpan">1</property>
-                        <property name="rowSpan">2</property>
-                        <property name="backgroundColor">#C0C0C0</property>
-                        <property name="fontWeight">bold</property>
+                    <cell id="9150">
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
                         <property name="borderBottomWidth">thin</property>
@@ -686,16 +709,11 @@ return (true);]]></method>
                         <property name="borderTopColor">#000000</property>
                         <property name="borderTopStyle">solid</property>
                         <property name="borderTopWidth">thin</property>
-                        <property name="textAlign">center</property>
-                        <label id="17719">
-                            <text-property name="text">Подразделение</text-property>
+                        <label id="9155">
+                            <text-property name="text">№ п.п.</text-property>
                         </label>
                     </cell>
-                    <cell id="17722">
-                        <property name="colSpan">1</property>
-                        <property name="rowSpan">2</property>
-                        <property name="backgroundColor">#C0C0C0</property>
-                        <property name="fontWeight">bold</property>
+                    <cell id="9105">
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
                         <property name="borderBottomWidth">thin</property>
@@ -708,16 +726,11 @@ return (true);]]></method>
                         <property name="borderTopColor">#000000</property>
                         <property name="borderTopStyle">solid</property>
                         <property name="borderTopWidth">thin</property>
-                        <property name="textAlign">center</property>
-                        <label id="17723">
-                            <text-property name="text">Всего рабочих заданий</text-property>
+                        <label id="9106">
+                            <text-property name="text">№ Рабочего задания</text-property>
                         </label>
                     </cell>
-                    <cell id="17724">
-                        <property name="colSpan">3</property>
-                        <property name="rowSpan">1</property>
-                        <property name="backgroundColor">#C0C0C0</property>
-                        <property name="fontWeight">bold</property>
+                    <cell id="9168">
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
                         <property name="borderBottomWidth">thin</property>
@@ -730,52 +743,11 @@ return (true);]]></method>
                         <property name="borderTopColor">#000000</property>
                         <property name="borderTopStyle">solid</property>
                         <property name="borderTopWidth">thin</property>
-                        <property name="textAlign">center</property>
-                        <label id="17725">
-                            <text-property name="text">Рабочие задания с указанием материалов</text-property>
-                            <structure name="action">
-                                <property name="linkType">drill-through</property>
-                                <property name="reportName">material_control_pred_cube.rptdesign</property>
-                                <property name="targetWindow">_blank</property>
-                                <property name="targetFileType">report-design</property>
-                                <list-property name="paramBindings">
-                                    <structure>
-                                        <property name="paramName">where</property>
-                                        <expression name="expression">"1=1"</expression>
-                                    </structure>
-                                    <structure>
-                                        <property name="paramName">appname</property>
-                                        <expression name="expression">"WOTRACK"</expression>
-                                    </structure>
-                                    <structure>
-                                        <property name="paramName">mroSite</property>
-                                        <expression name="expression">params["mroSite"].value</expression>
-                                    </structure>
-                                    <structure>
-                                        <property name="paramName">pred</property>
-                                        <expression name="expression">params["pred"].value</expression>
-                                    </structure>
-                                    <structure>
-                                        <property name="paramName">visible</property>
-                                        <expression name="expression">0</expression>
-                                    </structure>
-                                    <structure>
-                                        <property name="paramName">date1</property>
-                                        <expression name="expression">params["date1"].value</expression>
-                                    </structure>
-                                    <structure>
-                                        <property name="paramName">date2</property>
-                                        <expression name="expression">params["date2"].value</expression>
-                                    </structure>
-                                </list-property>
-                            </structure>
+                        <label id="9172">
+                            <text-property name="text">Тип Рабочего задания</text-property>
                         </label>
                     </cell>
-                </row>
-                <row id="17754">
-                    <cell id="17755">
-                        <property name="backgroundColor">#C0C0C0</property>
-                        <property name="fontWeight">bold</property>
+                    <cell id="9107">
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
                         <property name="borderBottomWidth">thin</property>
@@ -788,31 +760,11 @@ return (true);]]></method>
                         <property name="borderTopColor">#000000</property>
                         <property name="borderTopStyle">solid</property>
                         <property name="borderTopWidth">thin</property>
-                        <property name="textAlign">center</property>
-                    </cell>
-                    <cell id="17758">
-                        <property name="backgroundColor">#C0C0C0</property>
-                        <property name="fontWeight">bold</property>
-                        <property name="borderBottomColor">#000000</property>
-                        <property name="borderBottomStyle">solid</property>
-                        <property name="borderBottomWidth">thin</property>
-                        <property name="borderLeftColor">#000000</property>
-                        <property name="borderLeftStyle">solid</property>
-                        <property name="borderLeftWidth">thin</property>
-                        <property name="borderRightColor">#000000</property>
-                        <property name="borderRightStyle">solid</property>
-                        <property name="borderRightWidth">thin</property>
-                        <property name="borderTopColor">#000000</property>
-                        <property name="borderTopStyle">solid</property>
-                        <property name="borderTopWidth">thin</property>
-                        <property name="textAlign">center</property>
-                        <label id="17766">
-                            <text-property name="text">Всего</text-property>
+                        <label id="9108">
+                            <text-property name="text">Тех. карта</text-property>
                         </label>
                     </cell>
-                    <cell id="17759">
-                        <property name="backgroundColor">#C0C0C0</property>
-                        <property name="fontWeight">bold</property>
+                    <cell id="9109">
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
                         <property name="borderBottomWidth">thin</property>
@@ -825,14 +777,11 @@ return (true);]]></method>
                         <property name="borderTopColor">#000000</property>
                         <property name="borderTopStyle">solid</property>
                         <property name="borderTopWidth">thin</property>
-                        <property name="textAlign">center</property>
-                        <label id="17727">
-                            <text-property name="text">Заполнены материалы</text-property>
+                        <label id="9110">
+                            <text-property name="text">Статус</text-property>
                         </label>
                     </cell>
-                    <cell id="17780">
-                        <property name="backgroundColor">#C0C0C0</property>
-                        <property name="fontWeight">bold</property>
+                    <cell id="9144">
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
                         <property name="borderBottomWidth">thin</property>
@@ -845,16 +794,11 @@ return (true);]]></method>
                         <property name="borderTopColor">#000000</property>
                         <property name="borderTopStyle">solid</property>
                         <property name="borderTopWidth">thin</property>
-                        <property name="textAlign">center</property>
-                        <label id="17779">
-                            <text-property name="text">% рабочих заданий с незаполненными материалами</text-property>
+                        <label id="9148">
+                            <text-property name="text">Дата создания</text-property>
                         </label>
                     </cell>
-                </row>
-                <row id="17760">
-                    <cell id="17761">
-                        <property name="backgroundColor">#C0C0C0</property>
-                        <property name="fontWeight">bold</property>
+                    <cell id="9156">
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
                         <property name="borderBottomWidth">thin</property>
@@ -867,14 +811,11 @@ return (true);]]></method>
                         <property name="borderTopColor">#000000</property>
                         <property name="borderTopStyle">solid</property>
                         <property name="borderTopWidth">thin</property>
-                        <property name="textAlign">center</property>
-                        <label id="17767">
-                            <text-property name="text">0</text-property>
+                        <label id="9160">
+                            <text-property name="text">Крайний срок</text-property>
                         </label>
                     </cell>
-                    <cell id="17762">
-                        <property name="backgroundColor">#C0C0C0</property>
-                        <property name="fontWeight">bold</property>
+                    <cell id="9111">
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
                         <property name="borderBottomWidth">thin</property>
@@ -887,14 +828,11 @@ return (true);]]></method>
                         <property name="borderTopColor">#000000</property>
                         <property name="borderTopStyle">solid</property>
                         <property name="borderTopWidth">thin</property>
-                        <property name="textAlign">center</property>
-                        <label id="17768">
-                            <text-property name="text">1</text-property>
+                        <label id="9112">
+                            <text-property name="text">Дата фактического выполнения</text-property>
                         </label>
                     </cell>
-                    <cell id="17763">
-                        <property name="backgroundColor">#C0C0C0</property>
-                        <property name="fontWeight">bold</property>
+                    <cell id="9113">
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
                         <property name="borderBottomWidth">thin</property>
@@ -907,14 +845,11 @@ return (true);]]></method>
                         <property name="borderTopColor">#000000</property>
                         <property name="borderTopStyle">solid</property>
                         <property name="borderTopWidth">thin</property>
-                        <property name="textAlign">center</property>
-                        <label id="17769">
-                            <text-property name="text">2</text-property>
+                        <label id="9114">
+                            <text-property name="text">Описание</text-property>
                         </label>
                     </cell>
-                    <cell id="17764">
-                        <property name="backgroundColor">#C0C0C0</property>
-                        <property name="fontWeight">bold</property>
+                    <cell id="9115">
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
                         <property name="borderBottomWidth">thin</property>
@@ -927,56 +862,15 @@ return (true);]]></method>
                         <property name="borderTopColor">#000000</property>
                         <property name="borderTopStyle">solid</property>
                         <property name="borderTopWidth">thin</property>
-                        <property name="textAlign">center</property>
-                        <label id="17770">
-                            <text-property name="text">3</text-property>
-                        </label>
-                    </cell>
-                    <cell id="17765">
-                        <property name="backgroundColor">#C0C0C0</property>
-                        <property name="fontWeight">bold</property>
-                        <property name="borderBottomColor">#000000</property>
-                        <property name="borderBottomStyle">solid</property>
-                        <property name="borderBottomWidth">thin</property>
-                        <property name="borderLeftColor">#000000</property>
-                        <property name="borderLeftStyle">solid</property>
-                        <property name="borderLeftWidth">thin</property>
-                        <property name="borderRightColor">#000000</property>
-                        <property name="borderRightStyle">solid</property>
-                        <property name="borderRightWidth">thin</property>
-                        <property name="borderTopColor">#000000</property>
-                        <property name="borderTopStyle">solid</property>
-                        <property name="borderTopWidth">thin</property>
-                        <property name="textAlign">center</property>
-                        <label id="17771">
-                            <text-property name="text">4</text-property>
-                        </label>
-                    </cell>
-                    <cell id="17774">
-                        <property name="backgroundColor">#C0C0C0</property>
-                        <property name="fontWeight">bold</property>
-                        <property name="borderBottomColor">#000000</property>
-                        <property name="borderBottomStyle">solid</property>
-                        <property name="borderBottomWidth">thin</property>
-                        <property name="borderLeftColor">#000000</property>
-                        <property name="borderLeftStyle">solid</property>
-                        <property name="borderLeftWidth">thin</property>
-                        <property name="borderRightColor">#000000</property>
-                        <property name="borderRightStyle">solid</property>
-                        <property name="borderRightWidth">thin</property>
-                        <property name="borderTopColor">#000000</property>
-                        <property name="borderTopStyle">solid</property>
-                        <property name="borderTopWidth">thin</property>
-                        <property name="textAlign">center</property>
-                        <label id="17778">
-                            <text-property name="text">5</text-property>
+                        <label id="9116">
+                            <text-property name="text">Ответственный</text-property>
                         </label>
                     </cell>
                 </row>
             </header>
             <detail>
-                <row id="17728">
-                    <cell id="17729">
+                <row id="9117">
+                    <cell id="9175">
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
                         <property name="borderBottomWidth">thin</property>
@@ -989,11 +883,11 @@ return (true);]]></method>
                         <property name="borderTopColor">#000000</property>
                         <property name="borderTopStyle">solid</property>
                         <property name="borderTopWidth">thin</property>
-                        <data id="17730">
-                            <property name="resultSetColumn">L_PODR</property>
+                        <data id="9179">
+                            <property name="resultSetColumn">WORKORDERID</property>
                         </data>
                     </cell>
-                    <cell id="17731">
+                    <cell id="9151">
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
                         <property name="borderBottomWidth">thin</property>
@@ -1006,61 +900,33 @@ return (true);]]></method>
                         <property name="borderTopColor">#000000</property>
                         <property name="borderTopStyle">solid</property>
                         <property name="borderTopWidth">thin</property>
-                        <data id="17732">
-                            <list-property name="visibility">
-                                <structure>
-                                    <property name="format">all</property>
-                                    <expression name="valueExpr">row["ALL_TK"] &lt; 0 || row["YESNO"]== row["ALL_TK"]</expression>
-                                </structure>
-                            </list-property>
-                            <property name="resultSetColumn">L_PODR_D</property>
+                        <data id="9154">
+                            <property name="resultSetColumn">Aggregation</property>
+                        </data>
+                    </cell>
+                    <cell id="9118">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <data id="9119">
+                            <property name="resultSetColumn">WONUM</property>
                             <structure name="action">
-                                <property name="linkType">drill-through</property>
-                                <property name="reportName">material_control_brig.rptdesign</property>
+                                <property name="linkType">hyperlink</property>
+                                <expression name="uri">"http://10.22.64.56/maximo/ui/?event=loadapp&amp;value=WOTRACK&amp;uniqueid=" + row["WORKORDERID"]</expression>
                                 <property name="targetWindow">_blank</property>
-                                <property name="targetFileType">report-design</property>
-                                <list-property name="paramBindings">
-                                    <structure>
-                                        <property name="paramName">where</property>
-                                        <expression name="expression">"1=1"</expression>
-                                    </structure>
-                                    <structure>
-                                        <property name="paramName">appname</property>
-                                        <expression name="expression">"WOTRACK"</expression>
-                                    </structure>
-                                    <structure>
-                                        <property name="paramName">date1</property>
-                                        <expression name="expression">params["date1"].value</expression>
-                                    </structure>
-                                    <structure>
-                                        <property name="paramName">date2</property>
-                                        <expression name="expression">params["date2"].value</expression>
-                                    </structure>
-                                    <structure>
-                                        <property name="paramName">mroSite</property>
-                                        <expression name="expression">params["mroSite"].value</expression>
-                                    </structure>
-                                    <structure>
-                                        <property name="paramName">podr</property>
-                                        <expression name="expression">row["L_PODR"]</expression>
-                                    </structure>
-                                </list-property>
-                            </structure>
-                        </data>
-                        <data id="17793">
-                            <list-property name="visibility">
-                                <structure>
-                                    <property name="format">all</property>
-                                    <expression name="valueExpr">row["ALL_TK"] > 0 &amp;&amp; row["YESNO"]&lt;row["ALL_TK"]</expression>
-                                </structure>
-                            </list-property>
-                            <property name="resultSetColumn">L_PODR_D</property>
-                            <structure name="action">
-                                <property name="linkType">none</property>
                             </structure>
                         </data>
                     </cell>
-                    <cell id="17735">
+                    <cell id="9169">
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
                         <property name="borderBottomWidth">thin</property>
@@ -1073,12 +939,11 @@ return (true);]]></method>
                         <property name="borderTopColor">#000000</property>
                         <property name="borderTopStyle">solid</property>
                         <property name="borderTopWidth">thin</property>
-                        <data id="17736">
-                            <property name="textAlign">right</property>
-                            <property name="resultSetColumn">ALL_WO</property>
+                        <data id="9173">
+                            <property name="resultSetColumn">TYPEWORKORDER</property>
                         </data>
                     </cell>
-                    <cell id="17737">
+                    <cell id="9120">
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
                         <property name="borderBottomWidth">thin</property>
@@ -1091,12 +956,11 @@ return (true);]]></method>
                         <property name="borderTopColor">#000000</property>
                         <property name="borderTopStyle">solid</property>
                         <property name="borderTopWidth">thin</property>
-                        <data id="17738">
-                            <property name="textAlign">right</property>
-                            <property name="resultSetColumn">ALL_TK</property>
+                        <data id="9121">
+                            <property name="resultSetColumn">JPNUM</property>
                         </data>
                     </cell>
-                    <cell id="17739">
+                    <cell id="9122">
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
                         <property name="borderBottomWidth">thin</property>
@@ -1109,12 +973,11 @@ return (true);]]></method>
                         <property name="borderTopColor">#000000</property>
                         <property name="borderTopStyle">solid</property>
                         <property name="borderTopWidth">thin</property>
-                        <data id="17740">
-                            <property name="textAlign">right</property>
-                            <property name="resultSetColumn">YESNO</property>
+                        <data id="9123">
+                            <property name="resultSetColumn">STATUS</property>
                         </data>
                     </cell>
-                    <cell id="17775">
+                    <cell id="9145">
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
                         <property name="borderBottomWidth">thin</property>
@@ -1127,146 +990,93 @@ return (true);]]></method>
                         <property name="borderTopColor">#000000</property>
                         <property name="borderTopStyle">solid</property>
                         <property name="borderTopWidth">thin</property>
-                        <data id="17782">
-                            <structure name="numberFormat">
-                                <property name="category">Percent</property>
-                                <property name="pattern">Percent</property>
-                            </structure>
-                            <property name="textAlign">right</property>
-                            <property name="resultSetColumn">mat_no</property>
+                        <data id="9149">
+                            <property name="resultSetColumn">REPORTDATE</property>
+                        </data>
+                    </cell>
+                    <cell id="9157">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <data id="9161">
+                            <property name="resultSetColumn">CRITICDATE</property>
+                        </data>
+                    </cell>
+                    <cell id="9124">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <data id="9125">
+                            <property name="resultSetColumn">ACTFINISH</property>
+                        </data>
+                    </cell>
+                    <cell id="9126">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <data id="9127">
+                            <property name="resultSetColumn">DESCRIPTION</property>
+                        </data>
+                    </cell>
+                    <cell id="9128">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <data id="9129">
+                            <property name="resultSetColumn">SUPERVISOR</property>
                         </data>
                     </cell>
                 </row>
             </detail>
             <footer>
-                <row id="17741">
-                    <cell id="17742">
-                        <property name="backgroundColor">#C0C0C0</property>
-                        <property name="borderBottomColor">#000000</property>
-                        <property name="borderBottomStyle">solid</property>
-                        <property name="borderBottomWidth">thin</property>
-                        <property name="borderLeftColor">#000000</property>
-                        <property name="borderLeftStyle">solid</property>
-                        <property name="borderLeftWidth">thin</property>
-                        <property name="borderRightColor">#000000</property>
-                        <property name="borderRightStyle">solid</property>
-                        <property name="borderRightWidth">thin</property>
-                        <property name="borderTopColor">#000000</property>
-                        <property name="borderTopStyle">solid</property>
-                        <property name="borderTopWidth">thin</property>
-                    </cell>
-                    <cell id="17743">
-                        <property name="backgroundColor">#C0C0C0</property>
-                        <property name="borderBottomColor">#000000</property>
-                        <property name="borderBottomStyle">solid</property>
-                        <property name="borderBottomWidth">thin</property>
-                        <property name="borderLeftColor">#000000</property>
-                        <property name="borderLeftStyle">solid</property>
-                        <property name="borderLeftWidth">thin</property>
-                        <property name="borderRightColor">#000000</property>
-                        <property name="borderRightStyle">solid</property>
-                        <property name="borderRightWidth">thin</property>
-                        <property name="borderTopColor">#000000</property>
-                        <property name="borderTopStyle">solid</property>
-                        <property name="borderTopWidth">thin</property>
-                        <label id="17783">
-                            <property name="fontWeight">bold</property>
-                            <property name="textAlign">right</property>
-                            <text-property name="text">Итого</text-property>
-                        </label>
-                    </cell>
-                    <cell id="17745">
-                        <property name="backgroundColor">#C0C0C0</property>
-                        <property name="borderBottomColor">#000000</property>
-                        <property name="borderBottomStyle">solid</property>
-                        <property name="borderBottomWidth">thin</property>
-                        <property name="borderLeftColor">#000000</property>
-                        <property name="borderLeftStyle">solid</property>
-                        <property name="borderLeftWidth">thin</property>
-                        <property name="borderRightColor">#000000</property>
-                        <property name="borderRightStyle">solid</property>
-                        <property name="borderRightWidth">thin</property>
-                        <property name="borderTopColor">#000000</property>
-                        <property name="borderTopStyle">solid</property>
-                        <property name="borderTopWidth">thin</property>
-                        <data id="17784">
-                            <structure name="numberFormat">
-                                <property name="category">Custom</property>
-                                <property name="pattern">###,##0</property>
-                            </structure>
-                            <property name="textAlign">right</property>
-                            <property name="resultSetColumn">sum_wo</property>
-                        </data>
-                    </cell>
-                    <cell id="17746">
-                        <property name="backgroundColor">#C0C0C0</property>
-                        <property name="borderBottomColor">#000000</property>
-                        <property name="borderBottomStyle">solid</property>
-                        <property name="borderBottomWidth">thin</property>
-                        <property name="borderLeftColor">#000000</property>
-                        <property name="borderLeftStyle">solid</property>
-                        <property name="borderLeftWidth">thin</property>
-                        <property name="borderRightColor">#000000</property>
-                        <property name="borderRightStyle">solid</property>
-                        <property name="borderRightWidth">thin</property>
-                        <property name="borderTopColor">#000000</property>
-                        <property name="borderTopStyle">solid</property>
-                        <property name="borderTopWidth">thin</property>
-                        <data id="17785">
-                            <structure name="numberFormat">
-                                <property name="category">Custom</property>
-                                <property name="pattern">###,##0</property>
-                            </structure>
-                            <property name="textAlign">right</property>
-                            <property name="resultSetColumn">sum_tk</property>
-                        </data>
-                    </cell>
-                    <cell id="17747">
-                        <property name="backgroundColor">#C0C0C0</property>
-                        <property name="borderBottomColor">#000000</property>
-                        <property name="borderBottomStyle">solid</property>
-                        <property name="borderBottomWidth">thin</property>
-                        <property name="borderLeftColor">#000000</property>
-                        <property name="borderLeftStyle">solid</property>
-                        <property name="borderLeftWidth">thin</property>
-                        <property name="borderRightColor">#000000</property>
-                        <property name="borderRightStyle">solid</property>
-                        <property name="borderRightWidth">thin</property>
-                        <property name="borderTopColor">#000000</property>
-                        <property name="borderTopStyle">solid</property>
-                        <property name="borderTopWidth">thin</property>
-                        <data id="17786">
-                            <structure name="numberFormat">
-                                <property name="category">Custom</property>
-                                <property name="pattern">###,##0</property>
-                            </structure>
-                            <property name="textAlign">right</property>
-                            <property name="resultSetColumn">sum_yesno</property>
-                        </data>
-                    </cell>
-                    <cell id="17776">
-                        <property name="backgroundColor">#C0C0C0</property>
-                        <property name="borderBottomColor">#000000</property>
-                        <property name="borderBottomStyle">solid</property>
-                        <property name="borderBottomWidth">thin</property>
-                        <property name="borderLeftColor">#000000</property>
-                        <property name="borderLeftStyle">solid</property>
-                        <property name="borderLeftWidth">thin</property>
-                        <property name="borderRightColor">#000000</property>
-                        <property name="borderRightStyle">solid</property>
-                        <property name="borderRightWidth">thin</property>
-                        <property name="borderTopColor">#000000</property>
-                        <property name="borderTopStyle">solid</property>
-                        <property name="borderTopWidth">thin</property>
-                        <data id="17787">
-                            <structure name="numberFormat">
-                                <property name="category">Percent</property>
-                                <property name="pattern">Percent</property>
-                            </structure>
-                            <property name="textAlign">right</property>
-                            <property name="resultSetColumn">t_mat_no</property>
-                        </data>
-                    </cell>
+                <row id="9130">
+                    <cell id="9176"/>
+                    <cell id="9152"/>
+                    <cell id="9131"/>
+                    <cell id="9170"/>
+                    <cell id="9132"/>
+                    <cell id="9133"/>
+                    <cell id="9146"/>
+                    <cell id="9158"/>
+                    <cell id="9134"/>
+                    <cell id="9135"/>
+                    <cell id="9136"/>
                 </row>
             </footer>
         </table>
