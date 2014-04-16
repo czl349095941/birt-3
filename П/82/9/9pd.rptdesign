@@ -1,4 +1,4 @@
-﻿﻿<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <report xmlns="http://www.eclipse.org/birt/2005/design" version="3.2.17" id="1">
     <property name="author">Alex Erofeev</property>
     <property name="createdBy">Eclipse BIRT Designer Version 2.3.2.r232_20090202 Build &lt;2.3.2.v20090218-0730></property>
@@ -24,7 +24,10 @@ if(req != null){
 user = req.getParameter("userName");
 reportContext.setPersistentGlobalVariable("user",user);}
 
-req = reportContext.getHttpServletRequest();]]></method>
+req = reportContext.getHttpServletRequest();
+
+mxReportScriptContext.setDefaultLogLevel("DEBUG");
+mxReportScriptContext.setDefaultLogFile("c:/temp/tetttt.txt");]]></method>
     <method name="afterFactory"><![CDATA[MXReportScriptContext.close();]]></method>
     <property name="theme">MaximoSystemLibrary.maximoTheme</property>
     <property name="bidiLayoutOrientation">ltr</property>
@@ -309,28 +312,33 @@ var podrId = new String("'"+params["podr"].replace("=","")+"'");
 
  +" select * from maximo.workorder where "
  +" ( "
- +" L_PRED = " + pred
- +" and   L_PODR in ( select location from maximo.locancestor where  ancestor in ("+podrId+") and siteid =" +siteid+ " and systemid ='ОС' )"
+ //+" L_PRED = " + pred+"and "
+ +"    brigad_location = "+podrId
  +" ) and to_date (actfinish,'DD.MM.YY')  = "+ dat
  +"  and siteid =" +siteid+ " "
-   +"	and status in ('ТЕХОТДЕЛ','ЗАКРЫТО') "
-
+   +"	and STATUS IN ('ТЕХОТДЕЛ' , 'ЗАКРЫТО',  'ЗАВЕРШ', 'ДОРАБОТКА', 'ЗАПЛАНИРОВАНО') "
  +" )"
- +" select  "
- +"  wo.wonum, "
- +" jp.description wo, wo.typeworkorder, "
- +" nvl (ma.description, l.description) asdesc, "
- +" (select count (*) from maximo.LABTRANS where refwo = wo.wonum) cnt, "
- +"  sp.edizm , "
- +" WO.PLAN_WO, "
- +" round (wo.JPDURATION*wo.PLAN_WO/sp.numvalue,2) p1, "
- +" WO.FAKT_WO, "
- +" WO.LABOR_HOUR FACTTIME, "
- +"   to_char(  (select ldtext from MAXIMO.longdescription w where w.ldownertable='WORKORDER' "
- +"     and w.LDKEY = wo.workorderid) ) as ALNVALUE "
- +" from WONUM wo "
- 
- 
+  +" SELECT  wo.wonum, "
+ +"         jp.description wo, "
+ +"         wo.typeworkorder, "
+ +"         NVL (ma.description, l.description) asdesc, "
+ +"         (SELECT COUNT (*) "
+ +"         FROM    maximo.LABTRANS "
+ +"         WHERE   refwo = wo.wonum "
+ +"         ) cnt, "
+ +"         sp.edizm , "
+ +"         WO.PLAN_WO, "
+ +"         ROUND (wo.JPDURATION*wo.PLAN_WO/sp.numvalue,2) p1, "
+ +"         WO.FAKT_WO, "
+ +"         WO.LABOR_HOUR FACTTIME, "
+ +"         TO_CHAR( "
+ +"                   (SELECT ldtext "
+ +"                   FROM    MAXIMO.longdescription w "
+ +"                   WHERE   w.ldownertable='WORKORDER' "
+ +"                           AND w.LDKEY   = wo.workorderid "
+ +"                   ) ) AS ALNVALUE "
+ +" FROM    WONUM wo "
+
  +"    left join ( select ass.description,  "
  +"						ma.recordkey from MULTIASSETLOCCI ma "
   +"				  join maximo.asset  ass on ma.assetnum = ass.assetnum "
@@ -348,7 +356,7 @@ var podrId = new String("'"+params["podr"].replace("=","")+"'");
  +" 								w.L_PRED = " + pred
  +"  								and to_date (w.actfinish,'DD.MM.YY')  = "+ dat
  +"  								and w.siteid =" +siteid+ " "
- +"	 								and w.status in ('ТЕХОТДЕЛ','ЗАКРЫТО') " 
+ +"	 								and w.STATUS IN ('ТЕХОТДЕЛ' , 'ЗАКРЫТО',  'ЗАВЕРШ', 'ДОРАБОТКА', 'ЗАПЛАНИРОВАНО') " 
  +"                           )jp "
  +"                   group by  jp.wonum "
  +"                 )jp on jp.wonum=wo.wonum  "
@@ -360,78 +368,23 @@ var podrId = new String("'"+params["podr"].replace("=","")+"'");
  +"                               join maximo.jobplanspec sp on sp.JPNUM=jp.jpnum and sp.assetattrid='IZMRAB' "
  +"                       where w_jp.usethismeasure = 1     "
  +"                       )sp on sp.wonum=wo.wonum "
- 
- 
- +" union  all "
- +" ( "
- +" select  "
- +" 'Прочие работы1' wonum, 'Проход к месту работы и обратно' wo,  "
- +" 'Прочее' typeworkorder,  "
- +" cast (Null as char) asdesc, "
- +" cast (Null as integer) cnt,  "
- +" 'чел-час' edizm, "
- +" cast (Null as integer) PLAN_WO,  "
- +" cast (Null as integer) p1, "
- +" cast (Null as integer) FAKT_WO,  "
- +" round (SUM (PASSEGEWORK), 2) FACTTIME,  "
- +" cast (Null as char) ALNVALUE "
- +" from  WONUM"
- +" group by 'Прочие работы1', 'Проход к месту работы и обратно', 'Прочее', cast (Null as char), cast (Null as integer), 'чел-час', cast (Null as integer), cast (Null as integer), cast (Null as integer), cast (Null as char) "
-+" ) "
+ +" UNION ALL "
+ +"  "
+ +" SELECT  NVL( CASE WHEN TYPEWORKORDER IN ('Путевые обходчики') THEN 'Осмотр пути' ELSE OTHERWORK END, 'Прочие работы') wonum        , "
+ +"         NVL( CASE WHEN TYPEWORKORDER IN ('Путевые обходчики') THEN 'Осмотр пути' ELSE OTHERWORK END, 'Прочие работы') wo           , "
+ +"         'Прочее'                                                                                                      typeworkorder, "
+ +"         CAST (NULL AS CHAR)                                                                                           asdesc       , "
+ +"         CAST (NULL AS INTEGER)                                                                                        cnt          , "
+ +"         'чел-час'                                                                                                     edizm        , "
+ +"         CAST (NULL AS INTEGER)                                                                                        PLAN_WO      , "
+ +"         CAST (NULL AS INTEGER)                                                                                        p1           , "
+ +"         CAST (NULL AS INTEGER)                                                                                        FAKT_WO      , "
+ +"         ROUND (SUM (LABOR_HOUR), 2)                                                                                   FACTTIME     , "
+ +"         CAST (NULL AS CHAR)                                                                                           ALNVALUE "
+ +" FROM    WONUM "
+ +" WHERE   TYPEWORKORDER IN ('Прочее', 'Путевые обходчики') "
+ +" GROUP BY NVL( CASE WHEN TYPEWORKORDER IN ('Путевые обходчики') THEN 'Осмотр пути' ELSE OTHERWORK END, 'Прочие работы') "
 
-
- +" union  all "
- +" ( "
- +" select  "
- +" 'Прочие работы2' wonum, 'Ограждение места работы' wo,  "
- +" 'Прочее' typeworkorder,  "
- +" cast (Null as char) asdesc, "
- +" cast (Null as integer) cnt,  "
- +" 'чел-час' edizm, "
- +" cast (Null as integer) PLAN_WO,  "
- +" cast (Null as integer) p1, "
- +" cast (Null as integer) FAKT_WO,  "
- +" round (SUM (FENCINGPATH), 2) FACTTIME,  "
- +" cast (Null as char) ALNVALUE "
- +" from  WONUM"
- +" group by 'Прочие работы2', 'Ограждение места работы' , 'Прочее', cast (Null as char), cast (Null as integer), 'чел-час', cast (Null as integer), cast (Null as integer), cast (Null as integer), cast (Null as char)  "
-+" ) " 
- 
- 
- +" union  all "
- +" ( "
- +" select  "
- +" 'Прочие работы3' wonum, 'Пропуск поездов' wo,  "
- +" 'Прочее' typeworkorder,  "
- +" cast (Null as char) asdesc, "
- +" cast (Null as integer) cnt,  "
- +" 'чел-час' edizm, "
- +" cast (Null as integer) PLAN_WO,  "
- +" cast (Null as integer) p1, "
- +" cast (Null as integer) FAKT_WO,  "
- +" round (SUM (PASSTRAIN), 2) FACTTIME,  "
- +" cast (Null as char) ALNVALUE "
- +" from  WONUM"
- +" group by 'Прочие работы3', 'Пропуск поездов' , 'Прочее', cast (Null as char), cast (Null as integer), 'чел-час', cast (Null as integer), cast (Null as integer), cast (Null as integer), cast (Null as char)  "
-+" ) " 
-
- +" union  all "
- +" ( "
- +" select  "
- +" 'Прочие работы4' wonum, 'Осмотр пути' wo,  "
- +" 'Прочее' typeworkorder,  "
- +" cast (Null as char) asdesc, "
- +" cast (Null as integer) cnt,  "
- +" 'чел-час' edizm, "
- +" cast (Null as integer) PLAN_WO,  "
- +" cast (Null as integer) p1, "
- +" cast (Null as integer) FAKT_WO,  "
- +" cast (0 as integer) FACTTIME,  "
- +" cast (Null as char) ALNVALUE "
- +" from  dual"
- +" ) "
- 
- 
 ;
 
 	maximoDataSet.setQuery(sqlText);]]></method>

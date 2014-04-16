@@ -409,8 +409,7 @@ sqlText =  ""
  +"              AND     WO.L_PRED                         = '"+params["pred"]+"' "
  +"              AND     extract (MONTH FROM wo.Actfinish) = " +params["month"]
  +"              AND     extract (YEAR FROM WO.ACTFINISH)  = " +params["year"]
- //+"              and    WO.WONUM                          in ('75284328', '72335122', '52834616', '52834586') "
- //+"              and    WO.WONUM                          in ('75284328') "
+ //+"              and     WO.brigad_location                = 'PODR_108' "
  +"      ) "
  +" , "
   +" RAB_TK AS "
@@ -1070,7 +1069,7 @@ params["year"]=BirtDateTime.year(BirtDateTime.now());
                     <list-property name="arguments">
                         <structure>
                             <property name="name">Expression</property>
-                            <expression name="value">row["wo_sum_plan_hour"]</expression>
+                            <expression name="value">row["wo_sum_plan_hour"]/row["wo_count"]</expression>
                         </structure>
                     </list-property>
                 </structure>
@@ -1157,6 +1156,182 @@ params["year"]=BirtDateTime.year(BirtDateTime.now());
                         </structure>
                     </list-property>
                 </structure>
+                <structure>
+                    <property name="name">wo_ave_tk_skill</property>
+                    <property name="dataType">float</property>
+                    <simple-property-list name="aggregateOn">
+                        <value>WO</value>
+                    </simple-property-list>
+                    <property name="aggregateFunction">AVE</property>
+                    <list-property name="arguments">
+                        <structure>
+                            <property name="name">Expression</property>
+                            <expression name="value">row["TK_SKILL"]</expression>
+                        </structure>
+                    </list-property>
+                </structure>
+                <structure>
+                    <property name="name">wo_sum_tk</property>
+                    <property name="dataType">integer</property>
+                    <simple-property-list name="aggregateOn">
+                        <value>WO</value>
+                    </simple-property-list>
+                    <property name="aggregateFunction">SUM</property>
+                    <list-property name="arguments">
+                        <structure>
+                            <property name="name">Expression</property>
+                            <expression name="value">row["TK_KOLVO"]</expression>
+                        </structure>
+                    </list-property>
+                </structure>
+                <structure>
+                    <property name="name">wo_ave_fact_skill</property>
+                    <property name="dataType">float</property>
+                    <simple-property-list name="aggregateOn">
+                        <value>WO</value>
+                    </simple-property-list>
+                    <property name="aggregateFunction">AVE</property>
+                    <list-property name="arguments">
+                        <structure>
+                            <property name="name">Expression</property>
+                            <expression name="value">row["FACT_SKILL"]</expression>
+                        </structure>
+                    </list-property>
+                </structure>
+                <structure>
+                    <property name="name">wo_sum_fact</property>
+                    <property name="dataType">integer</property>
+                    <simple-property-list name="aggregateOn">
+                        <value>WO</value>
+                    </simple-property-list>
+                    <property name="aggregateFunction">SUM</property>
+                    <list-property name="arguments">
+                        <structure>
+                            <property name="name">Expression</property>
+                            <expression name="value">row["FACT_KOLVO"]</expression>
+                        </structure>
+                    </list-property>
+                </structure>
+                <structure>
+                    <property name="name">ITOG_WONUM</property>
+                    <property name="displayName">WONUM</property>
+                    <expression name="expression">"Итого по РЗ № "+dataSetRow["WONUM"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">wo_sum_fact_our</property>
+                    <property name="dataType">float</property>
+                    <simple-property-list name="aggregateOn">
+                        <value>WO</value>
+                    </simple-property-list>
+                    <property name="aggregateFunction">SUM</property>
+                    <list-property name="arguments">
+                        <structure>
+                            <property name="name">Expression</property>
+                            <expression name="value">row["FACT_HOUR"]</expression>
+                        </structure>
+                    </list-property>
+                </structure>
+                <structure>
+                    <property name="name">wo_otk_skill</property>
+                    <expression name="expression">row["wo_ave_fact_skill"]-row["wo_ave_tk_skill"]</expression>
+                    <property name="dataType">float</property>
+                </structure>
+                <structure>
+                    <property name="name">wo_otkl_rab</property>
+                    <expression name="expression">row["wo_sum_fact"]-row["wo_sum_tk"]</expression>
+                    <property name="dataType">float</property>
+                </structure>
+                <structure>
+                    <property name="name">wo_otkl_time</property>
+                    <expression name="expression">row["wo_sum_labor_hour"]/row["wo_sum_norm_time"]</expression>
+                    <property name="dataType">float</property>
+                </structure>
+                <structure>
+                    <property name="name">otkl_time</property>
+                    <expression name="expression">row["LABOR_HOUR"]/row["norm_time"]</expression>
+                    <property name="dataType">float</property>
+                </structure>
+                <structure>
+                    <property name="name">gr_ave_tk_skill</property>
+                    <property name="dataType">float</property>
+                    <simple-property-list name="aggregateOn">
+                        <value>PODR</value>
+                    </simple-property-list>
+                    <property name="aggregateFunction">AVE</property>
+                    <list-property name="arguments">
+                        <structure>
+                            <property name="name">Expression</property>
+                            <expression name="value">row["TK_SKILL"]</expression>
+                        </structure>
+                    </list-property>
+                </structure>
+                <structure>
+                    <property name="name">tab_ave_tk_skill</property>
+                    <property name="dataType">float</property>
+                    <property name="aggregateFunction">AVE</property>
+                    <list-property name="arguments">
+                        <structure>
+                            <property name="name">Expression</property>
+                            <expression name="value">row["TK_SKILL"]</expression>
+                        </structure>
+                    </list-property>
+                </structure>
+                <structure>
+                    <property name="name">podr_ave_fact_skill</property>
+                    <property name="dataType">float</property>
+                    <simple-property-list name="aggregateOn">
+                        <value>PODR</value>
+                    </simple-property-list>
+                    <property name="aggregateFunction">AVE</property>
+                    <list-property name="arguments">
+                        <structure>
+                            <property name="name">Expression</property>
+                            <expression name="value">row["FACT_SKILL"]</expression>
+                        </structure>
+                    </list-property>
+                </structure>
+                <structure>
+                    <property name="name">pred_ave_fact_skill</property>
+                    <property name="dataType">float</property>
+                    <property name="aggregateFunction">AVE</property>
+                    <list-property name="arguments">
+                        <structure>
+                            <property name="name">Expression</property>
+                            <expression name="value">row["FACT_SKILL"]</expression>
+                        </structure>
+                    </list-property>
+                </structure>
+                <structure>
+                    <property name="name">podr_otkl_time</property>
+                    <expression name="expression">row["podr_sum_labor_hour"]/row["podr_sum_norm_time"]</expression>
+                    <property name="dataType">float</property>
+                </structure>
+                <structure>
+                    <property name="name">pred_otkl_time</property>
+                    <expression name="expression">row["pred_sum_labor_hour"]/row["pred_sum_norm_time"]</expression>
+                    <property name="dataType">float</property>
+                </structure>
+                <structure>
+                    <property name="name">podr_otk_skill</property>
+                    <expression name="expression">row["podr_ave_fact_skill"]-row["gr_ave_tk_skill"]</expression>
+                    <property name="dataType">float</property>
+                </structure>
+                <structure>
+                    <property name="name">pred_otk_skill</property>
+                    <expression name="expression">row["pred_ave_fact_skill"]-row["tab_ave_tk_skill"]</expression>
+                    <property name="dataType">float</property>
+                </structure>
+                <structure>
+                    <property name="name">podr_otkl_rab</property>
+                    <expression name="expression">row["gr_sum_fact"]-row["gr_sum_tk"]</expression>
+                    <property name="dataType">float</property>
+                </structure>
+                <structure>
+                    <property name="name">pred_otkl_rab</property>
+                    <expression name="expression">row["tab_sum_fact"]-row["tab_sum_tk"]</expression>
+                    <property name="dataType">float</property>
+                </structure>
             </list-property>
             <list-property name="sort">
                 <structure>
@@ -1221,6 +1396,15 @@ params["year"]=BirtDateTime.year(BirtDateTime.now());
                 <property name="suppressDuplicates">true</property>
             </column>
             <column id="17470">
+                <property name="suppressDuplicates">true</property>
+            </column>
+            <column id="17568">
+                <property name="suppressDuplicates">true</property>
+            </column>
+            <column id="17533">
+                <property name="suppressDuplicates">true</property>
+            </column>
+            <column id="17542">
                 <property name="suppressDuplicates">true</property>
             </column>
             <header>
@@ -1517,6 +1701,48 @@ params["year"]=BirtDateTime.year(BirtDateTime.now());
                             <text-property name="text">Общее фактическое время выполнения (чел/час)</text-property>
                         </label>
                     </cell>
+                    <cell id="17560">
+                        <property name="colSpan">1</property>
+                        <property name="rowSpan">2</property>
+                        <property name="backgroundColor">#808080</property>
+                        <property name="fontWeight">bold</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <label id="17555">
+                            <text-property name="text">Выполнение норм времени</text-property>
+                        </label>
+                    </cell>
+                    <cell id="17525">
+                        <property name="colSpan">2</property>
+                        <property name="rowSpan">1</property>
+                        <property name="backgroundColor">#808080</property>
+                        <property name="fontWeight">bold</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <label id="17552">
+                            <text-property name="text">Отклонение</text-property>
+                        </label>
+                    </cell>
                 </row>
                 <row id="17068">
                     <cell id="17175">
@@ -1666,6 +1892,44 @@ params["year"]=BirtDateTime.year(BirtDateTime.now());
                         <property name="borderTopWidth">thin</property>
                         <label id="17460">
                             <text-property name="text">Фактическое время выполнения (чел/час)</text-property>
+                        </label>
+                    </cell>
+                    <cell id="17526">
+                        <property name="backgroundColor">#808080</property>
+                        <property name="fontWeight">bold</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <label id="17553">
+                            <text-property name="text">Разряд</text-property>
+                        </label>
+                    </cell>
+                    <cell id="17535">
+                        <property name="backgroundColor">#808080</property>
+                        <property name="fontWeight">bold</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <label id="17554">
+                            <text-property name="text">Количество исполнителей, чел.</text-property>
                         </label>
                     </cell>
                 </row>
@@ -2029,6 +2293,66 @@ params["year"]=BirtDateTime.year(BirtDateTime.now());
                             <text-property name="text">17</text-property>
                         </label>
                     </cell>
+                    <cell id="17562">
+                        <property name="backgroundColor">#808080</property>
+                        <property name="fontWeight">bold</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <label id="17569">
+                            <property name="textAlign">center</property>
+                            <text-property name="text">18</text-property>
+                        </label>
+                    </cell>
+                    <cell id="17527">
+                        <property name="backgroundColor">#808080</property>
+                        <property name="fontWeight">bold</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <label id="17570">
+                            <property name="textAlign">center</property>
+                            <text-property name="text">19</text-property>
+                        </label>
+                    </cell>
+                    <cell id="17536">
+                        <property name="backgroundColor">#808080</property>
+                        <property name="fontWeight">bold</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <label id="17571">
+                            <property name="textAlign">center</property>
+                            <text-property name="text">20</text-property>
+                        </label>
+                    </cell>
                 </row>
             </header>
             <group id="17215">
@@ -2076,7 +2400,7 @@ params["year"]=BirtDateTime.year(BirtDateTime.now());
                         <cell id="17351">
                             <property name="colSpan">1</property>
                             <property name="rowSpan">1</property>
-                            <property name="backgroundColor">#808080</property>
+                            <property name="backgroundColor">#408080</property>
                             <property name="fontWeight">bold</property>
                             <property name="borderBottomColor">#000000</property>
                             <property name="borderBottomStyle">solid</property>
@@ -2089,7 +2413,7 @@ params["year"]=BirtDateTime.year(BirtDateTime.now());
                             <property name="borderTopWidth">thin</property>
                         </cell>
                         <cell id="17361">
-                            <property name="backgroundColor">#808080</property>
+                            <property name="backgroundColor">#408080</property>
                             <property name="fontWeight">bold</property>
                             <property name="borderBottomColor">#000000</property>
                             <property name="borderBottomStyle">solid</property>
@@ -2102,7 +2426,7 @@ params["year"]=BirtDateTime.year(BirtDateTime.now());
                             </data>
                         </cell>
                         <cell id="17362">
-                            <property name="backgroundColor">#808080</property>
+                            <property name="backgroundColor">#408080</property>
                             <property name="fontWeight">bold</property>
                             <property name="borderBottomColor">#000000</property>
                             <property name="borderBottomStyle">solid</property>
@@ -2112,7 +2436,7 @@ params["year"]=BirtDateTime.year(BirtDateTime.now());
                             <property name="borderTopWidth">thin</property>
                         </cell>
                         <cell id="17363">
-                            <property name="backgroundColor">#808080</property>
+                            <property name="backgroundColor">#408080</property>
                             <property name="fontWeight">bold</property>
                             <property name="borderBottomColor">#000000</property>
                             <property name="borderBottomStyle">solid</property>
@@ -2122,7 +2446,7 @@ params["year"]=BirtDateTime.year(BirtDateTime.now());
                             <property name="borderTopWidth">thin</property>
                         </cell>
                         <cell id="17428">
-                            <property name="backgroundColor">#808080</property>
+                            <property name="backgroundColor">#408080</property>
                             <property name="fontWeight">bold</property>
                             <property name="borderBottomColor">#000000</property>
                             <property name="borderBottomStyle">solid</property>
@@ -2132,7 +2456,7 @@ params["year"]=BirtDateTime.year(BirtDateTime.now());
                             <property name="borderTopWidth">thin</property>
                         </cell>
                         <cell id="17405">
-                            <property name="backgroundColor">#808080</property>
+                            <property name="backgroundColor">#408080</property>
                             <property name="fontWeight">bold</property>
                             <property name="borderBottomColor">#000000</property>
                             <property name="borderBottomStyle">solid</property>
@@ -2142,7 +2466,7 @@ params["year"]=BirtDateTime.year(BirtDateTime.now());
                             <property name="borderTopWidth">thin</property>
                         </cell>
                         <cell id="17443">
-                            <property name="backgroundColor">#808080</property>
+                            <property name="backgroundColor">#408080</property>
                             <property name="fontWeight">bold</property>
                             <property name="borderBottomColor">#000000</property>
                             <property name="borderBottomStyle">solid</property>
@@ -2152,7 +2476,7 @@ params["year"]=BirtDateTime.year(BirtDateTime.now());
                             <property name="borderTopWidth">thin</property>
                         </cell>
                         <cell id="17364">
-                            <property name="backgroundColor">#808080</property>
+                            <property name="backgroundColor">#408080</property>
                             <property name="fontWeight">bold</property>
                             <property name="borderBottomColor">#000000</property>
                             <property name="borderBottomStyle">solid</property>
@@ -2162,7 +2486,7 @@ params["year"]=BirtDateTime.year(BirtDateTime.now());
                             <property name="borderTopWidth">thin</property>
                         </cell>
                         <cell id="17365">
-                            <property name="backgroundColor">#808080</property>
+                            <property name="backgroundColor">#408080</property>
                             <property name="fontWeight">bold</property>
                             <property name="borderBottomColor">#000000</property>
                             <property name="borderBottomStyle">solid</property>
@@ -2172,7 +2496,7 @@ params["year"]=BirtDateTime.year(BirtDateTime.now());
                             <property name="borderTopWidth">thin</property>
                         </cell>
                         <cell id="17366">
-                            <property name="backgroundColor">#808080</property>
+                            <property name="backgroundColor">#408080</property>
                             <property name="fontWeight">bold</property>
                             <property name="borderBottomColor">#000000</property>
                             <property name="borderBottomStyle">solid</property>
@@ -2182,7 +2506,7 @@ params["year"]=BirtDateTime.year(BirtDateTime.now());
                             <property name="borderTopWidth">thin</property>
                         </cell>
                         <cell id="17367">
-                            <property name="backgroundColor">#808080</property>
+                            <property name="backgroundColor">#408080</property>
                             <property name="fontWeight">bold</property>
                             <property name="borderBottomColor">#000000</property>
                             <property name="borderBottomStyle">solid</property>
@@ -2192,7 +2516,7 @@ params["year"]=BirtDateTime.year(BirtDateTime.now());
                             <property name="borderTopWidth">thin</property>
                         </cell>
                         <cell id="17368">
-                            <property name="backgroundColor">#808080</property>
+                            <property name="backgroundColor">#408080</property>
                             <property name="fontWeight">bold</property>
                             <property name="borderBottomColor">#000000</property>
                             <property name="borderBottomStyle">solid</property>
@@ -2202,7 +2526,7 @@ params["year"]=BirtDateTime.year(BirtDateTime.now());
                             <property name="borderTopWidth">thin</property>
                         </cell>
                         <cell id="17369">
-                            <property name="backgroundColor">#808080</property>
+                            <property name="backgroundColor">#408080</property>
                             <property name="fontWeight">bold</property>
                             <property name="borderBottomColor">#000000</property>
                             <property name="borderBottomStyle">solid</property>
@@ -2215,7 +2539,7 @@ params["year"]=BirtDateTime.year(BirtDateTime.now());
                             <property name="borderTopWidth">thin</property>
                         </cell>
                         <cell id="17454">
-                            <property name="backgroundColor">#808080</property>
+                            <property name="backgroundColor">#408080</property>
                             <property name="fontWeight">bold</property>
                             <property name="borderBottomColor">#000000</property>
                             <property name="borderBottomStyle">solid</property>
@@ -2228,7 +2552,7 @@ params["year"]=BirtDateTime.year(BirtDateTime.now());
                             <property name="borderTopWidth">thin</property>
                         </cell>
                         <cell id="17416">
-                            <property name="backgroundColor">#808080</property>
+                            <property name="backgroundColor">#408080</property>
                             <property name="fontWeight">bold</property>
                             <property name="borderBottomColor">#000000</property>
                             <property name="borderBottomStyle">solid</property>
@@ -2241,7 +2565,7 @@ params["year"]=BirtDateTime.year(BirtDateTime.now());
                             <property name="borderTopWidth">thin</property>
                         </cell>
                         <cell id="17503">
-                            <property name="backgroundColor">#808080</property>
+                            <property name="backgroundColor">#408080</property>
                             <property name="fontWeight">bold</property>
                             <property name="borderBottomColor">#000000</property>
                             <property name="borderBottomStyle">solid</property>
@@ -2254,7 +2578,46 @@ params["year"]=BirtDateTime.year(BirtDateTime.now());
                             <property name="borderTopWidth">thin</property>
                         </cell>
                         <cell id="17465">
-                            <property name="backgroundColor">#808080</property>
+                            <property name="backgroundColor">#408080</property>
+                            <property name="fontWeight">bold</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">thin</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">thin</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">thin</property>
+                        </cell>
+                        <cell id="17563">
+                            <property name="backgroundColor">#408080</property>
+                            <property name="fontWeight">bold</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">thin</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">thin</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">thin</property>
+                        </cell>
+                        <cell id="17528">
+                            <property name="backgroundColor">#408080</property>
+                            <property name="fontWeight">bold</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">thin</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">thin</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">thin</property>
+                        </cell>
+                        <cell id="17537">
+                            <property name="backgroundColor">#408080</property>
                             <property name="fontWeight">bold</property>
                             <property name="borderBottomColor">#000000</property>
                             <property name="borderBottomStyle">solid</property>
@@ -2271,6 +2634,7 @@ params["year"]=BirtDateTime.year(BirtDateTime.now());
                 <footer>
                     <row id="17374">
                         <property name="fontWeight">bold</property>
+                        <property name="textAlign">right</property>
                         <cell id="17375"/>
                         <cell id="17376"/>
                         <cell id="17377">
@@ -2356,6 +2720,15 @@ params["year"]=BirtDateTime.year(BirtDateTime.now());
                             <property name="borderTopColor">#000000</property>
                             <property name="borderTopStyle">solid</property>
                             <property name="borderTopWidth">thin</property>
+                            <data id="17574">
+                                <property name="fontWeight">bold</property>
+                                <structure name="numberFormat">
+                                    <property name="category">Fixed</property>
+                                    <property name="pattern">Fixed</property>
+                                </structure>
+                                <property name="textAlign">right</property>
+                                <property name="resultSetColumn">gr_ave_tk_skill</property>
+                            </data>
                         </cell>
                         <cell id="17383">
                             <property name="backgroundColor">#FFFF80</property>
@@ -2372,7 +2745,6 @@ params["year"]=BirtDateTime.year(BirtDateTime.now());
                             <property name="borderTopStyle">solid</property>
                             <property name="borderTopWidth">thin</property>
                             <data id="17388">
-                                <property name="textAlign">center</property>
                                 <property name="resultSetColumn">gr_sum_tk</property>
                             </data>
                         </cell>
@@ -2405,6 +2777,13 @@ params["year"]=BirtDateTime.year(BirtDateTime.now());
                             <property name="borderTopColor">#000000</property>
                             <property name="borderTopStyle">solid</property>
                             <property name="borderTopWidth">thin</property>
+                            <data id="17576">
+                                <structure name="numberFormat">
+                                    <property name="category">Fixed</property>
+                                    <property name="pattern">Fixed</property>
+                                </structure>
+                                <property name="resultSetColumn">podr_ave_fact_skill</property>
+                            </data>
                         </cell>
                         <cell id="17386">
                             <property name="backgroundColor">#FFFF80</property>
@@ -2421,7 +2800,9 @@ params["year"]=BirtDateTime.year(BirtDateTime.now());
                             <property name="borderTopStyle">solid</property>
                             <property name="borderTopWidth">thin</property>
                             <data id="17389">
-                                <property name="textAlign">center</property>
+                                <structure name="numberFormat">
+                                    <property name="category">Unformatted</property>
+                                </structure>
                                 <property name="resultSetColumn">gr_sum_fact</property>
                             </data>
                         </cell>
@@ -2509,6 +2890,73 @@ params["year"]=BirtDateTime.year(BirtDateTime.now());
                                 <property name="resultSetColumn">podr_sum_labor_hour</property>
                             </data>
                         </cell>
+                        <cell id="17566">
+                            <property name="backgroundColor">#FFFF80</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">thin</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">thin</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">thin</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">thin</property>
+                            <data id="17578">
+                                <structure name="numberFormat">
+                                    <property name="category">Percent</property>
+                                    <property name="pattern">Percent</property>
+                                </structure>
+                                <property name="textAlign">right</property>
+                                <property name="resultSetColumn">podr_otkl_time</property>
+                            </data>
+                        </cell>
+                        <cell id="17531">
+                            <property name="backgroundColor">#FFFF80</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">thin</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">thin</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">thin</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">thin</property>
+                            <data id="17580">
+                                <structure name="numberFormat">
+                                    <property name="category">Fixed</property>
+                                    <property name="pattern">Fixed</property>
+                                </structure>
+                                <property name="resultSetColumn">podr_otk_skill</property>
+                            </data>
+                        </cell>
+                        <cell id="17540">
+                            <property name="backgroundColor">#FFFF80</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">thin</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">thin</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">thin</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">thin</property>
+                            <data id="17582">
+                                <structure name="numberFormat">
+                                    <property name="category">Fixed</property>
+                                    <property name="pattern">Fixed</property>
+                                </structure>
+                                <property name="resultSetColumn">podr_otkl_rab</property>
+                            </data>
+                        </cell>
                     </row>
                 </footer>
             </group>
@@ -2527,50 +2975,92 @@ params["year"]=BirtDateTime.year(BirtDateTime.now());
                 <property name="pageBreakInside">auto</property>
                 <footer>
                     <row id="17297">
+                        <property name="fontWeight">bold</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <property name="textAlign">right</property>
                         <cell id="17298">
                             <property name="borderBottomColor">#000000</property>
                             <property name="borderBottomStyle">solid</property>
                             <property name="borderBottomWidth">thin</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">thin</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">thin</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">thin</property>
                         </cell>
                         <cell id="17299">
                             <property name="borderBottomColor">#000000</property>
                             <property name="borderBottomStyle">solid</property>
                             <property name="borderBottomWidth">thin</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">thin</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">thin</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">thin</property>
                         </cell>
                         <cell id="17300">
+                            <property name="colSpan">6</property>
+                            <property name="rowSpan">1</property>
+                            <property name="backgroundColor">#BBFFBB</property>
                             <property name="borderBottomColor">#000000</property>
                             <property name="borderBottomStyle">solid</property>
                             <property name="borderBottomWidth">thin</property>
-                        </cell>
-                        <cell id="17301">
-                            <property name="borderBottomColor">#000000</property>
-                            <property name="borderBottomStyle">solid</property>
-                            <property name="borderBottomWidth">thin</property>
-                        </cell>
-                        <cell id="17302">
-                            <property name="borderBottomColor">#000000</property>
-                            <property name="borderBottomStyle">solid</property>
-                            <property name="borderBottomWidth">thin</property>
-                        </cell>
-                        <cell id="17303">
-                            <property name="borderBottomColor">#000000</property>
-                            <property name="borderBottomStyle">solid</property>
-                            <property name="borderBottomWidth">thin</property>
-                        </cell>
-                        <cell id="17430">
-                            <property name="borderBottomColor">#000000</property>
-                            <property name="borderBottomStyle">solid</property>
-                            <property name="borderBottomWidth">thin</property>
-                        </cell>
-                        <cell id="17407">
-                            <property name="borderBottomColor">#000000</property>
-                            <property name="borderBottomStyle">solid</property>
-                            <property name="borderBottomWidth">thin</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">thin</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">thin</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">thin</property>
+                            <label id="17522">
+                                <property name="textAlign">right</property>
+                                <list-property name="visibility">
+                                    <structure>
+                                        <property name="format">all</property>
+                                        <expression name="valueExpr">true</expression>
+                                    </structure>
+                                </list-property>
+                                <text-property name="text">Итого по РЗ №</text-property>
+                            </label>
+                            <data id="17523">
+                                <property name="resultSetColumn">ITOG_WONUM</property>
+                            </data>
                         </cell>
                         <cell id="17445">
+                            <property name="backgroundColor">#BBFFBB</property>
                             <property name="borderBottomColor">#000000</property>
                             <property name="borderBottomStyle">solid</property>
                             <property name="borderBottomWidth">thin</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">thin</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">thin</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">thin</property>
                             <data id="17497">
                                 <list-property name="visibility">
                                     <structure>
@@ -2582,49 +3072,174 @@ params["year"]=BirtDateTime.year(BirtDateTime.now());
                             </data>
                         </cell>
                         <cell id="17304">
+                            <property name="backgroundColor">#BBFFBB</property>
                             <property name="borderBottomColor">#000000</property>
                             <property name="borderBottomStyle">solid</property>
                             <property name="borderBottomWidth">thin</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">thin</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">thin</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">thin</property>
                         </cell>
                         <cell id="17305">
+                            <property name="backgroundColor">#BBFFBB</property>
                             <property name="borderBottomColor">#000000</property>
                             <property name="borderBottomStyle">solid</property>
                             <property name="borderBottomWidth">thin</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">thin</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">thin</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">thin</property>
+                            <data id="17518">
+                                <property name="fontWeight">bold</property>
+                                <structure name="numberFormat">
+                                    <property name="category">Fixed</property>
+                                    <property name="pattern">Fixed</property>
+                                </structure>
+                                <property name="textAlign">right</property>
+                                <property name="resultSetColumn">wo_ave_tk_skill</property>
+                            </data>
                         </cell>
                         <cell id="17306">
+                            <property name="backgroundColor">#BBFFBB</property>
+                            <property name="fontWeight">bold</property>
                             <property name="borderBottomColor">#000000</property>
                             <property name="borderBottomStyle">solid</property>
                             <property name="borderBottomWidth">thin</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">thin</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">thin</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">thin</property>
+                            <property name="textAlign">right</property>
+                            <data id="17519">
+                                <property name="resultSetColumn">wo_sum_tk</property>
+                            </data>
                         </cell>
                         <cell id="17307">
+                            <property name="backgroundColor">#BBFFBB</property>
                             <property name="borderBottomColor">#000000</property>
                             <property name="borderBottomStyle">solid</property>
                             <property name="borderBottomWidth">thin</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">thin</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">thin</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">thin</property>
                         </cell>
                         <cell id="17308">
+                            <property name="backgroundColor">#BBFFBB</property>
                             <property name="borderBottomColor">#000000</property>
                             <property name="borderBottomStyle">solid</property>
                             <property name="borderBottomWidth">thin</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">thin</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">thin</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">thin</property>
+                            <data id="17520">
+                                <structure name="numberFormat">
+                                    <property name="category">Fixed</property>
+                                    <property name="pattern">Fixed</property>
+                                </structure>
+                                <property name="resultSetColumn">wo_ave_fact_skill</property>
+                            </data>
                         </cell>
                         <cell id="17309">
+                            <property name="backgroundColor">#BBFFBB</property>
                             <property name="borderBottomColor">#000000</property>
                             <property name="borderBottomStyle">solid</property>
                             <property name="borderBottomWidth">thin</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">thin</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">thin</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">thin</property>
+                            <data id="17521">
+                                <structure name="numberFormat">
+                                    <property name="category">Fixed</property>
+                                    <property name="pattern">Fixed</property>
+                                </structure>
+                                <property name="resultSetColumn">wo_sum_fact</property>
+                            </data>
                         </cell>
                         <cell id="17456">
+                            <property name="backgroundColor">#BBFFBB</property>
                             <property name="borderBottomColor">#000000</property>
                             <property name="borderBottomStyle">solid</property>
                             <property name="borderBottomWidth">thin</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">thin</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">thin</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">thin</property>
+                            <data id="17524">
+                                <structure name="numberFormat">
+                                    <property name="category">Fixed</property>
+                                    <property name="pattern">Fixed</property>
+                                </structure>
+                                <property name="resultSetColumn">wo_sum_fact_our</property>
+                            </data>
                         </cell>
                         <cell id="17418">
+                            <property name="backgroundColor">#BBFFBB</property>
                             <property name="borderBottomColor">#000000</property>
                             <property name="borderBottomStyle">solid</property>
                             <property name="borderBottomWidth">thin</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">thin</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">thin</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">thin</property>
                         </cell>
                         <cell id="17505">
+                            <property name="backgroundColor">#BBFFBB</property>
                             <property name="borderBottomColor">#000000</property>
                             <property name="borderBottomStyle">solid</property>
                             <property name="borderBottomWidth">thin</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">thin</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">thin</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">thin</property>
                             <data id="17512">
                                 <list-property name="visibility">
                                     <structure>
@@ -2636,9 +3251,19 @@ params["year"]=BirtDateTime.year(BirtDateTime.now());
                             </data>
                         </cell>
                         <cell id="17467">
+                            <property name="backgroundColor">#BBFFBB</property>
                             <property name="borderBottomColor">#000000</property>
                             <property name="borderBottomStyle">solid</property>
                             <property name="borderBottomWidth">thin</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">thin</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">thin</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">thin</property>
                             <data id="17478">
                                 <list-property name="visibility">
                                     <structure>
@@ -2656,6 +3281,78 @@ params["year"]=BirtDateTime.year(BirtDateTime.now());
                                     </structure>
                                 </list-property>
                                 <property name="resultSetColumn">wo_sum_labor_hour</property>
+                            </data>
+                        </cell>
+                        <cell id="17565">
+                            <property name="backgroundColor">#BBFFBB</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">thin</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">thin</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">thin</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">thin</property>
+                            <data id="17559">
+                                <structure name="numberFormat">
+                                    <property name="category">Percent</property>
+                                    <property name="pattern">Percent</property>
+                                </structure>
+                                <list-property name="visibility">
+                                    <structure>
+                                        <property name="format">all</property>
+                                        <expression name="valueExpr">true</expression>
+                                    </structure>
+                                </list-property>
+                                <property name="resultSetColumn">wo_otkl_time</property>
+                            </data>
+                        </cell>
+                        <cell id="17530">
+                            <property name="backgroundColor">#BBFFBB</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">thin</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">thin</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">thin</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">thin</property>
+                            <data id="17557">
+                                <structure name="numberFormat">
+                                    <property name="category">Fixed</property>
+                                    <property name="pattern">Fixed</property>
+                                </structure>
+                                <property name="resultSetColumn">wo_otk_skill</property>
+                            </data>
+                        </cell>
+                        <cell id="17539">
+                            <property name="backgroundColor">#BBFFBB</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">thin</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">thin</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">thin</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">thin</property>
+                            <data id="17558">
+                                <structure name="numberFormat">
+                                    <property name="category">Fixed</property>
+                                    <property name="pattern">Fixed</property>
+                                </structure>
+                                <property name="resultSetColumn">wo_otkl_rab</property>
                             </data>
                         </cell>
                     </row>
@@ -2827,9 +3524,6 @@ params["year"]=BirtDateTime.year(BirtDateTime.now());
                         </data>
                     </cell>
                     <cell id="17102">
-                        <property name="borderBottomColor">#000000</property>
-                        <property name="borderBottomStyle">solid</property>
-                        <property name="borderBottomWidth">thin</property>
                         <property name="borderLeftColor">#000000</property>
                         <property name="borderLeftStyle">solid</property>
                         <property name="borderLeftWidth">thin</property>
@@ -2844,9 +3538,6 @@ params["year"]=BirtDateTime.year(BirtDateTime.now());
                         </data>
                     </cell>
                     <cell id="17104">
-                        <property name="borderBottomColor">#000000</property>
-                        <property name="borderBottomStyle">solid</property>
-                        <property name="borderBottomWidth">thin</property>
                         <property name="borderLeftColor">#000000</property>
                         <property name="borderLeftStyle">solid</property>
                         <property name="borderLeftWidth">thin</property>
@@ -2857,14 +3548,11 @@ params["year"]=BirtDateTime.year(BirtDateTime.now());
                         <property name="borderTopStyle">solid</property>
                         <property name="borderTopWidth">thin</property>
                         <data id="17181">
-                            <property name="textAlign">center</property>
+                            <property name="textAlign">right</property>
                             <property name="resultSetColumn">TK_SKILL</property>
                         </data>
                     </cell>
                     <cell id="17106">
-                        <property name="borderBottomColor">#000000</property>
-                        <property name="borderBottomStyle">solid</property>
-                        <property name="borderBottomWidth">thin</property>
                         <property name="borderLeftColor">#000000</property>
                         <property name="borderLeftStyle">solid</property>
                         <property name="borderLeftWidth">thin</property>
@@ -2875,14 +3563,11 @@ params["year"]=BirtDateTime.year(BirtDateTime.now());
                         <property name="borderTopStyle">solid</property>
                         <property name="borderTopWidth">thin</property>
                         <data id="17182">
-                            <property name="textAlign">center</property>
+                            <property name="textAlign">right</property>
                             <property name="resultSetColumn">TK_KOLVO</property>
                         </data>
                     </cell>
                     <cell id="17108">
-                        <property name="borderBottomColor">#000000</property>
-                        <property name="borderBottomStyle">solid</property>
-                        <property name="borderBottomWidth">thin</property>
                         <property name="borderLeftColor">#000000</property>
                         <property name="borderLeftStyle">solid</property>
                         <property name="borderLeftWidth">thin</property>
@@ -2897,9 +3582,6 @@ params["year"]=BirtDateTime.year(BirtDateTime.now());
                         </data>
                     </cell>
                     <cell id="17110">
-                        <property name="borderBottomColor">#000000</property>
-                        <property name="borderBottomStyle">solid</property>
-                        <property name="borderBottomWidth">thin</property>
                         <property name="borderLeftColor">#000000</property>
                         <property name="borderLeftStyle">solid</property>
                         <property name="borderLeftWidth">thin</property>
@@ -2910,14 +3592,11 @@ params["year"]=BirtDateTime.year(BirtDateTime.now());
                         <property name="borderTopStyle">solid</property>
                         <property name="borderTopWidth">thin</property>
                         <data id="17184">
-                            <property name="textAlign">center</property>
+                            <property name="textAlign">right</property>
                             <property name="resultSetColumn">FACT_SKILL</property>
                         </data>
                     </cell>
                     <cell id="17112">
-                        <property name="borderBottomColor">#000000</property>
-                        <property name="borderBottomStyle">solid</property>
-                        <property name="borderBottomWidth">thin</property>
                         <property name="borderLeftColor">#000000</property>
                         <property name="borderLeftStyle">solid</property>
                         <property name="borderLeftWidth">thin</property>
@@ -2928,14 +3607,11 @@ params["year"]=BirtDateTime.year(BirtDateTime.now());
                         <property name="borderTopStyle">solid</property>
                         <property name="borderTopWidth">thin</property>
                         <data id="17185">
-                            <property name="textAlign">center</property>
+                            <property name="textAlign">right</property>
                             <property name="resultSetColumn">FACT_KOLVO</property>
                         </data>
                     </cell>
                     <cell id="17455">
-                        <property name="borderBottomColor">#000000</property>
-                        <property name="borderBottomStyle">solid</property>
-                        <property name="borderBottomWidth">thin</property>
                         <property name="borderLeftColor">#000000</property>
                         <property name="borderLeftStyle">solid</property>
                         <property name="borderLeftWidth">thin</property>
@@ -3094,17 +3770,50 @@ params["year"]=BirtDateTime.year(BirtDateTime.now());
                             <property name="resultSetColumn">LABOR_HOUR</property>
                         </data>
                     </cell>
+                    <cell id="17564">
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <data id="17572">
+                            <structure name="numberFormat">
+                                <property name="category">Percent</property>
+                                <property name="pattern">Percent</property>
+                            </structure>
+                            <property name="textAlign">right</property>
+                            <property name="resultSetColumn">otkl_time</property>
+                        </data>
+                    </cell>
+                    <cell id="17529">
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                    </cell>
+                    <cell id="17538">
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                    </cell>
                 </row>
             </detail>
             <footer>
                 <row id="17114">
                     <property name="fontWeight">bold</property>
+                    <property name="textAlign">right</property>
                     <cell id="17178"/>
                     <cell id="17115"/>
                     <cell id="17116">
                         <property name="colSpan">6</property>
                         <property name="rowSpan">1</property>
-                        <property name="backgroundColor">#408080</property>
+                        <property name="backgroundColor">#808080</property>
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
                         <property name="borderBottomWidth">thin</property>
@@ -3123,7 +3832,7 @@ params["year"]=BirtDateTime.year(BirtDateTime.now());
                         </label>
                     </cell>
                     <cell id="17493">
-                        <property name="backgroundColor">#408080</property>
+                        <property name="backgroundColor">#808080</property>
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
                         <property name="borderBottomWidth">thin</property>
@@ -3146,7 +3855,7 @@ params["year"]=BirtDateTime.year(BirtDateTime.now());
                         </data>
                     </cell>
                     <cell id="17494">
-                        <property name="backgroundColor">#408080</property>
+                        <property name="backgroundColor">#808080</property>
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
                         <property name="borderBottomWidth">thin</property>
@@ -3161,7 +3870,7 @@ params["year"]=BirtDateTime.year(BirtDateTime.now());
                         <property name="borderTopWidth">thin</property>
                     </cell>
                     <cell id="17495">
-                        <property name="backgroundColor">#408080</property>
+                        <property name="backgroundColor">#808080</property>
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
                         <property name="borderBottomWidth">thin</property>
@@ -3174,9 +3883,18 @@ params["year"]=BirtDateTime.year(BirtDateTime.now());
                         <property name="borderTopColor">#000000</property>
                         <property name="borderTopStyle">solid</property>
                         <property name="borderTopWidth">thin</property>
+                        <data id="17575">
+                            <property name="fontWeight">bold</property>
+                            <structure name="numberFormat">
+                                <property name="category">Fixed</property>
+                                <property name="pattern">Fixed</property>
+                            </structure>
+                            <property name="textAlign">right</property>
+                            <property name="resultSetColumn">tab_ave_tk_skill</property>
+                        </data>
                     </cell>
                     <cell id="17122">
-                        <property name="backgroundColor">#408080</property>
+                        <property name="backgroundColor">#808080</property>
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
                         <property name="borderBottomWidth">thin</property>
@@ -3190,12 +3908,11 @@ params["year"]=BirtDateTime.year(BirtDateTime.now());
                         <property name="borderTopStyle">solid</property>
                         <property name="borderTopWidth">thin</property>
                         <data id="17391">
-                            <property name="textAlign">center</property>
                             <property name="resultSetColumn">tab_sum_tk</property>
                         </data>
                     </cell>
                     <cell id="17123">
-                        <property name="backgroundColor">#408080</property>
+                        <property name="backgroundColor">#808080</property>
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
                         <property name="borderBottomWidth">thin</property>
@@ -3210,7 +3927,7 @@ params["year"]=BirtDateTime.year(BirtDateTime.now());
                         <property name="borderTopWidth">thin</property>
                     </cell>
                     <cell id="17124">
-                        <property name="backgroundColor">#408080</property>
+                        <property name="backgroundColor">#808080</property>
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
                         <property name="borderBottomWidth">thin</property>
@@ -3223,9 +3940,16 @@ params["year"]=BirtDateTime.year(BirtDateTime.now());
                         <property name="borderTopColor">#000000</property>
                         <property name="borderTopStyle">solid</property>
                         <property name="borderTopWidth">thin</property>
+                        <data id="17577">
+                            <structure name="numberFormat">
+                                <property name="category">Fixed</property>
+                                <property name="pattern">Fixed</property>
+                            </structure>
+                            <property name="resultSetColumn">pred_ave_fact_skill</property>
+                        </data>
                     </cell>
                     <cell id="17125">
-                        <property name="backgroundColor">#408080</property>
+                        <property name="backgroundColor">#808080</property>
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
                         <property name="borderBottomWidth">thin</property>
@@ -3239,12 +3963,14 @@ params["year"]=BirtDateTime.year(BirtDateTime.now());
                         <property name="borderTopStyle">solid</property>
                         <property name="borderTopWidth">thin</property>
                         <data id="17392">
-                            <property name="textAlign">center</property>
+                            <structure name="numberFormat">
+                                <property name="category">Unformatted</property>
+                            </structure>
                             <property name="resultSetColumn">tab_sum_fact</property>
                         </data>
                     </cell>
                     <cell id="17458">
-                        <property name="backgroundColor">#408080</property>
+                        <property name="backgroundColor">#808080</property>
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
                         <property name="borderBottomWidth">thin</property>
@@ -3267,7 +3993,7 @@ params["year"]=BirtDateTime.year(BirtDateTime.now());
                         </data>
                     </cell>
                     <cell id="17420">
-                        <property name="backgroundColor">#408080</property>
+                        <property name="backgroundColor">#808080</property>
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
                         <property name="borderBottomWidth">thin</property>
@@ -3282,7 +4008,7 @@ params["year"]=BirtDateTime.year(BirtDateTime.now());
                         <property name="borderTopWidth">thin</property>
                     </cell>
                     <cell id="17507">
-                        <property name="backgroundColor">#408080</property>
+                        <property name="backgroundColor">#808080</property>
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
                         <property name="borderBottomWidth">thin</property>
@@ -3305,7 +4031,7 @@ params["year"]=BirtDateTime.year(BirtDateTime.now());
                         </data>
                     </cell>
                     <cell id="17469">
-                        <property name="backgroundColor">#408080</property>
+                        <property name="backgroundColor">#808080</property>
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
                         <property name="borderBottomWidth">thin</property>
@@ -3371,6 +4097,73 @@ params["year"]=BirtDateTime.year(BirtDateTime.now());
                             <property name="showIfBlank">false</property>
                             <property name="canShrink">false</property>
                             <property name="resultSetColumn">pred_sum_labor_hour</property>
+                        </data>
+                    </cell>
+                    <cell id="17567">
+                        <property name="backgroundColor">#808080</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <data id="17579">
+                            <structure name="numberFormat">
+                                <property name="category">Percent</property>
+                                <property name="pattern">Percent</property>
+                            </structure>
+                            <property name="textAlign">right</property>
+                            <property name="resultSetColumn">pred_otkl_time</property>
+                        </data>
+                    </cell>
+                    <cell id="17532">
+                        <property name="backgroundColor">#808080</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <data id="17581">
+                            <structure name="numberFormat">
+                                <property name="category">Fixed</property>
+                                <property name="pattern">Fixed</property>
+                            </structure>
+                            <property name="resultSetColumn">pred_otk_skill</property>
+                        </data>
+                    </cell>
+                    <cell id="17541">
+                        <property name="backgroundColor">#808080</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <data id="17583">
+                            <structure name="numberFormat">
+                                <property name="category">Fixed</property>
+                                <property name="pattern">Fixed</property>
+                            </structure>
+                            <property name="resultSetColumn">pred_otkl_rab</property>
                         </data>
                     </cell>
                 </row>
