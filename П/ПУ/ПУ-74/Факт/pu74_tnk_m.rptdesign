@@ -18,8 +18,6 @@ deposited with the U.S. Copyright Office.</property>
     <method name="initialize"><![CDATA[importPackage(Packages.com.ibm.tivoli.maximo.report.script);
 
 mxReportScriptContext = MXReportScriptContext.initialize(reportContext);
-
-mxReportScriptContext = MXReportScriptContext.initialize(reportContext);
 mxReportScriptContext.setDefaultLogLevel("DEBUG");
 mxReportScriptContext.setDefaultLogFile("c:/temp/tetttt.txt");]]></method>
     <method name="afterFactory"><![CDATA[MXReportScriptContext.close();]]></method>
@@ -693,37 +691,15 @@ var sqlText = new String();
  +"                AND       J1.assetattrid        = 'IZMRAB' "
  +"      WHERE     wo.BRIGAD_LOCATION                         = '" + (params["podr"]).replace("=","") + "' "
  
- //+" and wo.l_pred = (SELECT distinct "
- //+"        CASE "
- //+"               WHEN pred.siteid = '17' "
- //+"               THEN pred.location "
- //+"               ELSE pred.parent "
-// +"        END pred "
-// +" FROM   MAXIMO.LOCHIERARCHY podr "
-// +"        JOIN MAXIMO.LOCHIERARCHY PRED "
-// +"        ON     podr.parent = pred.location "
-// +"        AND    podr.SITEID = pred.SITEID "
-// +"        JOIN MAXIMO.LOCATIONS LOC1 "
-// +"        ON     LOC1.LOCATION = PRED.LOCATION "
-// +"        AND    LOC1.SITEID   = PRED.SITEID "
-// +"        JOIN maximo.locations loc2 "
-// +"        ON     LOC2.LOCATION = PRED.parent "
-// +"        AND    LOC2.SITEID   = PRED.SITEID "
-// +" WHERE  podr.location        = '" + (params["podr"]).replace("=","") + "' "
-// +" AND    PODR.SITEID          = '"+params["mroSite"]+"' "
-// +" AND    LOC1.STATUS          = 'РАБОТАЕТ' "
-// +" AND    LOC2.STATUS          = 'РАБОТАЕТ' "
-// +" AND PRED.SYSTEMID       = 'ОС' "
- //+" and podr.systemid       = 'ОС') "
+ 
  
  +"      AND       wo.siteid                       = '"+params["mroSite"]+"' "
  +"      AND       extract (DAY FROM wo.Actfinish) < 16 "
  +"      AND       wo.Istask                       = '0' "
  +"      AND TYPEWORKORDER                  IN ('Внеплановое', 'Плановое', 'Сопутствующая работа', 'Прочее', 'Путевые обходчики')"
- +"      AND       wo.STATUS IN ( 'ТЕХОТДЕЛ' , "
- +"                              'ЗАКРЫТО',  'ЗАВЕРШ', 'ДОРАБОТКА' ) "
+ +"      AND       wo.STATUS IN ( 'ТЕХОТДЕЛ' , 'ЗАКРЫТО',  'ЗАВЕРШ', 'ДОРАБОТКА' ) "
  +"      AND       TO_CHAR(wo.Actfinish, 'MM')   = "+par
- +"      AND       TO_CHAR(wo.Actfinish, 'YYYY') = '"+year+"'"
+ +"      AND       TO_CHAR(wo.Actfinish, 'YYYY') = '"+year+"' "
  +"      ) "
  +" SELECT   to_char (substr (a1.mesto,1,2000)) mesto                                                               , "
  +"          a1.Ед_Изм                                                                              , "
@@ -774,11 +750,11 @@ var sqlText = new String();
  +" UNION ALL "
  
  +" SELECT   'invis' MESTO                                                               , "
- +"          a1.Ед_Изм                                                                              , "
+ +"          '' Ед_Изм                                                                              , "
  +"          nvl(case when TYPEWORKORDER IN ('Путевые обходчики') then 'Осмотр пути' else a1.OTHERWORK end, 'Прочие работы') Наименов                                                                            , "
  +"          'я' Тех_Карта                                                                        , "
- +"          a1.JPDURATION Норма_Времени                                                            , "
- +"          a1.numvalue                                                                            , "
+ +"          to_number('') Норма_Времени                                                            , "
+ +"          to_number('') numvalue                                                                            , "
  +"          SUM (a1.Plan_wo)                                                     PLAN              , "
  +"          ROUND(SUM((a1.Plan_wo / a1.numvalue) * To_number(a1.JPDURATION)), 2) AS Норм_ч_месц_плн, "
  +"          sum (case when  Actfinish=1 then fakt_wo end)За_1_Число, "
@@ -812,12 +788,7 @@ var sqlText = new String();
  +"          sum (case when  Actfinish=14 then labor_hour end)Ч_Ч_14, "
  +"          sum (case when  Actfinish=15 then labor_hour end)Ч_Ч_15 "
  +" FROM     a1 WHERE TYPEWORKORDER IN ('Прочее', 'Путевые обходчики')"
- +" GROUP BY   "
- +"          a1.Ед_Изм     , "
- +"          nvl(case when TYPEWORKORDER IN ('Путевые обходчики') then 'Осмотр пути' else a1.OTHERWORK end, 'Прочие работы')   , "
- +"          a1.tk         , "
- +"          a1.JPDURATION , "
- +"          a1.numvalue "
+ +" GROUP BY nvl(case when TYPEWORKORDER IN ('Путевые обходчики') then 'Осмотр пути' else a1.OTHERWORK end, 'Прочие работы')    "
  
 
  
@@ -1464,6 +1435,8 @@ var sqlText = new String();
  +"                AND       J1.assetattrid        = 'IZMRAB' "
  +"      WHERE     wo.BRIGAD_LOCATION                         = '" + (params["podr"]).replace("=","") + "' "
  
+ 
+ 
  +"      AND       wo.siteid                       = '"+params["mroSite"]+"' "
  +"      AND       extract (DAY FROM wo.Actfinish) > 15 "
  +"      AND       wo.Istask                       = '0' "
@@ -1523,11 +1496,11 @@ var sqlText = new String();
  
  +" UNION ALL "  
  +" SELECT   'invis' mesto                                                               , "
- +"          a1.Ед_Изм                                                                              , "
+ +"          '' Ед_Изм                                                                              , "
  +"          nvl(case when TYPEWORKORDER IN ('Путевые обходчики') then 'Осмотр пути' else a1.OTHERWORK end, 'Прочие работы') Наименов                                                                            , "
  +"          'я' Тех_Карта                                                                        , "
- +"          a1.JPDURATION Норма_Времени                                                            , "
- +"          a1.numvalue                                                                            , "
+ +"          to_number('') Норма_Времени                                                            , "
+ +"          to_number('') numvalue                                                                            , "
  +"          SUM (a1.Plan_wo)                                                     PLAN              , "
  +"          ROUND(SUM((a1.Plan_wo / a1.numvalue) * To_number(a1.JPDURATION)), 2) AS Норм_ч_месц_плн, "
  +"          sum (case when  Actfinish=16 then fakt_wo end)За_16_Число, "
@@ -1563,12 +1536,7 @@ var sqlText = new String();
  +"         sum (case when  Actfinish=30 then labor_hour end)Ч_Ч_30, "
  +"         sum (case when  Actfinish=31 then labor_hour end)Ч_Ч_31 "
  +" FROM     a1 WHERE TYPEWORKORDER IN ('Прочее', 'Путевые обходчики')"
- +" GROUP BY to_char (substr (a1.mesto,1,2000))  , "
- +"          a1.Ед_Изм     , "
- +"          nvl(case when TYPEWORKORDER IN ('Путевые обходчики') then 'Осмотр пути' else a1.OTHERWORK end, 'Прочие работы')   , "
- +"          a1.tk         , "
- +"          a1.JPDURATION , "
- +"          a1.numvalue "
+ +" GROUP BY nvl(case when TYPEWORKORDER IN ('Путевые обходчики') then 'Осмотр пути' else a1.OTHERWORK end, 'Прочие работы')    "
 ;
 	maximoDataSet.setQuery(sqlText);]]></method>
             <method name="fetch"><![CDATA[if (!maximoDataSet.fetch())
@@ -2552,36 +2520,15 @@ var sqlText = new String();
  +"                LEFT JOIN Maximo.Matusetrans "
  +"                ON        wo.Wonum = Matusetrans.Refwo "
  +"                JOIN Maximo.Item "
- +"                ON        Item.Itemnum = Matusetrans.Itemnum and item.CLASSSTRUCTUREID = '090000021002'"
+ +"                ON        Item.Itemnum = Matusetrans.Itemnum and item.CLASSSTRUCTUREID = '090000021002' "
  //+"                LEFT JOIN Maximo.Multiassetlocci "
  //+"                ON        Wo.Wonum  = Multiassetlocci.Recordkey "
  //+"                AND       Wo.Siteid = Multiassetlocci.Siteid  AND multiassetlocci.recordclass = 'РАБОЧЕЕЗАДАНИЕ' and multiassetlocci.isprimary = 0"
  //+"                LEFT JOIN Maximo.Asset "
  //+"                ON        Asset.Assetnum        = Multiassetlocci.Assetnum and asset.siteid = wo.siteid"
- +"      WHERE     wo.BRIGAD_LOCATION                     = '" + (params["podr"]).replace("=","") + "' "
+ +"      WHERE     wo.BRIGAD_LOCATION                       = '" + (params["podr"]).replace("=","") + "' "
  
-  //+" and wo.l_pred = (SELECT distinct "
- //+"        CASE "
- //+"               WHEN pred.siteid = '17' "
- //+"               THEN pred.location "
- //+"               ELSE pred.parent "
- //+"        END pred "
- //+" FROM   MAXIMO.LOCHIERARCHY podr "
- //+"        JOIN MAXIMO.LOCHIERARCHY PRED "
- //+"        ON     podr.parent = pred.location "
- //+"        AND    podr.SITEID = pred.SITEID "
- //+"        JOIN MAXIMO.LOCATIONS LOC1 "
- //+"        ON     LOC1.LOCATION = PRED.LOCATION "
- //+"        AND    LOC1.SITEID   = PRED.SITEID "
- //+"        JOIN maximo.locations loc2 "
- //+"        ON     LOC2.LOCATION = PRED.parent "
- //+"        AND    LOC2.SITEID   = PRED.SITEID "
- //+" WHERE  podr.location        = '" + (params["podr"]).replace("=","") + "' "
- //+" AND    PODR.SITEID          = '"+params["mroSite"]+"' "
- //+" AND    LOC1.STATUS          = 'РАБОТАЕТ' "
- //+" AND    LOC2.STATUS          = 'РАБОТАЕТ' "
- //+" AND PRED.SYSTEMID       = 'ОС' "
- //+" and podr.systemid       = 'ОС') "
+  
  
  +"      AND       wo.siteid                       ='"+params["mroSite"]+"' "
  +"      AND       TO_CHAR(wo.Actfinish, 'YYYY')   = '"+year+"' "
@@ -2608,36 +2555,13 @@ var sqlText = new String();
  +"                LEFT JOIN Maximo.Unworkitem "
  +"                ON        Unworkitem.Wonum = wo.Wonum "
  +"                JOIN Maximo.Item "
- +"                ON        Item.Itemnum = Unworkitem.Itemnum and item.CLASSSTRUCTUREID = '090000021002'"
+ +"                ON        Item.Itemnum = Unworkitem.Itemnum and item.CLASSSTRUCTUREID = '090000021002' "
  //+"                LEFT JOIN Maximo.Multiassetlocci "
  //+"                ON        Wo.Wonum  = Multiassetlocci.Recordkey "
  //+"                AND       Wo.Siteid = Multiassetlocci.Siteid AND multiassetlocci.recordclass = 'РАБОЧЕЕЗАДАНИЕ' and multiassetlocci.isprimary = 0"
  //+"                LEFT JOIN Maximo.Asset "
  //+"                ON        Asset.Assetnum        = Multiassetlocci.Assetnum "
  +"      WHERE     wo.BRIGAD_LOCATION                         = '" + (params["podr"]).replace("=","") + "' "
- 
- // +" and wo.l_pred = (SELECT distinct "
- //+"        CASE "
- //+"               WHEN pred.siteid = '17' "
- //+"               THEN pred.location "
- //+"               ELSE pred.parent "
- //+"        END pred "
- //+" FROM   MAXIMO.LOCHIERARCHY podr "
- //+"        JOIN MAXIMO.LOCHIERARCHY PRED "
- //+"        ON     podr.parent = pred.location "
- //+"        AND    podr.SITEID = pred.SITEID "
- //+"        JOIN MAXIMO.LOCATIONS LOC1 "
- //+"        ON     LOC1.LOCATION = PRED.LOCATION "
- //+"        AND    LOC1.SITEID   = PRED.SITEID "
- //+"        JOIN maximo.locations loc2 "
- //+"        ON     LOC2.LOCATION = PRED.parent "
- //+"        AND    LOC2.SITEID   = PRED.SITEID "
- //+" WHERE  podr.location        = '" + (params["podr"]).replace("=","") + "' "
- //+" AND    PODR.SITEID          = '"+params["mroSite"]+"' "
- //+" AND    LOC1.STATUS          = 'РАБОТАЕТ' "
- //+" AND    LOC2.STATUS          = 'РАБОТАЕТ' "
- //+" AND PRED.SYSTEMID       = 'ОС' "
- //+" and podr.systemid       = 'ОС') "
  
  +"      AND       wo.siteid                       ='"+params["mroSite"]+"' "
  +"      AND       TO_CHAR(wo.Actfinish, 'YYYY')   = '"+year+"' "
@@ -3425,29 +3349,7 @@ var sqlText = new String();
  +"                ON        Item.Itemnum          = tool.Itemnum "
  +"      WHERE     wo.BRIGAD_LOCATION                         = '" + (params["podr"]).replace("=","") + "' "
  
- // +" and wo.l_pred = (SELECT distinct "
- //+"        CASE "
- //+"               WHEN pred.siteid = '17' "
- //+"               THEN pred.location "
- //+"               ELSE pred.parent "
- //+"        END pred "
- //+" FROM   MAXIMO.LOCHIERARCHY podr "
- //+"        JOIN MAXIMO.LOCHIERARCHY PRED "
- //+"        ON     podr.parent = pred.location "
- //+"        AND    podr.SITEID = pred.SITEID "
- //+"        JOIN MAXIMO.LOCATIONS LOC1 "
- //+"        ON     LOC1.LOCATION = PRED.LOCATION "
- //+"        AND    LOC1.SITEID   = PRED.SITEID "
- //+"        JOIN maximo.locations loc2 "
- //+"        ON     LOC2.LOCATION = PRED.parent "
- //+"        AND    LOC2.SITEID   = PRED.SITEID "
- //+" WHERE  podr.location        = '" + (params["podr"]).replace("=","") + "' "
- //+" AND    PODR.SITEID          = '"+params["mroSite"]+"' "
- //+" AND    LOC1.STATUS          = 'РАБОТАЕТ' "
- //+" AND    LOC2.STATUS          = 'РАБОТАЕТ' "
- //+" AND PRED.SYSTEMID       = 'ОС' "
- //+" and podr.systemid       = 'ОС') "
- 
+  
  +"      AND       wo.siteid                       ='"+params["mroSite"]+"' "
  +"      AND       TO_CHAR(wo.Actfinish, 'YYYY')   ='"+year+"' "
  +"      AND       TO_CHAR(wo.Actfinish, 'MM')     = "+par
@@ -4185,28 +4087,7 @@ var sqlText = new String();
  +"                ON        Item.Itemnum          = tool.Itemnum "
  +"      WHERE     wo.BRIGAD_LOCATION                         = '" + (params["podr"]).replace("=","") + "' "
  
- // +" and wo.l_pred = (SELECT distinct "
- //+"        CASE "
- //+"               WHEN pred.siteid = '17' "
- //+"               THEN pred.location "
- //+"               ELSE pred.parent "
- //+"        END pred "
- //+" FROM   MAXIMO.LOCHIERARCHY podr "
- //+"        JOIN MAXIMO.LOCHIERARCHY PRED "
- //+"        ON     podr.parent = pred.location "
- //+"        AND    podr.SITEID = pred.SITEID "
- //+"        JOIN MAXIMO.LOCATIONS LOC1 "
- //+"        ON     LOC1.LOCATION = PRED.LOCATION "
-// +"        AND    LOC1.SITEID   = PRED.SITEID "
-// +"        JOIN maximo.locations loc2 "
-// +"        ON     LOC2.LOCATION = PRED.parent "
-// +"        AND    LOC2.SITEID   = PRED.SITEID "
-// +" WHERE  podr.location        = '" + (params["podr"]).replace("=","") + "' "
-// +" AND    PODR.SITEID          = '"+params["mroSite"]+"' "
- //+" AND    LOC1.STATUS          = 'РАБОТАЕТ' "
- //+" AND    LOC2.STATUS          = 'РАБОТАЕТ' "
- //+" AND PRED.SYSTEMID       = 'ОС' "
-// +" and podr.systemid       = 'ОС') "
+  
  
  +"      AND       wo.siteid                       ='"+params["mroSite"]+"' "
  +"      AND       TO_CHAR(wo.Actfinish, 'YYYY')   = '"+year+"' "
@@ -5314,15 +5195,14 @@ var sqlText = new String();
  //+"                ON        Asset.Assetnum        = Multiassetlocci.Assetnum and asset.siteid = wo.siteid"
  +"      WHERE     wo.BRIGAD_LOCATION                         = '" + (params["podr"]).replace("=","") + "' "
  
- //pred=
+  
  
  +"      AND       wo.siteid                       ='"+params["mroSite"]+"' "
  +"      AND       TO_CHAR(wo.Actfinish, 'YYYY')   = '"+year+"' "
  +"      AND       TO_CHAR(wo.Actfinish, 'MM')     = "+par
  +"      AND       extract (DAY FROM wo.Actfinish) > 15 "
  +"      AND       matusetrans.itemnum   IS NOT NULL "
- +"      AND       wo.STATUS IN ( 'ТЕХОТДЕЛ' , "
- +"                              'ЗАКРЫТО', 'ЗАВ_ДИСП', 'ЗАВЕРШ', 'ДОРАБОТКА' ) "
+ +"      AND       wo.STATUS IN ( 'ТЕХОТДЕЛ' , 'ЗАКРЫТО', 'ЗАВ_ДИСП', 'ЗАВЕРШ', 'ДОРАБОТКА' ) "
  +"      ) "
  +"      , "
  +"      Unwork AS "
@@ -5347,30 +5227,7 @@ var sqlText = new String();
  //+"                AND       Wo.Siteid = Multiassetlocci.Siteid AND multiassetlocci.recordclass = 'РАБОЧЕЕЗАДАНИЕ' and multiassetlocci.isprimary = 0"
  //+"                LEFT JOIN Maximo.Asset "
 // +"                ON        Asset.Assetnum        = Multiassetlocci.Assetnum "
- +"      WHERE     wo.brigad_location                    = '" + (params["podr"]).replace("=","") + "' "
- 
-  //+" and wo.l_pred = (SELECT distinct "
-// +"        CASE "
- //+"               WHEN pred.siteid = '17' "
- //+"               THEN pred.location "
- //+"               ELSE pred.parent "
- //+"        END pred "
- //+" FROM   MAXIMO.LOCHIERARCHY podr "
-// +"        JOIN MAXIMO.LOCHIERARCHY PRED "
-// +"        ON     podr.parent = pred.location "
-// +"        AND    podr.SITEID = pred.SITEID "
-// +"        JOIN MAXIMO.LOCATIONS LOC1 "
-// +"        ON     LOC1.LOCATION = PRED.LOCATION "
- //+"        AND    LOC1.SITEID   = PRED.SITEID "
- //+"        JOIN maximo.locations loc2 "
- //+"        ON     LOC2.LOCATION = PRED.parent "
-// +"        AND    LOC2.SITEID   = PRED.SITEID "
-// +" WHERE  podr.location        = '" + (params["podr"]).replace("=","") + "' "
- //+" AND    PODR.SITEID          = '"+params["mroSite"]+"' "
- //+" AND    LOC1.STATUS          = 'РАБОТАЕТ' "
- //+" AND    LOC2.STATUS          = 'РАБОТАЕТ' "
-// +" AND PRED.SYSTEMID       = 'ОС' "
- //+" and podr.systemid       = 'ОС') "
+ +"      WHERE     wo.brigad_location                       = '" + (params["podr"]).replace("=","") + "' "
  
  +"      AND       wo.siteid                       ='"+params["mroSite"]+"' "
  +"      AND       TO_CHAR(wo.Actfinish, 'YYYY')   = '"+year+"' "
@@ -5698,7 +5555,7 @@ if(params["year"]=='' || params["year"] == null || params["year"] == '""' )
 else if(params["year"]!='')
 {year += params["year"]}
 
-	sqlText =  ""
+sqlText =  ""
   +" WITH WORKO AS "
  +"      (SELECT wonum    , "
  +"              ACTFINISH, "
@@ -5711,32 +5568,9 @@ else if(params["year"]!='')
  +"      FROM    MAXIMO.WORKORDER WO "
  +"      WHERE   WO.TYPEWORKORDER = 'Путевые обходчики' "
  +"      AND     WO.STATUS IN ('ТЕХОТДЕЛ', 'ЗАКРЫТО', 'ЗАВ_ДИСП', 'ЗАВЕРШ', 'ДОРАБОТКА') "
- //+"      and     WO.L_PRED = "
- //+"              (SELECT DISTINCT "
- //+"                      CASE "
- //+"                              WHEN pred.siteid = '17' "
- //+"                              THEN pred.location "
- //+"                              ELSE pred.parent "
- //+"                      END pred "
- //+"              FROM    MAXIMO.LOCHIERARCHY podr "
- //+"                      JOIN MAXIMO.LOCHIERARCHY PRED "
-// +"                      ON      podr.parent = pred.location "
- //+"                      AND     podr.SITEID = pred.SITEID "
-// +"                      JOIN MAXIMO.LOCATIONS LOC1 "
- //+"                      ON      LOC1.LOCATION = PRED.LOCATION "
- //+"                      AND     LOC1.SITEID   = PRED.SITEID "
- //+"                      JOIN maximo.locations loc2 "
- //+"                      ON      LOC2.LOCATION = PRED.parent "
- //+"                      AND     LOC2.SITEID   = PRED.SITEID "
- //+"              WHERE   podr.location         = '" + (params["podr"]).replace("=","") + "' "
- //+"              AND     PODR.SITEID           = '"+params["mroSite"]+"'"
- //+"              AND     LOC1.STATUS           = 'РАБОТАЕТ' "
- //+"              AND     LOC2.STATUS           = 'РАБОТАЕТ' "
- //+"              AND     PRED.SYSTEMID         = 'ОС' "
- //+"              AND     podr.systemid         = 'ОС' "
- //+"              ) "
+ 
  +"      AND     WO.SITEID                     = '"+params["mroSite"]+"'"
- +"      AND     WO.BRIGAD_LOCATION                       = '" + (params["podr"]).replace("=","") + "' "
+ +"      AND     WO.BRIGAD_LOCATION                     = '" + (params["podr"]).replace("=","") + "' "
  +"      AND     TO_CHAR(WO.ACTFINISH, 'YYYY') = '"+ year +"' "
  +"      AND     TO_CHAR(wo.Actfinish, 'MM')   = "+ par
  +"      ) "
@@ -6632,30 +6466,7 @@ sqlText =  ""
  +"   AND       TO_CHAR(wo.Actfinish, 'MM')   = "+par
  +"   AND       TO_CHAR(wo.Actfinish, 'YYYY') = '"+year+"' "
  +"   AND WO.BRIGAD_LOCATION                         = '" + (params["podr"]).replace("=","") + "' "
- //+"   AND wo.l_pred                         = "
- //+"     (SELECT DISTINCT "
- //+"       CASE "
- //+"         WHEN pred.siteid = '17' "
- //+"         THEN pred.location "
- //+"         ELSE pred.parent "
- //+"       END pred "
- //+"     FROM MAXIMO.LOCHIERARCHY podr "
- //+"     JOIN MAXIMO.LOCHIERARCHY PRED "
- //+"     ON podr.parent  = pred.location "
-// +"     AND podr.SITEID = pred.SITEID "
-// +"     JOIN MAXIMO.LOCATIONS LOC1 "
- //+"     ON LOC1.LOCATION = PRED.LOCATION "
- //+"     AND LOC1.SITEID  = PRED.SITEID "
- //+"     JOIN maximo.locations loc2 "
-// +"     ON LOC2.LOCATION    = PRED.parent "
-// +"     AND LOC2.SITEID     = PRED.SITEID "
- //+"     WHERE podr.location = '" + (params["podr"]).replace("=","") + "' "
-// +"     AND PODR.SITEID     = '"+params["mroSite"]+"' "
-// +"     AND LOC1.STATUS     = 'РАБОТАЕТ' "
-// +"     AND LOC2.STATUS     = 'РАБОТАЕТ' "
-// +"     AND PRED.SYSTEMID   = 'ОС' "
-//+"     AND podr.systemid   = 'ОС' "
-// +"     ) "
+ 
  +"   AND WO.STATUS       IN ('ТЕХОТДЕЛ', 'ЗАКРЫТО', 'ЗАВ_ДИСП', 'ЗАВЕРШ', 'ДОРАБОТКА') AND TYPEWORKORDER IN ('Внеплановое', 'Плановое', 'Сопутствующая работа', 'Прочее', 'Путевые обходчики')"
  +"   ) "
  +"    "
@@ -6792,7 +6603,7 @@ sqlText =  ""
  +" 			ON      person.personid                 = LABORCRAFTRATE.laborcode "
  +" 				AND LABORCRAFTRATE.DEFAULTCRAFT = 1 "
  +" 				AND LABORCRAFTRATE.CRAFT IN ('00000205', 'МНТР_ПТ', 'СГНЛСТ', '00000346') "
- +" 	WHERE  person.locationsite = '"+params["mroSite"]+"' "
+ +" 	WHERE person.locationsite = '"+params["mroSite"]+"' "
  +" 		AND PERSON.L_PODR       = '" + (params["podr"]).replace("=","") + "' "
  +" 	) "
  +" GROUP BY DISPLAYNAME, "
@@ -7248,9 +7059,9 @@ reportContext.setGlobalVariable("HS", HS );</expression>
             </row>
         </grid>
         <label id="17089">
+            <property name="style">title</property>
             <property name="fontFamily">"Times New Roman"</property>
             <property name="fontSize">24pt</property>
-            <property name="fontWeight">bold</property>
             <property name="color">#000000</property>
             <property name="marginTop">40pt</property>
             <property name="marginBottom">0pt</property>
@@ -7265,9 +7076,9 @@ reportContext.setGlobalVariable("HS", HS );</expression>
             <text-property name="text">ЖУРНАЛ</text-property>
         </label>
         <label id="17090">
+            <property name="style">title</property>
             <property name="fontFamily">"Times New Roman"</property>
             <property name="fontSize">18pt</property>
-            <property name="fontWeight">bold</property>
             <property name="color">#000000</property>
             <property name="textAlign">center</property>
             <property name="pageBreakAfter">auto</property>
@@ -11958,15 +11769,6 @@ row["ТЕХ_КАРТА"].replace(/^\D{1,}/, "").replace (/\/\d{1,}$/, "");</expr
                                     </structure>
                                 </list-property>
                                 <property name="resultSetColumn">tnk_nomer</property>
-                            </data>
-                            <data id="18411">
-                                <list-property name="visibility">
-                                    <structure>
-                                        <property name="format">all</property>
-                                        <expression name="valueExpr">true</expression>
-                                    </structure>
-                                </list-property>
-                                <property name="resultSetColumn">ТЕХ_КАРТА</property>
                             </data>
                         </cell>
                         <cell id="18128">
@@ -17743,7 +17545,7 @@ row["ТЕХ_КАРТА"].replace(/^\D{1,}/, "").replace (/\/\d{1,}$/, "");</expr
                 <cell id="677">
                     <text id="678">
                         <property name="fontFamily">"Times New Roman"</property>
-                        <property name="fontSize">x-small</property>
+                        <property name="fontSize">8pt</property>
                         <property name="textAlign">left</property>
                         <property name="contentType">auto</property>
                         <text-property name="content"><![CDATA[
@@ -17755,7 +17557,7 @@ row["ТЕХ_КАРТА"].replace(/^\D{1,}/, "").replace (/\/\d{1,}$/, "");</expr
                 <cell id="679">
                     <text id="17236">
                         <property name="fontFamily">"Times New Roman"</property>
-                        <property name="fontSize">x-small</property>
+                        <property name="fontSize">8pt</property>
                         <property name="textAlign">right</property>
                         <property name="contentType">auto</property>
                         <text-property name="content"><![CDATA[
@@ -23288,7 +23090,7 @@ row["ТЕХ_КАРТА"].replace(/^\D{1,}/, "").replace (/\/\d{1,}$/, "");</expr
                         <property name="borderTopWidth">thin</property>
                         <label id="15975">
                             <property name="textAlign">center</property>
-                            <text-property name="text">8</text-property>
+                            <text-property name="text">9</text-property>
                         </label>
                     </cell>
                     <cell id="15976">
