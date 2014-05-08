@@ -619,36 +619,62 @@ sqlText = ""
  +"  "
  +" UNION ALL "
  +"                         "
- +" SELECT  NVL( CASE WHEN TYPEWORKORDER IN ('Путевые обходчики') THEN 'Осмотр пути' ELSE wo.OTHERWORK END, 'Прочие работы') WONUM , "
- +"         podrId , "
- +"         podr , "
- +"         CAST (NULL AS CHAR (1000))                                                                                       MESTO , "
- +"         CAST (NULL AS CHAR (1000))                                                                                       visor , "
- +"         'яяя'                                                                                       name , "
- +"         CAST (NULL AS CHAR (1000))                                                                                       RUK_RAB , "
- +"         ''                                                                                                               OBOSN, "
- +"         ''                                                                                                               jpnum , "
- +"         NVL( CASE WHEN TYPEWORKORDER IN ('Путевые обходчики') THEN 'Осмотр пути' ELSE WO.OTHERWORK END, 'Прочие работы') NAMERAB , "
- +"         to_number('')                                                                                                    JPDURATION, "
- +"         'ч-час'                                                                                                          EDIZM , "
- +"         CAST (NULL AS INTEGER)                                                                                           SB , "
- +"         CAST (NULL AS INTEGER)                                                                                           Kfakt , "
- +"         CAST (NULL AS INTEGER)                                                                                           KPLAN , "
- +"         CAST (NULL AS INTEGER)                                                                                           PLANTIME , "
- +"         SUM(ROUND(WO.PLAN_WO,2))                                                                                         PLAN_WO, "
- +"         SUM(ROUND(WO.LABOR_HOUR,2))                                                                                      FACTTIME , "
- +"         SUM(ROUND(WO.FAKT_WO,2))                                                                                         FAKT_WO, "
- +"         CAST (NULL AS CHAR (1000))                                                                                       PREDUPR , "
- +"         CAST (NULL AS CHAR (1000))                                                                                       SIGNAL , "
- +"         CAST (NULL AS CHAR (1000))                                                                                       DOL , "
- +"         CAST (NULL AS INTEGER)                                                                                           PP , "
- +"         CAST (NULL AS INTEGER)                                                                                           VP , "
- +"         CAST (NULL AS CHAR (1000))                                                                                       PRIM "
- +" FROM    WONUM WO "
- +" WHERE   TYPEWORKORDER IN ('Прочее', 'Путевые обходчики') "
- +" GROUP BY podrId , "
- +"         podr , "
- +"         NVL( CASE WHEN TYPEWORKORDER IN ('Путевые обходчики') THEN 'Осмотр пути' ELSE WO.OTHERWORK END, 'Прочие работы') "
++"SELECT  NVL( " 
++"                CASE " 
++"                        WHEN TYPEWORKORDER IN ('Путевые обходчики') THEN 'Осмотр пути' " 
++"                        ELSE wo.OTHERWORK " 
++"                END, 'Прочие работы') WONUM , " 
++"        podrId , " 
++"        podr , " 
++"        CAST (NULL AS CHAR (1000)) MESTO , " 
++"        CAST (NULL AS CHAR (1000)) visor , " 
++"        'яяя'                      name , " 
++"        CAST (NULL AS CHAR (1000)) RUK_RAB , " 
++"        ''                         OBOSN, " 
++"        ''                         jpnum , " 
++"        NVL( " 
++"                CASE " 
++"                        WHEN TYPEWORKORDER IN ('Путевые обходчики') THEN 'Осмотр пути' " 
++"                        ELSE WO.OTHERWORK " 
++"                END, 'Прочие работы') NAMERAB , " 
++"        to_number('')                 JPDURATION, " 
++"        'ч-час'                       EDIZM , " 
++"        CAST (NULL AS INTEGER)        SB , " 
++"        CAST (NULL AS INTEGER)        Kfakt , " 
++"        CAST (NULL AS INTEGER)        KPLAN , " 
++"        CAST (NULL AS INTEGER)        PLANTIME , " 
++"        SUM(ROUND(WO.PLAN_WO,2))      PLAN_WO, " 
++"        SUM(ROUND(WO.LABOR_HOUR,2))   FACTTIME , " 
++"        SUM(ROUND(WO.FAKT_WO,2))      FAKT_WO, " 
++"        CAST (NULL AS CHAR (1000))    predupr , " 
++"        MAX(CAST ( " 
++"                    (SELECT sys_xmlagg(XMLELEMENT(col, person.displayname " 
++"                                    || ', ')).EXTRACT('/ROWSET/COL/text()').getclobval() fio " 
++"                    FROM    maximo.labtrans " 
++"                            JOIN maximo.person " 
++"                                    ON      labtrans.laborcode = person.personid " 
++"                    WHERE   LABTRANS.LABORCODE       IS NOT NULL " 
++"                            AND labtrans.siteid                = wo.siteid " 
++"                            AND LABTRANS.REFWO                 = wo.wonum " 
++"                            AND 1                              = ( " 
++"                                    CASE " 
++"                                            WHEN wo.TYPEWORKORDER = 'Ограждение места работ' THEN 1 " 
++"                                            ELSE 0 " 
++"                                    END) " 
++"                    ) AS CHAR (1000))) SIGNAL , " 
++"        CAST (NULL AS CHAR (1000))     DOL , " 
++"        CAST (NULL AS INTEGER)         PP , " 
++"        CAST (NULL AS INTEGER)         VP , " 
++"        CAST (NULL AS CHAR (1000))     PRIM " 
++"FROM    WONUM WO " 
++"WHERE   TYPEWORKORDER IN ('Прочее', 'Путевые обходчики') " 
++"GROUP BY podrId , " 
++"        podr , " 
++"        NVL( " 
++"                CASE " 
++"                        WHEN TYPEWORKORDER IN ('Путевые обходчики') THEN 'Осмотр пути' " 
++"                        ELSE WO.OTHERWORK " 
++"                END, 'Прочие работы')"
 
 ;
 
@@ -1515,6 +1541,12 @@ else ( 'К факт = 0  (чел) / '+ BirtMath.round(row["Aggregation_1"],2)+' 
                                                     <expression name="value">row["FAKT_WO"]</expression>
                                                 </structure>
                                             </list-property>
+                                        </structure>
+                                        <structure>
+                                            <property name="name">signalisti</property>
+                                            <expression name="expression">if (dataSetRow["SIGNAL"] != null)
+ dataSetRow["SIGNAL"].replace(", ", "")</expression>
+                                            <property name="dataType">string</property>
                                         </structure>
                                     </list-property>
                                     <expression name="bookmark">"scroll"</expression>
@@ -3021,9 +3053,31 @@ else ('Ксп = ' + dataSetRow["KSP"] + '  (чел)' )</expression>
                                                     <property name="borderTopStyle">solid</property>
                                                     <property name="borderTopWidth">thin</property>
                                                     <data id="9855">
+                                                        <list-property name="visibility">
+                                                            <structure>
+                                                                <property name="format">all</property>
+                                                                <expression name="valueExpr">true</expression>
+                                                            </structure>
+                                                        </list-property>
                                                         <property name="resultSetColumn">visor</property>
                                                     </data>
-                                                    <label id="10098"/>
+                                                    <data id="9672">
+                                                        <list-property name="visibility">
+                                                            <structure>
+                                                                <property name="format">all</property>
+                                                                <expression name="valueExpr">row["name"] == "яяя"</expression>
+                                                            </structure>
+                                                        </list-property>
+                                                        <property name="resultSetColumn">name</property>
+                                                    </data>
+                                                    <label id="10098">
+                                                        <list-property name="visibility">
+                                                            <structure>
+                                                                <property name="format">all</property>
+                                                                <expression name="valueExpr">true</expression>
+                                                            </structure>
+                                                        </list-property>
+                                                    </label>
                                                 </cell>
                                                 <cell id="9840">
                                                     <property name="borderLeftColor">#000000</property>
@@ -3214,6 +3268,9 @@ else ('Ксп = ' + dataSetRow["KSP"] + '  (чел)' )</expression>
                                                     <property name="borderTopColor">#000000</property>
                                                     <property name="borderTopStyle">solid</property>
                                                     <property name="borderTopWidth">thin</property>
+                                                    <data id="10124">
+                                                        <property name="resultSetColumn">signalisti</property>
+                                                    </data>
                                                 </cell>
                                                 <cell id="10114">
                                                     <property name="borderLeftColor">#000000</property>
@@ -3255,15 +3312,6 @@ else ('Ксп = ' + dataSetRow["KSP"] + '  (чел)' )</expression>
                                                 <property name="borderRightColor">#000000</property>
                                                 <property name="borderRightStyle">solid</property>
                                                 <property name="borderRightWidth">thin</property>
-                                                <data id="9672">
-                                                    <list-property name="visibility">
-                                                        <structure>
-                                                            <property name="format">all</property>
-                                                            <expression name="valueExpr">row["name"] == "яяя"</expression>
-                                                        </structure>
-                                                    </list-property>
-                                                    <property name="resultSetColumn">name</property>
-                                                </data>
                                             </cell>
                                             <cell id="9841">
                                                 <property name="borderLeftColor">#000000</property>
