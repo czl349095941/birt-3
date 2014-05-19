@@ -2,7 +2,7 @@
 <report xmlns="http://www.eclipse.org/birt/2005/design" version="3.2.17" id="1">
     <property name="createdBy">Eclipse BIRT Designer Version 2.3.2.r232_20090202 Build &lt;2.3.2.v20090218-0730></property>
     <property name="units">in</property>
-    <text-property name="title">Справка по сопоставлению выполнения работ в составе группы согласно типовым нормам времени по предприятию за месяц</text-property>
+    <text-property name="title">Справка по сопоставлению плановых и фактических данных рабочих заданий за период</text-property>
     <property name="comments">IBM Confidential
 
 OCO Source Materials
@@ -65,24 +65,24 @@ mxReportScriptContext.setDefaultLogFile("c:/temp/tetttt.txt");
                 <property name="category">Unformatted</property>
             </structure>
         </scalar-parameter>
-        <scalar-parameter name="month" id="13304">
+        <scalar-parameter name="date1" id="13304">
             <property name="valueType">static</property>
             <property name="dataType">string</property>
             <property name="paramType">simple</property>
-            <text-property name="promptText">Месяц</text-property>
-            <property name="isRequired">false</property>
+            <text-property name="promptText">Начало периода</text-property>
+            <property name="isRequired">true</property>
             <property name="controlType">text-box</property>
             <property name="distinct">true</property>
             <structure name="format">
                 <property name="category">Unformatted</property>
             </structure>
         </scalar-parameter>
-        <scalar-parameter name="year" id="13305">
+        <scalar-parameter name="date2" id="13305">
             <property name="valueType">static</property>
             <property name="dataType">string</property>
             <property name="paramType">simple</property>
-            <text-property name="promptText">Год</text-property>
-            <property name="isRequired">false</property>
+            <text-property name="promptText">Конец периода</text-property>
+            <property name="isRequired">true</property>
             <property name="controlType">text-box</property>
             <property name="distinct">true</property>
             <structure name="format">
@@ -394,13 +394,6 @@ maximoDataSet.open();
 
 params["pred"] = params["pred"].replace("=","");
 
-if(params["year"]=='' || params["year"] == null || params["year"] == '""' )
-params["year"]=BirtDateTime.year(BirtDateTime.now());
-
-if(params["month"]=='' || params["month"] == null || params["month"] == '""' ) 
-params["month"]=BirtDateTime.month(BirtDateTime.now())
-else if (params["month"]!=BirtDateTime.month(BirtDateTime.now())) {params["month"] = params["month"].replace("=","")};
-
 var sqlText = new String();
 
 sqlText =  ""
@@ -415,20 +408,20 @@ sqlText =  ""
  +"                 JPS.Numvalue "
  +"                         || ' ' "
  +"                         || jps.measureunitid          edizm, "
- +"                 '' mont, "
+ +"                 (select count (laborcode) from maximo.labtrans labt where labt.siteid = wo.siteid and labt.refwo = wo.wonum and labt.craft in ('00000205', 'МНТР_ПТ')) mont, "
  +"                 NVL(wo.jpduration, wo.nokoefduration) jpduration , "
  +"                 TRFWORK.numvalue                      TRFWORK, "
  +"                 ''                                    plan_labor_hour, "
  +"                 wo.plan_wo, "
  +"                 wo.labor_hour , "
- +"                 wo.fakt_wo "
+ +"                 wo.fakt_wo,  wo.typeworkorder, wo.OTHERWORK "
  +"         FROM    MAXIMO.WORKORDER WO "
- +"                 JOIN MAXIMO.WOJPRELATION JPT "
+ +"                 left JOIN MAXIMO.WOJPRELATION JPT "
  +"                         ON      JPT.WONUM              = WO.WONUM "
  +"                                 AND JPT.USETHISMEASURE = '1' "
- +"                 JOIN maximo.jobplan jp "
+ +"                 left JOIN maximo.jobplan jp "
  +"                         ON      JPT.JOBPLANID = JP.JOBPLANID "
- +"                 JOIN MAXIMO.JOBPLANSPEC JPS "
+ +"                 left JOIN MAXIMO.JOBPLANSPEC JPS "
  +"                         ON      JPS.jpnum           = jp.jpnum "
  +"                                 AND jps.assetattrid = 'IZMRAB' "
  +"                 LEFT JOIN maximo.jobplanspec trfwork "
@@ -438,10 +431,10 @@ sqlText =  ""
  +"                         ON      loc.location   = wo.brigad_location "
  +"                                 AND loc.siteid = wo.siteid "
  +"         WHERE   WO.STATUS         IN ('ТЕХОТДЕЛ', 'ЗАКРЫТО', 'ЗАВ_ДИСП', 'ЗАВЕРШ', 'ДОРАБОТКА') "
- +"                 AND TYPEWORKORDER IN ('Внеплановое', 'Плановое') "
- +"                 AND WO.SITEID = '24' "
- +"                 AND wo.l_pred = 'PRED_1369' "
- +"                 AND wo.actfinish BETWEEN '01.04.2013' AND '23.04.2014' "
+ +"                 AND TYPEWORKORDER IN ('Внеплановое', 'Плановое', 'Прочее', 'Путевые обходчики') "
+ +"                 AND WO.SITEID = '"+params["mroSite"]+"' "
+ +"                 AND wo.l_pred = '"+params["pred"]+"' "
+ +"                 AND wo.actfinish BETWEEN '"+params["date1"]+"' AND to_date('"+params["date2"]+"') +1"
  +"         ) "
  +"         , "
  +"         tk AS "
@@ -489,14 +482,7 @@ sqlText =  ""
  +"          "
  +" UNION ALL "
  +"                              "
- +" SELECT  tk.cls1_class, "
- +"         tk.cls1, "
- +"         tk.cls2_class, "
- +"         tk.cls2, "
- +"         tk.cls3_class, "
- +"         tk.cls3, "
- +"         tk.cls4_class, "
- +"         tk.cls4, "
+ +" SELECT  tk.*, "
  +"         wo.l_podr , "
  +"         wo.podr_d, "
  +"         wo.jpnum, "
@@ -513,6 +499,32 @@ sqlText =  ""
  +" from    tk "
  +"         JOIN wo "
  +"                 ON      wo.jp_class = tk.cls4_class "
+  
+  +"UNION ALL"
+  
+  +" select '101'cls1_class, "
+ +"         '' cls1, "
+ +"         '102'cls2_class, "
+ +"         'Прочие работы' cls2, "
+ +"         '103'cls3_class, "
+ +"         '' cls3, "
+ +"         '00' cls4_class, "
+ +"         ''   cls4, "
+ +"         wo.l_podr , "
+ +"         wo.podr_d, "
+ +"         '104' jpnum, "
+ +"         wo.wonum , "
+ +"         nvl(case when wo.TYPEWORKORDER IN ('Путевые обходчики') then 'Осмотр пути' else wo.OTHERWORK end, 'Прочие работы')jp_d , "
+ +"         wo.edizm, "
+ +"         wo.mont, "
+ +"         wo.jpduration, "
+ +"         wo.TRFWORK, "
+ +"         wo.plan_labor_hour, "
+ +"         wo.plan_wo, "
+ +"         wo.labor_hour, "
+ +"         wo.fakt_wo "
+ +" FROM     wo where typeworkorder in ('Прочее', 'Путевые обходчики') "
+ 
 ;
 
 
@@ -624,43 +636,13 @@ return (true);]]></method>
             <method name="open"><![CDATA[maximoDataSet = MXReportDataSetProvider.create(this.getDataSource().getName(), this.getName());
 maximoDataSet.open();
 
-if(params["month"]=='' || params["month"] == null || params["month"] == '""' ) 
-params["month"]=BirtDateTime.month(BirtDateTime.now())
-else if (params["month"]!=BirtDateTime.month(BirtDateTime.now())) {params["month"] = params["month"].replace("=","")};
-
 
 var sqlText = new String();
 
 sqlText = " "     
   +" SELECT LSPC.ALNVALUE PODR   , "
- +"        SITE.DESCRIPTION SITE, ( "
- +"        CASE "
- +"               WHEN "+params["month"]+" = 1 "
- +"               THEN ' январь ' "
- +"               WHEN "+params["month"]+" = 2 "
- +"               THEN ' февраль ' "
- +"               WHEN "+params["month"]+" = 3 "
- +"               THEN ' март ' "
- +"               WHEN "+params["month"]+" = 4 "
- +"               THEN ' апрель ' "
- +"               WHEN "+params["month"]+" = 5 "
- +"               THEN ' май ' "
- +"               WHEN "+params["month"]+" = 6 "
- +"               THEN ' июнь ' "
- +"               WHEN "+params["month"]+" = 7 "
- +"               THEN ' июль ' "
- +"               WHEN "+params["month"]+" = 8 "
- +"               THEN ' август ' "
- +"               WHEN "+params["month"]+" = 9 "
- +"               THEN ' сентябрь ' "
- +"               WHEN "+params["month"]+" = 10 "
- +"               THEN ' октябрь ' "
- +"               WHEN "+params["month"]+" = 11 "
- +"               THEN ' ноябрь ' "
- +"               WHEN "+params["month"]+" = 12 "
- +"               THEN ' декабрь ' "
- +"               ELSE '' "
- +"        END) M "
+ +"        SITE.DESCRIPTION SITE,"
+ +"        '' M "
  +" FROM   MAXIMO.LOCATIONSpec LSPC "
  +"        JOIN maximo.site "
  +"        ON     LSPC.SITEID = SITE.SITEID "
@@ -759,7 +741,7 @@ return (true);]]></method>
             <property name="fontSize">medium</property>
             <property name="fontWeight">bold</property>
             <property name="textAlign">center</property>
-            <text-property name="text">Справка по сопоставлению выполнения работ в составе группы согласно типовым нормам времени и фактическому выполнению работ</text-property>
+            <text-property name="text">Справка по сопоставлению плановых и фактических данных рабочих заданий</text-property>
         </label>
         <data id="17373">
             <property name="fontSize">medium</property>
@@ -776,24 +758,13 @@ return (true);]]></method>
             </list-property>
             <property name="resultSetColumn">PODR</property>
         </data>
-        <data id="17372">
+        <text-data id="18508">
             <property name="fontSize">medium</property>
             <property name="fontWeight">bold</property>
             <property name="textAlign">center</property>
-            <property name="dataSet">label</property>
-            <list-property name="boundDataColumns">
-                <structure>
-                    <property name="name">M</property>
-                    <property name="displayName">M</property>
-                    <expression name="expression">if(params["year"]=='' || params["year"] == null || params["year"] == '""' )
-params["year"]=BirtDateTime.year(BirtDateTime.now());
-
-"за " + dataSetRow["M"] + " " + params["year"].value +" года"</expression>
-                    <property name="dataType">string</property>
-                </structure>
-            </list-property>
-            <property name="resultSetColumn">M</property>
-        </data>
+            <expression name="valueExpr">"с " + params["date1"].value + " по " + params["date2"].value</expression>
+            <property name="contentType">html</property>
+        </text-data>
         <table id="17717">
             <property name="width">100%</property>
             <property name="dataSet">11</property>
@@ -1252,6 +1223,150 @@ params["year"]=BirtDateTime.year(BirtDateTime.now());
                     <simple-property-list name="aggregateOn">
                         <value>BRIG</value>
                     </simple-property-list>
+                    <property name="aggregateFunction">SUM</property>
+                    <list-property name="arguments">
+                        <structure>
+                            <property name="name">Expression</property>
+                            <expression name="value">row["FAKT_WO"]</expression>
+                        </structure>
+                    </list-property>
+                </structure>
+                <structure>
+                    <property name="name">tk_sr_razr</property>
+                    <expression name="expression">row["TRFWORK"]*row["tk_labor_hour"]</expression>
+                    <property name="dataType">float</property>
+                </structure>
+                <structure>
+                    <property name="name">tk_mont</property>
+                    <property name="dataType">integer</property>
+                    <simple-property-list name="aggregateOn">
+                        <value>TK</value>
+                    </simple-property-list>
+                    <property name="aggregateFunction">SUM</property>
+                    <list-property name="arguments">
+                        <structure>
+                            <property name="name">Expression</property>
+                            <expression name="value">row["MONT"]</expression>
+                        </structure>
+                    </list-property>
+                </structure>
+                <structure>
+                    <property name="name">cls4_mont</property>
+                    <property name="dataType">integer</property>
+                    <simple-property-list name="aggregateOn">
+                        <value>CLS4</value>
+                    </simple-property-list>
+                    <property name="aggregateFunction">SUM</property>
+                    <list-property name="arguments">
+                        <structure>
+                            <property name="name">Expression</property>
+                            <expression name="value">row["MONT"]</expression>
+                        </structure>
+                    </list-property>
+                </structure>
+                <structure>
+                    <property name="name">cls3_mont</property>
+                    <property name="dataType">integer</property>
+                    <simple-property-list name="aggregateOn">
+                        <value>CLS3</value>
+                    </simple-property-list>
+                    <property name="aggregateFunction">SUM</property>
+                    <list-property name="arguments">
+                        <structure>
+                            <property name="name">Expression</property>
+                            <expression name="value">row["MONT"]</expression>
+                        </structure>
+                    </list-property>
+                </structure>
+                <structure>
+                    <property name="name">cls2_mont</property>
+                    <property name="dataType">integer</property>
+                    <simple-property-list name="aggregateOn">
+                        <value>CLS2</value>
+                    </simple-property-list>
+                    <property name="aggregateFunction">SUM</property>
+                    <list-property name="arguments">
+                        <structure>
+                            <property name="name">Expression</property>
+                            <expression name="value">row["MONT"]</expression>
+                        </structure>
+                    </list-property>
+                </structure>
+                <structure>
+                    <property name="name">cls1_mont</property>
+                    <property name="dataType">integer</property>
+                    <simple-property-list name="aggregateOn">
+                        <value>CLS1</value>
+                    </simple-property-list>
+                    <property name="aggregateFunction">SUM</property>
+                    <list-property name="arguments">
+                        <structure>
+                            <property name="name">Expression</property>
+                            <expression name="value">row["MONT"]</expression>
+                        </structure>
+                    </list-property>
+                </structure>
+                <structure>
+                    <property name="name">brig_mont</property>
+                    <property name="dataType">integer</property>
+                    <simple-property-list name="aggregateOn">
+                        <value>BRIG</value>
+                    </simple-property-list>
+                    <property name="aggregateFunction">SUM</property>
+                    <list-property name="arguments">
+                        <structure>
+                            <property name="name">Expression</property>
+                            <expression name="value">row["MONT"]</expression>
+                        </structure>
+                    </list-property>
+                </structure>
+                <structure>
+                    <property name="name">tab_mont</property>
+                    <property name="dataType">integer</property>
+                    <property name="aggregateFunction">SUM</property>
+                    <list-property name="arguments">
+                        <structure>
+                            <property name="name">Expression</property>
+                            <expression name="value">row["MONT"]</expression>
+                        </structure>
+                    </list-property>
+                </structure>
+                <structure>
+                    <property name="name">tab_plan_labor_our</property>
+                    <property name="dataType">float</property>
+                    <property name="aggregateFunction">SUM</property>
+                    <list-property name="arguments">
+                        <structure>
+                            <property name="name">Expression</property>
+                            <expression name="value">row["PLAN_LABOR_HOUR"]</expression>
+                        </structure>
+                    </list-property>
+                </structure>
+                <structure>
+                    <property name="name">tab_plan_wo</property>
+                    <property name="dataType">float</property>
+                    <property name="aggregateFunction">SUM</property>
+                    <list-property name="arguments">
+                        <structure>
+                            <property name="name">Expression</property>
+                            <expression name="value">row["PLAN_WO"]</expression>
+                        </structure>
+                    </list-property>
+                </structure>
+                <structure>
+                    <property name="name">tab_labor_our</property>
+                    <property name="dataType">float</property>
+                    <property name="aggregateFunction">SUM</property>
+                    <list-property name="arguments">
+                        <structure>
+                            <property name="name">Expression</property>
+                            <expression name="value">row["LABOR_HOUR"]</expression>
+                        </structure>
+                    </list-property>
+                </structure>
+                <structure>
+                    <property name="name">tab_fakt_wo</property>
+                    <property name="dataType">float</property>
                     <property name="aggregateFunction">SUM</property>
                     <list-property name="arguments">
                         <structure>
@@ -1818,7 +1933,7 @@ params["year"]=BirtDateTime.year(BirtDateTime.now());
                 <property name="repeatHeader">true</property>
                 <property name="hideDetail">false</property>
                 <property name="pageBreakAfter">auto</property>
-                <property name="pageBreakBefore">auto</property>
+                <property name="pageBreakBefore">always-excluding-first</property>
                 <property name="pageBreakInside">auto</property>
                 <header>
                     <row id="17940">
@@ -1865,6 +1980,14 @@ params["year"]=BirtDateTime.year(BirtDateTime.now());
                             <property name="borderTopColor">#000000</property>
                             <property name="borderTopStyle">solid</property>
                             <property name="borderTopWidth">thin</property>
+                            <data id="18500">
+                                <structure name="numberFormat">
+                                    <property name="category">Custom</property>
+                                    <property name="pattern">###,##0</property>
+                                </structure>
+                                <property name="textAlign">right</property>
+                                <property name="resultSetColumn">brig_mont</property>
+                            </data>
                         </cell>
                         <cell id="18455">
                             <property name="borderBottomColor">#000000</property>
@@ -2082,6 +2205,14 @@ params["year"]=BirtDateTime.year(BirtDateTime.now());
                             <property name="borderTopColor">#000000</property>
                             <property name="borderTopStyle">solid</property>
                             <property name="borderTopWidth">thin</property>
+                            <data id="18499">
+                                <structure name="numberFormat">
+                                    <property name="category">Custom</property>
+                                    <property name="pattern">###,##0</property>
+                                </structure>
+                                <property name="textAlign">right</property>
+                                <property name="resultSetColumn">cls1_mont</property>
+                            </data>
                         </cell>
                         <cell id="18461">
                             <property name="borderBottomColor">#000000</property>
@@ -2293,6 +2424,14 @@ params["year"]=BirtDateTime.year(BirtDateTime.now());
                             <property name="borderTopColor">#000000</property>
                             <property name="borderTopStyle">solid</property>
                             <property name="borderTopWidth">thin</property>
+                            <data id="18498">
+                                <structure name="numberFormat">
+                                    <property name="category">Custom</property>
+                                    <property name="pattern">###,##0</property>
+                                </structure>
+                                <property name="textAlign">right</property>
+                                <property name="resultSetColumn">cls2_mont</property>
+                            </data>
                         </cell>
                         <cell id="18467">
                             <property name="borderBottomColor">#000000</property>
@@ -2463,6 +2602,12 @@ params["year"]=BirtDateTime.year(BirtDateTime.now());
                     <row id="18078">
                         <property name="backgroundColor">#CADABA</property>
                         <property name="fontWeight">bold</property>
+                        <list-property name="visibility">
+                            <structure>
+                                <property name="format">all</property>
+                                <expression name="valueExpr">row["CLS3_CLASS"] == "103"</expression>
+                            </structure>
+                        </list-property>
                         <cell id="18081">
                             <property name="colSpan">4</property>
                             <property name="rowSpan">1</property>
@@ -2504,6 +2649,14 @@ params["year"]=BirtDateTime.year(BirtDateTime.now());
                             <property name="borderTopColor">#000000</property>
                             <property name="borderTopStyle">solid</property>
                             <property name="borderTopWidth">thin</property>
+                            <data id="18497">
+                                <structure name="numberFormat">
+                                    <property name="category">Custom</property>
+                                    <property name="pattern">###,##0</property>
+                                </structure>
+                                <property name="textAlign">right</property>
+                                <property name="resultSetColumn">cls3_mont</property>
+                            </data>
                         </cell>
                         <cell id="18473">
                             <property name="borderBottomColor">#000000</property>
@@ -2721,6 +2874,14 @@ params["year"]=BirtDateTime.year(BirtDateTime.now());
                             <property name="borderTopColor">#000000</property>
                             <property name="borderTopStyle">solid</property>
                             <property name="borderTopWidth">thin</property>
+                            <data id="18496">
+                                <structure name="numberFormat">
+                                    <property name="category">Custom</property>
+                                    <property name="pattern">###,##0</property>
+                                </structure>
+                                <property name="textAlign">right</property>
+                                <property name="resultSetColumn">cls4_mont</property>
+                            </data>
                         </cell>
                         <cell id="18479">
                             <property name="borderBottomColor">#000000</property>
@@ -2900,6 +3061,12 @@ params["year"]=BirtDateTime.year(BirtDateTime.now());
                             <property name="borderTopStyle">solid</property>
                             <property name="borderTopWidth">thin</property>
                             <data id="18214">
+                                <list-property name="visibility">
+                                    <structure>
+                                        <property name="format">all</property>
+                                        <expression name="valueExpr">row["JPNUM"] == "104"</expression>
+                                    </structure>
+                                </list-property>
                                 <property name="resultSetColumn">JPNUM</property>
                             </data>
                         </cell>
@@ -2952,6 +3119,14 @@ params["year"]=BirtDateTime.year(BirtDateTime.now());
                             <property name="borderTopColor">#000000</property>
                             <property name="borderTopStyle">solid</property>
                             <property name="borderTopWidth">thin</property>
+                            <data id="18495">
+                                <structure name="numberFormat">
+                                    <property name="category">Custom</property>
+                                    <property name="pattern">###,##0</property>
+                                </structure>
+                                <property name="textAlign">right</property>
+                                <property name="resultSetColumn">tk_mont</property>
+                            </data>
                         </cell>
                         <cell id="18186">
                             <property name="borderLeftColor">#000000</property>
@@ -2965,6 +3140,10 @@ params["year"]=BirtDateTime.year(BirtDateTime.now());
                             <property name="borderTopWidth">thin</property>
                             <property name="textAlign">right</property>
                             <data id="17793">
+                                <structure name="numberFormat">
+                                    <property name="category">Fixed</property>
+                                    <property name="pattern">Fixed</property>
+                                </structure>
                                 <property name="resultSetColumn">JPDURATION</property>
                             </data>
                         </cell>
@@ -3074,6 +3253,13 @@ params["year"]=BirtDateTime.year(BirtDateTime.now());
                             <property name="borderTopStyle">solid</property>
                             <property name="borderTopWidth">thin</property>
                             <property name="textAlign">right</property>
+                            <data id="18494">
+                                <structure name="numberFormat">
+                                    <property name="category">Custom</property>
+                                    <property name="pattern">###,##0.00</property>
+                                </structure>
+                                <property name="resultSetColumn">tk_sr_razr</property>
+                            </data>
                         </cell>
                     </row>
                 </header>
@@ -3169,6 +3355,7 @@ params["year"]=BirtDateTime.year(BirtDateTime.now());
                         <property name="borderTopStyle">solid</property>
                         <property name="borderTopWidth">thin</property>
                         <data id="17791">
+                            <property name="textAlign">right</property>
                             <property name="resultSetColumn">MONT</property>
                         </data>
                     </cell>
@@ -3293,18 +3480,177 @@ params["year"]=BirtDateTime.year(BirtDateTime.now());
             </detail>
             <footer>
                 <row id="17804">
-                    <cell id="17807"/>
-                    <cell id="17808"/>
-                    <cell id="17816"/>
-                    <cell id="17818"/>
-                    <cell id="17819"/>
-                    <cell id="17820"/>
-                    <cell id="17821"/>
-                    <cell id="17822"/>
-                    <cell id="17823"/>
-                    <cell id="17824"/>
-                    <cell id="17825"/>
-                    <cell id="18425"/>
+                    <property name="fontWeight">bold</property>
+                    <property name="textAlign">right</property>
+                    <cell id="17807">
+                        <property name="colSpan">4</property>
+                        <property name="rowSpan">1</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <property name="textAlign">right</property>
+                        <label id="18501">
+                            <property name="fontWeight">bold</property>
+                            <text-property name="text">Итого</text-property>
+                        </label>
+                    </cell>
+                    <cell id="17819">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <data id="18502">
+                            <structure name="numberFormat">
+                                <property name="category">Custom</property>
+                                <property name="pattern">###,##0</property>
+                            </structure>
+                            <property name="textAlign">right</property>
+                            <property name="resultSetColumn">tab_mont</property>
+                        </data>
+                    </cell>
+                    <cell id="17820">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                    </cell>
+                    <cell id="17821">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                    </cell>
+                    <cell id="17822">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <data id="18503">
+                            <structure name="numberFormat">
+                                <property name="category">Custom</property>
+                                <property name="pattern">###,##0.00</property>
+                            </structure>
+                            <property name="resultSetColumn">tab_plan_labor_our</property>
+                        </data>
+                    </cell>
+                    <cell id="17823">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <data id="18504">
+                            <structure name="numberFormat">
+                                <property name="category">Custom</property>
+                                <property name="pattern">###,##0.00</property>
+                            </structure>
+                            <property name="resultSetColumn">tab_plan_wo</property>
+                        </data>
+                    </cell>
+                    <cell id="17824">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <data id="18505">
+                            <structure name="numberFormat">
+                                <property name="category">Custom</property>
+                                <property name="pattern">###,##0.00</property>
+                            </structure>
+                            <property name="resultSetColumn">tab_labor_our</property>
+                        </data>
+                    </cell>
+                    <cell id="17825">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <data id="18506">
+                            <structure name="numberFormat">
+                                <property name="category">Custom</property>
+                                <property name="pattern">###,##0.00</property>
+                            </structure>
+                            <property name="resultSetColumn">tab_fakt_wo</property>
+                        </data>
+                    </cell>
+                    <cell id="18425">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                    </cell>
                 </row>
             </footer>
         </table>
