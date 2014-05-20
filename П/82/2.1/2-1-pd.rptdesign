@@ -541,13 +541,36 @@ sqlText = ""
  +" SELECT  wo.wonum , "
  +"         wo.podrId , "
  +"         wo.podr , "
- +"         NVL (ass.description, l.description) mesto, "
+ +"         NVL (ass.description, l.description) "
+  +" || ' (от ' "
+ +" || ma.STARTMEASUREKM "
+ +" || ' км ' "
+ +" || ma.STARTMEASUREPIK "
+ +" || ' пк ' "
+ +" || ma.STARTMEASUREM "
+ +" || ' м до ' "
+ +" || ma.ENDMEASUREKM "
+ +" || ' км ' "
+ +" || ma.ENDMEASUREPIK "
+ +" || ' пк ' "
+ +" || ma.ENDMEASUREM "
+ +" || ' м) ' mesto, "
  +"         wo.visor , "
  +"         WO.name, "
- +"         (SELECT displayname "
- +"         FROM    maximo.PERSON "
- +"         WHERE   personid = wo.lead "
- +"         )                                     ruk_rab, "
+ +" (select  "
+ +"       p.displayname "
+ +"       || ' (' "
+ +"       ||craft.description "
+ +"       ||')' "
+ +"     FROM maximo.person p "
+ +"     JOIN maximo.labor "
+ +"     ON p.personid = labor.personid "
+ +"     JOIN maximo.laborcraftrate laborcr "
+ +"     ON labor.laborcode       = laborcr.laborcode "
+ +"     AND laborcr.defaultcraft = 1 "
+ +"     JOIN maximo.craft "
+ +"     on LABORCR.CRAFT                   = CRAFT.CRAFT  "
+ +"     where p.personid = wo.lead )ruk_rab, "
  +"         ''                                    OBOSN , "
  +"         JOBPLAN.DESCRIPTION                   NAMERAB, "
  +"         JOBPLAN.JPNUM                         JPNUM, "
@@ -572,14 +595,25 @@ sqlText = ""
  +"         )                                                                      Kplan , "
  +"         ROUND (NVL(wo.JPDURATION, WO.NOKOEFDURATION)*wo.PLAN_WO/J1.NUMVALUE,2) plantime, "
  +"         wo.PLAN_WO , "
- +"         ROUND (NVL(wo.JPDURATION, WO.NOKOEFDURATION)*wo.fakt_WO/J1.NUMVALUE,2) FACTTIME , "
+// +"         ROUND (NVL(wo.JPDURATION, WO.NOKOEFDURATION)*wo.fakt_WO/J1.NUMVALUE,2) FACTTIME , "
+ +"         wo.labor_hour FACTTIME , "
  +"         WO.FAKT_WO , "
  +"         wo.CAUTION predupr , "
  +"         ''         SIGNAL , "
- +"         (SELECT displayname "
- +"         FROM    maximo.PERSON "
- +"         WHERE   personid = wo.INSTRUCTOR "
- +"         ) dol, "
+ +"  (SELECT p.displayname "
+ +"                         || ' (' "
+ +"                         ||craft.description "
+ +"                         ||')' "
+ +"         FROM    maximo.person p "
+ +"                 JOIN maximo.labor "
+ +"                         ON      p.personid = labor.personid "
+ +"                 JOIN maximo.laborcraftrate laborcr "
+ +"                         ON      labor.laborcode          = laborcr.laborcode "
+ +"                                 AND laborcr.defaultcraft = 1 "
+ +"                 JOIN maximo.craft "
+ +"                         on      LABORCR.CRAFT = CRAFT.CRAFT "
+ +"         WHERE   p.personid                    = wo.INSTRUCTOR)dol, "
+
  +"         (SELECT numvalue "
  +"         FROM    MAXIMO.workorderspec w "
  +"         WHERE   assetattrid = 'ПРОМЕРЫ ПУТИ, ПЛАН' "
@@ -1628,7 +1662,7 @@ else ( 'К факт = 0  (чел) / '+ BirtMath.round(row["Aggregation_1"],2)+' 
                                                 <property name="borderTopWidth">thin</property>
                                                 <property name="textAlign">center</property>
                                                 <label id="8609">
-                                                    <text-property name="text">Ответственный ПД, Бригадир ПДБ, ФИО</text-property>
+                                                    <text-property name="text">Бригадир ПДБ, ФИО</text-property>
                                                 </label>
                                             </cell>
                                             <cell id="9881">
@@ -1914,7 +1948,7 @@ else ( 'К факт = 0  (чел) / '+ BirtMath.round(row["Aggregation_1"],2)+' 
                                                 <property name="borderTopWidth">thin</property>
                                                 <property name="textAlign">center</property>
                                                 <label id="8629">
-                                                    <text-property name="text">Должность проводившего инструктаж (ФИО) № ТНК</text-property>
+                                                    <text-property name="text">Должность проводившего инструктаж (ФИО)</text-property>
                                                 </label>
                                             </cell>
                                             <cell id="9896">
@@ -2775,12 +2809,6 @@ else ('Ксп = ' + dataSetRow["KSP"] + '  (чел)' )</expression>
                                         <footer>
                                             <row id="8711">
                                                 <property name="height">0.3125in</property>
-                                                <list-property name="visibility">
-                                                    <structure>
-                                                        <property name="format">all</property>
-                                                        <expression name="valueExpr">true</expression>
-                                                    </structure>
-                                                </list-property>
                                                 <cell id="8712">
                                                     <property name="borderBottomColor">#000000</property>
                                                     <property name="borderBottomStyle">solid</property>
@@ -2874,6 +2902,17 @@ else ('Ксп = ' + dataSetRow["KSP"] + '  (чел)' )</expression>
                                                         </list-property>
                                                         <property name="contentType">auto</property>
                                                         <text-property name="content"><![CDATA[Всего по прочим работам:]]></text-property>
+                                                    </text>
+                                                    <text id="10125">
+                                                        <property name="fontWeight">bold</property>
+                                                        <list-property name="visibility">
+                                                            <structure>
+                                                                <property name="format">all</property>
+                                                                <expression name="valueExpr">row["podr"] == "яяя"</expression>
+                                                            </structure>
+                                                        </list-property>
+                                                        <property name="contentType">auto</property>
+                                                        <text-property name="content"><![CDATA[Всего по нормированным работам:]]></text-property>
                                                     </text>
                                                 </cell>
                                                 <cell id="8717">
@@ -3203,6 +3242,7 @@ else ('Ксп = ' + dataSetRow["KSP"] + '  (чел)' )</expression>
                                                     <property name="borderTopStyle">solid</property>
                                                     <property name="borderTopWidth">thin</property>
                                                     <data id="10093">
+                                                        <property name="textAlign">right</property>
                                                         <property name="resultSetColumn">JPDURATION</property>
                                                     </data>
                                                 </cell>
