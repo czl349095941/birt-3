@@ -213,6 +213,11 @@ mxReportScriptContext.setDefaultLogFile("c:/temp/tetttt.txt");
                     <property name="name">FAKT_WO</property>
                     <property name="dataType">string</property>
                 </structure>
+                <structure>
+                    <property name="position">22</property>
+                    <property name="name">SR_RAZR</property>
+                    <property name="dataType">string</property>
+                </structure>
             </list-property>
             <list-property name="columnHints">
                 <structure>
@@ -277,6 +282,9 @@ mxReportScriptContext.setDefaultLogFile("c:/temp/tetttt.txt");
                 </structure>
                 <structure>
                     <property name="columnName">JPNUM</property>
+                </structure>
+                <structure>
+                    <property name="columnName">SR_RAZR</property>
                 </structure>
             </list-property>
             <structure name="cachedMetaData">
@@ -386,6 +394,11 @@ mxReportScriptContext.setDefaultLogFile("c:/temp/tetttt.txt");
                         <property name="name">FAKT_WO</property>
                         <property name="dataType">string</property>
                     </structure>
+                    <structure>
+                        <property name="position">22</property>
+                        <property name="name">SR_RAZR</property>
+                        <property name="dataType">string</property>
+                    </structure>
                 </list-property>
             </structure>
             <property name="dataSource">maximoDataSource</property>
@@ -414,7 +427,13 @@ sqlText =  ""
  +"                 ''                                    plan_labor_hour, "
  +"                 wo.plan_wo, "
  +"                 wo.labor_hour , "
- +"                 wo.fakt_wo,  wo.typeworkorder, wo.OTHERWORK "
+ +"                 wo.fakt_wo,  wo.typeworkorder, wo.OTHERWORK, "
+  +" (SELECT sum(SKILLLEVEL*labor_hour) "
+ +"                 FROM    maximo.labtrans labt "
+ +"                 WHERE   labt.siteid    = wo.siteid "
+ +"                         AND labt.refwo = wo.wonum "
+ +"                         and LABT.CRAFT in ('00000205', 'МНТР_ПТ') "
+ +"                 ) sr_razr "
  +"         FROM    MAXIMO.WORKORDER WO "
  +"                 left JOIN MAXIMO.WOJPRELATION JPT "
  +"                         ON      JPT.WONUM              = WO.WONUM "
@@ -475,7 +494,7 @@ sqlText =  ""
  +"         wo.plan_labor_hour, "
  +"         wo.plan_wo, "
  +"         wo.labor_hour, "
- +"         wo.fakt_wo "
+ +"         wo.fakt_wo, wo.sr_razr "
  +" FROM    tk "
  +"         JOIN wo "
  +"                 ON      wo.jp_class = tk.cls3_class "
@@ -495,7 +514,7 @@ sqlText =  ""
  +"         wo.plan_labor_hour, "
  +"         wo.plan_wo, "
  +"         wo.labor_hour, "
- +"         wo.fakt_wo "
+ +"         wo.fakt_wo, wo.sr_razr "
  +" from    tk "
  +"         JOIN wo "
  +"                 ON      wo.jp_class = tk.cls4_class "
@@ -522,7 +541,7 @@ sqlText =  ""
  +"         wo.plan_labor_hour, "
  +"         wo.plan_wo, "
  +"         wo.labor_hour, "
- +"         wo.fakt_wo "
+ +"         wo.fakt_wo, wo.sr_razr "
  +" FROM     wo where typeworkorder in ('Прочее', 'Путевые обходчики') "
  
 ;
@@ -553,6 +572,7 @@ row["PLAN_LABOR_HOUR"] = maximoDataSet.getString("PLAN_LABOR_HOUR");
 row["PLAN_WO"] = maximoDataSet.getString("PLAN_WO");
 row["LABOR_HOUR"] = maximoDataSet.getString("LABOR_HOUR");
 row["FAKT_WO"] = maximoDataSet.getString("FAKT_WO");
+row["SR_RAZR"] = maximoDataSet.getString("SR_RAZR");
 
 	
 return (true);]]></method>
@@ -832,7 +852,7 @@ return (true);]]></method>
                 <structure>
                     <property name="name">JPNUM</property>
                     <property name="displayName">JPNUM</property>
-                    <expression name="expression">dataSetRow["JPNUM"]</expression>
+                    <expression name="expression">dataSetRow["JPNUM"]//.replace(/^\D*/,"").replace(/\/(\d)*$/, "").split(".").join("")</expression>
                     <property name="dataType">string</property>
                 </structure>
                 <structure>
@@ -1092,20 +1112,6 @@ return (true);]]></method>
                     </list-property>
                 </structure>
                 <structure>
-                    <property name="name">сды3_labor_hour</property>
-                    <property name="dataType">float</property>
-                    <simple-property-list name="aggregateOn">
-                        <value>CLS3</value>
-                    </simple-property-list>
-                    <property name="aggregateFunction">SUM</property>
-                    <list-property name="arguments">
-                        <structure>
-                            <property name="name">Expression</property>
-                            <expression name="value">row["LABOR_HOUR"]</expression>
-                        </structure>
-                    </list-property>
-                </structure>
-                <structure>
                     <property name="name">cls2_labor_hour</property>
                     <property name="dataType">float</property>
                     <simple-property-list name="aggregateOn">
@@ -1230,11 +1236,6 @@ return (true);]]></method>
                             <expression name="value">row["FAKT_WO"]</expression>
                         </structure>
                     </list-property>
-                </structure>
-                <structure>
-                    <property name="name">tk_sr_razr</property>
-                    <expression name="expression">row["TRFWORK"]*row["tk_labor_hour"]</expression>
-                    <property name="dataType">float</property>
                 </structure>
                 <structure>
                     <property name="name">tk_mont</property>
@@ -1375,6 +1376,167 @@ return (true);]]></method>
                         </structure>
                     </list-property>
                 </structure>
+                <structure>
+                    <property name="name">cls4_sr_razr</property>
+                    <property name="dataType">float</property>
+                    <simple-property-list name="aggregateOn">
+                        <value>CLS4</value>
+                    </simple-property-list>
+                    <property name="aggregateFunction">SUM</property>
+                    <list-property name="arguments">
+                        <structure>
+                            <property name="name">Expression</property>
+                            <expression name="value">row["tk_sr_razr"]</expression>
+                        </structure>
+                    </list-property>
+                </structure>
+                <structure>
+                    <property name="name">cls3_sr_razr</property>
+                    <property name="dataType">float</property>
+                    <simple-property-list name="aggregateOn">
+                        <value>CLS3</value>
+                    </simple-property-list>
+                    <property name="aggregateFunction">SUM</property>
+                    <list-property name="arguments">
+                        <structure>
+                            <property name="name">Expression</property>
+                            <expression name="value">row["tk_sr_razr"]</expression>
+                        </structure>
+                    </list-property>
+                </structure>
+                <structure>
+                    <property name="name">cls2_sr_razr</property>
+                    <property name="dataType">float</property>
+                    <simple-property-list name="aggregateOn">
+                        <value>CLS2</value>
+                    </simple-property-list>
+                    <property name="aggregateFunction">SUM</property>
+                    <list-property name="arguments">
+                        <structure>
+                            <property name="name">Expression</property>
+                            <expression name="value">row["tk_sr_razr"]</expression>
+                        </structure>
+                    </list-property>
+                </structure>
+                <structure>
+                    <property name="name">cls1_sr_razr</property>
+                    <property name="dataType">float</property>
+                    <simple-property-list name="aggregateOn">
+                        <value>CLS1</value>
+                    </simple-property-list>
+                    <property name="aggregateFunction">SUM</property>
+                    <list-property name="arguments">
+                        <structure>
+                            <property name="name">Expression</property>
+                            <expression name="value">row["tk_sr_razr"]</expression>
+                        </structure>
+                    </list-property>
+                </structure>
+                <structure>
+                    <property name="name">brig_sr_razr</property>
+                    <property name="dataType">float</property>
+                    <simple-property-list name="aggregateOn">
+                        <value>BRIG</value>
+                    </simple-property-list>
+                    <property name="aggregateFunction">SUM</property>
+                    <list-property name="arguments">
+                        <structure>
+                            <property name="name">Expression</property>
+                            <expression name="value">row["tk_sr_razr"]</expression>
+                        </structure>
+                    </list-property>
+                </structure>
+                <structure>
+                    <property name="name">tab_sr_razr</property>
+                    <property name="dataType">float</property>
+                    <property name="aggregateFunction">SUM</property>
+                    <list-property name="arguments">
+                        <structure>
+                            <property name="name">Expression</property>
+                            <expression name="value">row["tk_sr_razr"]</expression>
+                        </structure>
+                    </list-property>
+                </structure>
+                <structure>
+                    <property name="name">tk_razr</property>
+                    <expression name="expression">row["tk_sr_razr"]/row["tk_labor_hour"]</expression>
+                    <property name="dataType">float</property>
+                </structure>
+                <structure>
+                    <property name="name">cls4_razr</property>
+                    <expression name="expression">row["cls4_sr_razr"]/row["cls4_labor_hour"]</expression>
+                    <property name="dataType">float</property>
+                </structure>
+                <structure>
+                    <property name="name">cls3_razr</property>
+                    <expression name="expression">row["cls3_sr_razr"]/row["cls3_labor_hour"]</expression>
+                    <property name="dataType">float</property>
+                </structure>
+                <structure>
+                    <property name="name">cls2_razr</property>
+                    <expression name="expression">row["cls2_sr_razr"]/row["cls2_labor_hour"]</expression>
+                    <property name="dataType">float</property>
+                </structure>
+                <structure>
+                    <property name="name">cls1_razr</property>
+                    <expression name="expression">row["cls1_sr_razr"]/row["cls1_labor_hour"]</expression>
+                    <property name="dataType">float</property>
+                </structure>
+                <structure>
+                    <property name="name">brig_razr</property>
+                    <expression name="expression">row["brig_sr_razr"]/row["brig_labor_hour"]</expression>
+                    <property name="dataType">float</property>
+                </structure>
+                <structure>
+                    <property name="name">cls3_labor_hour</property>
+                    <property name="dataType">float</property>
+                    <simple-property-list name="aggregateOn">
+                        <value>CLS3</value>
+                    </simple-property-list>
+                    <property name="aggregateFunction">SUM</property>
+                    <list-property name="arguments">
+                        <structure>
+                            <property name="name">Expression</property>
+                            <expression name="value">row["LABOR_HOUR"]</expression>
+                        </structure>
+                    </list-property>
+                </structure>
+                <structure>
+                    <property name="name">tab_razr</property>
+                    <expression name="expression">row["tab_sr_razr"]/row["tab_labor_hour"]</expression>
+                    <property name="dataType">float</property>
+                </structure>
+                <structure>
+                    <property name="name">tab_labor_hour</property>
+                    <property name="dataType">float</property>
+                    <property name="aggregateFunction">SUM</property>
+                    <list-property name="arguments">
+                        <structure>
+                            <property name="name">Expression</property>
+                            <expression name="value">row["LABOR_HOUR"]</expression>
+                        </structure>
+                    </list-property>
+                </structure>
+                <structure>
+                    <property name="name">SR_RAZR</property>
+                    <property name="displayName">SR_RAZR</property>
+                    <expression name="expression">dataSetRow["SR_RAZR"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">tk_sr_razr</property>
+                    <property name="dataType">float</property>
+                    <simple-property-list name="aggregateOn">
+                        <value>TK</value>
+                    </simple-property-list>
+                    <property name="aggregateFunction">SUM</property>
+                    <list-property name="arguments">
+                        <structure>
+                            <property name="name">Expression</property>
+                            <expression name="value">row["SR_RAZR"]</expression>
+                        </structure>
+                    </list-property>
+                </structure>
             </list-property>
             <column id="17828"/>
             <column id="17829"/>
@@ -1395,6 +1557,7 @@ return (true);]]></method>
             <column id="17845"/>
             <column id="17846"/>
             <column id="18426"/>
+            <column id="18533"/>
             <header>
                 <row id="17718">
                     <property name="backgroundColor">#C0C0C0</property>
@@ -1506,7 +1669,7 @@ return (true);]]></method>
                         <property name="borderTopStyle">solid</property>
                         <property name="borderTopWidth">thin</property>
                         <label id="17752">
-                            <text-property name="text">Разряд </text-property>
+                            <text-property name="text">Средний разряд </text-property>
                         </label>
                     </cell>
                     <cell id="17753">
@@ -1559,6 +1722,20 @@ return (true);]]></method>
                         <property name="borderTopWidth">thin</property>
                         <label id="18427">
                             <text-property name="text">Расчет для</text-property>
+                        </label>
+                    </cell>
+                    <cell id="18516">
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <label id="18534">
+                            <text-property name="text">Средний разряд</text-property>
                         </label>
                     </cell>
                 </row>
@@ -1631,7 +1808,7 @@ return (true);]]></method>
                         <property name="borderRightStyle">solid</property>
                         <property name="borderRightWidth">thin</property>
                         <label id="18372">
-                            <text-property name="text">работ</text-property>
+                            <text-property name="text">по ТНК</text-property>
                         </label>
                     </cell>
                     <cell id="18327">
@@ -1714,6 +1891,20 @@ return (true);]]></method>
                         <property name="borderRightWidth">thin</property>
                         <label id="18428">
                             <text-property name="text">среднего разряда</text-property>
+                        </label>
+                    </cell>
+                    <cell id="18517">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <label id="18535">
+                            <text-property name="text">работ</text-property>
                         </label>
                     </cell>
                 </row>
@@ -1916,6 +2107,23 @@ return (true);]]></method>
                         <property name="borderTopColor">#000000</property>
                         <property name="borderTopStyle">solid</property>
                         <property name="borderTopWidth">thin</property>
+                        <label id="18536">
+                            <text-property name="text">12</text-property>
+                        </label>
+                    </cell>
+                    <cell id="18518">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
                         <label id="18429">
                             <text-property name="text">11</text-property>
                         </label>
@@ -1935,6 +2143,12 @@ return (true);]]></method>
                 <property name="pageBreakAfter">auto</property>
                 <property name="pageBreakBefore">always-excluding-first</property>
                 <property name="pageBreakInside">auto</property>
+                <list-property name="sort">
+                    <structure>
+                        <expression name="key">row["PODR_D"]</expression>
+                        <property name="direction">asc</property>
+                    </structure>
+                </list-property>
                 <header>
                     <row id="17940">
                         <property name="backgroundColor">#D8A903</property>
@@ -2121,6 +2335,35 @@ return (true);]]></method>
                             <property name="borderTopStyle">solid</property>
                             <property name="borderTopWidth">thin</property>
                             <property name="textAlign">right</property>
+                            <data id="18513">
+                                <structure name="numberFormat">
+                                    <property name="category">Custom</property>
+                                    <property name="pattern">###,##0.00</property>
+                                </structure>
+                                <property name="resultSetColumn">brig_sr_razr</property>
+                            </data>
+                        </cell>
+                        <cell id="18519">
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">thin</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">thin</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">thin</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">thin</property>
+                            <property name="textAlign">right</property>
+                            <data id="18542">
+                                <structure name="numberFormat">
+                                    <property name="category">Custom</property>
+                                    <property name="pattern">###,##0.00</property>
+                                </structure>
+                                <property name="resultSetColumn">brig_razr</property>
+                            </data>
                         </cell>
                     </row>
                 </header>
@@ -2138,6 +2381,7 @@ return (true);]]></method>
                         <cell id="17982"/>
                         <cell id="17983"/>
                         <cell id="18424"/>
+                        <cell id="18531"/>
                     </row>
                 </footer>
             </group>
@@ -2346,6 +2590,35 @@ return (true);]]></method>
                             <property name="borderTopStyle">solid</property>
                             <property name="borderTopWidth">thin</property>
                             <property name="textAlign">right</property>
+                            <data id="18512">
+                                <structure name="numberFormat">
+                                    <property name="category">Custom</property>
+                                    <property name="pattern">###,##0.00</property>
+                                </structure>
+                                <property name="resultSetColumn">cls1_sr_razr</property>
+                            </data>
+                        </cell>
+                        <cell id="18520">
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">thin</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">thin</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">thin</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">thin</property>
+                            <property name="textAlign">right</property>
+                            <data id="18541">
+                                <structure name="numberFormat">
+                                    <property name="category">Custom</property>
+                                    <property name="pattern">###,##0.00</property>
+                                </structure>
+                                <property name="resultSetColumn">cls1_razr</property>
+                            </data>
                         </cell>
                     </row>
                 </header>
@@ -2363,6 +2636,7 @@ return (true);]]></method>
                         <cell id="18028"/>
                         <cell id="18029"/>
                         <cell id="18423"/>
+                        <cell id="18530"/>
                     </row>
                 </footer>
             </group>
@@ -2565,6 +2839,35 @@ return (true);]]></method>
                             <property name="borderTopStyle">solid</property>
                             <property name="borderTopWidth">thin</property>
                             <property name="textAlign">right</property>
+                            <data id="18511">
+                                <structure name="numberFormat">
+                                    <property name="category">Custom</property>
+                                    <property name="pattern">###,##0.00</property>
+                                </structure>
+                                <property name="resultSetColumn">cls2_sr_razr</property>
+                            </data>
+                        </cell>
+                        <cell id="18521">
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">thin</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">thin</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">thin</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">thin</property>
+                            <property name="textAlign">right</property>
+                            <data id="18540">
+                                <structure name="numberFormat">
+                                    <property name="category">Custom</property>
+                                    <property name="pattern">###,##0.00</property>
+                                </structure>
+                                <property name="resultSetColumn">cls2_razr</property>
+                            </data>
                         </cell>
                     </row>
                 </header>
@@ -2582,6 +2885,7 @@ return (true);]]></method>
                         <cell id="18074"/>
                         <cell id="18075"/>
                         <cell id="18422"/>
+                        <cell id="18529"/>
                     </row>
                 </footer>
             </group>
@@ -2746,12 +3050,12 @@ return (true);]]></method>
                             <property name="borderTopStyle">solid</property>
                             <property name="borderTopWidth">thin</property>
                             <property name="textAlign">right</property>
-                            <data id="18483">
+                            <data id="18543">
                                 <structure name="numberFormat">
                                     <property name="category">Custom</property>
                                     <property name="pattern">###,##0.00</property>
                                 </structure>
-                                <property name="resultSetColumn">сды3_labor_hour</property>
+                                <property name="resultSetColumn">cls3_labor_hour</property>
                             </data>
                         </cell>
                         <cell id="18256">
@@ -2790,6 +3094,35 @@ return (true);]]></method>
                             <property name="borderTopStyle">solid</property>
                             <property name="borderTopWidth">thin</property>
                             <property name="textAlign">right</property>
+                            <data id="18510">
+                                <structure name="numberFormat">
+                                    <property name="category">Custom</property>
+                                    <property name="pattern">###,##0.00</property>
+                                </structure>
+                                <property name="resultSetColumn">cls3_sr_razr</property>
+                            </data>
+                        </cell>
+                        <cell id="18522">
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">thin</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">thin</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">thin</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">thin</property>
+                            <property name="textAlign">right</property>
+                            <data id="18539">
+                                <structure name="numberFormat">
+                                    <property name="category">Custom</property>
+                                    <property name="pattern">###,##0.00</property>
+                                </structure>
+                                <property name="resultSetColumn">cls3_razr</property>
+                            </data>
                         </cell>
                     </row>
                 </header>
@@ -2807,6 +3140,7 @@ return (true);]]></method>
                         <cell id="18120"/>
                         <cell id="18121"/>
                         <cell id="18421"/>
+                        <cell id="18528"/>
                     </row>
                 </footer>
             </group>
@@ -3015,6 +3349,35 @@ return (true);]]></method>
                             <property name="borderTopStyle">solid</property>
                             <property name="borderTopWidth">thin</property>
                             <property name="textAlign">right</property>
+                            <data id="18509">
+                                <structure name="numberFormat">
+                                    <property name="category">Custom</property>
+                                    <property name="pattern">###,##0.00</property>
+                                </structure>
+                                <property name="resultSetColumn">cls4_sr_razr</property>
+                            </data>
+                        </cell>
+                        <cell id="18523">
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">thin</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">thin</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">thin</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">thin</property>
+                            <property name="textAlign">right</property>
+                            <data id="18538">
+                                <structure name="numberFormat">
+                                    <property name="category">Custom</property>
+                                    <property name="pattern">###,##0.00</property>
+                                </structure>
+                                <property name="resultSetColumn">cls4_razr</property>
+                            </data>
                         </cell>
                     </row>
                 </header>
@@ -3032,6 +3395,7 @@ return (true);]]></method>
                         <cell id="18166"/>
                         <cell id="18167"/>
                         <cell id="18420"/>
+                        <cell id="18527"/>
                     </row>
                 </footer>
             </group>
@@ -3048,6 +3412,12 @@ return (true);]]></method>
                 <property name="pageBreakAfter">auto</property>
                 <property name="pageBreakBefore">auto</property>
                 <property name="pageBreakInside">auto</property>
+                <list-property name="sort">
+                    <structure>
+                        <expression name="key">row["JPNUM"].replace(/^\D*/,"").replace(/\/(\d)*$/, "").split(".").join("")*1</expression>
+                        <property name="direction">asc</property>
+                    </structure>
+                </list-property>
                 <header>
                     <row id="18170">
                         <cell id="18173">
@@ -3253,12 +3623,31 @@ return (true);]]></method>
                             <property name="borderTopStyle">solid</property>
                             <property name="borderTopWidth">thin</property>
                             <property name="textAlign">right</property>
-                            <data id="18494">
+                            <data id="18549">
                                 <structure name="numberFormat">
                                     <property name="category">Custom</property>
                                     <property name="pattern">###,##0.00</property>
                                 </structure>
                                 <property name="resultSetColumn">tk_sr_razr</property>
+                            </data>
+                        </cell>
+                        <cell id="18524">
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">thin</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">thin</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">thin</property>
+                            <property name="textAlign">right</property>
+                            <data id="18537">
+                                <structure name="numberFormat">
+                                    <property name="category">Custom</property>
+                                    <property name="pattern">###,##0.00</property>
+                                </structure>
+                                <property name="resultSetColumn">tk_razr</property>
                             </data>
                         </cell>
                     </row>
@@ -3277,6 +3666,7 @@ return (true);]]></method>
                         <cell id="18212"/>
                         <cell id="18213"/>
                         <cell id="18419"/>
+                        <cell id="18526"/>
                     </row>
                 </footer>
             </group>
@@ -3475,6 +3865,24 @@ return (true);]]></method>
                         <property name="borderTopStyle">solid</property>
                         <property name="borderTopWidth">thin</property>
                         <property name="textAlign">right</property>
+                        <data id="18548">
+                            <property name="resultSetColumn">SR_RAZR</property>
+                        </data>
+                    </cell>
+                    <cell id="18525">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <property name="textAlign">right</property>
                     </cell>
                 </row>
             </detail>
@@ -3608,12 +4016,12 @@ return (true);]]></method>
                         <property name="borderTopColor">#000000</property>
                         <property name="borderTopStyle">solid</property>
                         <property name="borderTopWidth">thin</property>
-                        <data id="18505">
+                        <data id="18546">
                             <structure name="numberFormat">
                                 <property name="category">Custom</property>
                                 <property name="pattern">###,##0.00</property>
                             </structure>
-                            <property name="resultSetColumn">tab_labor_our</property>
+                            <property name="resultSetColumn">tab_labor_hour</property>
                         </data>
                     </cell>
                     <cell id="17825">
@@ -3650,6 +4058,34 @@ return (true);]]></method>
                         <property name="borderTopColor">#000000</property>
                         <property name="borderTopStyle">solid</property>
                         <property name="borderTopWidth">thin</property>
+                        <data id="18515">
+                            <structure name="numberFormat">
+                                <property name="category">Custom</property>
+                                <property name="pattern">###,##0.00</property>
+                            </structure>
+                            <property name="resultSetColumn">tab_sr_razr</property>
+                        </data>
+                    </cell>
+                    <cell id="18532">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <data id="18545">
+                            <structure name="numberFormat">
+                                <property name="category">Custom</property>
+                                <property name="pattern">###,##0.00</property>
+                            </structure>
+                            <property name="resultSetColumn">tab_razr</property>
+                        </data>
                     </cell>
                 </row>
             </footer>
