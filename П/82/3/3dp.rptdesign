@@ -172,12 +172,9 @@ pred = "( select person.location from maximo.maxuser left join maximo.person on 
 
 	sqlText =     " select locations.description DES "
 	+" from maximo.locations "
-	+" where " + MXReportSqlFormat.createParamWhereClause("location",params["podr"].toUpperCase())
+	+" where location = '" +params["podr"] +"'"
 	+" and siteid = " + siteid
-	+"  and location in "
-    +" (select location from MAXIMO.locancestor where ancestor = " + pred
-    +"  ) "
- 
+	 
 ;
 
 	maximoDataSet.setQuery(sqlText);]]></method>
@@ -2007,8 +2004,8 @@ else if(params["year"]!='')
  +"     nvl (ass.description, l.description) ass,  "
  +"     trim (cast (sp.numvalue as char (100)))||' '||sp.MEASUREUNITID asdesc,   "
  +"     round (wo.JPDURATION,2) norma,  "
- +"     round (sp.numvalue/wo.JPDURATION*8,2) vir8,  "
- +"     round (sp.numvalue/wo.JPDURATION,2) vir,    "
+ +"     ROUND (case when WO.JPDURATION <> 0 then SP.NUMVALUE/WO.JPDURATION*8 else 0 end,2) VIR8,  "
+ +"     ROUND (case when wo.JPDURATION <> 0 then sp.numvalue/wo.JPDURATION else 0 end,2) vir,    "
  +"       "
  +"     nvl (case when extract (day from wo.actfinish) = 1 then round (WO.PLAN_WO*wo.JPDURATION/sp.numvalue,2) else null end,0) p1,  "
  +"     nvl (case when extract (day from wo.actfinish) = 1 then round (WO.LABOR_HOUR,2) else null end,0) f1,  "
