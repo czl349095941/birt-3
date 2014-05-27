@@ -713,9 +713,9 @@ loc = "'" + params["loc"].replace("=","") + "'";
 var sqlText = new String();
 
 sqlText = "" 
-+"SELECT  CASE WHEN TYPEWORKORDER IN ('Путевые обходчики') THEN 'Осмотр пути' WHEN TYPEWORKORDER IN ('Прочее') THEN WO.OTHERWORK ELSE wo.wonum END wonum             , " 
++"SELECT  CASE WHEN TYPEWORKORDER IN ('Путевые обходчики') THEN 'Осмотр пути' WHEN TYPEWORKORDER IN ('Прочее') THEN cls.description ELSE wo.wonum END wonum             , " 
 +"        JP.JPNUM                                                                                                                                                   , " 
-+"        CASE WHEN TYPEWORKORDER IN ('Путевые обходчики') THEN 'Осмотр пути' WHEN TYPEWORKORDER IN ('Прочее') THEN WO.OTHERWORK ELSE wo.description END description , " 
++"        CASE WHEN TYPEWORKORDER IN ('Путевые обходчики') THEN 'Осмотр пути' WHEN TYPEWORKORDER IN ('Прочее') THEN cls.description ELSE wo.description END description , " 
 +"        ROUND (NVL(wo.JPDURATION,1), 2)                                                                                                                jpduration  , " 
 +"        jpspec.numvalue                                                                                                                                            , " 
 +"        JPSPEC.MEASUREUNITID                                                                                                                                       , " 
@@ -777,11 +777,7 @@ sqlText = ""
 +"                                CONNECT_BY_ROOT lh.location Root  , " 
 +"                                lh.PARENT                         , " 
 +"                                lh.LOCATION " 
-+"                        FROM    MAXIMO.LOCHIERARCHY LH " 
-//+"                                JOIN MAXIMO.LOCATIONS LOC " 
-//+"                                        ON      LH.LOCATION                          = LOC.LOCATION " 
-//+"                                                AND LH.SITEID                        = LOC.SITEID " 
-//+"                                                AND LOC.STATUS                       = 'РАБОТАЕТ' " 
++"                        FROM    MAXIMO.LOCHIERARCHY LH "                             
 +"                                                START WITH LH.PARENT                 = "+ loc 
 +"                                                AND LH.SITEID                        = " + siteid 
 +"                                                AND LH.SYSTEMID                      = 'ОС' " 
@@ -805,9 +801,11 @@ sqlText = ""
 +"                        AND wo.siteid = loc.siteid " 
 +"        LEFT JOIN maximo.MULTIASSETLOCCI " 
 +"                ON      wo.wonum      = MULTIASSETLOCCI.recordkey " 
-+"                        AND wo.siteid = MULTIASSETLOCCI.siteid " 
++"                        AND wo.siteid = MULTIASSETLOCCI.siteid "
++"						  and 1 = case when (wo.origrecordid is not null and multiassetlocci.ISPRIMARY =1) then 0 else 1 end" 
 +"        LEFT JOIN maximo.asset " 
-+"                ON      asset.assetnum        = MULTIASSETLOCCI.assetnum " 
++"                ON      asset.assetnum        = MULTIASSETLOCCI.assetnum "
++"		  join MAXIMO.CLASSSTRUCTURE cls on wo.CLASSSTRUCTUREID = cls.CLASSSTRUCTUREID " 
 +"WHERE   wo.siteid =" + siteid + " and WO.L_PRED                             = "+ loc 
 +"        AND to_date (wo.Actfinish,'DD.MM.YY') = "+ dat 
 +"        AND wo.STATUS IN ('ТЕХОТДЕЛ' , 'ЗАКРЫТО', 'ЗАВЕРШ', 'ДОРАБОТКА', 'ЗАПЛАНИРОВАНО')"
@@ -2819,12 +2817,6 @@ Total.sum(Total.max(dataSetRow["PLANVSEGO"], null, 'NewTableGroup1') ).toFixed(2
                                                     <property name="borderTopWidth">thin</property>
                                                     <data id="9849">
                                                         <property name="paddingBottom">10pt</property>
-                                                        <list-property name="visibility">
-                                                            <structure>
-                                                                <property name="format">all</property>
-                                                                <expression name="valueExpr">row["WONUM"]!='Прочие работы' &amp;&amp; row["wonum"]!='Осмотры пути'</expression>
-                                                            </structure>
-                                                        </list-property>
                                                         <property name="resultSetColumn">WONUM</property>
                                                     </data>
                                                     <data id="9853">
