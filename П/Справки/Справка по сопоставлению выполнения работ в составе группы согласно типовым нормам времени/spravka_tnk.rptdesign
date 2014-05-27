@@ -101,6 +101,18 @@ mxReportScriptContext.setDefaultLogFile("c:/temp/tetttt.txt");
                 <property name="category">Unformatted</property>
             </structure>
         </scalar-parameter>
+        <scalar-parameter name="status" id="17584">
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="paramType">simple</property>
+            <text-property name="promptText">Статус</text-property>
+            <property name="isRequired">false</property>
+            <property name="controlType">text-box</property>
+            <property name="distinct">true</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
     </parameters>
     <data-sources>
         <script-data-source name="maximoDataSource" id="64" extends="MaximoSystemLibrary.maximoDataSource"/>
@@ -390,6 +402,12 @@ if(params["month"]=='' || params["month"] == null || params["month"] == '""' )
 params["month"]=BirtDateTime.month(BirtDateTime.now())
 else if (params["month"]!=BirtDateTime.month(BirtDateTime.now())) {params["month"] = params["month"].replace("=","")};
 
+if(params["status"]=='' || params["status"] == null || params["status"] == '""' )
+params["status"] = "'НАПР_НА_УТ', 'ЗАВЕРШ', 'ОТКЛ_РГН', 'ОФОРМЛЕН', 'ЗАКРЫТО'" 
+else params["status"] = ("'"+params["status"]+"'").replace(/=/g,"").replace(/, /g ,  "', '").replace(/\', \'\'$/g,"'");
+
+//'НАПР_НА_УТ', 'ЗАВЕРШ', 'ОТКЛ_РГН', 'ОФОРМЛЕН', 'ЗАКРЫТО'
+
 var sqlText = new String();
 
 sqlText =  ""
@@ -417,7 +435,7 @@ sqlText =  ""
  +"                 JOIN MAXIMO.JOBPLANSPEC JPS "
  +"                         ON      JPS.jpnum           = jp.jpnum "
  +"                                 AND JPS.assetattrid = 'IZMRAB' "
- +"         WHERE   WO.STATUS         IN ('ТЕХОТДЕЛ', 'ЗАКРЫТО', 'ЗАВЕРШ', 'ДОРАБОТКА') "
+ +"         WHERE   WO.STATUS         IN (" + params["status"] +") "
  +"                 AND TYPEWORKORDER IN ('Внеплановое', 'Плановое') "
  +"              AND     WO.SITEID                         = '"+params["mroSite"]+"' "
  +"              AND     WO.L_PRED                         = '"+params["pred"]+"' "
