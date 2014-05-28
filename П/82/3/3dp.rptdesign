@@ -2163,13 +2163,13 @@ else if(params["year"]!='')
  +"     and   "
  +"     (typeworkorder != 'Прочее' or typeworkorder is Null)   "
  +"         and wo.siteid = " + siteid + " "
- +"		and wo.STATUS IN ('ТЕХОТДЕЛ' , 'ЗАКРЫТО',  'ЗАВЕРШ', 'ДОРАБОТКА', 'ЗАПЛАНИРОВАНО') "
+ +"		and wo.STATUS IN ('НАЗНАЧЕНО' , 'ЗАВЕРШ', 'НАПР_НА_УТ', 'ОТКЛ_РГН', 'ОФОРМЛЕН', 'ЗАКРЫТО') "
  +"  "
  +"     union all  "
  +"       select  "
- +"     nvl(case when TYPEWORKORDER IN ('Путевые обходчики') then 'Осмотр пути' else OTHERWORK end, 'Прочие работы') wonum,  "
+ +"     nvl(case when TYPEWORKORDER IN ('Путевые обходчики') then 'Осмотр пути' else NVL(wo.OTHERWORK, cls.description) end, 'Прочие работы') wonum,  "
  +"     cast (null as char (100)) jpnum,  "
- +"     nvl(case when TYPEWORKORDER IN ('Путевые обходчики') then 'Осмотр пути' else OTHERWORK end, 'Прочие работы') wo,  "
+ +"     nvl(case when TYPEWORKORDER IN ('Путевые обходчики') then 'Осмотр пути' else NVL(wo.OTHERWORK, cls.description) end, 'Прочие работы') wo,  "
  +"     cast (null as char (100)) ass,  "
  +"     'чел-час' asdesc,  "
  +"     cast (null as float ) norma,  "
@@ -2300,14 +2300,14 @@ else if(params["year"]!='')
  +"   cast (null as float ) PL31,  "
  +"   cast (null as float ) FK31,  "
  +"     cast (null as float ) allp,  sum (WO.LABOR_HOUR) allf,    cast (null as float ) allpl,    cast (null as float ) allfk  "
- +"     from maximo.workorder wo  "
+ +"     from maximo.workorder wo left join MAXIMO.CLASSSTRUCTURE cls on cls.CLASSSTRUCTUREID = wo.CLASSSTRUCTUREID "
  +"     where  brigad_location =   '" + (params["podr"]).replace("=","") + "'"
  +"     and extract (month from actfinish) =  " + mes
  +"     and extract (year from actfinish) =  " + year
  +"     and   "
- +"     TYPEWORKORDER IN ('Прочее', 'Путевые обходчики') and wo.STATUS IN ('ТЕХОТДЕЛ' , 'ЗАКРЫТО',  'ЗАВЕРШ', 'ДОРАБОТКА', 'ЗАПЛАНИРОВАНО')"
+ +"     TYPEWORKORDER IN ('Прочее', 'Путевые обходчики') and wo.STATUS IN ('НАЗНАЧЕНО' , 'ЗАВЕРШ', 'НАПР_НА_УТ', 'ОТКЛ_РГН', 'ОФОРМЛЕН', 'ЗАКРЫТО')"
  +"         and wo.siteid = " + siteid + " "
- +" group by nvl(case when TYPEWORKORDER IN ('Путевые обходчики') then 'Осмотр пути' else OTHERWORK end, 'Прочие работы')"
+ +" group by nvl(case when TYPEWORKORDER IN ('Путевые обходчики') then 'Осмотр пути' else NVL(wo.OTHERWORK, cls.description) end, 'Прочие работы')"
  
   
 ;

@@ -328,7 +328,7 @@ var podrId = new String("'"+params["podr"].replace("=","")+"'");
  +"         WHERE   brigad_location                    = " + podrId
  +"                 AND TO_DATE (ACTFINISH,'DD.MM.YY') = " + dat
  +"                 AND siteid                         ="  + siteid + " "
- +"                 AND STATUS IN ('ТЕХОТДЕЛ' , 'ЗАКРЫТО', 'ЗАВЕРШ', 'ДОРАБОТКА', 'ЗАПЛАНИРОВАНО') "
+ +"                 AND STATUS IN ('НАЗНАЧЕНО' , 'ЗАВЕРШ', 'НАПР_НА_УТ', 'ОТКЛ_РГН', 'ОФОРМЛЕН', 'ЗАКРЫТО') "
  +"         ) "
  +" SELECT  wo.wonum, "
  +"         JP.DESCRIPTION                        WO, "
@@ -389,8 +389,8 @@ var podrId = new String("'"+params["podr"].replace("=","")+"'");
  +"                  "
  +" union all "
  +"  "
- +" SELECT  NVL( CASE WHEN TYPEWORKORDER IN ('Путевые обходчики') THEN 'Осмотр пути' ELSE OTHERWORK END, 'Прочие работы') wonum , "
- +"         NVL( CASE WHEN TYPEWORKORDER IN ('Путевые обходчики') THEN 'Осмотр пути' ELSE OTHERWORK END, 'Прочие работы') WO , "
+ +" SELECT  NVL( CASE WHEN TYPEWORKORDER IN ('Путевые обходчики') THEN 'Осмотр пути' ELSE NVL(wonum.OTHERWORK, cls.description) END, 'Прочие работы') wonum , "
+ +"         NVL( CASE WHEN TYPEWORKORDER IN ('Путевые обходчики') THEN 'Осмотр пути' ELSE NVL(wonum.OTHERWORK, cls.description) END, 'Прочие работы') WO , "
  +"         to_number('')                                                                                                 JPDURATION, "
  +"         'Прочее'                                                                                                      typeworkorder, "
  +"         CAST (NULL AS CHAR)                                                                                           asdesc , "
@@ -401,9 +401,9 @@ var podrId = new String("'"+params["podr"].replace("=","")+"'");
  +"         CAST (NULL AS INTEGER)                                                                                        FAKT_WO , "
  +"         ROUND (SUM (LABOR_HOUR), 2)                                                                                   FACTTIME , "
  +"         CAST (NULL AS CHAR)                                                                                           ALNVALUE "
- +" FROM    WONUM "
+ +" FROM    WONUM left join MAXIMO.CLASSSTRUCTURE cls on cls.CLASSSTRUCTUREID = wonum.CLASSSTRUCTUREID"
  +" WHERE   TYPEWORKORDER IN ('Прочее', 'Путевые обходчики') "
- +" GROUP BY NVL( CASE WHEN TYPEWORKORDER IN ('Путевые обходчики') THEN 'Осмотр пути' ELSE OTHERWORK END, 'Прочие работы') "
+ +" GROUP BY NVL( CASE WHEN TYPEWORKORDER IN ('Путевые обходчики') THEN 'Осмотр пути' ELSE NVL(wonum.OTHERWORK, cls.description) END, 'Прочие работы') "
 ;
 
 	maximoDataSet.setQuery(sqlText);]]></method>
