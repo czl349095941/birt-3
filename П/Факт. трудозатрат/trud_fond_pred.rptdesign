@@ -178,6 +178,16 @@ mxReportScriptContext.setDefaultLogFile("c:/temp/tetttt.txt");
                 <property name="category">Unformatted</property>
             </structure>
         </scalar-parameter>
+        <scalar-parameter name="pred" id="10417">
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <property name="distinct">true</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
     </parameters>
     <data-sources>
         <script-data-source name="maximoDataSource" id="64" extends="MaximoSystemLibrary.maximoDataSource"/>
@@ -1041,40 +1051,37 @@ sqlText = " WITH "
  +"   ), "
  +"   PLAN AS  "
  +"   (  "
- +"   SELECT count(distinct laborcode)*(select sum (cnt) from trud where to_date (dat, 'DD.MM.YY') BETWEEN '"+params["par"]+"' AND '"+params["fin"]+"')  plan, COUNT(DISTINCT LABORCODE) CNT_RAB, WORKLOCATION  "
+ +"   SELECT count(distinct laborcode)*(select sum (cnt) from trud where to_date (dat, 'DD.MM.YY') BETWEEN '"+params["par"]+"' AND '"+params["fin"]+"')  plan, COUNT(DISTINCT LABORCODE) CNT_RAB, PERSON.L_PODR  "
  +"   FROM MAXIMO.LABOR  "
- +"   JOIN MAXIMO.PREDS ON PREDS.LOCATION = LABOR.WORKLOCATION and preds.location in (SELECT LOCATION FROM MAXIMO.LOCATIONSPEC WHERE ASSETATTRID = 'TIP_PREDPR' AND NUMVALUE = 3 and siteid = '"+params["mroSite"]+"')  "
- +"   WHERE labor.status     = 'АКТИВНО'  AND LABOR.LABORCODE LIKE 'P%' "
+ +"   join MAXIMO.PERSON on PERSON.PERSONID   = LABOR.LABORCODE  "
+ +"   WHERE labor.status     = 'АКТИВНО'  AND LABOR.LABORCODE LIKE 'P%' AND person.location IN '" +params["pred"].replace("=", "") + "' "
  +"   AND laborcode   IN  "
  +"     (SELECT laborcode  "
  +"     FROM MAXIMO.LABORCRAFTRATE  "
  +"     WHERE CRAFT     IN ('00000205', 'МНТР_ПТ', 'СГНЛСТ','00000346','00000226', 'ОБХ_ПТИССО')  "
  +"     AND DEFAULTCRAFT = 1)  "
  +"     and labor.worksite = '"+params["mroSite"]+"' "
- +"   GROUP BY WORKLOCATION  "
+ +"   GROUP BY PERSON.L_PODR  "
  +"   ),  "
  +"   FAKT AS  "
  +"   (  "
- +"   SELECT SUM (NVL (LABOR_HOUR, 0))  fakt, l_pred, count(wonum) cw  "
+ +"   SELECT SUM (NVL (LABOR_HOUR, 0))  fakt, brigad_location, NVL (count(wonum),0) cw  "
  +"   FROM MAXIMO.WORKORDER   "
- +"   WHERE ACTFINISH BETWEEN to_date ('"+params["par"]+"') AND to_date ('"+params["fin"]+"')+1  AND L_PRED IN (SELECT LOCATION FROM MAXIMO.LOCATIONSPEC WHERE ASSETATTRID = 'TIP_PREDPR' AND NUMVALUE = 3 and siteid = '"+params["mroSite"]+"')  "
- +"   and siteid = '"+params["mroSite"]+"'  AND WORKORDER.STATUS      IN ( 'ТЕХОТДЕЛ' , 'ЗАКРЫТО', 'ЗАВЕРШ', 'ДОРАБОТКА' ) "
- +"   GROUP BY l_pred  "
+ +"   WHERE ACTFINISH BETWEEN to_date ('"+params["par"]+"') AND to_date ('"+params["fin"]+"')+1    "
+ +"   and siteid = '"+params["mroSite"]+"'  AND WORKORDER.STATUS      IN ( 'ТЕХОТДЕЛ' , 'ЗАКРЫТО', 'ЗАВЕРШ', 'ДОРАБОТКА' )  AND L_PRED IN '" +params["pred"].replace("=", "") + "' "
+ +"   GROUP BY brigad_location  "
  +"   )  "
- +"   SELECT LOCATIONSPEC.NUMVALUE, PREDS.LOCATION, PREDS.DESCRIPTION, PLAN.CNT_RAB,  NVL (PLAN.PLAN, 0) PLAN, ROUND (NVL (FAKT.FAKT, 0),2) FAKT, FAKT.CW, ROUND (NVL (FAKT.FAKT/FAKT.CW, 0),2) AL  "
- +"   FROM MAXIMO.PREDS  "
- +"   LEFT JOIN PLAN ON PREDS.LOCATION = PLAN.WORKLOCATION  "
- +"   LEFT JOIN FAKT ON PREDS.LOCATION = FAKT.L_PRED "
- +"   LEFT JOIN MAXIMO.LOCATIONSPEC on LOCATIONSPEC.LOCATION = PREDS.LOCATION AND LOCATIONSPEC.SITEID = PREDS.SITEID and LOCATIONSPEC.ASSETATTRID = 'NOM' "
- +"   WHERE PREDS.SITEID = '"+params["mroSite"]+"' and PREDS.STATUS = 'РАБОТАЕТ' and  PREDS.LOCATION in (SELECT LOCATION FROM MAXIMO.LOCATIONSPEC WHERE ASSETATTRID = 'TIP_PREDPR' AND NUMVALUE = 3 and siteid = '"+params["mroSite"]+"') "
- +"   ORDER BY LOCATIONSPEC.NUMVALUE "
+ +"   SELECT  LOCATIONS.LOCATION, NVL (LOCATIONS.DESCRIPTION, 'Бригада не указана') DESCRIPTION, NVL (PLAN.CNT_RAB, 0) CNT_RAB,  NVL (PLAN.PLAN, 0) PLAN, ROUND (NVL (FAKT.FAKT, 0),2) FAKT, FAKT.CW, ROUND (NVL (FAKT.FAKT/FAKT.CW, 0),2) AL  "
+ +"   FROM FAKT    "
+ +"   LEFT JOIN PLAN  ON FAKT.brigad_location = PLAN.L_PODR  "
+ +"   LEFT JOIN MAXIMO.LOCATIONS ON LOCATIONS.LOCATION = FAKT.brigad_location "
+ +"   AND LOCATIONS.SITEID = '"+params["mroSite"]+"' and LOCATIONS.STATUS = 'РАБОТАЕТ' "
  
  
 maximoDataSet.setQuery(sqlText);]]></method>
             <method name="fetch"><![CDATA[if (!maximoDataSet.fetch()) return (false);
 // Add a line for each output column // The specific get method should match the data type of the output column.
 
-row["NUMVALUE"] = maximoDataSet.getString("NUMVALUE");
 row["LOCATION"] = maximoDataSet.getString("LOCATION");
 row["DESCRIPTION"] = maximoDataSet.getString("DESCRIPTION");
 row["PLAN"] = maximoDataSet.getString("PLAN");
@@ -1093,20 +1100,33 @@ return (true);]]></method>
             <list-property name="resultSetHints">
                 <structure>
                     <property name="position">1</property>
-                    <property name="name">DESCRIPTION</property>
+                    <property name="name">PRED</property>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="position">2</property>
+                    <property name="name">SITE</property>
                     <property name="dataType">string</property>
                 </structure>
             </list-property>
             <list-property name="columnHints">
                 <structure>
-                    <property name="columnName">DESCRIPTION</property>
+                    <property name="columnName">PRED</property>
+                </structure>
+                <structure>
+                    <property name="columnName">SITE</property>
                 </structure>
             </list-property>
             <structure name="cachedMetaData">
                 <list-property name="resultSet">
                     <structure>
                         <property name="position">1</property>
-                        <property name="name">DESCRIPTION</property>
+                        <property name="name">PRED</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">2</property>
+                        <property name="name">SITE</property>
                         <property name="dataType">string</property>
                     </structure>
                 </list-property>
@@ -1122,14 +1142,15 @@ maximoDataSet.open();
 var sqlText = new String();
 
 
-sqlText = " SELECT DESCRIPTION FROM MAXIMO.SITE WHERE SITEID =  '" + params["mroSite"] + "'"
+sqlText = " select (SELECT DESCRIPTION FROM MAXIMO.SITE WHERE SITEID =  '" + params["mroSite"] + "') site, (select description from maximo.preds where location in '" + params["pred"].replace("=", "") + "') pred from dual " 
  
  
 maximoDataSet.setQuery(sqlText);]]></method>
             <method name="fetch"><![CDATA[if (!maximoDataSet.fetch()) return (false);
 // Add a line for each output column // The specific get method should match the data type of the output column.
 
-row["DESCRIPTION"] = maximoDataSet.getString("DESCRIPTION");
+row["SITE"] = maximoDataSet.getString("SITE");
+row["PRED"] = maximoDataSet.getString("PRED");
 
 
 
@@ -1984,7 +2005,7 @@ return (true);]]></method>
                 <structure>
                     <property name="name">DESCRIPTION</property>
                     <property name="displayName">DESCRIPTION</property>
-                    <expression name="expression">"Фактические трудозатраты по введенным рабочим заданиям по " + dataSetRow["DESCRIPTION"].replace("ая","ой") +  " дороге за период " + params["par"].value +" по " +params["fin"].value</expression>
+                    <expression name="expression">"Фактические трудозатраты по введенным рабочим заданиям по " + dataSetRow["PRED"] + " " + dataSetRow["SITE"].replace("ая","ой") +  " ДИ за период " + params["par"].value +" по " +params["fin"].value</expression>
                     <property name="dataType">string</property>
                 </structure>
             </list-property>
@@ -2025,7 +2046,8 @@ return (true);]]></method>
                 </structure>
                 <structure>
                     <property name="name">Column Binding</property>
-                    <expression name="expression">dataSetRow["FAKT"]/dataSetRow["PLAN"] * 100</expression>
+                    <expression name="expression">if (dataSetRow["PLAN"] != 0) (dataSetRow["FAKT"]/dataSetRow["PLAN"] * 100)
+else 0</expression>
                     <property name="dataType">integer</property>
                 </structure>
                 <structure>
@@ -2106,21 +2128,7 @@ return (true);]]></method>
                         </structure>
                     </list-property>
                 </structure>
-                <structure>
-                    <property name="name">LOCATION</property>
-                    <property name="displayName">LOCATION</property>
-                    <expression name="expression">dataSetRow["LOCATION"]</expression>
-                    <property name="dataType">string</property>
-                </structure>
             </list-property>
-            <column id="10420">
-                <list-property name="visibility">
-                    <structure>
-                        <property name="format">all</property>
-                        <expression name="valueExpr">true</expression>
-                    </structure>
-                </list-property>
-            </column>
             <column id="10371"/>
             <column id="10412"/>
             <column id="10372"/>
@@ -2130,23 +2138,6 @@ return (true);]]></method>
             <column id="10392"/>
             <header>
                 <row id="10347">
-                    <cell id="10417">
-                        <property name="borderBottomColor">#000000</property>
-                        <property name="borderBottomStyle">solid</property>
-                        <property name="borderBottomWidth">thin</property>
-                        <property name="borderLeftColor">#000000</property>
-                        <property name="borderLeftStyle">solid</property>
-                        <property name="borderLeftWidth">thin</property>
-                        <property name="borderRightColor">#000000</property>
-                        <property name="borderRightStyle">solid</property>
-                        <property name="borderRightWidth">thin</property>
-                        <property name="borderTopColor">#000000</property>
-                        <property name="borderTopStyle">solid</property>
-                        <property name="borderTopWidth">thin</property>
-                        <label id="10421">
-                            <text-property name="text">LOCATION</text-property>
-                        </label>
-                    </cell>
                     <cell id="10350">
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
@@ -2270,23 +2261,6 @@ return (true);]]></method>
             </header>
             <detail>
                 <row id="10356">
-                    <cell id="10418">
-                        <property name="borderBottomColor">#000000</property>
-                        <property name="borderBottomStyle">solid</property>
-                        <property name="borderBottomWidth">thin</property>
-                        <property name="borderLeftColor">#000000</property>
-                        <property name="borderLeftStyle">solid</property>
-                        <property name="borderLeftWidth">thin</property>
-                        <property name="borderRightColor">#000000</property>
-                        <property name="borderRightStyle">solid</property>
-                        <property name="borderRightWidth">thin</property>
-                        <property name="borderTopColor">#000000</property>
-                        <property name="borderTopStyle">solid</property>
-                        <property name="borderTopWidth">thin</property>
-                        <data id="10422">
-                            <property name="resultSetColumn">LOCATION</property>
-                        </data>
-                    </cell>
                     <cell id="10359">
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
@@ -2303,38 +2277,6 @@ return (true);]]></method>
                         <data id="10360">
                             <property name="textAlign">left</property>
                             <property name="resultSetColumn">DESCRIPTION</property>
-                            <structure name="action">
-                                <property name="linkType">drill-through</property>
-                                <property name="reportName">trud_fond_pred.rptdesign</property>
-                                <property name="targetWindow">_blank</property>
-                                <property name="targetFileType">report-design</property>
-                                <list-property name="paramBindings">
-                                    <structure>
-                                        <property name="paramName">where</property>
-                                        <expression name="expression">"1=1"</expression>
-                                    </structure>
-                                    <structure>
-                                        <property name="paramName">appname</property>
-                                        <expression name="expression">"WOTRACK"</expression>
-                                    </structure>
-                                    <structure>
-                                        <property name="paramName">par</property>
-                                        <expression name="expression">params["par"].value</expression>
-                                    </structure>
-                                    <structure>
-                                        <property name="paramName">fin</property>
-                                        <expression name="expression">params["fin"].value</expression>
-                                    </structure>
-                                    <structure>
-                                        <property name="paramName">mroSite</property>
-                                        <expression name="expression">params["mroSite"].value</expression>
-                                    </structure>
-                                    <structure>
-                                        <property name="paramName">pred</property>
-                                        <expression name="expression">row["LOCATION"]</expression>
-                                    </structure>
-                                </list-property>
-                            </structure>
                         </data>
                     </cell>
                     <cell id="10410">
@@ -2447,20 +2389,6 @@ return (true);]]></method>
             <footer>
                 <row id="10365">
                     <property name="fontWeight">bold</property>
-                    <cell id="10419">
-                        <property name="borderBottomColor">#000000</property>
-                        <property name="borderBottomStyle">solid</property>
-                        <property name="borderBottomWidth">thin</property>
-                        <property name="borderLeftColor">#000000</property>
-                        <property name="borderLeftStyle">solid</property>
-                        <property name="borderLeftWidth">thin</property>
-                        <property name="borderRightColor">#000000</property>
-                        <property name="borderRightStyle">solid</property>
-                        <property name="borderRightWidth">thin</property>
-                        <property name="borderTopColor">#000000</property>
-                        <property name="borderTopStyle">solid</property>
-                        <property name="borderTopWidth">thin</property>
-                    </cell>
                     <cell id="10367">
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>

@@ -1,4 +1,4 @@
-﻿﻿<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <report xmlns="http://www.eclipse.org/birt/2005/design" version="3.2.17" id="1">
     <property name="createdBy">Eclipse BIRT Designer Version 2.3.2.r232_20090202 Build &lt;2.3.2.v20090218-0730></property>
     <property name="units">in</property>
@@ -527,7 +527,7 @@ status = status.replace(/,/g,"','");
 
 var sqlText = new String();
 
-sqlText =   "   SELECT   wo.l_podr, loc.description descr, ls2.numvalue nom, ls.numvalue,  "
+sqlText =   "   SELECT   wo.brigad_location l_podr, NVL (loc.description , 'Бригада не указана') descr, ls2.numvalue nom, ls.numvalue,  "
  +"   count (DISTINCT CASE WHEN EXISTS (SELECT 1 FROM  maximo.wojprelation wojp WHERE wojp.wonum = wo.wonum ) THEN wonum END) jp1 , "
  +"   count (DISTINCT CASE WHEN NOT EXISTS (SELECT 1 FROM  maximo.wojprelation wojp WHERE wojp.wonum = wo.wonum ) THEN wonum END) jp0 , "
  +"   count (DISTINCT CASE WHEN EXISTS (SELECT 1 FROM  maximo.multiassetlocci mul WHERE mul.recordkey = wo.wonum AND mul.siteid = wo.siteid AND mul.recordclass = 'РАБОЧЕЕЗАДАНИЕ' ) THEN wonum END) ASSET1, "
@@ -591,14 +591,14 @@ sqlText =   "   SELECT   wo.l_podr, loc.description descr, ls2.numvalue nom, ls.
  +"           AND NOT EXISTS (SELECT 1 FROM  maximo.TOOLTRANS mt WHERE mt.refwo = wo.wonum AND mt.siteid = wo.siteid) "
  +"           AND plan_wo IS NULL AND fakt_wo is null AND labor_hour is null then wo.wonum end ) vsego00 "
  +"   FROM maximo.workorder wo "
- +"   left join maximo.locations loc on loc.location = wo.l_podr and loc.siteid = wo.siteid"
+ +"   left join maximo.locations loc on loc.location = wo.brigad_location and loc.siteid = wo.siteid"
  +"   left join maximo.locationspec ls on loc.location = ls.location and loc.siteid = ls.siteid and ls.assetattrid = 'NOM_PODR'"
  +"   left join maximo.locationspec ls2 on wo.l_pred = ls2.location and wo.siteid = ls2.siteid and ls2.assetattrid = 'NOM'"
  +"   WHERE WO.SITEID    = '"+params["mroSite"]+"' "
  +"   and wo.reportdate between to_date('"+params["date1"]+"') and to_date ('"+params["date2"]+"')+1 "
  +"   AND wo.l_pred in (" +locationId + " ) "
  +"   AND wo.status   IN (" + status + ")  "
- +" group by wo.l_podr, loc.description, ls2.numvalue, ls.numvalue  order by  ls2.numvalue, ls.numvalue "
+ +" group by wo.brigad_location, loc.description, ls2.numvalue, ls.numvalue  order by  ls2.numvalue, ls.numvalue "
 ;
 
 
