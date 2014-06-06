@@ -187,6 +187,17 @@ mxReportScriptContext.setDefaultLogFile("c:/temp/tetttt.txt");
                 <property name="category">Unformatted</property>
             </structure>
         </scalar-parameter>
+        <scalar-parameter name="status" id="10590">
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="paramType">simple</property>
+            <property name="isRequired">false</property>
+            <property name="controlType">text-box</property>
+            <property name="distinct">true</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
     </parameters>
     <data-sources>
         <script-data-source name="maximoDataSource" id="64" extends="MaximoSystemLibrary.maximoDataSource"/>
@@ -403,6 +414,10 @@ mxReportScriptContext.setDefaultLogFile("c:/temp/tetttt.txt");
             <method name="open"><![CDATA[maximoDataSet = MXReportDataSetProvider.create(this.getDataSource().getName(), this.getName());
 maximoDataSet.open();
 
+var status = new String(params["status"]);
+if(params["status"]=='' || params["status"] == null || params["status"] == '""' )
+status = "'НАПР_НА_УТ', 'ЗАВЕРШ', 'ОТКЛ_РГН', 'ОФОРМЛЕН', 'ЗАКРЫТО'" 
+else status = ("'"+params["status"]+"'").replace(/=/g,"").replace(/,/g ,  "', '").replace(/\',\'\'$/g,"'");
 
 
 var sqlText = new String();
@@ -419,52 +434,52 @@ sqlText = " SELECT WORKORDER.WONUM, "
  +"   END MONT_BR, "
  +"   CASE "
  +"     WHEN WORKORDER.TYPEWORKORDER = 'Прочее' "
- +"     AND WORKORDER.OTHERWORK      = 'Ограждение места работ' "
+ +"     AND WORKORDER.CLASSSTRUCTUREID      = '010001000103' "
  +"     THEN LABTRANS.LABOR_HOUR "
  +"   END FENCING_PP, "
  +"   CASE "
  +"     WHEN WORKORDER.TYPEWORKORDER = 'Прочее' "
- +"     AND WORKORDER.OTHERWORK      = 'Ограждение места работ' "
+ +"     AND WORKORDER.CLASSSTRUCTUREID      = '010001000103' "
  +"     THEN WORKORDER.LABOR_HOUR "
  +"   END FENCING_BR, "
  +"   CASE "
  +"     WHEN WORKORDER.TYPEWORKORDER = 'Прочее' "
- +"     AND WORKORDER.OTHERWORK      = 'Пропуск поездов' "
+ +"     AND WORKORDER.CLASSSTRUCTUREID      = '010001000102' "
  +"     THEN LABTRANS.LABOR_HOUR "
  +"   END PASSTRAIN_PP, "
  +"   CASE "
  +"     WHEN WORKORDER.TYPEWORKORDER = 'Прочее' "
- +"     AND WORKORDER.OTHERWORK      = 'Пропуск поездов' "
+ +"     AND WORKORDER.CLASSSTRUCTUREID      = '010001000102' "
  +"     THEN WORKORDER.LABOR_HOUR "
  +"   END PASSTRAIN_BR, "
  +"   CASE "
  +"     WHEN WORKORDER.TYPEWORKORDER = 'Прочее' "
- +"     AND WORKORDER.OTHERWORK      = 'Подход к месту работы' "
+ +"     AND WORKORDER.CLASSSTRUCTUREID      = '010001000101' "
  +"     THEN LABTRANS.LABOR_HOUR "
  +"   END PASSEGEWORK_PP, "
  +"   CASE "
  +"     WHEN WORKORDER.TYPEWORKORDER = 'Прочее' "
- +"     AND WORKORDER.OTHERWORK      = 'Подход к месту работы' "
+ +"     AND WORKORDER.CLASSSTRUCTUREID      = '010001000101' "
  +"     THEN WORKORDER.LABOR_HOUR "
  +"   END PASSEGEWORK_BR, "
  +"   CASE "
  +"     WHEN WORKORDER.TYPEWORKORDER = 'Прочее' "
- +"     AND WORKORDER.OTHERWORK      = 'Сопровождение дефектоскопн/путеизмер тележки' "
+ +"     AND WORKORDER.CLASSSTRUCTUREID      = '010001000107' "
  +"     THEN LABTRANS.LABOR_HOUR "
  +"   END DEFECT_PP, "
  +"   CASE "
  +"     WHEN WORKORDER.TYPEWORKORDER = 'Прочее' "
- +"     AND WORKORDER.OTHERWORK      = 'Сопровождение дефектоскопн/путеизмер тележки' "
+ +"     AND WORKORDER.CLASSSTRUCTUREID      = '010001000107' "
  +"     THEN WORKORDER.LABOR_HOUR "
  +"   END DEFECT_BR, "
  +"   CASE "
  +"     WHEN WORKORDER.TYPEWORKORDER = 'Прочее' "
- +"     AND WORKORDER.OTHERWORK NOT IN ('Ограждение места работ','Пропуск поездов','Подход к месту работы','Сопровождение дефектоскопн/путеизмер тележки') "
+ +"     AND NVL (WORKORDER.CLASSSTRUCTUREID, 0) NOT IN ('010001000103','010001000102','010001000101','010001000107') "
  +"     THEN LABTRANS.LABOR_HOUR "
  +"   END OTHER_PP, "
  +"   CASE "
  +"     WHEN WORKORDER.TYPEWORKORDER = 'Прочее' "
- +"     AND WORKORDER.OTHERWORK NOT IN ('Ограждение места работ','Пропуск поездов','Подход к месту работы','Сопровождение дефектоскопн/путеизмер тележки') "
+ +"     AND NVL (WORKORDER.CLASSSTRUCTUREID, 0) NOT IN ('010001000103','010001000102','010001000101','010001000107') "
  +"     THEN WORKORDER.LABOR_HOUR "
  +"   END OTHER_BR, "
  +"   LABTRANS.LABOR_HOUR PP, "
@@ -477,7 +492,7 @@ sqlText = " SELECT WORKORDER.WONUM, "
  +" AND TO_DATE (WORKORDER.ACTFINISH, 'DD.MM.YY') = TO_DATE ('"+params["par"]+"', 'DD.MM.YY') "
  +" AND WORKORDER.SITEID                          = '"+params["mroSite"]+"' "
  +" AND WORKORDER.BRIGAD_LOCATION                          = '"+params["podr"].replace("=","")+"' "
-
+ +" AND WORKORDER.STATUS in (" + status + ")"
  
 maximoDataSet.setQuery(sqlText);]]></method>
             <method name="fetch"><![CDATA[if (!maximoDataSet.fetch()) return (false);

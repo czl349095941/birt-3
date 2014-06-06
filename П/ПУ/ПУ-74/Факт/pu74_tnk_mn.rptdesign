@@ -23,7 +23,7 @@ mxReportScriptContext.setDefaultLogFile("c:/temp/tetttt.txt");
 
 if(params["status"]=='' || params["status"] == null || params["status"] == '""' )
 params["status"] = "'НАПР_НА_УТ', 'ЗАВЕРШ', 'ОТКЛ_РГН', 'ОФОРМЛЕН', 'ЗАКРЫТО'" 
-else params["status"] = ("'"+params["status"]+"'").replace(/=/g,"").replace(/, /g ,  "', '").replace(/\', \'\'$/g,"'");]]></method>
+else params["status"] = ("'"+params["status"]+"'").replace(/=/g,"").replace(/,/g ,  "', '").replace(/\',\'\'$/g,"'");]]></method>
     <method name="afterFactory"><![CDATA[MXReportScriptContext.close();]]></method>
     <property name="theme">MaximoSystemLibrary.maximoTheme</property>
     <text-property name="displayName">Tivoli Maximo Grouped Chart Template</text-property>
@@ -666,7 +666,7 @@ else if(params["year"]!='')
 var sqlText = new String();
 	sqlText = ""
  +" WITH a1 AS "
- +"      (SELECT   wo.wonum , wo.PASSEGEWORK prohod, wo.PASSTRAIN poezd,  	WO.FENCINGPATH ograda, WO.TYPEWORKORDER, wo.otherwork, "
+ +"      (SELECT   wo.wonum , wo.PASSEGEWORK prohod, wo.PASSTRAIN poezd,  	WO.FENCINGPATH ograda, WO.TYPEWORKORDER, wo.otherwork, wo.CLASSSTRUCTUREID, "
  +" to_char (substr ((SELECT sys_xmlagg(XMLELEMENT(col, regexp_REPLACE(asset.description, '\"', '') "
  +"               || ' (от ' "
  +"               || multiassetlocci.STARTMEASUREKM "
@@ -769,7 +769,7 @@ var sqlText = new String();
  
  +" SELECT   'invis' MESTO                                                               , "
  +"          '' Ед_Изм                                                                              , "
- +"          nvl(case when TYPEWORKORDER IN ('Путевые обходчики') then 'Осмотр пути' else a1.OTHERWORK end, 'Прочие работы') Наименов                                                                            , "
+ +"         nvl(case when TYPEWORKORDER IN ('Путевые обходчики') then 'Осмотр пути' else NVL(a1.OTHERWORK, cls.description) end, 'Прочие работы') Наименов, "
  +"          'я' Тех_Карта                                                                        , "
  +"          to_number('') Норма_Времени                                                            , "
  +"          to_number('') numvalue                                                                            , "
@@ -805,8 +805,8 @@ var sqlText = new String();
  +"          sum (case when  Actfinish=13 then labor_hour end)Ч_Ч_13, "
  +"          sum (case when  Actfinish=14 then labor_hour end)Ч_Ч_14, "
  +"          sum (case when  Actfinish=15 then labor_hour end)Ч_Ч_15 "
- +" FROM     a1 WHERE TYPEWORKORDER IN ('Прочее', 'Путевые обходчики')"
- +" GROUP BY nvl(case when TYPEWORKORDER IN ('Путевые обходчики') then 'Осмотр пути' else a1.OTHERWORK end, 'Прочие работы')    "
+ +" FROM     a1 left join MAXIMO.CLASSSTRUCTURE cls on cls.CLASSSTRUCTUREID = a1.CLASSSTRUCTUREID WHERE TYPEWORKORDER IN ('Прочее', 'Путевые обходчики')"
+ +" GROUP BY nvl(case when TYPEWORKORDER IN ('Путевые обходчики') then 'Осмотр пути' else NVL(a1.OTHERWORK, cls.description) end, 'Прочие работы') "
  
 
  
@@ -1412,7 +1412,7 @@ else if(params["year"]!='')
 var sqlText = new String();
 	sqlText = ""
  +" WITH a1 AS "
- +"      (SELECT   wo.wonum , wo.PASSEGEWORK prohod, wo.PASSTRAIN poezd,  	WO.FENCINGPATH ograda, WO.TYPEWORKORDER, WO.OTHERWORK, "
+ +"      (SELECT   wo.wonum , wo.PASSEGEWORK prohod, wo.PASSTRAIN poezd,  	WO.FENCINGPATH ograda, WO.TYPEWORKORDER, WO.OTHERWORK, wo.CLASSSTRUCTUREID, "
  +" to_char (substr ((SELECT sys_xmlagg(XMLELEMENT(col, regexp_REPLACE(asset.description, '\"', '') "
  +"               || ' (от ' "
  +"               || multiassetlocci.STARTMEASUREKM "
@@ -1516,7 +1516,7 @@ var sqlText = new String();
  +" UNION ALL "  
  +" SELECT   'invis' mesto                                                               , "
  +"          '' Ед_Изм                                                                              , "
- +"          nvl(case when TYPEWORKORDER IN ('Путевые обходчики') then 'Осмотр пути' else a1.OTHERWORK end, 'Прочие работы') Наименов                                                                            , "
+ +"         nvl(case when TYPEWORKORDER IN ('Путевые обходчики') then 'Осмотр пути' else NVL(a1.OTHERWORK, cls.description) end, 'Прочие работы') Наименов, "
  +"          'я' Тех_Карта                                                                        , "
  +"          to_number('') Норма_Времени                                                            , "
  +"          to_number('') numvalue                                                                            , "
@@ -1554,8 +1554,8 @@ var sqlText = new String();
  +"         sum (case when  Actfinish=29 then labor_hour end)Ч_Ч_29, "
  +"         sum (case when  Actfinish=30 then labor_hour end)Ч_Ч_30, "
  +"         sum (case when  Actfinish=31 then labor_hour end)Ч_Ч_31 "
- +" FROM     a1 WHERE TYPEWORKORDER IN ('Прочее', 'Путевые обходчики')"
- +" GROUP BY nvl(case when TYPEWORKORDER IN ('Путевые обходчики') then 'Осмотр пути' else a1.OTHERWORK end, 'Прочие работы')    "
+ +" FROM     a1 left join MAXIMO.CLASSSTRUCTURE cls on cls.CLASSSTRUCTUREID = a1.CLASSSTRUCTUREID WHERE TYPEWORKORDER IN ('Прочее', 'Путевые обходчики')"
+ +" GROUP BY nvl(case when TYPEWORKORDER IN ('Путевые обходчики') then 'Осмотр пути' else NVL(a1.OTHERWORK, cls.description) end, 'Прочие работы') "
 ;
 	maximoDataSet.setQuery(sqlText);]]></method>
             <method name="fetch"><![CDATA[if (!maximoDataSet.fetch())
@@ -5630,7 +5630,7 @@ sqlText =  ""
  +"                     || ' м) '),1,2000)) mesto , "
  +"           WORKO.DESCRIPTION                   , "
  +"           worko.reportdate                    , "
- +"           WORKO.FAKTMEASURE                   , "
+ +"           min(case when ast.itemnum in ('ГЛПУТЬ', 'СТАНПУТЬ',  'ПУТЬП', 'ГППС') then 'км' when ast.itemnum in ('ПЕРЕЕЗД', 'СООР_ЗП', 'КРИВАЯ') then 'шт' when ast.itemnum in (select ITEMNUM from maximo.ITEM   where ITEM.CLASSSTRUCTUREID in (select CLASSSTRUCTUREID from maximo.CLASSSTRUCTURE where PARENT = '090000010056'))then 'шт' end) FAKTMEASURE, "
  +"           Worko.Plan_Wo Vup                   , "
  +"           Worko.Fakt_Wo Zad                   , "
  +"           MULT.ASSESSMENT "
@@ -5662,7 +5662,6 @@ sqlText =  ""
  +"                     || ' м) '),1,2000)), "
  +"           WORKO.DESCRIPTION            , "
  +"           worko.reportdate             , "
- +"           WORKO.FAKTMEASURE            , "
  +"           Worko.Plan_Wo                , "
  +"           WORKO.FAKT_WO                , "
  +"           MULT.ASSESSMENT "
@@ -22632,9 +22631,6 @@ row["ТЕХ_КАРТА"].replace(/^\D{1,}/, "").replace (/\/\d{1,}$/, "");</expr
                         <data id="17024">
                             <property name="resultSetColumn">FAKTMEASURE</property>
                         </data>
-                        <label id="17940">
-                            <text-property name="text">км</text-property>
-                        </label>
                     </cell>
                     <cell id="17025">
                         <property name="borderBottomColor">#000000</property>

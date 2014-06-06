@@ -177,6 +177,17 @@ mxReportScriptContext.setDefaultLogFile("c:/temp/tetttt.txt");
                 <property name="category">Unformatted</property>
             </structure>
         </scalar-parameter>
+        <scalar-parameter name="status" id="10477">
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="paramType">simple</property>
+            <property name="isRequired">false</property>
+            <property name="controlType">text-box</property>
+            <property name="distinct">true</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
     </parameters>
     <data-sources>
         <script-data-source name="maximoDataSource" id="64" extends="MaximoSystemLibrary.maximoDataSource"/>
@@ -302,7 +313,10 @@ mxReportScriptContext.setDefaultLogFile("c:/temp/tetttt.txt");
             <method name="open"><![CDATA[maximoDataSet = MXReportDataSetProvider.create(this.getDataSource().getName(), this.getName());
 maximoDataSet.open();
 
-
+var status = new String(params["status"]);
+if(params["status"]=='' || params["status"] == null || params["status"] == '""' )
+status = "'НАПР_НА_УТ', 'ЗАВЕРШ', 'ОТКЛ_РГН', 'ОФОРМЛЕН', 'ЗАКРЫТО'" 
+else status = ("'"+params["status"]+"'").replace(/=/g,"").replace(/,/g ,  "', '").replace(/\',\'\'$/g,"'");
 
 var sqlText = new String();
 
@@ -310,25 +324,26 @@ var sqlText = new String();
 sqlText = " WITH A1 AS "
  +" ( "
  +" SELECT LABORCODE,  "
- +"   SUM (LABOR_HOUR) H, wo.typeworkorder, wo.otherwork, wo.wonum "
+ +"   SUM (LABOR_HOUR) H, wo.typeworkorder, wo.otherwork, wo.wonum, WO.CLASSSTRUCTUREID "
  +" FROM MAXIMO.LABTRANS "
  +" JOIN  "
- +"   (SELECT WONUM, TYPEWORKORDER, OTHERWORK, siteid "
+ +"   (SELECT WONUM, CLASSSTRUCTUREID, TYPEWORKORDER, OTHERWORK, siteid "
  +"   FROM MAXIMO.WORKORDER "
  +"   WHERE TO_DATE (ACTFINISH, 'DD.MM.YY') = TO_DATE ('"+params["par"]+"', 'DD.MM.YY') "
  +"   AND SITEID                            = '"+params["mroSite"]+"' "
  +"   AND BRIGAD_LOCATION                            = '"+params["podr"].replace("=","") +"' "
+ +"   AND STATUS IN (" + status + ")"
  +"   ) WO ON WO.WONUM = LABTRANS.REFWO AND WO.SITEID = LABTRANS.SITEID "
- +" GROUP BY LABORCODE, WO.TYPEWORKORDER, WO.OTHERWORK, WO.WONUM "
+ +" GROUP BY LABORCODE, WO.TYPEWORKORDER, WO.OTHERWORK, WO.WONUM, WO.CLASSSTRUCTUREID "
  +" ) "
  +"  "
  +"  "
  +" SELECT PERSON.TPPERSON LABORCODE, PERSON.DISPLAYNAME, A1.LABORCODE L1, "
  +" SUM (H) VSE, "
  +" SUM (CASE WHEN A1.TYPEWORKORDER <> 'Прочее' THEN H END) MONT, "
- +" SUM (CASE WHEN A1.TYPEWORKORDER = 'Прочее' AND OTHERWORK = 'Ограждение места работ' THEN H END) FENCING, "
- +" SUM (CASE WHEN A1.TYPEWORKORDER = 'Прочее' AND OTHERWORK = 'Сопровождение дефектоскопн/путеизмер тележки' THEN H END) DEFECT, "
- +" SUM (CASE WHEN A1.TYPEWORKORDER = 'Прочее' AND OTHERWORK NOT IN ('Сопровождение дефектоскопн/путеизмер тележки','Ограждение места работ')  THEN H END) OTHER "
+ +" SUM (CASE WHEN A1.TYPEWORKORDER = 'Прочее' AND A1.CLASSSTRUCTUREID = '010001000103' THEN H END) FENCING, "
+ +" SUM (CASE WHEN A1.TYPEWORKORDER = 'Прочее' AND A1.CLASSSTRUCTUREID = '010001000107' THEN H END) DEFECT, "
+ +" SUM (CASE WHEN A1.TYPEWORKORDER = 'Прочее' AND NVL (A1.CLASSSTRUCTUREID, 0) NOT IN ('010001000103','010001000107')  THEN H END) OTHER "
  +" FROM A1 "
  +" JOIN MAXIMO.PERSON ON PERSON.PERSONID = A1.LABORCODE "
  +" GROUP BY PERSON.TPPERSON, PERSON.DISPLAYNAME, A1.LABORCODE "
@@ -976,6 +991,10 @@ return (true);]]></method>
                                     <structure>
                                         <property name="paramName">labor</property>
                                         <expression name="expression">row["L1"]</expression>
+                                    </structure>
+                                    <structure>
+                                        <property name="paramName">status</property>
+                                        <expression name="expression">params["status"].value</expression>
                                     </structure>
                                 </list-property>
                             </structure>
