@@ -152,6 +152,11 @@ mxReportScriptContext.setDefaultLogFile("c:/temp/tetttt.txt");
                     <property name="name">CAUTION</property>
                     <property name="dataType">string</property>
                 </structure>
+                <structure>
+                    <property name="position">17</property>
+                    <property name="name">CRITICDATE</property>
+                    <property name="dataType">string</property>
+                </structure>
             </list-property>
             <list-property name="columnHints">
                 <structure>
@@ -225,6 +230,9 @@ mxReportScriptContext.setDefaultLogFile("c:/temp/tetttt.txt");
                 </structure>
                 <structure>
                     <property name="columnName">CAUTION</property>
+                </structure>
+                <structure>
+                    <property name="columnName">CRITICDATE</property>
                 </structure>
             </list-property>
             <structure name="cachedMetaData">
@@ -309,6 +317,11 @@ mxReportScriptContext.setDefaultLogFile("c:/temp/tetttt.txt");
                         <property name="name">CAUTION</property>
                         <property name="dataType">string</property>
                     </structure>
+                    <structure>
+                        <property name="position">17</property>
+                        <property name="name">CRITICDATE</property>
+                        <property name="dataType">string</property>
+                    </structure>
                 </list-property>
             </structure>
             <property name="dataSource">maximoDataSource</property>
@@ -324,7 +337,7 @@ sqlText = ""
 +"        wo.brigad_location, " 
 +"        loc.description loc_d, " 
 +"        jp.jpnum, " 
-+"        jp.description jp, " 
++"        case when wo.typeworkorder = 'Прочее' then (select description from MAXIMO.CLASSSTRUCTURE cls where cls.CLASSSTRUCTUREID = wo.CLASSSTRUCTUREID) else jp.description end jp, " 
 +"        ( SELECT displayname " 
 +"                        || ' (' " 
 +"                        ||craft.description " 
@@ -356,7 +369,7 @@ sqlText = ""
 +"        ( SELECT displayname " 
 +"                        || ' (' " 
 +"                        ||craft.description " 
-+"                        ||')' " 
++"                        ||')' "
 +"        FROM    maximo.person p " 
 +"                JOIN maximo.labor " 
 +"                        ON      p.personid = labor.personid " 
@@ -375,7 +388,8 @@ sqlText = ""
 +"        wo.plan_wo/jps.numvalue*NVL(wo.JPDURATION, WO.NOKOEFDURATION) norm_plan_lh, " 
 +"        wo.CAUTION, " 
 +"        wo.requestloc, " 
-+"        wo.WINDOW " 
++"        wo.WINDOW, "
++"		  wo.CRITICDATE " 
 +"FROM    maximo.workorder wo " 
 +"        LEFT JOIN MAXIMO.WOJPRELATION JPT " 
 +"                ON      JPT.WONUM              = WO.WONUM " 
@@ -412,6 +426,7 @@ row["NORM_PLAN_LH"] = maximoDataSet.getString("NORM_PLAN_LH");
 row["CAUTION"] = maximoDataSet.getString("CAUTION");
 row["REQUESTLOC"] = maximoDataSet.getString("REQUESTLOC");
 row["WINDOW"] = maximoDataSet.getString("WINDOW");
+row["CRITICDATE"] = maximoDataSet.getString("CRITICDATE");
 
 
 
@@ -1043,13 +1058,13 @@ return (true);]]></method>
                     <property name="name">PLAN_LABOR_HOUR</property>
                     <property name="displayName">PLAN_LABOR_HOUR</property>
                     <expression name="expression">dataSetRow["PLAN_LABOR_HOUR"]</expression>
-                    <property name="dataType">string</property>
+                    <property name="dataType">float</property>
                 </structure>
                 <structure>
                     <property name="name">NORM_PLAN_LH</property>
                     <property name="displayName">NORM_PLAN_LH</property>
                     <expression name="expression">dataSetRow["NORM_PLAN_LH"]</expression>
-                    <property name="dataType">string</property>
+                    <property name="dataType">float</property>
                 </structure>
                 <structure>
                     <property name="name">SUPERVISOR</property>
@@ -1073,7 +1088,7 @@ return (true);]]></method>
                     <property name="name">PLAN_WO</property>
                     <property name="displayName">PLAN_WO</property>
                     <expression name="expression">dataSetRow["PLAN_WO"]</expression>
-                    <property name="dataType">string</property>
+                    <property name="dataType">float</property>
                 </structure>
                 <structure>
                     <property name="name">WONUM</property>
@@ -1103,6 +1118,12 @@ return (true);]]></method>
                     <property name="name">CAUTION</property>
                     <property name="displayName">CAUTION</property>
                     <expression name="expression">dataSetRow["CAUTION"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">CRITICDATE</property>
+                    <property name="displayName">CRITICDATE</property>
+                    <expression name="expression">dataSetRow["CRITICDATE"]</expression>
                     <property name="dataType">string</property>
                 </structure>
             </list-property>
@@ -1165,6 +1186,10 @@ return (true);]]></method>
                         <property name="backgroundColor">#FFFFFF</property>
                         <property name="textAlign">left</property>
                         <data id="17861">
+                            <structure name="numberFormat">
+                                <property name="category">Fixed</property>
+                                <property name="pattern">Fixed</property>
+                            </structure>
                             <property name="resultSetColumn">NORM_PLAN_LH</property>
                         </data>
                     </cell>
@@ -1194,6 +1219,10 @@ return (true);]]></method>
                         <property name="backgroundColor">#FFFFFF</property>
                         <property name="textAlign">left</property>
                         <data id="17862">
+                            <structure name="numberFormat">
+                                <property name="category">Fixed</property>
+                                <property name="pattern">Fixed</property>
+                            </structure>
                             <property name="resultSetColumn">PLAN_LABOR_HOUR</property>
                         </data>
                     </cell>
@@ -1223,6 +1252,10 @@ return (true);]]></method>
                         <property name="backgroundColor">#FFFFFF</property>
                         <property name="textAlign">left</property>
                         <data id="17863">
+                            <structure name="numberFormat">
+                                <property name="category">Fixed</property>
+                                <property name="pattern">Fixed</property>
+                            </structure>
                             <property name="resultSetColumn">PLAN_WO</property>
                         </data>
                     </cell>
@@ -1230,10 +1263,16 @@ return (true);]]></method>
                 <row id="17847">
                     <cell id="17848">
                         <property name="backgroundColor">#FFFFFF</property>
+                        <label id="18050">
+                            <text-property name="text">Крайний срок:</text-property>
+                        </label>
                     </cell>
                     <cell id="17849">
                         <property name="backgroundColor">#FFFFFF</property>
                         <property name="textAlign">left</property>
+                        <data id="18051">
+                            <property name="resultSetColumn">CRITICDATE</property>
+                        </data>
                     </cell>
                     <cell id="17850">
                         <property name="backgroundColor">#FFFFFF</property>

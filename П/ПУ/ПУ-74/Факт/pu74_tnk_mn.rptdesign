@@ -21,9 +21,7 @@ mxReportScriptContext = MXReportScriptContext.initialize(reportContext);
 mxReportScriptContext.setDefaultLogLevel("DEBUG");
 mxReportScriptContext.setDefaultLogFile("c:/temp/tetttt.txt");
 
-if(params["status"]=='' || params["status"] == null || params["status"] == '""' )
-params["status"] = "'НАПР_НА_УТ', 'ЗАВЕРШ', 'ОТКЛ_РГН', 'ОФОРМЛЕН', 'ЗАКРЫТО'" 
-else params["status"] = ("'"+params["status"]+"'").replace(/=/g,"").replace(/,/g ,  "', '").replace(/\',\'\'$/g,"'");]]></method>
+]]></method>
     <method name="afterFactory"><![CDATA[MXReportScriptContext.close();]]></method>
     <property name="theme">MaximoSystemLibrary.maximoTheme</property>
     <text-property name="displayName">Tivoli Maximo Grouped Chart Template</text-property>
@@ -109,18 +107,6 @@ else params["status"] = ("'"+params["status"]+"'").replace(/=/g,"").replace(/,/g
             <property name="dataType">string</property>
             <property name="paramType">simple</property>
             <text-property name="promptText">Дорога</text-property>
-            <property name="isRequired">false</property>
-            <property name="controlType">text-box</property>
-            <property name="distinct">true</property>
-            <structure name="format">
-                <property name="category">Unformatted</property>
-            </structure>
-        </scalar-parameter>
-        <scalar-parameter name="status" id="18863">
-            <property name="valueType">static</property>
-            <property name="dataType">string</property>
-            <property name="paramType">simple</property>
-            <text-property name="promptText">Статус</text-property>
             <property name="isRequired">false</property>
             <property name="controlType">text-box</property>
             <property name="distinct">true</property>
@@ -715,7 +701,7 @@ var sqlText = new String();
  +"      AND       extract (DAY FROM wo.Actfinish) < 16 "
  +"      AND       wo.Istask                       = '0' "
  +"      AND TYPEWORKORDER                  IN ('Внеплановое', 'Плановое', 'Сопутствующая работа', 'Прочее', 'Путевые обходчики')"
- +"      AND       wo.STATUS IN (" + params["status"] +") "
+ +"      AND       wo.STATUS IN ('НАПР_НА_УТ', 'ЗАВЕРШ', 'ОТКЛ_РГН', 'ОФОРМЛЕН', 'ЗАКРЫТО') "
  +"      AND       TO_CHAR(wo.Actfinish, 'MM')   = "+par
  +"      AND       TO_CHAR(wo.Actfinish, 'YYYY') = '"+year+"' "
  +"      ) "
@@ -1461,7 +1447,7 @@ var sqlText = new String();
  +"      AND       extract (DAY FROM wo.Actfinish) > 15 "
  +"      AND       wo.Istask                       = '0' "
  +"      AND TYPEWORKORDER                  IN ('Внеплановое', 'Плановое', 'Сопутствующая работа', 'Прочее', 'Путевые обходчики')"
- +"      AND       wo.STATUS IN (" + params["status"] +") "
+ +"      AND       wo.STATUS IN ('НАПР_НА_УТ', 'ЗАВЕРШ', 'ОТКЛ_РГН', 'ОФОРМЛЕН', 'ЗАКРЫТО') "
  +"      AND       TO_CHAR(wo.Actfinish, 'MM')   = "+par
  +"      AND       TO_CHAR(wo.Actfinish, 'YYYY') = '"+year+"' "
  +"      ) "
@@ -2555,7 +2541,7 @@ var sqlText = new String();
  +"      AND       TO_CHAR(wo.Actfinish, 'MM')     = "+par
  +"      AND       extract (DAY FROM wo.Actfinish) < 16 "
  +"      AND       matusetrans.itemnum   IS NOT NULL "
- +"      AND       wo.STATUS IN (" + params["status"] +") "
+ +"      AND       wo.STATUS IN ('НАПР_НА_УТ', 'ЗАВЕРШ', 'ОТКЛ_РГН', 'ОФОРМЛЕН', 'ЗАКРЫТО') "
  +"      ) "
  +"      , "
  +"      Unwork AS "
@@ -2586,7 +2572,7 @@ var sqlText = new String();
  +"      AND       TO_CHAR(wo.Actfinish, 'YYYY')   = '"+year+"' "
  +"      AND       TO_CHAR(wo.Actfinish, 'MM')     = "+par
  +"      AND       extract (DAY FROM wo.Actfinish) < 16 "
- +"      AND       Unworkitem.Itemnum    IS NOT NULL and Wo.Status IN (" + params["status"] +")"
+ +"      AND       Unworkitem.Itemnum    IS NOT NULL and Wo.Status IN ('НАПР_НА_УТ', 'ЗАВЕРШ', 'ОТКЛ_РГН', 'ОФОРМЛЕН', 'ЗАКРЫТО')"
  +"      ) "
  +" SELECT Description "
  +" 	,Issueunit, "
@@ -3373,7 +3359,7 @@ var sqlText = new String();
  +"      AND       TO_CHAR(wo.Actfinish, 'YYYY')   ='"+year+"' "
  +"      AND       TO_CHAR(wo.Actfinish, 'MM')     = "+par
  +"      AND       extract (DAY FROM wo.Actfinish) < 16 and ITEM.MAXIMOTYPE = 10"
- +"      AND       wo.STATUS IN (" + params["status"] +") "
+ +"      AND       wo.STATUS IN ('НАПР_НА_УТ', 'ЗАВЕРШ', 'ОТКЛ_РГН', 'ОФОРМЛЕН', 'ЗАКРЫТО') "
  +"      ) "
  +" SELECT   wonum  , "
  +"          to_char (substr (mesto,1,2000)) mesto  , "
@@ -4111,7 +4097,7 @@ var sqlText = new String();
  +"      AND       TO_CHAR(wo.Actfinish, 'YYYY')   = '"+year+"' "
  +"      AND       TO_CHAR(wo.Actfinish, 'MM')     = "+par
  +"      AND       extract (DAY FROM wo.Actfinish) > 15 and ITEM.MAXIMOTYPE = 10"
- +"      AND       wo.STATUS IN (" + params["status"] +") "
+ +"      AND       wo.STATUS IN ('НАПР_НА_УТ', 'ЗАВЕРШ', 'ОТКЛ_РГН', 'ОФОРМЛЕН', 'ЗАКРЫТО') "
  +"      ) "
  +" SELECT   wonum  , "
  +"          to_char (substr (mesto,1,2000)) mesto  , "
@@ -5218,7 +5204,7 @@ var sqlText = new String();
  +"      AND       TO_CHAR(wo.Actfinish, 'MM')     = "+par
  +"      AND       extract (DAY FROM wo.Actfinish) > 15 "
  +"      AND       matusetrans.itemnum   IS NOT NULL "
- +"      AND       wo.STATUS IN (" + params["status"] +") "
+ +"      AND       wo.STATUS IN ('НАПР_НА_УТ', 'ЗАВЕРШ', 'ОТКЛ_РГН', 'ОФОРМЛЕН', 'ЗАКРЫТО') "
  +"      ) "
  +"      , "
  +"      Unwork AS "
@@ -5249,7 +5235,7 @@ var sqlText = new String();
  +"      AND       TO_CHAR(wo.Actfinish, 'YYYY')   = '"+year+"' "
  +"      AND       TO_CHAR(wo.Actfinish, 'MM')     = "+par
  +"      AND       extract (DAY FROM wo.Actfinish) > 15 "
- +"      AND       Unworkitem.Itemnum    IS NOT NULL and Wo.Status IN (" + params["status"] +")"
+ +"      AND       Unworkitem.Itemnum    IS NOT NULL and Wo.Status IN ('НАПР_НА_УТ', 'ЗАВЕРШ', 'ОТКЛ_РГН', 'ОФОРМЛЕН', 'ЗАКРЫТО')"
  +"      ) "
  +" SELECT Description "
  +" 	,Issueunit, "
@@ -5584,7 +5570,7 @@ sqlText =  ""
  +"              siteid "
  +"      FROM    MAXIMO.WORKORDER WO "
  +"      WHERE   WO.TYPEWORKORDER = 'Путевые обходчики' "
- +"      AND     WO.STATUS IN (" + params["status"] +") "
+ +"      AND     WO.STATUS IN ('НАПР_НА_УТ', 'ЗАВЕРШ', 'ОТКЛ_РГН', 'ОФОРМЛЕН', 'ЗАКРЫТО') "
  
  +"      AND     WO.SITEID                     = '"+params["mroSite"]+"'"
  +"      AND     WO.BRIGAD_LOCATION                     = '" + (params["podr"]).replace("=","") + "' "
@@ -6483,7 +6469,7 @@ sqlText =  ""
  +"   AND       TO_CHAR(wo.Actfinish, 'YYYY') = '"+year+"' "
  +"   AND WO.BRIGAD_LOCATION                         = '" + (params["podr"]).replace("=","") + "' "
  
- +"   AND WO.STATUS       IN (" + params["status"] +") AND TYPEWORKORDER IN ('Внеплановое', 'Плановое', 'Сопутствующая работа', 'Прочее', 'Путевые обходчики')"
+ +"   AND WO.STATUS       IN ('НАПР_НА_УТ', 'ЗАВЕРШ', 'ОТКЛ_РГН', 'ОФОРМЛЕН', 'ЗАКРЫТО') AND TYPEWORKORDER IN ('Внеплановое', 'Плановое', 'Сопутствующая работа', 'Прочее', 'Путевые обходчики')"
  +"   ) "
  +"    "
  +" ,labtr as ( "

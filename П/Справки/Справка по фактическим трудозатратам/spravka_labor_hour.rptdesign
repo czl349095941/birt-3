@@ -303,15 +303,15 @@ var sqlText = new String();
 sqlText =  ""
  +" SELECT wo.brigad_location l_podr, loc.description L_PODR_D,"
  +"           NVL(SUM(CASE WHEN TYPEWORKORDER IN ('Внеплановое', 'Плановое', 'Сопутствующая работа') AND JP.CLASSSTRUCTUREID not IN ( SELECT CLASSSTRUCTUREID FROM maximo.CLASSSTRUCTURE WHERE parent = '090000028742')THEN WO.LABOR_HOUR END),0) SODERZHANIE, "
- +" 		  NVL(SUM(CASE WHEN WO.OTHERWORK = 'Подход к месту работы' or wo.CLASSSTRUCTUREID = '010001000101' THEN WO.LABOR_HOUR END),0)  PASSEGEWORK, "
- +"           NVL(SUM(CASE WHEN WO.OTHERWORK = 'Пропуск поездов' or wo.CLASSSTRUCTUREID = '010001000102' THEN WO.LABOR_HOUR END),0)        PASSTRAIN  , "
- +"           NVL(SUM(CASE WHEN WO.OTHERWORK = 'Ограждение места работ' or wo.CLASSSTRUCTUREID = '010001000103' THEN WO.LABOR_HOUR END),0) FENCINGPATH, "
- +"           NVL(SUM(CASE WHEN WO.OTHERWORK = 'Осмотр пути' or TYPEWORKORDER = 'Путевые обходчики' or wo.CLASSSTRUCTUREID = '010001000104' THEN WO.LABOR_HOUR END),0) OSMOTR, "
+ +" 		  NVL(SUM(CASE WHEN wo.CLASSSTRUCTUREID = '010001000101' THEN WO.LABOR_HOUR END),0)  PASSEGEWORK, "
+ +"           NVL(SUM(CASE WHEN wo.CLASSSTRUCTUREID = '010001000102' THEN WO.LABOR_HOUR END),0)        PASSTRAIN  , "
+ +"           NVL(SUM(CASE WHEN wo.CLASSSTRUCTUREID = '010001000103' THEN WO.LABOR_HOUR END),0) FENCINGPATH, "
+ +"           NVL(SUM(CASE WHEN TYPEWORKORDER = 'Путевые обходчики' or wo.CLASSSTRUCTUREID = '010001000104' THEN WO.LABOR_HOUR END),0) OSMOTR, "
  +"           NVL(SUM(CASE WHEN TYPEWORKORDER IN ('Внеплановое', 'Плановое', 'Сопутствующая работа') AND JP.CLASSSTRUCTUREID IN ( SELECT CLASSSTRUCTUREID from maximo.CLASSSTRUCTURE where parent  = '090000028742') THEN WO.LABOR_HOUR END),0) SNOW, "
- +"           NVL(SUM(CASE WHEN WO.OTHERWORK = 'Замещение бригадиров, дежурных по переезду' or wo.CLASSSTRUCTUREID = '010001000106' THEN WO.LABOR_HOUR END),0)  ZAM, "
- +"           NVL(SUM(CASE WHEN WO.OTHERWORK = 'Сопровождение дефектоскопн/путеизмер тележки' or wo.CLASSSTRUCTUREID = '010001000107' THEN WO.LABOR_HOUR END),0) TELEGA, "
- +"           NVL(SUM(CASE WHEN WO.OTHERWORK = 'Капитальные работы (наряд)' or wo.CLASSSTRUCTUREID = '010001000110' THEN WO.LABOR_HOUR END),0)  KAP_REM, "
- +"           NVL(SUM(CASE WHEN TYPEWORKORDER IN ('Прочее') AND WO.OTHERWORK not in ('Осмотр пути', 'Сопровождение дефектоскопн/путеизмер тележки', 'Подход к месту работы', 'Пропуск поездов', 'Ограждение места работ' ) and  wo.CLASSSTRUCTUREID not in ('010001000101', '010001000102', '010001000103', '010001000104', '010001000107', '010001000106', '010001000110') THEN WO.LABOR_HOUR END),0) proch "
+ +"           NVL(SUM(CASE WHEN wo.CLASSSTRUCTUREID = '010001000106' THEN WO.LABOR_HOUR END),0)  ZAM, "
+ +"           NVL(SUM(CASE WHEN wo.CLASSSTRUCTUREID = '010001000107' THEN WO.LABOR_HOUR END),0) TELEGA, "
+ +"           NVL(SUM(CASE WHEN wo.CLASSSTRUCTUREID = '010001000110' THEN WO.LABOR_HOUR END),0)  KAP_REM, "
+ +"           NVL(SUM(CASE WHEN TYPEWORKORDER IN ('Прочее')  and  wo.CLASSSTRUCTUREID not in ('010001000101', '010001000102', '010001000103', '010001000104', '010001000107', '010001000106', '010001000110') THEN WO.LABOR_HOUR END),0) proch "
  +" FROM      MAXIMO.WORKORDER WO "
  +"           LEFT JOIN MAXIMO.WOJPRELATION JPT "
  +"           ON        JPT.WONUM          = WO.WONUM "
@@ -671,16 +671,16 @@ params["year"]=BirtDateTime.year(BirtDateTime.now());
                 </structure>
                 <structure>
                     <property name="name">pd_sum_vkl</property>
-                    <expression name="expression">dataSetRow["SODERZHANIE"]+dataSetRow["PASSEGEWORK"]+dataSetRow["PASSTRAIN"]+dataSetRow["FENCINGPATH"]+dataSetRow["OSMOTR"]</expression>
+                    <expression name="expression">row["SODERZHANIE"]+row["PASSEGEWORK"]+row["PASSTRAIN"]+row["FENCINGPATH"]+row["OSMOTR"]</expression>
                     <property name="dataType">float</property>
                 </structure>
                 <structure>
                     <property name="name">pd_sum_no_vkl</property>
-                    <expression name="expression">dataSetRow["SNOW"]
-+dataSetRow["ZAM"]
-+dataSetRow["TELEGA"]
-+dataSetRow["KAP_REM"]
-+dataSetRow["PROCH"]</expression>
+                    <expression name="expression">row["SNOW"]
++row["ZAM"]
++row["TELEGA"]
++row["KAP_REM"]
++row["PROCH"]</expression>
                     <property name="dataType">float</property>
                 </structure>
                 <structure>

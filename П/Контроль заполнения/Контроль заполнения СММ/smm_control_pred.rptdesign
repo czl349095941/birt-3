@@ -101,6 +101,33 @@ mxReportScriptContext.setDefaultLogFile("c:/temp/tetttt.txt");
                 <property name="category">Unformatted</property>
             </structure>
         </scalar-parameter>
+        <scalar-parameter name="sort" id="17794">
+            <property name="valueType">static</property>
+            <property name="dataType">integer</property>
+            <property name="paramType">simple</property>
+            <text-property name="promptText">Сортировать по</text-property>
+            <property name="isRequired">false</property>
+            <property name="controlType">list-box</property>
+            <property name="mustMatch">true</property>
+            <property name="fixedOrder">false</property>
+            <property name="defaultValue">5</property>
+            <property name="distinct">true</property>
+            <property name="sortBy">value</property>
+            <property name="sortDirection">asc</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+            <list-property name="selectionList">
+                <structure>
+                    <property name="value">1</property>
+                    <property name="label">подразделению</property>
+                </structure>
+                <structure>
+                    <property name="value">5</property>
+                    <property name="label">% рабочих задания с заполненными СММ</property>
+                </structure>
+            </list-property>
+        </scalar-parameter>
     </parameters>
     <data-sources>
         <script-data-source name="maximoDataSource" id="64" extends="MaximoSystemLibrary.maximoDataSource"/>
@@ -640,7 +667,19 @@ return (true);]]></method>
             </list-property>
             <list-property name="sort">
                 <structure>
-                    <expression name="key">row["mat_no"]</expression>
+                    <expression name="key">switch(params["sort"].value) {
+  case 1: {
+  row["L_PODR_D"]
+    break;
+  }
+  case 5: {
+    row["mat_no"]
+    break;
+  }
+  default: {
+row["L_PODR_D"]
+  }
+}</expression>
                     <property name="direction">asc</property>
                 </structure>
             </list-property>
@@ -699,6 +738,42 @@ return (true);]]></method>
                         <property name="textAlign">center</property>
                         <label id="17719">
                             <text-property name="text">Подразделение</text-property>
+                            <structure name="action">
+                                <property name="linkType">drill-through</property>
+                                <property name="reportName">smm_control_pred.rptdesign</property>
+                                <property name="targetWindow">_top</property>
+                                <property name="targetFileType">report-design</property>
+                                <list-property name="paramBindings">
+                                    <structure>
+                                        <property name="paramName">where</property>
+                                        <expression name="expression">"1=1"</expression>
+                                    </structure>
+                                    <structure>
+                                        <property name="paramName">appname</property>
+                                        <expression name="expression">"WOTRACK"</expression>
+                                    </structure>
+                                    <structure>
+                                        <property name="paramName">mroSite</property>
+                                        <expression name="expression">params["mroSite"].value</expression>
+                                    </structure>
+                                    <structure>
+                                        <property name="paramName">pred</property>
+                                        <expression name="expression">params["pred"].value</expression>
+                                    </structure>
+                                    <structure>
+                                        <property name="paramName">date1</property>
+                                        <expression name="expression">params["date1"].value</expression>
+                                    </structure>
+                                    <structure>
+                                        <property name="paramName">date2</property>
+                                        <expression name="expression">params["date2"].value</expression>
+                                    </structure>
+                                    <structure>
+                                        <property name="paramName">sort</property>
+                                        <expression name="expression">1</expression>
+                                    </structure>
+                                </list-property>
+                            </structure>
                         </label>
                     </cell>
                     <cell id="17722">
@@ -858,6 +933,42 @@ return (true);]]></method>
                         <property name="textAlign">center</property>
                         <label id="17779">
                             <text-property name="text">% рабочих заданий с заполненными СММ</text-property>
+                            <structure name="action">
+                                <property name="linkType">drill-through</property>
+                                <property name="reportName">smm_control_pred.rptdesign</property>
+                                <property name="targetWindow">_top</property>
+                                <property name="targetFileType">report-design</property>
+                                <list-property name="paramBindings">
+                                    <structure>
+                                        <property name="paramName">where</property>
+                                        <expression name="expression">"1=1"</expression>
+                                    </structure>
+                                    <structure>
+                                        <property name="paramName">appname</property>
+                                        <expression name="expression">"WOTRACK"</expression>
+                                    </structure>
+                                    <structure>
+                                        <property name="paramName">mroSite</property>
+                                        <expression name="expression">params["mroSite"].value</expression>
+                                    </structure>
+                                    <structure>
+                                        <property name="paramName">pred</property>
+                                        <expression name="expression">params["pred"].value</expression>
+                                    </structure>
+                                    <structure>
+                                        <property name="paramName">date1</property>
+                                        <expression name="expression">params["date1"].value</expression>
+                                    </structure>
+                                    <structure>
+                                        <property name="paramName">date2</property>
+                                        <expression name="expression">params["date2"].value</expression>
+                                    </structure>
+                                    <structure>
+                                        <property name="paramName">sort</property>
+                                        <expression name="expression">5</expression>
+                                    </structure>
+                                </list-property>
+                            </structure>
                         </label>
                     </cell>
                 </row>
@@ -1150,6 +1261,7 @@ return (true);]]></method>
             </detail>
             <footer>
                 <row id="17741">
+                    <property name="fontWeight">bold</property>
                     <cell id="17742">
                         <property name="backgroundColor">#C0C0C0</property>
                         <property name="borderBottomColor">#000000</property>
