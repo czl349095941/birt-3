@@ -254,6 +254,11 @@ mxReportScriptContext.setDefaultLogFile("c:/temp/tetttt.txt");]]></method>
                     <property name="name">jpnum</property>
                     <property name="dataType">string</property>
                 </structure>
+                <structure>
+                    <property name="position">26</property>
+                    <property name="name">NUMVALUE</property>
+                    <property name="dataType">string</property>
+                </structure>
             </list-property>
             <list-property name="columnHints">
                 <structure>
@@ -330,6 +335,9 @@ mxReportScriptContext.setDefaultLogFile("c:/temp/tetttt.txt");]]></method>
                 </structure>
                 <structure>
                     <property name="columnName">jpnum</property>
+                </structure>
+                <structure>
+                    <property name="columnName">NUMVALUE</property>
                 </structure>
             </list-property>
             <structure name="cachedMetaData">
@@ -459,6 +467,11 @@ mxReportScriptContext.setDefaultLogFile("c:/temp/tetttt.txt");]]></method>
                         <property name="name">jpnum</property>
                         <property name="dataType">string</property>
                     </structure>
+                    <structure>
+                        <property name="position">26</property>
+                        <property name="name">NUMVALUE</property>
+                        <property name="dataType">string</property>
+                    </structure>
                 </list-property>
             </structure>
             <property name="dataSource">maximoDataSource</property>
@@ -575,6 +588,7 @@ sqlText = ""
  +"         JOBPLAN.DESCRIPTION                   NAMERAB, "
  +"         JOBPLAN.JPNUM                         JPNUM, "
  +"         NVL(wo.JPDURATION, WO.NOKOEFDURATION) JPDURATION, "
+ +"			J1.numvalue, "
  +"         J1.numvalue "
  +"                 ||' ' "
  +"                 ||J1.MEASUREUNITID edizm , "
@@ -672,6 +686,7 @@ sqlText = ""
 +"                        ELSE NVL(wo.OTHERWORK, cls.description) " 
 +"                END, 'Прочие работы') NAMERAB , " 
 +"        to_number('')                 JPDURATION, " 
++"		  to_number('')					NUMVALUE, "
 +"        'ч-час'                       EDIZM , " 
 +"        CAST (NULL AS INTEGER)        SB , " 
 +"        CAST (NULL AS INTEGER)        Kfakt , " 
@@ -721,6 +736,7 @@ row["OBOSN"] = maximoDataSet.getString("OBOSN");
 row["NAMERAB"] = maximoDataSet.getString("NAMERAB");
 row["jpnum"] = maximoDataSet.getString("jpnum");
 row["JPDURATION"] = maximoDataSet.getString("JPDURATION");
+row["NUMVALUE"] = maximoDataSet.getString("NUMVALUE");
 row["EDIZM"] = maximoDataSet.getString("EDIZM");
 row["SB"] = maximoDataSet.getString("SB");
 row["PLANTIME"] = maximoDataSet.getString("PLANTIME");
@@ -1619,6 +1635,12 @@ else ( 'К факт = 0  (чел) / '+ BirtMath.round(row["Aggregation_1"],2)+' 
                                     <column id="8800">
                                         <property name="width">100px</property>
                                     </column>
+                                    <column id="10145">
+                                        <property name="width">100px</property>
+                                    </column>
+                                    <column id="10135">
+                                        <property name="width">100px</property>
+                                    </column>
                                     <column id="8801">
                                         <property name="width">100px</property>
                                     </column>
@@ -1857,7 +1879,7 @@ else ( 'К факт = 0  (чел) / '+ BirtMath.round(row["Aggregation_1"],2)+' 
                                                 </label>
                                             </cell>
                                             <cell id="9890">
-                                                <property name="colSpan">2</property>
+                                                <property name="colSpan">4</property>
                                                 <property name="rowSpan">1</property>
                                                 <property name="backgroundColor">#C0C0C0</property>
                                                 <property name="fontWeight">bold</property>
@@ -1968,6 +1990,7 @@ else ( 'К факт = 0  (чел) / '+ BirtMath.round(row["Aggregation_1"],2)+' 
                                             </cell>
                                         </row>
                                         <row id="9858">
+                                            <property name="height">0.3854166666666667in</property>
                                             <cell id="9868">
                                                 <property name="backgroundColor">#C0C0C0</property>
                                                 <property name="fontWeight">bold</property>
@@ -2026,6 +2049,46 @@ else ( 'К факт = 0  (чел) / '+ BirtMath.round(row["Aggregation_1"],2)+' 
                                                 <property name="textAlign">center</property>
                                                 <label id="8642">
                                                     <text-property name="text">Нормированное время (чел-час)</text-property>
+                                                </label>
+                                            </cell>
+                                            <cell id="10137">
+                                                <property name="backgroundColor">#C0C0C0</property>
+                                                <property name="fontWeight">bold</property>
+                                                <property name="borderBottomColor">#000000</property>
+                                                <property name="borderBottomStyle">solid</property>
+                                                <property name="borderBottomWidth">thin</property>
+                                                <property name="borderLeftColor">#000000</property>
+                                                <property name="borderLeftStyle">solid</property>
+                                                <property name="borderLeftWidth">thin</property>
+                                                <property name="borderRightColor">#000000</property>
+                                                <property name="borderRightStyle">solid</property>
+                                                <property name="borderRightWidth">thin</property>
+                                                <property name="borderTopColor">#000000</property>
+                                                <property name="borderTopStyle">solid</property>
+                                                <property name="borderTopWidth">thin</property>
+                                                <property name="textAlign">center</property>
+                                                <label id="10146">
+                                                    <text-property name="text">Фактическое время (чел-час)</text-property>
+                                                </label>
+                                            </cell>
+                                            <cell id="10127">
+                                                <property name="backgroundColor">#C0C0C0</property>
+                                                <property name="fontWeight">bold</property>
+                                                <property name="borderBottomColor">#000000</property>
+                                                <property name="borderBottomStyle">solid</property>
+                                                <property name="borderBottomWidth">thin</property>
+                                                <property name="borderLeftColor">#000000</property>
+                                                <property name="borderLeftStyle">solid</property>
+                                                <property name="borderLeftWidth">thin</property>
+                                                <property name="borderRightColor">#000000</property>
+                                                <property name="borderRightStyle">solid</property>
+                                                <property name="borderRightWidth">thin</property>
+                                                <property name="borderTopColor">#000000</property>
+                                                <property name="borderTopStyle">solid</property>
+                                                <property name="borderTopWidth">thin</property>
+                                                <property name="textAlign">center</property>
+                                                <label id="10147">
+                                                    <text-property name="text">% выполнения норм</text-property>
                                                 </label>
                                             </cell>
                                             <cell id="9871">
@@ -2302,7 +2365,7 @@ else ( 'К факт = 0  (чел) / '+ BirtMath.round(row["Aggregation_1"],2)+' 
                                                     <text-property name="text">12</text-property>
                                                 </label>
                                             </cell>
-                                            <cell id="9911">
+                                            <cell id="10138">
                                                 <property name="backgroundColor">#C0C0C0</property>
                                                 <property name="fontWeight">bold</property>
                                                 <property name="borderBottomColor">#000000</property>
@@ -2323,7 +2386,7 @@ else ( 'К факт = 0  (чел) / '+ BirtMath.round(row["Aggregation_1"],2)+' 
                                                     <text-property name="text">13</text-property>
                                                 </label>
                                             </cell>
-                                            <cell id="9912">
+                                            <cell id="10128">
                                                 <property name="backgroundColor">#C0C0C0</property>
                                                 <property name="fontWeight">bold</property>
                                                 <property name="borderBottomColor">#000000</property>
@@ -2344,7 +2407,7 @@ else ( 'К факт = 0  (чел) / '+ BirtMath.round(row["Aggregation_1"],2)+' 
                                                     <text-property name="text">14</text-property>
                                                 </label>
                                             </cell>
-                                            <cell id="10101">
+                                            <cell id="9911">
                                                 <property name="backgroundColor">#C0C0C0</property>
                                                 <property name="fontWeight">bold</property>
                                                 <property name="borderBottomColor">#000000</property>
@@ -2365,7 +2428,7 @@ else ( 'К факт = 0  (чел) / '+ BirtMath.round(row["Aggregation_1"],2)+' 
                                                     <text-property name="text">15</text-property>
                                                 </label>
                                             </cell>
-                                            <cell id="10111">
+                                            <cell id="9912">
                                                 <property name="backgroundColor">#C0C0C0</property>
                                                 <property name="fontWeight">bold</property>
                                                 <property name="borderBottomColor">#000000</property>
@@ -2386,7 +2449,7 @@ else ( 'К факт = 0  (чел) / '+ BirtMath.round(row["Aggregation_1"],2)+' 
                                                     <text-property name="text">16</text-property>
                                                 </label>
                                             </cell>
-                                            <cell id="9916">
+                                            <cell id="10101">
                                                 <property name="backgroundColor">#C0C0C0</property>
                                                 <property name="fontWeight">bold</property>
                                                 <property name="borderBottomColor">#000000</property>
@@ -2405,6 +2468,48 @@ else ( 'К факт = 0  (чел) / '+ BirtMath.round(row["Aggregation_1"],2)+' 
                                                 <label id="10122">
                                                     <property name="fontWeight">normal</property>
                                                     <text-property name="text">17</text-property>
+                                                </label>
+                                            </cell>
+                                            <cell id="10111">
+                                                <property name="backgroundColor">#C0C0C0</property>
+                                                <property name="fontWeight">bold</property>
+                                                <property name="borderBottomColor">#000000</property>
+                                                <property name="borderBottomStyle">solid</property>
+                                                <property name="borderBottomWidth">thin</property>
+                                                <property name="borderLeftColor">#000000</property>
+                                                <property name="borderLeftStyle">solid</property>
+                                                <property name="borderLeftWidth">thin</property>
+                                                <property name="borderRightColor">#000000</property>
+                                                <property name="borderRightStyle">solid</property>
+                                                <property name="borderRightWidth">thin</property>
+                                                <property name="borderTopColor">#000000</property>
+                                                <property name="borderTopStyle">solid</property>
+                                                <property name="borderTopWidth">thin</property>
+                                                <property name="textAlign">center</property>
+                                                <label id="10148">
+                                                    <property name="fontWeight">normal</property>
+                                                    <text-property name="text">18</text-property>
+                                                </label>
+                                            </cell>
+                                            <cell id="9916">
+                                                <property name="backgroundColor">#C0C0C0</property>
+                                                <property name="fontWeight">bold</property>
+                                                <property name="borderBottomColor">#000000</property>
+                                                <property name="borderBottomStyle">solid</property>
+                                                <property name="borderBottomWidth">thin</property>
+                                                <property name="borderLeftColor">#000000</property>
+                                                <property name="borderLeftStyle">solid</property>
+                                                <property name="borderLeftWidth">thin</property>
+                                                <property name="borderRightColor">#000000</property>
+                                                <property name="borderRightStyle">solid</property>
+                                                <property name="borderRightWidth">thin</property>
+                                                <property name="borderTopColor">#000000</property>
+                                                <property name="borderTopStyle">solid</property>
+                                                <property name="borderTopWidth">thin</property>
+                                                <property name="textAlign">center</property>
+                                                <label id="10149">
+                                                    <property name="fontWeight">normal</property>
+                                                    <text-property name="text">19</text-property>
                                                 </label>
                                             </cell>
                                         </row>
@@ -2537,6 +2642,22 @@ else ('РК = ' + dataSetRow["RK"] +  ' (чел)' )</expression>
                                                 <property name="borderTopWidth">thin</property>
                                             </cell>
                                             <cell id="9775">
+                                                <property name="borderBottomColor">#000000</property>
+                                                <property name="borderBottomStyle">solid</property>
+                                                <property name="borderBottomWidth">thin</property>
+                                                <property name="borderTopColor">#000000</property>
+                                                <property name="borderTopStyle">solid</property>
+                                                <property name="borderTopWidth">thin</property>
+                                            </cell>
+                                            <cell id="10139">
+                                                <property name="borderBottomColor">#000000</property>
+                                                <property name="borderBottomStyle">solid</property>
+                                                <property name="borderBottomWidth">thin</property>
+                                                <property name="borderTopColor">#000000</property>
+                                                <property name="borderTopStyle">solid</property>
+                                                <property name="borderTopWidth">thin</property>
+                                            </cell>
+                                            <cell id="10129">
                                                 <property name="borderBottomColor">#000000</property>
                                                 <property name="borderBottomStyle">solid</property>
                                                 <property name="borderBottomWidth">thin</property>
@@ -2760,6 +2881,22 @@ else ('Ксп = ' + dataSetRow["KSP"] + '  (чел)' )</expression>
                                                             </row>
                                                         </detail>
                                                     </table>
+                                                </cell>
+                                                <cell id="10140">
+                                                    <property name="borderBottomColor">#000000</property>
+                                                    <property name="borderBottomStyle">solid</property>
+                                                    <property name="borderBottomWidth">thin</property>
+                                                    <property name="borderTopColor">#000000</property>
+                                                    <property name="borderTopStyle">solid</property>
+                                                    <property name="borderTopWidth">thin</property>
+                                                </cell>
+                                                <cell id="10130">
+                                                    <property name="borderBottomColor">#000000</property>
+                                                    <property name="borderBottomStyle">solid</property>
+                                                    <property name="borderBottomWidth">thin</property>
+                                                    <property name="borderTopColor">#000000</property>
+                                                    <property name="borderTopStyle">solid</property>
+                                                    <property name="borderTopWidth">thin</property>
                                                 </cell>
                                                 <cell id="8706">
                                                     <property name="colSpan">2</property>
@@ -3044,6 +3181,21 @@ else ('Ксп = ' + dataSetRow["KSP"] + '  (чел)' )</expression>
                                                     <property name="borderTopStyle">solid</property>
                                                     <property name="borderTopWidth">thin</property>
                                                     <property name="textAlign">right</property>
+                                                </cell>
+                                                <cell id="10143">
+                                                    <property name="borderBottomColor">#000000</property>
+                                                    <property name="borderBottomStyle">solid</property>
+                                                    <property name="borderBottomWidth">thin</property>
+                                                    <property name="borderLeftColor">#000000</property>
+                                                    <property name="borderLeftStyle">solid</property>
+                                                    <property name="borderLeftWidth">thin</property>
+                                                    <property name="borderRightColor">#000000</property>
+                                                    <property name="borderRightStyle">solid</property>
+                                                    <property name="borderRightWidth">thin</property>
+                                                    <property name="borderTopColor">#000000</property>
+                                                    <property name="borderTopStyle">solid</property>
+                                                    <property name="borderTopWidth">thin</property>
+                                                    <property name="textAlign">right</property>
                                                     <data id="8726">
                                                         <property name="fontWeight">bold</property>
                                                         <structure name="numberFormat">
@@ -3052,6 +3204,21 @@ else ('Ксп = ' + dataSetRow["KSP"] + '  (чел)' )</expression>
                                                         </structure>
                                                         <property name="resultSetColumn">Aggregation_1</property>
                                                     </data>
+                                                </cell>
+                                                <cell id="10133">
+                                                    <property name="borderBottomColor">#000000</property>
+                                                    <property name="borderBottomStyle">solid</property>
+                                                    <property name="borderBottomWidth">thin</property>
+                                                    <property name="borderLeftColor">#000000</property>
+                                                    <property name="borderLeftStyle">solid</property>
+                                                    <property name="borderLeftWidth">thin</property>
+                                                    <property name="borderRightColor">#000000</property>
+                                                    <property name="borderRightStyle">solid</property>
+                                                    <property name="borderRightWidth">thin</property>
+                                                    <property name="borderTopColor">#000000</property>
+                                                    <property name="borderTopStyle">solid</property>
+                                                    <property name="borderTopWidth">thin</property>
+                                                    <property name="textAlign">right</property>
                                                 </cell>
                                                 <cell id="8727">
                                                     <property name="borderBottomColor">#000000</property>
@@ -3343,6 +3510,18 @@ else ('Ксп = ' + dataSetRow["KSP"] + '  (чел)' )</expression>
                                                     <property name="borderTopStyle">solid</property>
                                                     <property name="borderTopWidth">thin</property>
                                                     <property name="textAlign">right</property>
+                                                </cell>
+                                                <cell id="10141">
+                                                    <property name="borderLeftColor">#000000</property>
+                                                    <property name="borderLeftStyle">solid</property>
+                                                    <property name="borderLeftWidth">thin</property>
+                                                    <property name="borderRightColor">#000000</property>
+                                                    <property name="borderRightStyle">solid</property>
+                                                    <property name="borderRightWidth">thin</property>
+                                                    <property name="borderTopColor">#000000</property>
+                                                    <property name="borderTopStyle">solid</property>
+                                                    <property name="borderTopWidth">thin</property>
+                                                    <property name="textAlign">right</property>
                                                     <data id="8752">
                                                         <structure name="numberFormat">
                                                             <property name="category">Fixed</property>
@@ -3350,6 +3529,18 @@ else ('Ксп = ' + dataSetRow["KSP"] + '  (чел)' )</expression>
                                                         </structure>
                                                         <property name="resultSetColumn">FACTTIME</property>
                                                     </data>
+                                                </cell>
+                                                <cell id="10131">
+                                                    <property name="borderLeftColor">#000000</property>
+                                                    <property name="borderLeftStyle">solid</property>
+                                                    <property name="borderLeftWidth">thin</property>
+                                                    <property name="borderRightColor">#000000</property>
+                                                    <property name="borderRightStyle">solid</property>
+                                                    <property name="borderRightWidth">thin</property>
+                                                    <property name="borderTopColor">#000000</property>
+                                                    <property name="borderTopStyle">solid</property>
+                                                    <property name="borderTopWidth">thin</property>
+                                                    <property name="textAlign">right</property>
                                                 </cell>
                                                 <cell id="9722">
                                                     <property name="borderLeftColor">#000000</property>
@@ -3526,6 +3717,24 @@ else ('Ксп = ' + dataSetRow["KSP"] + '  (чел)' )</expression>
                                                 <property name="textAlign">right</property>
                                             </cell>
                                             <cell id="8751">
+                                                <property name="borderLeftColor">#000000</property>
+                                                <property name="borderLeftStyle">solid</property>
+                                                <property name="borderLeftWidth">thin</property>
+                                                <property name="borderRightColor">#000000</property>
+                                                <property name="borderRightStyle">solid</property>
+                                                <property name="borderRightWidth">thin</property>
+                                                <property name="textAlign">right</property>
+                                            </cell>
+                                            <cell id="10142">
+                                                <property name="borderLeftColor">#000000</property>
+                                                <property name="borderLeftStyle">solid</property>
+                                                <property name="borderLeftWidth">thin</property>
+                                                <property name="borderRightColor">#000000</property>
+                                                <property name="borderRightStyle">solid</property>
+                                                <property name="borderRightWidth">thin</property>
+                                                <property name="textAlign">right</property>
+                                            </cell>
+                                            <cell id="10132">
                                                 <property name="borderLeftColor">#000000</property>
                                                 <property name="borderLeftStyle">solid</property>
                                                 <property name="borderLeftWidth">thin</property>
@@ -3805,6 +4014,22 @@ else ('Ксп = ' + dataSetRow["KSP"] + '  (чел)' )</expression>
                                                 <property name="borderTopStyle">solid</property>
                                                 <property name="borderTopWidth">thin</property>
                                                 <property name="textAlign">right</property>
+                                            </cell>
+                                            <cell id="10144">
+                                                <property name="backgroundColor">#C0C0C0</property>
+                                                <property name="borderBottomColor">#000000</property>
+                                                <property name="borderBottomStyle">solid</property>
+                                                <property name="borderBottomWidth">thin</property>
+                                                <property name="borderLeftColor">#000000</property>
+                                                <property name="borderLeftStyle">solid</property>
+                                                <property name="borderLeftWidth">thin</property>
+                                                <property name="borderRightColor">#000000</property>
+                                                <property name="borderRightStyle">solid</property>
+                                                <property name="borderRightWidth">thin</property>
+                                                <property name="borderTopColor">#000000</property>
+                                                <property name="borderTopStyle">solid</property>
+                                                <property name="borderTopWidth">thin</property>
+                                                <property name="textAlign">right</property>
                                                 <data id="8783">
                                                     <property name="fontWeight">bold</property>
                                                     <structure name="numberFormat">
@@ -3813,6 +4038,22 @@ else ('Ксп = ' + dataSetRow["KSP"] + '  (чел)' )</expression>
                                                     </structure>
                                                     <property name="resultSetColumn">Column Binding_1</property>
                                                 </data>
+                                            </cell>
+                                            <cell id="10134">
+                                                <property name="backgroundColor">#C0C0C0</property>
+                                                <property name="borderBottomColor">#000000</property>
+                                                <property name="borderBottomStyle">solid</property>
+                                                <property name="borderBottomWidth">thin</property>
+                                                <property name="borderLeftColor">#000000</property>
+                                                <property name="borderLeftStyle">solid</property>
+                                                <property name="borderLeftWidth">thin</property>
+                                                <property name="borderRightColor">#000000</property>
+                                                <property name="borderRightStyle">solid</property>
+                                                <property name="borderRightWidth">thin</property>
+                                                <property name="borderTopColor">#000000</property>
+                                                <property name="borderTopStyle">solid</property>
+                                                <property name="borderTopWidth">thin</property>
+                                                <property name="textAlign">right</property>
                                             </cell>
                                             <cell id="8784">
                                                 <property name="backgroundColor">#C0C0C0</property>
