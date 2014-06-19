@@ -171,6 +171,11 @@ mxReportScriptContext.setDefaultLogFile("c:/temp/tetttt.txt");
                     <property name="name">STATUS</property>
                     <property name="dataType">string</property>
                 </structure>
+                <structure>
+                    <property name="position">16</property>
+                    <property name="name">CRITICDATE</property>
+                    <property name="dataType">string</property>
+                </structure>
             </list-property>
             <list-property name="columnHints">
                 <structure>
@@ -238,6 +243,9 @@ mxReportScriptContext.setDefaultLogFile("c:/temp/tetttt.txt");
                 </structure>
                 <structure>
                     <property name="columnName">STATUS</property>
+                </structure>
+                <structure>
+                    <property name="columnName">CRITICDATE</property>
                 </structure>
             </list-property>
             <structure name="cachedMetaData">
@@ -317,6 +325,11 @@ mxReportScriptContext.setDefaultLogFile("c:/temp/tetttt.txt");
                         <property name="name">STATUS</property>
                         <property name="dataType">string</property>
                     </structure>
+                    <structure>
+                        <property name="position">16</property>
+                        <property name="name">CRITICDATE</property>
+                        <property name="dataType">string</property>
+                    </structure>
                 </list-property>
             </structure>
             <property name="dataSource">maximoDataSource</property>
@@ -370,7 +383,8 @@ sqlText = ""
 +"        plab.laborcode, " 
 +"        CASE WHEN LABORCRAFTRATE.craft IN ('СГНЛСТ', '00000346') THEN plab.LABORCODE ELSE NULL END signal, "
 +"		  wo.typeworkorder TYPEWO, "
-+"		  (select description from MAXIMO.SYNONYMDOMAIN synd where synd.domainid = 'WOSTATUS' and synd.value = wo.status) status "
++"		  (select description from MAXIMO.SYNONYMDOMAIN synd where synd.domainid = 'WOSTATUS' and synd.value = wo.status) status, "
++"		  TO_CHAR(wo.criticdate, 'DD.MM.YYYY') criticdate "
 +"FROM    maximo.plan_ord pord " 
 +"        LEFT JOIN maximo.wodaily wod " 
 +"                ON      pord.siteid         = wod.siteid " 
@@ -420,6 +434,7 @@ row["LABORCODE"] = maximoDataSet.getString("LABORCODE");
 row["SIGNAL"] = maximoDataSet.getString("SIGNAL");
 row["TYPEWO"] = maximoDataSet.getString("TYPEWO");
 row["STATUS"] = maximoDataSet.getString("STATUS");
+row["CRITICDATE"] = maximoDataSet.getString("CRITICDATE");
 
 
 	
@@ -678,10 +693,51 @@ else row["count_signal"]-1</expression>
                     <expression name="expression">dataSetRow["STATUS"]</expression>
                     <property name="dataType">string</property>
                 </structure>
+                <structure>
+                    <property name="name">CRITICDATE</property>
+                    <property name="displayName">CRITICDATE</property>
+                    <expression name="expression">dataSetRow["CRITICDATE"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">typewo_plan_lh</property>
+                    <property name="dataType">float</property>
+                    <simple-property-list name="aggregateOn">
+                        <value>typewo</value>
+                    </simple-property-list>
+                    <property name="aggregateFunction">SUM</property>
+                    <list-property name="arguments">
+                        <structure>
+                            <property name="name">Expression</property>
+                            <expression name="value">row["wo_plan_lh"]</expression>
+                        </structure>
+                    </list-property>
+                </structure>
+                <structure>
+                    <property name="name">typewo_plan_norm_lh</property>
+                    <property name="dataType">float</property>
+                    <simple-property-list name="aggregateOn">
+                        <value>typewo</value>
+                    </simple-property-list>
+                    <property name="aggregateFunction">SUM</property>
+                    <list-property name="arguments">
+                        <structure>
+                            <property name="name">Expression</property>
+                            <expression name="value">row["wo_plan_norm_lh"]</expression>
+                        </structure>
+                    </list-property>
+                </structure>
+                <structure>
+                    <property name="name">group_typewo</property>
+                    <property name="displayName">TYPEWO</property>
+                    <expression name="expression">"Итого по типу работ '" +dataSetRow["TYPEWO"] +"'"</expression>
+                    <property name="dataType">string</property>
+                </structure>
             </list-property>
             <column id="17658"/>
             <column id="17767"/>
             <column id="17778"/>
+            <column id="17791"/>
             <column id="17659"/>
             <column id="17660"/>
             <column id="17661"/>
@@ -698,7 +754,7 @@ else row["count_signal"]-1</expression>
                         </label>
                     </cell>
                     <cell id="17759">
-                        <property name="colSpan">3</property>
+                        <property name="colSpan">4</property>
                         <property name="rowSpan">1</property>
                         <data id="17717">
                             <property name="fontWeight">normal</property>
@@ -733,7 +789,7 @@ else row["count_signal"]-1</expression>
                         </label>
                     </cell>
                     <cell id="17760">
-                        <property name="colSpan">3</property>
+                        <property name="colSpan">4</property>
                         <property name="rowSpan">1</property>
                         <data id="17716">
                             <property name="fontWeight">normal</property>
@@ -779,7 +835,7 @@ else row["count_signal"]-1</expression>
                         </label>
                     </cell>
                     <cell id="17761">
-                        <property name="colSpan">3</property>
+                        <property name="colSpan">4</property>
                         <property name="rowSpan">1</property>
                         <data id="17742">
                             <property name="fontWeight">normal</property>
@@ -794,7 +850,7 @@ else row["count_signal"]-1</expression>
                 </row>
                 <row id="17666">
                     <cell id="17667">
-                        <property name="colSpan">8</property>
+                        <property name="colSpan">9</property>
                         <property name="rowSpan">1</property>
                         <label id="17704"/>
                     </cell>
@@ -852,6 +908,24 @@ else row["count_signal"]-1</expression>
                         <property name="borderTopWidth">thin</property>
                         <label id="17779">
                             <text-property name="text">Статус рабочего задания</text-property>
+                        </label>
+                    </cell>
+                    <cell id="17787">
+                        <property name="backgroundColor">#C0C0C0</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <label id="17792">
+                            <text-property name="text">Крайний срок</text-property>
                         </label>
                     </cell>
                     <cell id="17598">
@@ -1000,7 +1074,7 @@ else row["count_signal"]-1</expression>
                             <text-property name="text">3</text-property>
                         </label>
                     </cell>
-                    <cell id="17693">
+                    <cell id="17788">
                         <property name="backgroundColor">#C0C0C0</property>
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
@@ -1018,7 +1092,7 @@ else row["count_signal"]-1</expression>
                             <text-property name="text">4</text-property>
                         </label>
                     </cell>
-                    <cell id="17694">
+                    <cell id="17693">
                         <property name="backgroundColor">#C0C0C0</property>
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
@@ -1036,7 +1110,7 @@ else row["count_signal"]-1</expression>
                             <text-property name="text">5</text-property>
                         </label>
                     </cell>
-                    <cell id="17695">
+                    <cell id="17694">
                         <property name="backgroundColor">#C0C0C0</property>
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
@@ -1054,7 +1128,7 @@ else row["count_signal"]-1</expression>
                             <text-property name="text">6</text-property>
                         </label>
                     </cell>
-                    <cell id="17696">
+                    <cell id="17695">
                         <property name="backgroundColor">#C0C0C0</property>
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
@@ -1072,7 +1146,7 @@ else row["count_signal"]-1</expression>
                             <text-property name="text">7</text-property>
                         </label>
                     </cell>
-                    <cell id="17697">
+                    <cell id="17696">
                         <property name="backgroundColor">#C0C0C0</property>
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
@@ -1090,8 +1164,109 @@ else row["count_signal"]-1</expression>
                             <text-property name="text">8</text-property>
                         </label>
                     </cell>
+                    <cell id="17697">
+                        <property name="backgroundColor">#C0C0C0</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <label id="17794">
+                            <text-property name="text">8</text-property>
+                        </label>
+                    </cell>
                 </row>
             </header>
+            <group id="17795">
+                <property name="groupName">typewo</property>
+                <property name="interval">none</property>
+                <property name="sortDirection">asc</property>
+                <expression name="keyExpr">row["TYPEWO"]</expression>
+                <structure name="toc">
+                    <expression name="expressionValue">row["TYPEWO"]</expression>
+                </structure>
+                <property name="repeatHeader">true</property>
+                <property name="hideDetail">false</property>
+                <property name="pageBreakAfter">auto</property>
+                <property name="pageBreakBefore">auto</property>
+                <property name="pageBreakInside">auto</property>
+                <footer>
+                    <row id="17806">
+                        <property name="fontWeight">bold</property>
+                        <cell id="17807">
+                            <property name="colSpan">7</property>
+                            <property name="rowSpan">1</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">thin</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">thin</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">thin</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">thin</property>
+                            <property name="textAlign">right</property>
+                            <data id="17816">
+                                <property name="resultSetColumn">group_typewo</property>
+                            </data>
+                        </cell>
+                        <cell id="17814">
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">thin</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">thin</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">thin</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">thin</property>
+                            <data id="17818">
+                                <structure name="numberFormat">
+                                    <property name="category">Fixed</property>
+                                    <property name="pattern">Fixed</property>
+                                </structure>
+                                <property name="textAlign">right</property>
+                                <property name="resultSetColumn">typewo_plan_lh</property>
+                            </data>
+                        </cell>
+                        <cell id="17815">
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">thin</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">thin</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">thin</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">thin</property>
+                            <data id="17819">
+                                <structure name="numberFormat">
+                                    <property name="category">Fixed</property>
+                                    <property name="pattern">###0.000</property>
+                                </structure>
+                                <property name="textAlign">right</property>
+                                <property name="resultSetColumn">typewo_plan_norm_lh</property>
+                            </data>
+                        </cell>
+                    </row>
+                </footer>
+            </group>
             <group id="17721">
                 <property name="groupName">wo_group</property>
                 <property name="interval">none</property>
@@ -1182,6 +1357,23 @@ else row["count_signal"]-1</expression>
                             <property name="borderTopWidth">thin</property>
                             <data id="17780">
                                 <property name="resultSetColumn">STATUS</property>
+                            </data>
+                        </cell>
+                        <cell id="17789">
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">thin</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">thin</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">thin</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">thin</property>
+                            <data id="17793">
+                                <property name="resultSetColumn">CRITICDATE</property>
                             </data>
                         </cell>
                         <cell id="17724">
@@ -1281,8 +1473,8 @@ else row["count_signal"]-1</expression>
                             <property name="borderTopWidth">thin</property>
                             <data id="17634">
                                 <structure name="numberFormat">
-                                    <property name="category">Custom</property>
-                                    <property name="pattern">###,##0.00</property>
+                                    <property name="category">Fixed</property>
+                                    <property name="pattern">###0.000</property>
                                 </structure>
                                 <property name="textAlign">right</property>
                                 <property name="resultSetColumn">NORM_PLAN_LH</property>
@@ -1302,8 +1494,10 @@ else row["count_signal"]-1</expression>
             </group>
             <footer>
                 <row id="17639">
+                    <property name="backgroundColor">#C0C0C0</property>
+                    <property name="fontWeight">bold</property>
                     <cell id="17645">
-                        <property name="colSpan">6</property>
+                        <property name="colSpan">7</property>
                         <property name="rowSpan">1</property>
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
@@ -1359,8 +1553,8 @@ else row["count_signal"]-1</expression>
                         <property name="borderTopWidth">thin</property>
                         <data id="17741">
                             <structure name="numberFormat">
-                                <property name="category">Custom</property>
-                                <property name="pattern">###,##0.00</property>
+                                <property name="category">Fixed</property>
+                                <property name="pattern">###0.000</property>
                             </structure>
                             <property name="textAlign">right</property>
                             <property name="resultSetColumn">tab_sum_plan_norm_lh</property>
