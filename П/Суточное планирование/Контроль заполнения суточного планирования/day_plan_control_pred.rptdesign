@@ -2,7 +2,7 @@
 <report xmlns="http://www.eclipse.org/birt/2005/design" version="3.2.17" id="1">
     <property name="createdBy">Eclipse BIRT Designer Version 2.3.2.r232_20090202 Build &lt;2.3.2.v20090218-0730></property>
     <property name="units">in</property>
-    <text-property name="title">Суточный план</text-property>
+    <text-property name="title">Контроль ведения суточных планов работ по дистанции</text-property>
     <property name="comments">IBM Confidential
 
 OCO Source Materials
@@ -284,11 +284,13 @@ sqlText = ""
  +"   WO AS "
  +"   (SELECT * "
  +"   FROM    maximo.workorder wo "
- +"   WHERE   WO.SITEID                                = '"+params["mroSite"]+"' "
+ +"   WHERE   brigad_location is not null "
+ +"			  AND TYPEWORKORDER IN ('Внеплановое', 'Плановое', 'Прочее') "
+ +"			  and WO.SITEID                            = '"+params["mroSite"]+"' "
  +"           AND wo.l_pred                            = '"+params["pred"]+"'"
  +"           AND extract (YEAR FROM WO.TARGCOMPDATE)  = '"+params["year"]+"'"
  +"           and extract (month from WO.TARGCOMPDATE) = '"+params["month"]+"'"
- +"           and brigad_location is not null "
+
  +"   ) "
  +"  "
  +" SELECT  DDAY.DDAY, "
@@ -454,6 +456,10 @@ return (true);]]></method>
                                     <property name="dataType">string</property>
                                     <property name="columnName">BRIG_D</property>
                                 </tabular-level>
+                                <tabular-level name="BRIG" id="18076">
+                                    <property name="dataType">string</property>
+                                    <property name="columnName">BRIG</property>
+                                </tabular-level>
                             </property>
                         </tabular-hierarchy>
                     </property>
@@ -575,7 +581,7 @@ return (true);]]></method>
                     <property name="measure">CNT_PORD</property>
                     <property name="detail">
                         <extended-item extensionName="AggregationCell" id="18065">
-                            <property name="aggregationOnRow">Group1/BRIG_D</property>
+                            <property name="aggregationOnRow">Group1/BRIG</property>
                             <property name="aggregationOnColumn">Group/DDAY</property>
                             <property name="textAlign">right</property>
                             <property name="borderTopStyle">solid</property>
@@ -615,7 +621,101 @@ return (true);]]></method>
                             </list-property>
                             <property name="content">
                                 <data id="18066">
-                                    <property name="resultSetColumn">CNT_PORD_Group1/BRIG_D_Group/DDAY</property>
+                                    <list-property name="visibility">
+                                        <structure>
+                                            <property name="format">all</property>
+                                            <expression name="valueExpr">data["CNT_PORD_Group1/BRIG_Group/DDAY"] == 0 || data["CNT_PORD_Group1/BRIG_Group/DDAY"] == null</expression>
+                                        </structure>
+                                    </list-property>
+                                    <property name="resultSetColumn">CNT_PORD_Group1/BRIG_Group/DDAY</property>
+                                    <structure name="action">
+                                        <property name="linkType">drill-through</property>
+                                        <property name="reportName">day_plan_control_brig.rptdesign</property>
+                                        <property name="targetWindow">_blank</property>
+                                        <property name="targetFileType">report-design</property>
+                                        <list-property name="paramBindings">
+                                            <structure>
+                                                <property name="paramName">where</property>
+                                                <expression name="expression">"1=1"</expression>
+                                            </structure>
+                                            <structure>
+                                                <property name="paramName">appname</property>
+                                                <expression name="expression">"WOTRACK"</expression>
+                                            </structure>
+                                            <structure>
+                                                <property name="paramName">mroSite</property>
+                                                <expression name="expression">params["mroSite"].value</expression>
+                                            </structure>
+                                            <structure>
+                                                <property name="paramName">brig</property>
+                                                <expression name="expression">data["BRIG"]</expression>
+                                            </structure>
+                                            <structure>
+                                                <property name="paramName">year</property>
+                                                <expression name="expression">params["year"].value</expression>
+                                            </structure>
+                                            <structure>
+                                                <property name="paramName">month</property>
+                                                <expression name="expression">params["month"].value</expression>
+                                            </structure>
+                                            <structure>
+                                                <property name="paramName">day</property>
+                                                <expression name="expression">data["DDAY"]</expression>
+                                            </structure>
+                                            <structure>
+                                                <property name="paramName">tip</property>
+                                                <expression name="expression">2</expression>
+                                            </structure>
+                                        </list-property>
+                                    </structure>
+                                </data>
+                                <data id="18080">
+                                    <list-property name="visibility">
+                                        <structure>
+                                            <property name="format">all</property>
+                                            <expression name="valueExpr">data["CNT_PORD_Group1/BRIG_Group/DDAY"] >0 || data["CNT_PORD_Group1/BRIG_Group/DDAY"] == null</expression>
+                                        </structure>
+                                    </list-property>
+                                    <property name="resultSetColumn">CNT_PORD_Group1/BRIG_Group/DDAY</property>
+                                    <structure name="action">
+                                        <property name="linkType">none</property>
+                                    </structure>
+                                </data>
+                            </property>
+                        </extended-item>
+                    </property>
+                    <property name="aggregations">
+                        <extended-item extensionName="AggregationCell" id="18107">
+                            <property name="aggregationOnRow">Group1/BRIG</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">thin</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">thin</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">thin</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">thin</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="content">
+                                <data id="18108">
+                                    <list-property name="visibility">
+                                        <structure>
+                                            <property name="format">all</property>
+                                            <expression name="valueExpr">true</expression>
+                                        </structure>
+                                    </list-property>
+                                    <property name="resultSetColumn">CNT_PORD_Group1/BRIG</property>
+                                </data>
+                                <data id="18101">
+                                    <structure name="numberFormat">
+                                        <property name="category">Percent</property>
+                                        <property name="pattern">Percent</property>
+                                    </structure>
+                                    <property name="textAlign">right</property>
+                                    <property name="resultSetColumn">%plan</property>
                                 </data>
                             </property>
                         </extended-item>
@@ -639,6 +739,9 @@ return (true);]]></method>
                             <property name="borderBottomStyle">solid</property>
                             <property name="borderBottomWidth">thin</property>
                             <property name="borderBottomColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">thin</property>
+                            <property name="borderRightColor">#000000</property>
                         </extended-item>
                     </property>
                 </extended-item>
@@ -646,7 +749,7 @@ return (true);]]></method>
                     <property name="measure">CNT_WO</property>
                     <property name="detail">
                         <extended-item extensionName="AggregationCell" id="18070">
-                            <property name="aggregationOnRow">Group1/BRIG_D</property>
+                            <property name="aggregationOnRow">Group1/BRIG</property>
                             <property name="aggregationOnColumn">Group/DDAY</property>
                             <property name="textAlign">right</property>
                             <property name="borderTopStyle">solid</property>
@@ -686,7 +789,53 @@ return (true);]]></method>
                             </list-property>
                             <property name="content">
                                 <data id="18071">
-                                    <property name="resultSetColumn">CNT_WO_Group1/BRIG_D_Group/DDAY</property>
+                                    <list-property name="visibility">
+                                        <structure>
+                                            <property name="format">all</property>
+                                            <expression name="valueExpr">data["CNT_PORD_Group1/BRIG_Group/DDAY"] == null</expression>
+                                        </structure>
+                                    </list-property>
+                                    <property name="resultSetColumn">CNT_WO_Group1/BRIG_Group/DDAY</property>
+                                    <structure name="action">
+                                        <property name="linkType">drill-through</property>
+                                        <property name="reportName">day_plan_control_brig.rptdesign</property>
+                                        <property name="targetWindow">_blank</property>
+                                        <property name="targetFileType">report-design</property>
+                                        <list-property name="paramBindings">
+                                            <structure>
+                                                <property name="paramName">where</property>
+                                                <expression name="expression">"1=1"</expression>
+                                            </structure>
+                                            <structure>
+                                                <property name="paramName">appname</property>
+                                                <expression name="expression">"WOTRACK"</expression>
+                                            </structure>
+                                            <structure>
+                                                <property name="paramName">mroSite</property>
+                                                <expression name="expression">params["mroSite"].value</expression>
+                                            </structure>
+                                            <structure>
+                                                <property name="paramName">brig</property>
+                                                <expression name="expression">data["BRIG"]</expression>
+                                            </structure>
+                                            <structure>
+                                                <property name="paramName">year</property>
+                                                <expression name="expression">params["year"].value</expression>
+                                            </structure>
+                                            <structure>
+                                                <property name="paramName">month</property>
+                                                <expression name="expression">params["month"].value</expression>
+                                            </structure>
+                                            <structure>
+                                                <property name="paramName">day</property>
+                                                <expression name="expression">data["DDAY"]</expression>
+                                            </structure>
+                                            <structure>
+                                                <property name="paramName">tip</property>
+                                                <expression name="expression">1</expression>
+                                            </structure>
+                                        </list-property>
+                                    </structure>
                                 </data>
                             </property>
                         </extended-item>
@@ -739,10 +888,34 @@ return (true);]]></method>
                                             <property name="borderBottomStyle">solid</property>
                                             <property name="borderBottomWidth">thin</property>
                                             <property name="borderBottomColor">#000000</property>
+                                            <property name="width">257px</property>
+                                        </extended-item>
+                                    </property>
+                                </extended-item>
+                                <extended-item extensionName="LevelView" name="NewLevel View2" id="18077">
+                                    <property name="level">Group1/BRIG</property>
+                                    <property name="member">
+                                        <extended-item extensionName="CrosstabCell" id="18078">
+                                            <property name="content">
+                                                <data name="BRIG" id="18079">
+                                                    <list-property name="visibility">
+                                                        <structure>
+                                                            <property name="format">all</property>
+                                                            <expression name="valueExpr">true</expression>
+                                                        </structure>
+                                                    </list-property>
+                                                    <property name="resultSetColumn">BRIG</property>
+                                                </data>
+                                            </property>
+                                            <property name="borderTopStyle">solid</property>
+                                            <property name="borderTopWidth">thin</property>
+                                            <property name="borderTopColor">#000000</property>
+                                            <property name="borderBottomStyle">solid</property>
+                                            <property name="borderBottomWidth">thin</property>
+                                            <property name="borderBottomColor">#000000</property>
                                             <property name="borderRightStyle">solid</property>
                                             <property name="borderRightWidth">thin</property>
                                             <property name="borderRightColor">#000000</property>
-                                            <property name="width">257px</property>
                                         </extended-item>
                                     </property>
                                 </extended-item>
@@ -753,6 +926,25 @@ return (true);]]></method>
             </property>
             <property name="columns">
                 <extended-item extensionName="CrosstabView" id="18074">
+                    <property name="grandTotal">
+                        <extended-item extensionName="CrosstabCell" id="18106">
+                            <property name="content">
+                                <label id="18109">
+                                    <text-property name="text">% рабочих заданий в суточном плане</text-property>
+                                </label>
+                            </property>
+                            <property name="backgroundColor">#808080</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">thin</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">thin</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">thin</property>
+                            <property name="borderRightColor">#000000</property>
+                        </extended-item>
+                    </property>
                     <property name="views">
                         <extended-item extensionName="DimensionView" id="18056">
                             <property name="dimension">Group</property>
@@ -836,6 +1028,54 @@ return (true);]]></method>
                         <value>Group/DDAY</value>
                     </simple-property-list>
                     <property name="aggregateFunction">sum</property>
+                </structure>
+                <structure>
+                    <property name="name">BRIG</property>
+                    <expression name="expression">dimension["Group1"]["BRIG"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">CNT_PORD_Group1/BRIG_Group/DDAY</property>
+                    <expression name="expression">measure["CNT_PORD"]</expression>
+                    <property name="dataType">integer</property>
+                    <simple-property-list name="aggregateOn">
+                        <value>Group1/BRIG</value>
+                        <value>Group/DDAY</value>
+                    </simple-property-list>
+                    <property name="aggregateFunction">sum</property>
+                </structure>
+                <structure>
+                    <property name="name">CNT_WO_Group1/BRIG_Group/DDAY</property>
+                    <expression name="expression">measure["CNT_WO"]</expression>
+                    <property name="dataType">integer</property>
+                    <simple-property-list name="aggregateOn">
+                        <value>Group1/BRIG</value>
+                        <value>Group/DDAY</value>
+                    </simple-property-list>
+                    <property name="aggregateFunction">sum</property>
+                </structure>
+                <structure>
+                    <property name="name">CNT_PORD_Group1/BRIG</property>
+                    <expression name="expression">measure["CNT_PORD"]</expression>
+                    <property name="dataType">integer</property>
+                    <simple-property-list name="aggregateOn">
+                        <value>Group1/BRIG</value>
+                    </simple-property-list>
+                    <property name="aggregateFunction">sum</property>
+                </structure>
+                <structure>
+                    <property name="name">CNT_WO_Group1/BRIG</property>
+                    <expression name="expression">measure["CNT_WO"]</expression>
+                    <property name="dataType">integer</property>
+                    <simple-property-list name="aggregateOn">
+                        <value>Group1/BRIG</value>
+                    </simple-property-list>
+                    <property name="aggregateFunction">sum</property>
+                </structure>
+                <structure>
+                    <property name="name">%plan</property>
+                    <expression name="expression">data["CNT_PORD_Group1/BRIG"]/(data["CNT_PORD_Group1/BRIG"]+data["CNT_WO_Group1/BRIG"])</expression>
+                    <property name="dataType">float</property>
                 </structure>
             </list-property>
         </extended-item>

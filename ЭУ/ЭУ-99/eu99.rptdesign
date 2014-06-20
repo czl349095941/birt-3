@@ -364,15 +364,10 @@ else if(params["year"]!='')
 var sqlText = new String();
 sqlText = ""
   +" WITH A1 AS "
- +"      (SELECT   min (case when wo.woclassif = 1  then '1. Эксплуатационный план' when wo.woclassif = 2 then '2. Работы по обновлению, реконструкции и повышению надежности' when wo.woclassif in (3, 6, 7) then '3. Непредвиденные (случайные) работы' " 
- +"			when wo.woclassif = 4 then '4. Обеспечение работ других служб' when wo.woclassif = 5 then '5. Дополнительные работы' end) rnk, "
+ +"      (SELECT   min (case when wo.VID_RAB = 1001  then '1. Эксплуатационный план' when wo.VID_RAB = 1002 then '2. Работы по обновлению, реконструкции и повышению надежности' when wo.VID_RAB in (1003, 1006, 1007) then '3. Непредвиденные (случайные) работы' " 
+ +"			when wo.VID_RAB = 1004 then '4. Обеспечение работ других служб' when wo.VID_RAB = 1005 then '5. Дополнительные работы' end) rnk, "
  +"                wo.wonum                                  , "
- +"                MIN ( "
- +"                CASE "
- +"                          WHEN Wo.Description = NULL "
- +"                          THEN pm.description "
- +"                          ELSE wo.description "
- +"                END)                   description, "
+ +"                MIN (nvl(wo.description, jp.description))description, "
  +"                MIN(asset.description) mesto      , "
  +"                MIN(Jpspec.Numvalue "
  +"                          ||' ' "
@@ -427,9 +422,9 @@ sqlText = ""
  +"                LEFT JOIN Maximo.Pm "
  +"                ON        Pm.Pmnum                = Wo.Pmnum "
  +"      WHERE     Wo.L_Podr                         = '" + (params["podr"]).replace("=","") + "'"
- +"				and wo.woclassif in ( 1, 2, 3, 4, 5, 6, 7) "
- +"      and extract (YEAR FROM case when wo.status in ('ОЖСОГЛ', 'ПРИНЯТО', 'В_РАБОТЕ') then  wo.TARGSTARTDATE when wo.status in ('ЗАВЕРШ', 'ЗАВ_ДИСП', 'ЗАВЕРШ_ВР_РЕШ', 'ЗАКРЫТО', 'ТЕХОТДЕЛ', 'ДОРАБОТКА') then wo.ACTFINISH end)  = " + year
- +"      and extract (MONTH FROM case when wo.status in ('ОЖСОГЛ', 'ПРИНЯТО', 'В_РАБОТЕ') then  wo.TARGSTARTDATE when wo.status in ('ЗАВЕРШ', 'ЗАВ_ДИСП', 'ЗАВЕРШ_ВР_РЕШ', 'ЗАКРЫТО', 'ТЕХОТДЕЛ', 'ДОРАБОТКА') then wo.ACTFINISH end) = " + par
+ +"				and wo.VID_RAB in ( 1001, 1002, 1003, 1004, 1005, 1006, 1007) "
+ +"      and extract (YEAR FROM case when wo.status in ('ПЛАНИРОВАНИЕ', 'ПЛАНИРОВАНИЕ', 'В_РАБОТЕ') then  wo.TARGSTARTDATE when wo.status in ('ЗАВЕРШ', 'ЗАВЕРШ', 'ЗАВЕРШ', 'ЗАКРЫТО', 'ЗАВЕРШ', 'ЗАВЕРШ') then wo.ACTFINISH end)  = " + year
+ +"      and extract (MONTH FROM case when wo.status in ('ПЛАНИРОВАНИЕ', 'ПЛАНИРОВАНИЕ', 'В_РАБОТЕ') then  wo.TARGSTARTDATE when wo.status in ('ЗАВЕРШ', 'ЗАВЕРШ', 'ЗАВЕРШ', 'ЗАКРЫТО', 'ЗАВЕРШ', 'ЗАВЕРШ') then wo.ACTFINISH end) = " + par
  +"      AND       wo.siteid                         = '" + params["mroSite"] +"'"
  +"		 and 1 = (case when " + params["vers"] + " = 2 and  wo.status = 'ЗАКРЫТО' then 1 when " + params["vers"] + " = 1 then 1 end) "               
  +"      GROUP BY  wo.wonum, "
@@ -963,11 +958,6 @@ this.text = dataSetRow["DESCRIPTION"]  + '. ' + dataSetRow["MESTO"];</expression
                     <property name="dataType">string</property>
                 </structure>
                 <structure>
-                    <property name="name">Column Binding</property>
-                    <expression name="expression">row.__rownum+1</expression>
-                    <property name="dataType">string</property>
-                </structure>
-                <structure>
                     <property name="name">RNK</property>
                     <property name="displayName">RNK</property>
                     <expression name="expression">dataSetRow["RNK"]</expression>
@@ -978,21 +968,6 @@ this.text = dataSetRow["DESCRIPTION"]  + '. ' + dataSetRow["MESTO"];</expression
                     <property name="displayName">VSEGO2</property>
                     <expression name="expression">dataSetRow["VSEGO2"]</expression>
                     <property name="dataType">float</property>
-                </structure>
-                <structure>
-                    <property name="name">Column Binding_1</property>
-                    <expression name="expression">Total.sum(row["VSEGO"])</expression>
-                    <property name="dataType">string</property>
-                </structure>
-                <structure>
-                    <property name="name">Column Binding_2</property>
-                    <expression name="expression">Total.sum(Total.max(dataSetRow["CALCOBRAB"],null,'NewTableGroup1'))</expression>
-                    <property name="dataType">string</property>
-                </structure>
-                <structure>
-                    <property name="name">Column Binding_3</property>
-                    <expression name="expression">Total.sum(Total.max(dataSetRow["VSEGO2"],null,'NewTableGroup1'))</expression>
-                    <property name="dataType">string</property>
                 </structure>
                 <structure>
                     <property name="name">WONUM</property>
@@ -1010,11 +985,6 @@ this.text = dataSetRow["DESCRIPTION"]  + '. ' + dataSetRow["MESTO"];</expression
                             <expression name="value">row["VSEGO"]</expression>
                         </structure>
                     </list-property>
-                </structure>
-                <structure>
-                    <property name="name">Column Binding_4</property>
-                    <expression name="expression">Total.sum(Total.max(dataSetRow["VSEGO"],null,'NewTableGroup1'))</expression>
-                    <property name="dataType">string</property>
                 </structure>
                 <structure>
                     <property name="name">Aggregation_1</property>
@@ -1157,12 +1127,6 @@ this.text = dataSetRow["DESCRIPTION"]  + '. ' + dataSetRow["MESTO"];</expression
             <property name="pageBreakInterval">50</property>
             <column id="3773">
                 <property name="width">1cm</property>
-                <list-property name="visibility">
-                    <structure>
-                        <property name="format">all</property>
-                        <expression name="valueExpr">true</expression>
-                    </structure>
-                </list-property>
             </column>
             <column id="2382">
                 <property name="width">1cm</property>
