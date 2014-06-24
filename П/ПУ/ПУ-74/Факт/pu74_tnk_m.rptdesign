@@ -692,7 +692,7 @@ var sqlText = new String();
  +"                          || J1.Measureunitid Ед_Изм      , "
  +"                JOBPLAN.DESCRIPTION наименов, wo.description rz                   , "
  +"                wo.Jpnum Тех_Карта                        , "
- +"                nvl(wo.JPDURATION, WO.NOKOEFDURATION) JPDURATION   , "
+ +"                case when nvl(wo.JPDURATION, 0) = 0 then WO.NOKOEFDURATION else wo.JPDURATION end JPDURATION   , "
  +"                J1.Numvalue                               , "
  +"                extract (DAY FROM wo.Actfinish) Actfinish , "
  +"                wo.fakt_wo                                , "
@@ -1438,7 +1438,7 @@ var sqlText = new String();
  +"                          || J1.Measureunitid Ед_Изм      , "
  +"                JOBPLAN.DESCRIPTION наименов, wo.description rz                   , "
  +"                wo.Jpnum Тех_Карта                        , "
- +"                nvl(wo.JPDURATION, WO.NOKOEFDURATION) JPDURATION   , "
+ +"                case when nvl(wo.JPDURATION, 0) = 0 then WO.NOKOEFDURATION else wo.JPDURATION end JPDURATION   , "
  +"                J1.Numvalue                               , "
  +"                extract (DAY FROM wo.Actfinish) Actfinish , "
  +"                wo.fakt_wo                                , "
@@ -3346,7 +3346,7 @@ var sqlText = new String();
  +"                J1.Numvalue "
  +"                          || ' ' "
  +"                          || J1.Measureunitid   ed_izm , "
- +"                nvl(wo.JPDURATION, WO.NOKOEFDURATION) norm, "
+ +"                case when nvl(wo.JPDURATION, 0) = 0 then WO.NOKOEFDURATION else wo.JPDURATION end norm, "
  +"                wptool.AMOUNT                          zadanie, "
  +"                extract (DAY FROM wo.Actfinish) dday   , "
   +"                tool.AMOUNT fakt_wo                             , "
@@ -4083,7 +4083,7 @@ var sqlText = new String();
  +"                J1.Numvalue "
  +"                          || ' ' "
  +"                          || J1.Measureunitid   ed_izm , "
-  +"               nvl(wo.JPDURATION, WO.NOKOEFDURATION) norm, "
+  +"               case when nvl(wo.JPDURATION, 0) = 0 then WO.NOKOEFDURATION else wo.JPDURATION end norm, "
  +"                wptool.AMOUNT                          zadanie, "
  +"                extract (DAY FROM wo.Actfinish) dday   , "
  +"                tool.AMOUNT fakt_wo                             , "
@@ -6912,12 +6912,14 @@ return (true);]]></method>
                 </structure>
                 <structure>
                     <property name="name">kontingent_fact</property>
-                    <property name="dataType">float</property>
-                    <property name="aggregateFunction">COUNT</property>
+                    <property name="dataType">integer</property>
+                    <property name="aggregateFunction">SUM</property>
                     <list-property name="arguments">
                         <structure>
                             <property name="name">Expression</property>
-                            <expression name="value">dataSetRow["LABORCODE"]</expression>
+                            <expression name="value">if ((row["D1"]+row["D2"]+row["D3"]+row["D4"]+row["D5"]+row["D6"]+row["D7"]+row["D8"]+row["D9"]+row["D10"]+row["D11"]+row["D12"]+row["D13"]+row["D14"]+row["D15"]+row["D16"]+row["D17"]+row["D18"]+row["D19"]+row["D20"]+row["D21"]+row["D22"]+row["D23"]+row["D24"]+row["D25"]+row["D26"]+row["D27"]+row["D28"]+row["D29"]+row["D30"]+row["D31"]) > 0)
+1
+else 0</expression>
                         </structure>
                     </list-property>
                 </structure>

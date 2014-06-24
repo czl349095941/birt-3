@@ -2,7 +2,7 @@
 <report xmlns="http://www.eclipse.org/birt/2005/design" version="3.2.17" id="1">
     <property name="createdBy">Eclipse BIRT Designer Version 2.3.2.r232_20090202 Build &lt;2.3.2.v20090218-0730></property>
     <property name="units">in</property>
-    <text-property name="title">Суточный план</text-property>
+    <text-property name="title">Список рбочих заданий</text-property>
     <property name="comments">IBM Confidential
 
 OCO Source Materials
@@ -902,8 +902,98 @@ else
                 </structure>
                 <structure>
                     <property name="name">brig_pl_rab</property>
-                    <expression name="expression">row["brig_pl_count"]-1</expression>
+                    <expression name="expression">if  (row["brig_check_pl_name"] >0)
+row["brig_pl_count"]-1
+else
+row["brig_pl_count"]</expression>
                     <property name="dataType">integer</property>
+                </structure>
+                <structure>
+                    <property name="name">brig_count_wo</property>
+                    <property name="dataType">integer</property>
+                    <property name="aggregateFunction">COUNTDISTINCT</property>
+                    <list-property name="arguments">
+                        <structure>
+                            <property name="name">Expression</property>
+                            <expression name="value">row["WONUM"]</expression>
+                        </structure>
+                    </list-property>
+                </structure>
+                <structure>
+                    <property name="name">check_pl_name</property>
+                    <expression name="expression">if (dataSetRow["PL_NAME"] == null) 
+1</expression>
+                    <property name="dataType">integer</property>
+                </structure>
+                <structure>
+                    <property name="name">brig_check_pl_name</property>
+                    <property name="dataType">float</property>
+                    <property name="aggregateFunction">SUM</property>
+                    <list-property name="arguments">
+                        <structure>
+                            <property name="name">Expression</property>
+                            <expression name="value">row["check_pl_name"]</expression>
+                        </structure>
+                    </list-property>
+                </structure>
+                <structure>
+                    <property name="name">check_f_name</property>
+                    <expression name="expression">if (dataSetRow["F_NAME"] == null)
+1</expression>
+                    <property name="dataType">integer</property>
+                </structure>
+                <structure>
+                    <property name="name">brig_check_f_name</property>
+                    <property name="dataType">float</property>
+                    <property name="aggregateFunction">SUM</property>
+                    <list-property name="arguments">
+                        <structure>
+                            <property name="name">Expression</property>
+                            <expression name="value">row["check_f_name"]</expression>
+                        </structure>
+                    </list-property>
+                </structure>
+                <structure>
+                    <property name="name">brig_f_rab</property>
+                    <expression name="expression">if  (row["brig_check_f_name"] >0)
+row["brig_f_name"]-1
+else
+row["brig_f_name"]</expression>
+                    <property name="dataType">integer</property>
+                </structure>
+                <structure>
+                    <property name="name">group_typewo</property>
+                    <property name="displayName">TYPEWORKORDER</property>
+                    <expression name="expression">"Итого по типу работ '" +dataSetRow["TYPEWORKORDER"] +"'"</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">typewo_pl_lh</property>
+                    <property name="dataType">float</property>
+                    <simple-property-list name="aggregateOn">
+                        <value>typewo_group</value>
+                    </simple-property-list>
+                    <property name="aggregateFunction">SUM</property>
+                    <list-property name="arguments">
+                        <structure>
+                            <property name="name">Expression</property>
+                            <expression name="value">row["PL_LH"]</expression>
+                        </structure>
+                    </list-property>
+                </structure>
+                <structure>
+                    <property name="name">typewo_f_lh</property>
+                    <property name="dataType">float</property>
+                    <simple-property-list name="aggregateOn">
+                        <value>typewo_group</value>
+                    </simple-property-list>
+                    <property name="aggregateFunction">SUM</property>
+                    <list-property name="arguments">
+                        <structure>
+                            <property name="name">Expression</property>
+                            <expression name="value">row["F_LH"]</expression>
+                        </structure>
+                    </list-property>
                 </structure>
             </list-property>
             <list-property name="sort">
@@ -1457,6 +1547,172 @@ else
                     </cell>
                 </row>
             </header>
+            <group id="18267">
+                <property name="groupName">typewo_group</property>
+                <property name="interval">none</property>
+                <property name="sortDirection">asc</property>
+                <expression name="keyExpr">row["TYPEWORKORDER"]</expression>
+                <structure name="toc">
+                    <expression name="expressionValue">row["TYPEWORKORDER"]</expression>
+                </structure>
+                <property name="repeatHeader">true</property>
+                <property name="hideDetail">false</property>
+                <property name="pageBreakAfter">auto</property>
+                <property name="pageBreakBefore">auto</property>
+                <property name="pageBreakInside">auto</property>
+                <footer>
+                    <row id="18282">
+                        <property name="backgroundColor">#C0C0C0</property>
+                        <property name="fontWeight">bold</property>
+                        <property name="textAlign">right</property>
+                        <cell id="18283">
+                            <property name="colSpan">5</property>
+                            <property name="rowSpan">1</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">thin</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">thin</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">thin</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">thin</property>
+                            <data id="18296">
+                                <property name="resultSetColumn">group_typewo</property>
+                            </data>
+                        </cell>
+                        <cell id="18288">
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">thin</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">thin</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">thin</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">thin</property>
+                        </cell>
+                        <cell id="18289">
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">thin</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">thin</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">thin</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">thin</property>
+                        </cell>
+                        <cell id="18290">
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">thin</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">thin</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">thin</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">thin</property>
+                        </cell>
+                        <cell id="18291">
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">thin</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">thin</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">thin</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">thin</property>
+                            <data id="18297">
+                                <structure name="numberFormat">
+                                    <property name="category">Fixed</property>
+                                    <property name="pattern">Fixed</property>
+                                </structure>
+                                <property name="resultSetColumn">typewo_pl_lh</property>
+                            </data>
+                        </cell>
+                        <cell id="18292">
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">thin</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">thin</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">thin</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">thin</property>
+                        </cell>
+                        <cell id="18293">
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">thin</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">thin</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">thin</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">thin</property>
+                        </cell>
+                        <cell id="18294">
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">thin</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">thin</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">thin</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">thin</property>
+                        </cell>
+                        <cell id="18295">
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">thin</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">thin</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">thin</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">thin</property>
+                            <data id="18298">
+                                <structure name="numberFormat">
+                                    <property name="category">Fixed</property>
+                                    <property name="pattern">Fixed</property>
+                                </structure>
+                                <property name="resultSetColumn">typewo_f_lh</property>
+                            </data>
+                        </cell>
+                    </row>
+                </footer>
+            </group>
             <group id="18164">
                 <property name="groupName">wo_group</property>
                 <property name="interval">none</property>
@@ -1472,7 +1728,15 @@ else
                 <property name="pageBreakInside">auto</property>
                 <list-property name="sort">
                     <structure>
+                        <expression name="key">row["TYPEWORKORDER"]</expression>
+                        <property name="direction">asc</property>
+                    </structure>
+                    <structure>
                         <expression name="key">row["PL_NAME"]</expression>
+                        <property name="direction">asc</property>
+                    </structure>
+                    <structure>
+                        <expression name="key">row["F_NAME"]</expression>
                         <property name="direction">asc</property>
                     </structure>
                 </list-property>
@@ -1729,6 +1993,15 @@ else
                         <data id="18120">
                             <property name="resultSetColumn">PL_NAME</property>
                         </data>
+                        <data id="18261">
+                            <list-property name="visibility">
+                                <structure>
+                                    <property name="format">all</property>
+                                    <expression name="valueExpr">true</expression>
+                                </structure>
+                            </list-property>
+                            <property name="resultSetColumn">check_pl_name</property>
+                        </data>
                     </cell>
                     <cell id="18121">
                         <property name="borderBottomColor">#000000</property>
@@ -1804,6 +2077,15 @@ else
                         <data id="18128">
                             <property name="resultSetColumn">F_NAME</property>
                         </data>
+                        <data id="18264">
+                            <list-property name="visibility">
+                                <structure>
+                                    <property name="format">all</property>
+                                    <expression name="valueExpr">true</expression>
+                                </structure>
+                            </list-property>
+                            <property name="resultSetColumn">check_f_name</property>
+                        </data>
                     </cell>
                     <cell id="18129">
                         <property name="borderBottomColor">#000000</property>
@@ -1866,12 +2148,12 @@ else
             </detail>
             <footer>
                 <row id="18135">
+                    <property name="backgroundColor">#808080</property>
                     <property name="fontWeight">bold</property>
                     <property name="textAlign">right</property>
                     <cell id="18136">
                         <property name="colSpan">5</property>
                         <property name="rowSpan">1</property>
-                        <property name="backgroundColor">#C0C0C0</property>
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
                         <property name="borderBottomWidth">thin</property>
@@ -1887,9 +2169,17 @@ else
                         <label id="18250">
                             <text-property name="text">Итого по бригаде</text-property>
                         </label>
+                        <data id="18260">
+                            <list-property name="visibility">
+                                <structure>
+                                    <property name="format">all</property>
+                                    <expression name="valueExpr">true</expression>
+                                </structure>
+                            </list-property>
+                            <property name="resultSetColumn">brig_count_wo</property>
+                        </data>
                     </cell>
                     <cell id="18142">
-                        <property name="backgroundColor">#C0C0C0</property>
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
                         <property name="borderBottomWidth">thin</property>
@@ -1914,12 +2204,20 @@ else
                             </list-property>
                             <property name="resultSetColumn">brig_pl_count</property>
                         </data>
+                        <data id="18262">
+                            <list-property name="visibility">
+                                <structure>
+                                    <property name="format">all</property>
+                                    <expression name="valueExpr">true</expression>
+                                </structure>
+                            </list-property>
+                            <property name="resultSetColumn">brig_check_pl_name</property>
+                        </data>
                         <data id="18259">
                             <property name="resultSetColumn">brig_pl_rab</property>
                         </data>
                     </cell>
                     <cell id="18143">
-                        <property name="backgroundColor">#C0C0C0</property>
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
                         <property name="borderBottomWidth">thin</property>
@@ -1934,7 +2232,6 @@ else
                         <property name="borderTopWidth">thin</property>
                     </cell>
                     <cell id="18144">
-                        <property name="backgroundColor">#C0C0C0</property>
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
                         <property name="borderBottomWidth">thin</property>
@@ -1956,7 +2253,6 @@ else
                         </data>
                     </cell>
                     <cell id="18145">
-                        <property name="backgroundColor">#C0C0C0</property>
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
                         <property name="borderBottomWidth">thin</property>
@@ -1978,7 +2274,6 @@ else
                         </data>
                     </cell>
                     <cell id="18146">
-                        <property name="backgroundColor">#C0C0C0</property>
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
                         <property name="borderBottomWidth">thin</property>
@@ -1995,11 +2290,28 @@ else
                             <structure name="numberFormat">
                                 <property name="category">Unformatted</property>
                             </structure>
+                            <list-property name="visibility">
+                                <structure>
+                                    <property name="format">all</property>
+                                    <expression name="valueExpr">true</expression>
+                                </structure>
+                            </list-property>
                             <property name="resultSetColumn">brig_f_name</property>
+                        </data>
+                        <data id="18265">
+                            <list-property name="visibility">
+                                <structure>
+                                    <property name="format">all</property>
+                                    <expression name="valueExpr">true</expression>
+                                </structure>
+                            </list-property>
+                            <property name="resultSetColumn">brig_check_f_name</property>
+                        </data>
+                        <data id="18266">
+                            <property name="resultSetColumn">brig_f_rab</property>
                         </data>
                     </cell>
                     <cell id="18147">
-                        <property name="backgroundColor">#C0C0C0</property>
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
                         <property name="borderBottomWidth">thin</property>
@@ -2014,7 +2326,6 @@ else
                         <property name="borderTopWidth">thin</property>
                     </cell>
                     <cell id="18148">
-                        <property name="backgroundColor">#C0C0C0</property>
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
                         <property name="borderBottomWidth">thin</property>
@@ -2036,7 +2347,6 @@ else
                         </data>
                     </cell>
                     <cell id="18149">
-                        <property name="backgroundColor">#C0C0C0</property>
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
                         <property name="borderBottomWidth">thin</property>
