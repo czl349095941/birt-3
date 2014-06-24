@@ -1453,7 +1453,7 @@ sqlText =   " WITH "
 +"                    Wo"
  +"           On        Pm1pm.Pmnum = Wo.Pmnum  "
  +" Union All "
- +" Select    case Wo_Nepred.woclassif when 3 then '2. Непредвиденные работы' when 5 then '3. Дополнительные работы' end Razdel,  "
+ +" Select    case  when Wo_Nepred.woclassif IN (100, 1003, 1006, 1007) then '2. Непредвиденные работы' when Wo_Nepred.woclassif = 1005 then '3. Дополнительные работы' end Razdel,  "
  +"           wo_nepred.RAZDELGP_D     , "
  +"           wo_nepred.NAMERAB1_D      , "
  +"			  ' ' NAMERAB1_D      		, "
@@ -1533,7 +1533,7 @@ sqlText =   " WITH "
  +" 		   NVL (wo_nepred.Fakt_Wo_12 , 0)      Fakt_Wo_12      , "
  +" 		   NVL (wo_nepred.Fakt_Normtime_12, 0) Fakt_Normtime_12, "
  +" 		   NVL (wo_nepred.Calcobrab_12, 0)     Calcobrab_12   "
- +" from ( SELECT  case when WO.WOCLASSIF = 5 then wo.wonum else wo.origrecordid  end origrecordid, min (WO.WOCLASSIF) WOCLASSIF,"
+ +" from ( SELECT   nvl(wo.origrecordid, wo.wonum) origrecordid, WO.VID_RAB WOCLASSIF,"
  +"         ' '                 RAZDELGP_D, "
  +"         MIN(Wo.Description) Namerab1_D, "
  +"         MIN(Loc.Description "
@@ -1553,62 +1553,62 @@ sqlText =   " WITH "
  +"         SUM( CASE WHEN Extract(MONTH FROM Wo.TARGSTARTDATE) = '1' THEN Wo.PLAN_WO* Wo.JPDURATION END )  normtime_1, "
  +"         SUM( CASE WHEN Extract(MONTH FROM Wo.Actfinish)     = '1' THEN Wo.Fakt_Wo END )                 Fakt_Wo_1, "
  +"         SUM( CASE WHEN Extract(MONTH FROM Wo.Actfinish)     = '1' THEN Wo.Fakt_Wo*Wo.Jpduration END )   Fakt_Normtime_1, "
- +"         SUM( CASE WHEN Extract(MONTH FROM Wo.Actfinish)     = '1' THEN Wo.CALCOBRAB END )               Calcobrab_1, "
+ +"         SUM( CASE WHEN Extract(MONTH FROM Wo.Actfinish)     = '1' THEN wo.labor_hour END )               Calcobrab_1, "
  +"         SUM( CASE WHEN Extract(MONTH FROM Wo.TARGSTARTDATE) = '2' THEN Wo.PLAN_WO END )                 obrab_2, "
  +"         SUM( CASE WHEN Extract(MONTH FROM Wo.TARGSTARTDATE) = '2' THEN Wo.PLAN_WO* Wo.JPDURATION END )  normtime_2, "
  +"         SUM( CASE WHEN Extract(MONTH FROM Wo.Actfinish)     = '2' THEN Wo.Fakt_Wo END )                 Fakt_Wo_2, "
  +"         SUM( CASE WHEN Extract(MONTH FROM Wo.Actfinish)     = '2' THEN Wo.Fakt_Wo*Wo.Jpduration END )   Fakt_Normtime_2, "
- +"         SUM( CASE WHEN Extract(MONTH FROM Wo.Actfinish)     = '2' THEN Wo.CALCOBRAB END )               Calcobrab_2, "
+ +"         SUM( CASE WHEN Extract(MONTH FROM Wo.Actfinish)     = '2' THEN wo.labor_hour END )               Calcobrab_2, "
  +"         SUM( CASE WHEN Extract(MONTH FROM Wo.TARGSTARTDATE) = '3' THEN Wo.PLAN_WO END )                 obrab_3, "
  +"         SUM( CASE WHEN Extract(MONTH FROM Wo.TARGSTARTDATE) = '3' THEN Wo.PLAN_WO* Wo.JPDURATION END )  normtime_3, "
  +"         SUM( CASE WHEN Extract(MONTH FROM Wo.Actfinish)     = '3' THEN Wo.Fakt_Wo END )                 Fakt_Wo_3, "
  +"         SUM( CASE WHEN Extract(MONTH FROM Wo.Actfinish)     = '3' THEN Wo.Fakt_Wo*Wo.Jpduration END )   Fakt_Normtime_3, "
- +"         SUM( CASE WHEN Extract(MONTH FROM Wo.Actfinish)     = '3' THEN Wo.CALCOBRAB END )               Calcobrab_3, "
+ +"         SUM( CASE WHEN Extract(MONTH FROM Wo.Actfinish)     = '3' THEN wo.labor_hour END )               Calcobrab_3, "
  +"         SUM( CASE WHEN Extract(MONTH FROM Wo.TARGSTARTDATE) = '4' THEN Wo.PLAN_WO END )                 obrab_4, "
  +"         SUM( CASE WHEN Extract(MONTH FROM Wo.TARGSTARTDATE) = '4' THEN Wo.PLAN_WO* Wo.JPDURATION END )  normtime_4, "
  +"         SUM( CASE WHEN Extract(MONTH FROM Wo.Actfinish)     = '4' THEN Wo.Fakt_Wo END )                 Fakt_Wo_4, "
  +"         SUM( CASE WHEN Extract(MONTH FROM Wo.Actfinish)     = '4' THEN Wo.Fakt_Wo*Wo.Jpduration END )   Fakt_Normtime_4, "
- +"         SUM( CASE WHEN Extract(MONTH FROM Wo.Actfinish)     = '4' THEN Wo.CALCOBRAB END )               Calcobrab_4, "
+ +"         SUM( CASE WHEN Extract(MONTH FROM Wo.Actfinish)     = '4' THEN wo.labor_hour END )               Calcobrab_4, "
  +"         SUM( CASE WHEN Extract(MONTH FROM Wo.TARGSTARTDATE) = '5' THEN Wo.PLAN_WO END )                 obrab_5, "
  +"         SUM( CASE WHEN Extract(MONTH FROM Wo.TARGSTARTDATE) = '5' THEN Wo.PLAN_WO* Wo.JPDURATION END )  normtime_5, "
  +"         SUM( CASE WHEN Extract(MONTH FROM Wo.Actfinish)     = '5' THEN Wo.Fakt_Wo END )                 Fakt_Wo_5, "
  +"         SUM( CASE WHEN Extract(MONTH FROM Wo.Actfinish)     = '5' THEN Wo.Fakt_Wo*Wo.Jpduration END )   Fakt_Normtime_5, "
- +"         SUM( CASE WHEN Extract(MONTH FROM Wo.Actfinish)     = '5' THEN Wo.CALCOBRAB END )               Calcobrab_5, "
+ +"         SUM( CASE WHEN Extract(MONTH FROM Wo.Actfinish)     = '5' THEN wo.labor_hour END )               Calcobrab_5, "
  +"         SUM( CASE WHEN Extract(MONTH FROM Wo.TARGSTARTDATE) = '6' THEN Wo.PLAN_WO END )                 obrab_6, "
  +"         SUM( CASE WHEN Extract(MONTH FROM Wo.TARGSTARTDATE) = '6' THEN Wo.PLAN_WO* Wo.JPDURATION END )  normtime_6, "
  +"         SUM( CASE WHEN Extract(MONTH FROM Wo.Actfinish)     = '6' THEN Wo.Fakt_Wo END )                 Fakt_Wo_6, "
  +"         SUM( CASE WHEN Extract(MONTH FROM Wo.Actfinish)     = '6' THEN Wo.Fakt_Wo*Wo.Jpduration END )   Fakt_Normtime_6, "
- +"         SUM( CASE WHEN Extract(MONTH FROM Wo.Actfinish)     = '6' THEN Wo.CALCOBRAB END )               Calcobrab_6, "
+ +"         SUM( CASE WHEN Extract(MONTH FROM Wo.Actfinish)     = '6' THEN wo.labor_hour END )               Calcobrab_6, "
  +"         SUM( CASE WHEN Extract(MONTH FROM Wo.TARGSTARTDATE) = '7' THEN Wo.PLAN_WO END )                 obrab_7, "
  +"         SUM( CASE WHEN Extract(MONTH FROM Wo.TARGSTARTDATE) = '7' THEN Wo.PLAN_WO* Wo.JPDURATION END )  normtime_7, "
  +"         SUM( CASE WHEN Extract(MONTH FROM Wo.Actfinish)     = '7' THEN Wo.Fakt_Wo END )                 Fakt_Wo_7, "
  +"         SUM( CASE WHEN Extract(MONTH FROM Wo.Actfinish)     = '7' THEN Wo.Fakt_Wo*Wo.Jpduration END )   Fakt_Normtime_7, "
- +"         SUM( CASE WHEN Extract(MONTH FROM Wo.Actfinish)     = '7' THEN Wo.CALCOBRAB END )               Calcobrab_7, "
+ +"         SUM( CASE WHEN Extract(MONTH FROM Wo.Actfinish)     = '7' THEN wo.labor_hour END )               Calcobrab_7, "
  +"         SUM( CASE WHEN Extract(MONTH FROM Wo.TARGSTARTDATE) = '8' THEN Wo.PLAN_WO END )                 obrab_8, "
  +"         SUM( CASE WHEN Extract(MONTH FROM Wo.TARGSTARTDATE) = '8' THEN Wo.PLAN_WO* Wo.JPDURATION END )  normtime_8, "
  +"         SUM( CASE WHEN Extract(MONTH FROM Wo.Actfinish)     = '8' THEN Wo.Fakt_Wo END )                 Fakt_Wo_8, "
  +"         SUM( CASE WHEN Extract(MONTH FROM Wo.Actfinish)     = '8' THEN Wo.Fakt_Wo*Wo.Jpduration END )   Fakt_Normtime_8, "
- +"         SUM( CASE WHEN Extract(MONTH FROM Wo.Actfinish)     = '8' THEN Wo.CALCOBRAB END )               Calcobrab_8, "
+ +"         SUM( CASE WHEN Extract(MONTH FROM Wo.Actfinish)     = '8' THEN wo.labor_hour END )               Calcobrab_8, "
  +"         SUM( CASE WHEN Extract(MONTH FROM Wo.TARGSTARTDATE) = '9' THEN Wo.PLAN_WO END )                 obrab_9, "
  +"         SUM( CASE WHEN Extract(MONTH FROM Wo.TARGSTARTDATE) = '9' THEN Wo.PLAN_WO* Wo.JPDURATION END )  normtime_9, "
  +"         SUM( CASE WHEN Extract(MONTH FROM Wo.Actfinish)     = '9' THEN Wo.Fakt_Wo END )                 Fakt_Wo_9, "
  +"         SUM( CASE WHEN Extract(MONTH FROM Wo.Actfinish)     = '9' THEN Wo.Fakt_Wo*Wo.Jpduration END )   Fakt_Normtime_9, "
- +"         SUM( CASE WHEN Extract(MONTH FROM Wo.Actfinish)     = '9' THEN Wo.CALCOBRAB END )               Calcobrab_9, "
+ +"         SUM( CASE WHEN Extract(MONTH FROM Wo.Actfinish)     = '9' THEN wo.labor_hour END )               Calcobrab_9, "
  +"         SUM( CASE WHEN Extract(MONTH FROM Wo.TARGSTARTDATE) = '10' THEN Wo.PLAN_WO END )                obrab_10, "
  +"         SUM( CASE WHEN Extract(MONTH FROM Wo.TARGSTARTDATE) = '10' THEN Wo.PLAN_WO* Wo.JPDURATION END ) normtime_10, "
  +"         SUM( CASE WHEN Extract(MONTH FROM Wo.Actfinish)     = '10' THEN Wo.Fakt_Wo END )                Fakt_Wo_10, "
  +"         SUM( CASE WHEN Extract(MONTH FROM Wo.Actfinish)     = '10' THEN Wo.Fakt_Wo*Wo.Jpduration END )  Fakt_Normtime_10, "
- +"         SUM( CASE WHEN Extract(MONTH FROM Wo.Actfinish)     = '10' THEN Wo.CALCOBRAB END )              Calcobrab_10, "
+ +"         SUM( CASE WHEN Extract(MONTH FROM Wo.Actfinish)     = '10' THEN wo.labor_hour END )              Calcobrab_10, "
  +"         SUM( CASE WHEN Extract(MONTH FROM Wo.TARGSTARTDATE) = '11' THEN Wo.PLAN_WO END )                obrab_11, "
  +"         SUM( CASE WHEN Extract(MONTH FROM Wo.TARGSTARTDATE) = '11' THEN Wo.PLAN_WO* Wo.JPDURATION END ) normtime_11, "
  +"         SUM( CASE WHEN Extract(MONTH FROM Wo.Actfinish)     = '11' THEN Wo.Fakt_Wo END )                Fakt_Wo_11, "
  +"         SUM( CASE WHEN Extract(MONTH FROM Wo.Actfinish)     = '11' THEN Wo.Fakt_Wo*Wo.Jpduration END )  Fakt_Normtime_11, "
- +"         SUM( CASE WHEN Extract(MONTH FROM Wo.Actfinish)     = '11' THEN Wo.CALCOBRAB END )              Calcobrab_11, "
+ +"         SUM( CASE WHEN Extract(MONTH FROM Wo.Actfinish)     = '11' THEN wo.labor_hour END )              Calcobrab_11, "
  +"         SUM( CASE WHEN Extract(MONTH FROM Wo.TARGSTARTDATE) = '12' THEN Wo.PLAN_WO END )                obrab_12, "
  +"         SUM( CASE WHEN Extract(MONTH FROM Wo.TARGSTARTDATE) = '12' THEN Wo.PLAN_WO* Wo.JPDURATION END ) normtime_12, "
  +"         SUM( CASE WHEN Extract(MONTH FROM Wo.Actfinish)     = '12' THEN Wo.Fakt_Wo END )                Fakt_Wo_12, "
  +"         SUM( CASE WHEN Extract(MONTH FROM Wo.Actfinish)     = '12' THEN Wo.Fakt_Wo*Wo.Jpduration END )  Fakt_Normtime_12, "
- +"         SUM( CASE WHEN Extract(MONTH FROM Wo.Actfinish)     = '12' THEN Wo.CALCOBRAB END )              Calcobrab_12 "
+ +"         SUM( CASE WHEN Extract(MONTH FROM Wo.Actfinish)     = '12' THEN wo.labor_hour END )              Calcobrab_12 "
  +" FROM    Maximo.Workorder Wo "
 
  +"           JOIN Maximo.Locations Loc "
@@ -1642,8 +1642,8 @@ sqlText =   " WITH "
  //+" and wo.pmnum is null "
  //+" and wo.Origrecordid is not null "
  +" and wo.status not in ('НАПР_В_ГР', 'ОТКЛОНЕНО', 'ОТКЛЛОЖ', 'ЛОЖНОЕ', 'УДАЛЕНО', 'ОТМЕНЕН')"
- +" and wo.woclassif in ('5', '3') " 
- +" group by case when WO.WOCLASSIF = 5 then wo.wonum else wo.origrecordid  end) Wo_Nepred "
+ +" and WO.VID_RAB IN (100, 1003, 1006, 1007, 1005) " 
+ +" group by  nvl(wo.origrecordid, wo.wonum), WO.VID_RAB) Wo_Nepred "
 
   
 
@@ -15160,7 +15160,7 @@ this.text = Total.sum(dataSetRow["NORMTIME_SUM"])</expression>
                 <property name="repeatHeader">true</property>
                 <property name="hideDetail">false</property>
                 <property name="pageBreakAfter">auto</property>
-                <property name="pageBreakBefore">auto</property>
+                <property name="pageBreakBefore">always-excluding-first</property>
                 <property name="pageBreakInside">auto</property>
                 <header>
                     <row id="14378">
@@ -15180,7 +15180,7 @@ this.text = Total.sum(dataSetRow["NORMTIME_SUM"])</expression>
                         <cell id="14379"/>
                         <cell id="14380"/>
                         <cell id="14381">
-                            <property name="colSpan">77</property>
+                            <property name="colSpan">1</property>
                             <property name="rowSpan">1</property>
                             <property name="fontWeight">bold</property>
                             <property name="borderBottomColor">#000000</property>
@@ -15189,6 +15189,17 @@ this.text = Total.sum(dataSetRow["NORMTIME_SUM"])</expression>
                             <property name="borderLeftColor">#000000</property>
                             <property name="borderLeftStyle">solid</property>
                             <property name="borderLeftWidth">thin</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">thin</property>
+                        </cell>
+                        <cell id="16335">
+                            <property name="colSpan">76</property>
+                            <property name="rowSpan">1</property>
+                            <property name="fontWeight">bold</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">thin</property>
                             <property name="borderRightColor">#000000</property>
                             <property name="borderRightStyle">solid</property>
                             <property name="borderRightWidth">thin</property>
