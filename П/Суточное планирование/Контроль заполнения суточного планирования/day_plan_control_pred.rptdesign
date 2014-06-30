@@ -294,7 +294,7 @@ sqlText = ""
  +"   ) "
  +"  "
  +" SELECT  DDAY.DDAY, "
- +"         NVL(PORD.BRIG_LOCATION, wo.brigad_location) BRIG, "
+ +"         nvl(NVL(PORD.BRIG_LOCATION, wo.brigad_location), '-1') BRIG, "
  +"         LOC.DESCRIPTION BRIG_D, "
  +"         SUM(CASE WHEN WOD.WONUM = WO.WONUM THEN 1 ELSE 0 END) CNT_PORD , "
  +"         CASE WHEN COUNT(DISTINCT WO.WONUM) > SUM(CASE WHEN WOD.WONUM = WO.WONUM THEN 1 ELSE 0 END) THEN COUNT(DISTINCT WO.WONUM) -SUM(CASE WHEN WOD.WONUM = WO.WONUM THEN 1 ELSE 0 END) ELSE 0 END cnt_wo "
@@ -316,7 +316,7 @@ sqlText = ""
  +"                 ON      wo.SITEID                                      = LOC.SITEID "
  +"                         AND WO.BRIGAD_LOCATION = LOC.location "
  +" WHERE   dday.dday                                              IS NOT NULL "
- +"         AND NVL(PORD.BRIG_LOCATION, wo.brigad_location)        IS NOT NULL "
+ //+"         AND NVL(PORD.BRIG_LOCATION, wo.brigad_location)        IS NOT NULL "
  +" GROUP BY dday.dday, "
  +"         NVL(PORD.BRIG_LOCATION, WO.BRIGAD_LOCATION), "
  +"         loc.DESCRIPTION "
@@ -611,12 +611,20 @@ return (true);]]></method>
                                     <property name="backgroundColor">#FFFF80</property>
                                 </structure>
                                 <structure>
-                                    <property name="operator">match</property>
+                                    <property name="operator">eq</property>
                                     <expression name="testExpr">data["CNT_WO_Group1/BRIG_D_Group/DDAY"]</expression>
                                     <simple-property-list name="value1">
                                         <value>0</value>
                                     </simple-property-list>
                                     <property name="backgroundColor">#80FF80</property>
+                                </structure>
+                                <structure>
+                                    <property name="operator">eq</property>
+                                    <expression name="testExpr">data["BRIG"]</expression>
+                                    <simple-property-list name="value1">
+                                        <value>-1</value>
+                                    </simple-property-list>
+                                    <property name="backgroundColor">#FFFFFF</property>
                                 </structure>
                             </list-property>
                             <property name="content">
@@ -624,7 +632,9 @@ return (true);]]></method>
                                     <list-property name="visibility">
                                         <structure>
                                             <property name="format">all</property>
-                                            <expression name="valueExpr">data["CNT_PORD_Group1/BRIG_Group/DDAY"] == 0 || data["CNT_PORD_Group1/BRIG_Group/DDAY"] == null</expression>
+                                            <expression name="valueExpr">data["CNT_PORD_Group1/BRIG_Group/DDAY"] == 0 
+|| data["CNT_PORD_Group1/BRIG_Group/DDAY"] == null 
+|| data["BRIG"] == "-1"</expression>
                                         </structure>
                                     </list-property>
                                     <property name="resultSetColumn">CNT_PORD_Group1/BRIG_Group/DDAY</property>
@@ -673,7 +683,8 @@ return (true);]]></method>
                                     <list-property name="visibility">
                                         <structure>
                                             <property name="format">all</property>
-                                            <expression name="valueExpr">data["CNT_PORD_Group1/BRIG_Group/DDAY"] >0 || data["CNT_PORD_Group1/BRIG_Group/DDAY"] == null</expression>
+                                            <expression name="valueExpr">data["CNT_PORD_Group1/BRIG_Group/DDAY"] >0 || data["CNT_PORD_Group1/BRIG_Group/DDAY"] == null
+|| data["BRIG"] == "-1"</expression>
                                         </structure>
                                     </list-property>
                                     <property name="resultSetColumn">CNT_PORD_Group1/BRIG_Group/DDAY</property>
@@ -715,6 +726,12 @@ return (true);]]></method>
                                         <property name="pattern">Percent</property>
                                     </structure>
                                     <property name="textAlign">right</property>
+                                    <list-property name="visibility">
+                                        <structure>
+                                            <property name="format">all</property>
+                                            <expression name="valueExpr">data["BRIG"] == "-1"</expression>
+                                        </structure>
+                                    </list-property>
                                     <property name="resultSetColumn">%plan</property>
                                 </data>
                             </property>
@@ -779,12 +796,20 @@ return (true);]]></method>
                                     <property name="backgroundColor">#FFFF80</property>
                                 </structure>
                                 <structure>
-                                    <property name="operator">match</property>
+                                    <property name="operator">eq</property>
                                     <expression name="testExpr">data["CNT_WO_Group1/BRIG_D_Group/DDAY"]</expression>
                                     <simple-property-list name="value1">
                                         <value>0</value>
                                     </simple-property-list>
                                     <property name="backgroundColor">#80FF80</property>
+                                </structure>
+                                <structure>
+                                    <property name="operator">eq</property>
+                                    <expression name="testExpr">data["BRIG"]</expression>
+                                    <simple-property-list name="value1">
+                                        <value>-1</value>
+                                    </simple-property-list>
+                                    <property name="backgroundColor">#FFFFFF</property>
                                 </structure>
                             </list-property>
                             <property name="content">
@@ -792,7 +817,8 @@ return (true);]]></method>
                                     <list-property name="visibility">
                                         <structure>
                                             <property name="format">all</property>
-                                            <expression name="valueExpr">data["CNT_PORD_Group1/BRIG_Group/DDAY"] == null</expression>
+                                            <expression name="valueExpr">data["CNT_WO_Group1/BRIG_Group/DDAY"] == 0 ||data["CNT_PORD_Group1/BRIG_Group/DDAY"] == null
+|| data["BRIG"] == "-1"</expression>
                                         </structure>
                                     </list-property>
                                     <property name="resultSetColumn">CNT_WO_Group1/BRIG_Group/DDAY</property>
@@ -837,6 +863,19 @@ return (true);]]></method>
                                         </list-property>
                                     </structure>
                                 </data>
+                                <data id="18172">
+                                    <list-property name="visibility">
+                                        <structure>
+                                            <property name="format">all</property>
+                                            <expression name="valueExpr">data["CNT_WO_Group1/BRIG_Group/DDAY"] > 0 || data["CNT_PORD_Group1/BRIG_Group/DDAY"] == null
+|| data["BRIG"] == "-1"</expression>
+                                        </structure>
+                                    </list-property>
+                                    <property name="resultSetColumn">CNT_WO_Group1/BRIG_Group/DDAY</property>
+                                    <structure name="action">
+                                        <property name="linkType">none</property>
+                                    </structure>
+                                </data>
                             </property>
                         </extended-item>
                     </property>
@@ -875,6 +914,12 @@ return (true);]]></method>
                                         <extended-item extensionName="CrosstabCell" id="18062">
                                             <property name="content">
                                                 <data name="BRIG_D" id="18063">
+                                                    <list-property name="visibility">
+                                                        <structure>
+                                                            <property name="format">all</property>
+                                                            <expression name="valueExpr">data["BRIG_D"] == "-1"</expression>
+                                                        </structure>
+                                                    </list-property>
                                                     <property name="resultSetColumn">BRIG_D</property>
                                                 </data>
                                             </property>
@@ -1127,7 +1172,7 @@ return (true);]]></method>
                     <property name="borderTopWidth">thin</property>
                     <property name="textAlign">center</property>
                     <label id="18132">
-                        <text-property name="text">Число</text-property>
+                        <text-property name="text">Дата</text-property>
                     </label>
                 </cell>
                 <cell id="18153">
@@ -1445,7 +1490,7 @@ return (true);]]></method>
                     <property name="textAlign">right</property>
                     <label id="18171">
                         <property name="textAlign">left</property>
-                        <text-property name="text">5 рабочих задани в суточном плане, невключенные РЗ отсутствуют</text-property>
+                        <text-property name="text">5 рабочих заданий в суточном плане, невключенные РЗ отсутствуют</text-property>
                     </label>
                 </cell>
             </row>
