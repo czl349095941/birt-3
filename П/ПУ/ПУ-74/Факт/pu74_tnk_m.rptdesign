@@ -666,7 +666,7 @@ else if(params["year"]!='')
 var sqlText = new String();
 	sqlText = ""
  +" WITH a1 AS "
- +"      (SELECT   wo.wonum , wo.PASSEGEWORK prohod, wo.PASSTRAIN poezd,  	WO.FENCINGPATH ograda, WO.TYPEWORKORDER, wo.otherwork, "
+ +"      (SELECT   wo.wonum , wo.PASSEGEWORK prohod, wo.PASSTRAIN poezd,  	WO.FENCINGPATH ograda, WO.TYPEWORKORDER, wo.otherwork, wo.CLASSSTRUCTUREID, "
  +" to_char (substr ((SELECT sys_xmlagg(XMLELEMENT(col, regexp_REPLACE(asset.description, '\"', '') "
  +"               || ' (от ' "
  +"               || multiassetlocci.STARTMEASUREKM "
@@ -769,7 +769,7 @@ var sqlText = new String();
  
  +" SELECT   'invis' MESTO                                                               , "
  +"          '' Ед_Изм                                                                              , "
- +"          nvl(case when TYPEWORKORDER IN ('Путевые обходчики') then 'Осмотр пути' else a1.OTHERWORK end, 'Прочие работы') Наименов                                                                            , "
+ +"         nvl(case when TYPEWORKORDER IN ('Путевые обходчики') then 'Осмотр пути' else NVL(a1.OTHERWORK, cls.description) end, 'Прочие работы') Наименов, "
  +"          'я' Тех_Карта                                                                        , "
  +"          to_number('') Норма_Времени                                                            , "
  +"          to_number('') numvalue                                                                            , "
@@ -805,8 +805,8 @@ var sqlText = new String();
  +"          sum (case when  Actfinish=13 then labor_hour end)Ч_Ч_13, "
  +"          sum (case when  Actfinish=14 then labor_hour end)Ч_Ч_14, "
  +"          sum (case when  Actfinish=15 then labor_hour end)Ч_Ч_15 "
- +" FROM     a1 WHERE TYPEWORKORDER IN ('Прочее', 'Путевые обходчики')"
- +" GROUP BY nvl(case when TYPEWORKORDER IN ('Путевые обходчики') then 'Осмотр пути' else a1.OTHERWORK end, 'Прочие работы')    "
+ +" FROM     a1 left join MAXIMO.CLASSSTRUCTURE cls on cls.CLASSSTRUCTUREID = a1.CLASSSTRUCTUREID WHERE TYPEWORKORDER IN ('Прочее', 'Путевые обходчики')"
+ +" GROUP BY nvl(case when TYPEWORKORDER IN ('Путевые обходчики') then 'Осмотр пути' else NVL(a1.OTHERWORK, cls.description) end, 'Прочие работы') "
  
 
  
@@ -1412,7 +1412,7 @@ else if(params["year"]!='')
 var sqlText = new String();
 	sqlText = ""
  +" WITH a1 AS "
- +"      (SELECT   wo.wonum , wo.PASSEGEWORK prohod, wo.PASSTRAIN poezd,  	WO.FENCINGPATH ograda, WO.TYPEWORKORDER, WO.OTHERWORK, "
+ +"      (SELECT   wo.wonum , wo.PASSEGEWORK prohod, wo.PASSTRAIN poezd,  	WO.FENCINGPATH ograda, WO.TYPEWORKORDER, WO.OTHERWORK, wo.CLASSSTRUCTUREID, "
  +" to_char (substr ((SELECT sys_xmlagg(XMLELEMENT(col, regexp_REPLACE(asset.description, '\"', '') "
  +"               || ' (от ' "
  +"               || multiassetlocci.STARTMEASUREKM "
@@ -1516,7 +1516,7 @@ var sqlText = new String();
  +" UNION ALL "  
  +" SELECT   'invis' mesto                                                               , "
  +"          '' Ед_Изм                                                                              , "
- +"          nvl(case when TYPEWORKORDER IN ('Путевые обходчики') then 'Осмотр пути' else a1.OTHERWORK end, 'Прочие работы') Наименов                                                                            , "
+ +"         nvl(case when TYPEWORKORDER IN ('Путевые обходчики') then 'Осмотр пути' else NVL(a1.OTHERWORK, cls.description) end, 'Прочие работы') Наименов, "
  +"          'я' Тех_Карта                                                                        , "
  +"          to_number('') Норма_Времени                                                            , "
  +"          to_number('') numvalue                                                                            , "
@@ -1554,8 +1554,8 @@ var sqlText = new String();
  +"         sum (case when  Actfinish=29 then labor_hour end)Ч_Ч_29, "
  +"         sum (case when  Actfinish=30 then labor_hour end)Ч_Ч_30, "
  +"         sum (case when  Actfinish=31 then labor_hour end)Ч_Ч_31 "
- +" FROM     a1 WHERE TYPEWORKORDER IN ('Прочее', 'Путевые обходчики')"
- +" GROUP BY nvl(case when TYPEWORKORDER IN ('Путевые обходчики') then 'Осмотр пути' else a1.OTHERWORK end, 'Прочие работы')    "
+ +" FROM     a1 left join MAXIMO.CLASSSTRUCTURE cls on cls.CLASSSTRUCTUREID = a1.CLASSSTRUCTUREID WHERE TYPEWORKORDER IN ('Прочее', 'Путевые обходчики')"
+ +" GROUP BY nvl(case when TYPEWORKORDER IN ('Путевые обходчики') then 'Осмотр пути' else NVL(a1.OTHERWORK, cls.description) end, 'Прочие работы') "
 ;
 	maximoDataSet.setQuery(sqlText);]]></method>
             <method name="fetch"><![CDATA[if (!maximoDataSet.fetch())
