@@ -22,101 +22,162 @@
 	</parameter>
 	<queryString>
 		<![CDATA[WITH WORKO AS
-     (SELECT wonum                                                                        ,
-             actfinish                                                                    ,
-             NVL(WO.LABOR_HOUR,0) + NVL(WO.PASSEGEWORK,0) + NVL(WO.PASSTRAIN,0) LABOR_HOUR,
-             NVL(WO.FENCINGPATH,0)                                              ograda    ,
-             siteid
-     FROM    Maximo.Workorder Wo
-     WHERE   WO.SITEID                         = $P{mroSite}
-             AND TO_CHAR(wo.Actfinish, 'MM')   = $P{month}
-             AND TO_CHAR(wo.Actfinish, 'YYYY') = $P{year}
-             AND WO.L_PODR                     = $P{podr}
-             AND wo.l_pred                     =
-             (SELECT DISTINCT CASE WHEN pred.siteid = '17' THEN pred.location ELSE pred.parent END pred
-             FROM    MAXIMO.LOCHIERARCHY podr
-                     JOIN MAXIMO.LOCHIERARCHY PRED
-                             ON      podr.parent     = pred.location
-                                     AND podr.SITEID = pred.SITEID
-                     JOIN MAXIMO.LOCATIONS LOC1
-                             ON      LOC1.LOCATION   = PRED.LOCATION
-                                     AND LOC1.SITEID = PRED.SITEID
-                     JOIN maximo.locations loc2
-                             ON      LOC2.LOCATION   = PRED.parent
-                                     AND LOC2.SITEID = PRED.SITEID
-             WHERE   podr.location                   = $P{podr}
-                     AND PODR.SITEID                 = $P{mroSite}
-                     AND LOC1.STATUS                 = 'РАБОТАЕТ'
-                     AND LOC2.STATUS                 = 'РАБОТАЕТ'
-                     AND PRED.SYSTEMID               = 'ОС'
-                     AND podr.systemid               = 'ОС'
-             )
-             AND WO.STATUS     IN ('ТЕХОТДЕЛ'   , 'ЗАКРЫТО', 'ЗАВ_ДИСП', 'ЗАВЕРШ', 'ДОРАБОТКА')
-             AND TYPEWORKORDER IN ('Внеплановое', 'Плановое', 'Сопутствующая работа', 'Прочее', 'Путевые обходчики')
-     )
-     ,
-     labtr AS
-     ( SELECT LABTRANS.REFWO          ,
-             LABTRANS.SITEID          ,
-             LABORCRAFTRATE.SKILLLEVEL,
-             LABTRANS.LABORCODE       ,
-             LABTRANS.SIGNALIST       ,
-             LABTRANS.craft           ,
-             LABTRANS.labor_hour
-     FROM    MAXIMO.LABTRANS
-             JOIN MAXIMO.LABORCRAFTRATE
-                     ON      LABORCRAFTRATE.LABORCODE = LABTRANS.LABORCODE
-     WHERE   LABTRANS.LABORCODE             IS NOT NULL
-             AND LABORCRAFTRATE.DEFAULTCRAFT          = '1'
-             AND LABTRANS.SITEID                      = $P{mroSite}
-             AND LABTRANS.REFWO IN
-             (SELECT WONUM
-             FROM    WORKO
-             )
-     )
-SELECT   Person.Displayname                                                                                  ,
-         PERSON.TPPERSON LABORCODE                                                                           ,
-         LABtr.SKILLLEVEL                                                                                    ,
-         ROUND ( NVL (SUM(CASE WHEN Extract (DAY FROM worko.actfinish)=1 THEN LABTR.labor_hour END),0),2)  D1 ,
-         ROUND ( NVL (SUM(CASE WHEN Extract (DAY FROM worko.actfinish)=2 THEN LABTR.labor_hour END),0),2)  D2 ,
-         ROUND ( NVL (SUM(CASE WHEN Extract (DAY FROM worko.actfinish)=3 THEN LABTR.labor_hour END),0),2)  D3 ,
-         ROUND ( NVL (SUM(CASE WHEN Extract (DAY FROM worko.actfinish)=4 THEN LABTR.labor_hour END),0),2)  D4 ,
-         ROUND ( NVL (SUM(CASE WHEN Extract (DAY FROM worko.actfinish)=5 THEN LABTR.labor_hour END),0),2)  D5 ,
-         ROUND ( NVL (SUM(CASE WHEN Extract (DAY FROM worko.actfinish)=6 THEN LABTR.labor_hour END),0),2)  D6 ,
-         ROUND ( NVL (SUM(CASE WHEN Extract (DAY FROM worko.actfinish)=7 THEN LABTR.labor_hour END),0),2)  D7 ,
-         ROUND ( NVL (SUM(CASE WHEN Extract (DAY FROM worko.actfinish)=8 THEN LABTR.labor_hour END),0),2)  D8 ,
-         ROUND ( NVL (SUM(CASE WHEN Extract (DAY FROM worko.actfinish)=9 THEN LABTR.labor_hour END),0),2)  D9 ,
-         ROUND ( NVL (SUM(CASE WHEN Extract (DAY FROM worko.actfinish)=10 THEN LABTR.labor_hour END),0),2) D10,
-         ROUND ( NVL (SUM(CASE WHEN Extract (DAY FROM worko.actfinish)=11 THEN LABTR.labor_hour END),0),2) D11,
-         ROUND ( NVL (SUM(CASE WHEN Extract (DAY FROM worko.actfinish)=12 THEN LABTR.labor_hour END),0),2) D12,
-         ROUND ( NVL (SUM(CASE WHEN Extract (DAY FROM worko.actfinish)=13 THEN LABTR.labor_hour END),0),2) D13,
-         ROUND ( NVL (SUM(CASE WHEN Extract (DAY FROM worko.actfinish)=14 THEN LABTR.labor_hour END),0),2) D14,
-         ROUND ( NVL (SUM(CASE WHEN Extract (DAY FROM worko.actfinish)=15 THEN LABTR.labor_hour END),0),2) D15,
-         ROUND ( NVL (SUM(CASE WHEN Extract (DAY FROM worko.actfinish)=16 THEN LABTR.labor_hour END),0),2) D16,
-         ROUND ( NVL (SUM(CASE WHEN Extract (DAY FROM worko.actfinish)=17 THEN LABTR.labor_hour END),0),2) D17,
-         ROUND ( NVL (SUM(CASE WHEN Extract (DAY FROM worko.actfinish)=18 THEN LABTR.labor_hour END),0),2) D18,
-         ROUND ( NVL (SUM(CASE WHEN Extract (DAY FROM worko.actfinish)=19 THEN LABTR.labor_hour END),0),2) D19,
-         ROUND ( NVL (SUM(CASE WHEN Extract (DAY FROM worko.actfinish)=20 THEN LABTR.labor_hour END),0),2) D20,
-         ROUND ( NVL (SUM(CASE WHEN Extract (DAY FROM worko.actfinish)=21 THEN LABTR.labor_hour END),0),2) D21,
-         ROUND ( NVL (SUM(CASE WHEN Extract (DAY FROM worko.actfinish)=22 THEN LABTR.labor_hour END),0),2) D22,
-         ROUND ( NVL (SUM(CASE WHEN Extract (DAY FROM worko.actfinish)=23 THEN LABTR.labor_hour END),0),2) D23,
-         ROUND ( NVL (SUM(CASE WHEN Extract (DAY FROM worko.actfinish)=24 THEN LABTR.labor_hour END),0),2) D24,
-         ROUND ( NVL (SUM(CASE WHEN Extract (DAY FROM worko.actfinish)=25 THEN LABTR.labor_hour END),0),2) D25,
-         ROUND ( NVL (SUM(CASE WHEN Extract (DAY FROM worko.actfinish)=26 THEN LABTR.labor_hour END),0),2) D26,
-         ROUND ( NVL (SUM(CASE WHEN Extract (DAY FROM worko.actfinish)=27 THEN LABTR.labor_hour END),0),2) D27,
-         ROUND ( NVL (SUM(CASE WHEN Extract (DAY FROM worko.actfinish)=28 THEN LABTR.labor_hour END),0),2) D28,
-         ROUND ( NVL (SUM(CASE WHEN Extract (DAY FROM worko.actfinish)=29 THEN LABTR.labor_hour END),0),2) D29,
-         ROUND ( NVL (SUM(CASE WHEN Extract (DAY FROM worko.actfinish)=30 THEN LABTR.labor_hour END),0),2) D30,
-         ROUND ( NVL (SUM(CASE WHEN Extract (DAY FROM worko.actfinish)=31 THEN LABTR.labor_hour END),0),2) D31
-FROM     WORKO
-         JOIN LABTR
-                  ON       WORKO.WONUM      = LABTR.REFWO
-                           AND WORKO.SITEID = LABTR.SITEID
-         JOIN MAXIMO.PERSON
-                  ON       PERSON.PERSONID = LABTR.LABORCODE
-GROUP BY Person.Displayname,
-         PERSON.TPPERSON   ,
-         LABtr.SKILLLEVEL]]>
+        (SELECT wonum,
+                actfinish,
+                NVL(WO.LABOR_HOUR,0) + NVL(WO.PASSEGEWORK,0) + NVL(WO.PASSTRAIN,0) LABOR_HOUR,
+                NVL(WO.FENCINGPATH,0)                                              ograda,
+                siteid
+        FROM    Maximo.Workorder Wo
+        WHERE   WO.SITEID                         = $P{mroSite}
+                AND TO_CHAR(wo.Actfinish, 'MM')   = $P{month}
+                AND TO_CHAR(wo.Actfinish, 'YYYY') = $P{year}
+                AND WO.BRIGAD_LOCATION            = $P{podr}
+                AND WO.STATUS     IN ('НАПР_НА_УТ', 'ЗАВЕРШ', 'ОТКЛ_РГН', 'ОФОРМЛЕН', 'ЗАКРЫТО')
+                AND TYPEWORKORDER IN ('Внеплановое', 'Плановое', 'Сопутствующая работа', 'Прочее', 'Путевые обходчики')
+        )
+        ,
+        labtr AS
+        (SELECT LABTRANS.REFWO ,
+                LABTRANS.SITEID,
+                LABORCRAFTRATE.SKILLLEVEL,
+                LABTRANS.LABORCODE,
+                LABTRANS.SIGNALIST,
+                LABTRANS.craft,
+                LABTRANS.labor_hour
+        FROM    MAXIMO.LABTRANS
+                JOIN MAXIMO.LABORCRAFTRATE
+                        ON      LABORCRAFTRATE.LABORCODE = LABTRANS.LABORCODE
+        WHERE   LABTRANS.LABORCODE             IS NOT NULL
+                AND LABORCRAFTRATE.DEFAULTCRAFT          = '1'
+                AND LABTRANS.SITEID                      = $P{mroSite}
+                AND LABTRANS.REFWO IN
+                (SELECT WONUM
+                FROM    WORKO
+                )
+        )
+SELECT  DISPLAYNAME ,
+        TPPERSON laborcode,
+        SKILLLEVEL ,
+        MAX( D1)  D1 ,
+        MAX( D2)  D2 ,
+        MAX( D3)  D3 ,
+        MAX( D4)  D4 ,
+        MAX( D5)  D5 ,
+        MAX( D6)  D6 ,
+        MAX( D7)  D7 ,
+        MAX( D8)  D8 ,
+        MAX( D9)  D9 ,
+        MAX( D10) D10 ,
+        MAX( D11) D11 ,
+        MAX( D12) D12 ,
+        MAX( D13) D13 ,
+        MAX( D14) D14 ,
+        MAX( D15) D15 ,
+        MAX( D16) D16 ,
+        MAX( D17) D17 ,
+        MAX( D18) D18 ,
+        MAX( D19) D19 ,
+        MAX( D20) D20 ,
+        MAX( D21) D21 ,
+        MAX( D22) D22 ,
+        MAX( D23) D23 ,
+        MAX( D24) D24 ,
+        MAX( D25) D25 ,
+        MAX( D26) D26 ,
+        MAX( D27) D27 ,
+        MAX( D28) D28 ,
+        MAX( D29) D29 ,
+        MAX( D30) D30 ,
+        MAX( D31) D31
+FROM    (SELECT PERSON.DISPLAYNAME ,
+                PERSON.TPPERSON ,
+                labtr.SKILLLEVEL ,
+                ROUND ( NVL (SUM( CASE WHEN Extract (DAY FROM worko.actfinish)=1 THEN LABTR.labor_hour END),0),2)  D1 ,
+                ROUND ( NVL (SUM( CASE WHEN Extract (DAY FROM worko.actfinish)=2 THEN LABTR.labor_hour END),0),2)  D2 ,
+                ROUND ( NVL (SUM( CASE WHEN Extract (DAY FROM worko.actfinish)=3 THEN LABTR.labor_hour END),0),2)  D3 ,
+                ROUND ( NVL (SUM( CASE WHEN Extract (DAY FROM worko.actfinish)=4 THEN LABTR.labor_hour END),0),2)  D4 ,
+                ROUND ( NVL (SUM( CASE WHEN Extract (DAY FROM worko.actfinish)=5 THEN LABTR.labor_hour END),0),2)  D5 ,
+                ROUND ( NVL (SUM( CASE WHEN Extract (DAY FROM worko.actfinish)=6 THEN LABTR.labor_hour END),0),2)  D6 ,
+                ROUND ( NVL (SUM( CASE WHEN Extract (DAY FROM worko.actfinish)=7 THEN LABTR.labor_hour END),0),2)  D7 ,
+                ROUND ( NVL (SUM( CASE WHEN Extract (DAY FROM worko.actfinish)=8 THEN LABTR.labor_hour END),0),2)  D8 ,
+                ROUND ( NVL (SUM( CASE WHEN Extract (DAY FROM worko.actfinish)=9 THEN LABTR.labor_hour END),0),2)  D9 ,
+                ROUND ( NVL (SUM( CASE WHEN Extract (DAY FROM worko.actfinish)=10 THEN LABTR.labor_hour END),0),2) D10,
+                ROUND ( NVL (SUM( CASE WHEN Extract (DAY FROM worko.actfinish)=11 THEN LABTR.labor_hour END),0),2) D11,
+                ROUND ( NVL (SUM( CASE WHEN Extract (DAY FROM worko.actfinish)=12 THEN LABTR.labor_hour END),0),2) D12,
+                ROUND ( NVL (SUM( CASE WHEN Extract (DAY FROM worko.actfinish)=13 THEN LABTR.labor_hour END),0),2) D13,
+                ROUND ( NVL (SUM( CASE WHEN Extract (DAY FROM worko.actfinish)=14 THEN LABTR.labor_hour END),0),2) D14,
+                ROUND ( NVL (SUM( CASE WHEN Extract (DAY FROM worko.actfinish)=15 THEN LABTR.labor_hour END),0),2) D15,
+                ROUND ( NVL (SUM( CASE WHEN Extract (DAY FROM worko.actfinish)=16 THEN LABTR.labor_hour END),0),2) D16,
+                ROUND ( NVL (SUM( CASE WHEN Extract (DAY FROM worko.actfinish)=17 THEN LABTR.labor_hour END),0),2) D17,
+                ROUND ( NVL (SUM( CASE WHEN Extract (DAY FROM worko.actfinish)=18 THEN LABTR.labor_hour END),0),2) D18,
+                ROUND ( NVL (SUM( CASE WHEN Extract (DAY FROM worko.actfinish)=19 THEN LABTR.labor_hour END),0),2) D19,
+                ROUND ( NVL (SUM( CASE WHEN Extract (DAY FROM worko.actfinish)=20 THEN LABTR.labor_hour END),0),2) D20,
+                ROUND ( NVL (SUM( CASE WHEN Extract (DAY FROM worko.actfinish)=21 THEN LABTR.labor_hour END),0),2) D21,
+                ROUND ( NVL (SUM( CASE WHEN Extract (DAY FROM worko.actfinish)=22 THEN LABTR.labor_hour END),0),2) D22,
+                ROUND ( NVL (SUM( CASE WHEN Extract (DAY FROM worko.actfinish)=23 THEN LABTR.labor_hour END),0),2) D23,
+                ROUND ( NVL (SUM( CASE WHEN Extract (DAY FROM worko.actfinish)=24 THEN LABTR.labor_hour END),0),2) D24,
+                ROUND ( NVL (SUM( CASE WHEN Extract (DAY FROM worko.actfinish)=25 THEN LABTR.labor_hour END),0),2) D25,
+                ROUND ( NVL (SUM( CASE WHEN Extract (DAY FROM worko.actfinish)=26 THEN LABTR.labor_hour END),0),2) D26,
+                ROUND ( NVL (SUM( CASE WHEN Extract (DAY FROM worko.actfinish)=27 THEN LABTR.labor_hour END),0),2) D27,
+                ROUND ( NVL (SUM( CASE WHEN Extract (DAY FROM worko.actfinish)=28 THEN LABTR.labor_hour END),0),2) D28,
+                ROUND ( NVL (SUM( CASE WHEN Extract (DAY FROM worko.actfinish)=29 THEN LABTR.labor_hour END),0),2) D29,
+                ROUND ( NVL (SUM( CASE WHEN Extract (DAY FROM worko.actfinish)=30 THEN LABTR.labor_hour END),0),2) D30,
+                ROUND ( NVL (SUM( CASE WHEN Extract (DAY FROM worko.actfinish)=31 THEN LABTR.labor_hour END),0),2) D31
+        FROM    WORKO
+                JOIN LABTR
+                        ON      WORKO.WONUM      = LABTR.REFWO
+                                AND WORKO.SITEID = LABTR.SITEID
+                JOIN MAXIMO.PERSON
+                        ON      PERSON.PERSONID = LABTR.LABORCODE
+        GROUP BY Person.Displayname,
+                PERSON.TPPERSON ,
+                LABTR.SKILLLEVEL
+  UNION ALL
+        select PERSON.DISPLAYNAME ,
+               PERSON.TPPERSON ,
+               LABORCRAFTRATE.SKILLLEVEL ,
+               to_number('0') D1 ,
+               to_number('0') D2 ,
+               to_number('0') D3 ,
+               to_number('0') D4 ,
+               TO_NUMBER('0') D5 ,
+               to_number('0') D6 ,
+               to_number('0') D7 ,
+               to_number('0') D8 ,
+               TO_NUMBER('0') D9 ,
+               to_number('0') D10 ,
+               TO_NUMBER('0') D11 ,
+               to_number('0') D12 ,
+               to_number('0') D13 ,
+               TO_NUMBER('0') D14 ,
+               to_number('0') D15 ,
+               TO_NUMBER('0') D16 ,
+               TO_NUMBER('0') D17 ,
+               TO_NUMBER('0') D18 ,
+               to_number('0') D19 ,
+               TO_NUMBER('0') D20 ,
+               to_number('0') D21 ,
+               to_number('0') D22 ,
+               to_number('0') D23 ,
+               to_number('0') D24 ,
+               TO_NUMBER('0') D25 ,
+               TO_NUMBER('0') D26 ,
+               to_number('0') D27 ,
+               to_number('0') D28 ,
+               to_number('0') D29 ,
+               to_number('0') D30 ,
+               TO_NUMBER('0') D31
+        FROM    maximo.person
+                JOIN maximo.LABORCRAFTRATE
+                        ON      person.personid                 = LABORCRAFTRATE.laborcode
+                                AND LABORCRAFTRATE.DEFAULTCRAFT = 1
+                                AND LABORCRAFTRATE.CRAFT IN ('00000205', 'МНТР_ПТ', 'СГНЛСТ', '00000346')
+        WHERE   person.locationsite = $P{mroSite}
+                AND PERSON.L_PODR   = $P{podr}
+        )
+group by DISPLAYNAME,
+         TPPERSON,
+         SKILLLEVEL]]>
 	</queryString>
 	<field name="DISPLAYNAME" class="java.lang.String"/>
 	<field name="LABORCODE" class="java.lang.String"/>

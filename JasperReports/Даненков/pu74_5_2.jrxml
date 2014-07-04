@@ -18,29 +18,30 @@
 	<queryString>
 		<![CDATA[WITH Matuse AS
         (SELECT Matusetrans.Itemnum ,
-                Matusetrans.Description
+                item.Description
                         || ' ('
                         || Matusetrans.Itemnum
-                        || ')' Description               ,
-                item.Issueunit                           ,
-                matusetrans.STORNTRANS                   ,
-                MATUSETRANS.ITEM_RZ_TYPE                 ,
+                        || ')' Description ,
+                item.Issueunit ,
+                matusetrans.STORNTRANS ,
+                MATUSETRANS.ITEM_RZ_TYPE ,
                 extract (DAY FROM wo.Actfinish) Actfinish,
-                MATUSETRANS.QUANTITY                     ,
+                MATUSETRANS.QUANTITY,
                 VALIDGROUP
         FROM    maximo.workorder wo
-                LEFT JOIN Maximo.Matusetrans
+                JOIN Maximo.Matusetrans
                         ON      wo.Wonum = Matusetrans.Refwo
                 JOIN Maximo.Item
                         ON      Item.Itemnum              = Matusetrans.Itemnum
                                 AND item.CLASSSTRUCTUREID = '090000021002'
         WHERE   wo.BRIGAD_LOCATION                        = $P{podr}
-                AND wo.siteid                             =$P{mroSite}
+                AND TYPEWORKORDER                        <>'Путевые обходчики'
+                AND wo.siteid                             = $P{mroSite}
                 AND TO_CHAR(wo.Actfinish, 'YYYY')         = $P{year}
                 AND TO_CHAR(wo.Actfinish, 'MM')           = $P{month}
                 AND extract (DAY FROM wo.Actfinish)       > 15
                 AND matusetrans.itemnum         IS NOT NULL
-                AND wo.STATUS IN ( 'ТЕХОТДЕЛ' , 'ЗАКРЫТО', 'ЗАВ_ДИСП', 'ЗАВЕРШ', 'ДОРАБОТКА' )
+                AND wo.STATUS IN ('НАПР_НА_УТ', 'ЗАВЕРШ', 'ОТКЛ_РГН', 'ОФОРМЛЕН', 'ЗАКРЫТО')
         )
         ,
         Unwork AS
@@ -49,11 +50,11 @@
                         || ' ('
                         || Unworkitem.Itemnum
                         || ')' Description ,
-                item.Issueunit             ,
-                'Unwork'                        STORNTRANS        ,
-                'Unwork'                        ITEM_RZ_TYPE      ,
-                extract (DAY FROM wo.Actfinish) Actfinish         ,
-                unworkitem.QUANTITY                               ,
+                item.Issueunit ,
+                'Unwork'                        STORNTRANS ,
+                'Unwork'                        ITEM_RZ_TYPE ,
+                extract (DAY FROM wo.Actfinish) Actfinish ,
+                unworkitem.QUANTITY,
                 '' VALIDGROUP
         FROM    maximo.workorder wo
                 LEFT JOIN Maximo.Unworkitem
@@ -61,13 +62,14 @@
                 JOIN Maximo.Item
                         ON      Item.Itemnum              = Unworkitem.Itemnum
                                 AND item.CLASSSTRUCTUREID = '090000021002'
-        WHERE   wo.l_podr                                 = $P{podr}
-                AND wo.siteid                             =$P{mroSite}
+        WHERE   wo.brigad_location                        = $P{podr}
+                AND TYPEWORKORDER                        <>'Путевые обходчики'
+                AND wo.siteid                             = $P{mroSite}
                 AND TO_CHAR(wo.Actfinish, 'YYYY')         = $P{year}
                 AND TO_CHAR(wo.Actfinish, 'MM')           = $P{month}
                 AND extract (DAY FROM wo.Actfinish)       > 15
                 AND Unworkitem.Itemnum          IS NOT NULL
-                AND Wo.Status IN ('ТЕХОТДЕЛ','ЗАКРЫТО', 'ЗАВ_ДИСП', 'ЗАВЕРШ', 'ДОРАБОТКА')
+                AND Wo.Status IN ('НАПР_НА_УТ', 'ЗАВЕРШ', 'ОТКЛ_РГН', 'ОФОРМЛЕН', 'ЗАКРЫТО')
         )
 SELECT Description ,
   Issueunit,
