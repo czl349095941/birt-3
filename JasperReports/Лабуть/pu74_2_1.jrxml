@@ -488,7 +488,7 @@ GROUP BY TO_CHAR (SUBSTR (a1.mesto,1,2000)) ,
 		<defaultValueExpression><![CDATA["C:\\Users\\Mihail.Danenkov\\Dropbox\\Работа\\Скрипты\\birt\\JasperReports\\Даненков\\"]]></defaultValueExpression>
 	</parameter>
 	<parameter name="podr" class="java.lang.String">
-		<defaultValueExpression><![CDATA[PODR_108]]></defaultValueExpression>
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
 	</parameter>
 	<parameter name="month" class="java.lang.String">
 		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
@@ -501,208 +501,255 @@ GROUP BY TO_CHAR (SUBSTR (a1.mesto,1,2000)) ,
 	</parameter>
 	<queryString>
 		<![CDATA[WITH a1 AS
-        (SELECT wo.wonum ,
-                wo.PASSEGEWORK prohod,
-                wo.PASSTRAIN   poezd,
-                WO.FENCINGPATH ograda,
-                WO.TYPEWORKORDER,
-                wo.otherwork,
-                wo.CLASSSTRUCTUREID,
-                TO_CHAR (SUBSTR (
-                                   (SELECT sys_xmlagg(XMLELEMENT(col, regexp_REPLACE(asset.description, '"', '')
-                                                   || ' (от '
-                                                   || multiassetlocci.STARTMEASUREKM
-                                                   || ' км '
-                                                   || multiassetlocci.STARTMEASUREPIK
-                                                   || ' пк '
-                                                   || multiassetlocci.STARTMEASUREM
-                                                   || ' м до '
-                                                   || multiassetlocci.ENDMEASUREKM
-                                                   || ' км '
-                                                   || multiassetlocci.ENDMEASUREPIK
-                                                   || ' пк '
-                                                   || multiassetlocci.ENDMEASUREM
-                                                   || ' м) ')).EXTRACT('/ROWSET/COL/text()').getclobval()
-                                   FROM    MAXIMO.multiassetlocci
-                                           JOIN maximo.asset
-                                                   ON      asset.assetnum   = multiassetlocci.assetnum
-                                                           AND asset.siteid = multiassetlocci.siteid
-                                   WHERE   multiassetlocci.recordkey        = wo.wonum
-                                           AND 1                            = CASE WHEN (wo.origrecordid IS NOT NULL AND multiassetlocci.ISPRIMARY =1
-                                                           ) THEN 0 ELSE 1 END
-                                           AND multiassetlocci.recordclass = 'РАБОЧЕЕЗАДАНИЕ'
-                                   ),1,2000)) mesto,
-                JOBPLAN.JPNUM                 tk ,
-                J1.Numvalue
-                        || ' '
-                        || J1.Measureunitid Ед_Изм ,
-                JOBPLAN.DESCRIPTION наименов,
-                wo.description rz ,
-                wo.Jpnum Тех_Карта ,
-                CASE WHEN NVL(wo.JPDURATION, 0) = 0 THEN WO.NOKOEFDURATION ELSE wo.JPDURATION END JPDURATION ,
-                J1.Numvalue ,
-                extract (DAY FROM wo.Actfinish) Actfinish ,
-                wo.fakt_wo ,
-                wo.labor_hour ,
-                Wo.Plan_Wo
-        FROM    Maximo.WORKORDER wo
-                LEFT JOIN MAXIMO.wojprelation jpr
-                        ON      wo.wonum               = jpr.wonum
-                                AND jpr.usethismeasure = '1'
-                LEFT JOIN Maximo.Jobplan
-                        ON      Jobplan.jobplanid = jpr.jobplanid
-                LEFT JOIN Maximo.Jobplanspec J1
-                        ON      J1.jpnum            = jobplan.jpnum
-                                AND J1.assetattrid  = 'IZMRAB'
-        WHERE   wo.BRIGAD_LOCATION                  = $P{podr}
-                AND wo.siteid                       = $P{mroSite}
-                AND extract (DAY FROM wo.Actfinish) < 16
-                AND wo.Istask                       = '0'
-                AND TYPEWORKORDER IN ('Внеплановое', 'Плановое', 'Сопутствующая работа', 'Прочее', 'Путевые обходчики')
-                AND wo.STATUS     IN ('НАПР_НА_УТ', 'ЗАВЕРШ', 'ОТКЛ_РГН', 'ОФОРМЛЕН', 'ЗАКРЫТО')
-                AND TO_CHAR(wo.Actfinish, 'MM')   = $P{month}
-                AND TO_CHAR(WO.ACTFINISH, 'YYYY') = $P{year}
-        )
-select * from (
- select    a1.Наименов mesto                                                               ,
-           A1.ЕД_ИЗМ                                                                              ,
-           '0' Наименов                                                                            ,
-           a1.tk Тех_Карта                                                                        ,
-           a1.JPDURATION Норма_Времени                                                            ,
-           a1.numvalue                                                                            ,
-           SUM (a1.Plan_wo)                                                     PLAN              ,
-           ROUND(SUM((a1.Plan_wo / a1.numvalue) * To_number(a1.JPDURATION)), 2) AS Норм_ч_месц_плн,
-           sum (case when  Actfinish=1 then fakt_wo end)За_1_Число,
-           sum (case when  Actfinish=2 then fakt_wo end)За_2_Число,
-           sum (case when  Actfinish=3 then fakt_wo end)За_3_Число,
-           sum (case when  Actfinish=4 then fakt_wo end)За_4_Число,
-           sum (case when  Actfinish=5 then fakt_wo end)За_5_Число,
-           sum (case when  Actfinish=6 then fakt_wo end)За_6_Число,
-           sum (case when  Actfinish=7 then fakt_wo end)За_7_Число,
-           sum (case when  Actfinish=8 then fakt_wo end)За_8_Число,
-           sum (case when  Actfinish=9 then fakt_wo end)За_9_Число,
-           sum (case when  Actfinish=10 then fakt_wo end)За_10_Число,
-           sum (case when  Actfinish=11 then fakt_wo end)За_11_Число,
-           sum (case when  Actfinish=12 then fakt_wo end)За_12_Число,
-           sum (case when  Actfinish=13 then fakt_wo end)За_13_Число,
-           sum (case when  Actfinish=14 then fakt_wo end)За_14_Число,
-           sum (case when  Actfinish=15 then fakt_wo end)За_15_Число,
-           sum (case when  Actfinish=1 then labor_hour end)Ч_Ч_1,
-           sum (case when  Actfinish=2 then labor_hour end)Ч_Ч_2,
-           sum (case when  Actfinish=3 then labor_hour end)Ч_Ч_3,
-           sum (case when  Actfinish=4 then labor_hour end)Ч_Ч_4,
-           sum (case when  Actfinish=5 then labor_hour end)Ч_Ч_5,
-           sum (case when  Actfinish=6 then labor_hour end)Ч_Ч_6,
-           sum (case when  Actfinish=7 then labor_hour end)Ч_Ч_7,
-           sum (case when  Actfinish=8 then labor_hour end)Ч_Ч_8,
-           sum (case when  Actfinish=9 then labor_hour end)Ч_Ч_9,
-           sum (case when  Actfinish=10 then labor_hour end)Ч_Ч_10,
-           sum (case when  Actfinish=11 then labor_hour end)Ч_Ч_11,
-           sum (case when  Actfinish=12 then labor_hour end)Ч_Ч_12,
-           sum (case when  Actfinish=13 then labor_hour end)Ч_Ч_13,
-           sum (case when  Actfinish=14 then labor_hour end)Ч_Ч_14,
-           sum (case when  Actfinish=15 then labor_hour end)Ч_Ч_15
-  from     A1 where TYPEWORKORDER in ('Внеплановое', 'Плановое', 'Сопутствующая работа')
-  GROUP BY  --to_char (substr (a1.mesto,1,2000))         ,
-           a1.Ед_Изм     ,
-           a1.Наименов   ,
-           a1.tk         ,
-           a1.JPDURATION ,
-           A1.NUMVALUE
-  union all
-
-  select
-           to_char (substr (a1.mesto,1,2000)) mesto                                                               ,
-           A1.ЕД_ИЗМ                                                                              ,
-           '1' Наименов                                                                            ,
-           a1.tk Тех_Карта                                                                        ,
-           a1.JPDURATION Норма_Времени                                                            ,
-           a1.numvalue                                                                            ,
-           SUM (a1.Plan_wo)                                                     PLAN              ,
-           ROUND(SUM((a1.Plan_wo / a1.numvalue) * To_number(a1.JPDURATION)), 2) AS Норм_ч_месц_плн,
-           sum (case when  Actfinish=1 then fakt_wo end)За_1_Число,
-           sum (case when  Actfinish=2 then fakt_wo end)За_2_Число,
-           sum (case when  Actfinish=3 then fakt_wo end)За_3_Число,
-           sum (case when  Actfinish=4 then fakt_wo end)За_4_Число,
-           sum (case when  Actfinish=5 then fakt_wo end)За_5_Число,
-           sum (case when  Actfinish=6 then fakt_wo end)За_6_Число,
-           sum (case when  Actfinish=7 then fakt_wo end)За_7_Число,
-           sum (case when  Actfinish=8 then fakt_wo end)За_8_Число,
-           sum (case when  Actfinish=9 then fakt_wo end)За_9_Число,
-           sum (case when  Actfinish=10 then fakt_wo end)За_10_Число,
-           sum (case when  Actfinish=11 then fakt_wo end)За_11_Число,
-           sum (case when  Actfinish=12 then fakt_wo end)За_12_Число,
-           sum (case when  Actfinish=13 then fakt_wo end)За_13_Число,
-           sum (case when  Actfinish=14 then fakt_wo end)За_14_Число,
-           sum (case when  Actfinish=15 then fakt_wo end)За_15_Число,
-           sum (case when  Actfinish=1 then labor_hour end)Ч_Ч_1,
-           sum (case when  Actfinish=2 then labor_hour end)Ч_Ч_2,
-           sum (case when  Actfinish=3 then labor_hour end)Ч_Ч_3,
-           sum (case when  Actfinish=4 then labor_hour end)Ч_Ч_4,
-           sum (case when  Actfinish=5 then labor_hour end)Ч_Ч_5,
-           sum (case when  Actfinish=6 then labor_hour end)Ч_Ч_6,
-           sum (case when  Actfinish=7 then labor_hour end)Ч_Ч_7,
-           sum (case when  Actfinish=8 then labor_hour end)Ч_Ч_8,
-           sum (case when  Actfinish=9 then labor_hour end)Ч_Ч_9,
-           sum (case when  Actfinish=10 then labor_hour end)Ч_Ч_10,
-           sum (case when  Actfinish=11 then labor_hour end)Ч_Ч_11,
-           sum (case when  Actfinish=12 then labor_hour end)Ч_Ч_12,
-           sum (case when  Actfinish=13 then labor_hour end)Ч_Ч_13,
-           sum (case when  Actfinish=14 then labor_hour end)Ч_Ч_14,
-           sum (case when  Actfinish=15 then labor_hour end)Ч_Ч_15
-  from     A1 where TYPEWORKORDER in ('Внеплановое', 'Плановое', 'Сопутствующая работа')
-  GROUP BY to_char (substr (a1.mesto,1,2000))         ,
-           a1.Ед_Изм     ,
-           a1.Наименов   ,
-           a1.tk         ,
-           A1.JPDURATION ,
-           a1.numvalue
-
-
-  union all
-
-   SELECT  'invis' MESTO                                                               ,
-           '' ЕД_ИЗМ                                                                              ,
-          to_char(nvl(case when TYPEWORKORDER IN ('Путевые обходчики') then 'Осмотр пути' else NVL(a1.OTHERWORK, cls.description) end, 'Прочие работы')) Наименов,
-           'я' Тех_Карта                                                                        ,
-           to_number('') Норма_Времени                                                            ,
-           to_number('') numvalue                                                                            ,
-           SUM (a1.Plan_wo)                                                     PLAN              ,
-           ROUND(SUM((a1.Plan_wo / a1.numvalue) * To_number(a1.JPDURATION)), 2) AS Норм_ч_месц_плн,
-           sum (case when  Actfinish=1 then fakt_wo end)За_1_Число,
-           sum (case when  Actfinish=2 then fakt_wo end)За_2_Число,
-           sum (case when  Actfinish=3 then fakt_wo end)За_3_Число,
-           sum (case when  Actfinish=4 then fakt_wo end)За_4_Число,
-           sum (case when  Actfinish=5 then fakt_wo end)За_5_Число,
-           sum (case when  Actfinish=6 then fakt_wo end)За_6_Число,
-           sum (case when  Actfinish=7 then fakt_wo end)За_7_Число,
-           sum (case when  Actfinish=8 then fakt_wo end)За_8_Число,
-           sum (case when  Actfinish=9 then fakt_wo end)За_9_Число,
-           sum (case when  Actfinish=10 then fakt_wo end)За_10_Число,
-           sum (case when  Actfinish=11 then fakt_wo end)За_11_Число,
-           sum (case when  Actfinish=12 then fakt_wo end)За_12_Число,
-           sum (case when  Actfinish=13 then fakt_wo end)За_13_Число,
-           sum (case when  Actfinish=14 then fakt_wo end)За_14_Число,
-           sum (case when  Actfinish=15 then fakt_wo end)За_15_Число,
-           sum (case when  Actfinish=1 then labor_hour end)Ч_Ч_1,
-           sum (case when  Actfinish=2 then labor_hour end)Ч_Ч_2,
-           sum (case when  Actfinish=3 then labor_hour end)Ч_Ч_3,
-           sum (case when  Actfinish=4 then labor_hour end)Ч_Ч_4,
-           sum (case when  Actfinish=5 then labor_hour end)Ч_Ч_5,
-           sum (case when  Actfinish=6 then labor_hour end)Ч_Ч_6,
-           sum (case when  Actfinish=7 then labor_hour end)Ч_Ч_7,
-           sum (case when  Actfinish=8 then labor_hour end)Ч_Ч_8,
-           sum (case when  Actfinish=9 then labor_hour end)Ч_Ч_9,
-           sum (case when  Actfinish=10 then labor_hour end)Ч_Ч_10,
-           sum (case when  Actfinish=11 then labor_hour end)Ч_Ч_11,
-           sum (case when  Actfinish=12 then labor_hour end)Ч_Ч_12,
-           sum (case when  Actfinish=13 then labor_hour end)Ч_Ч_13,
-           sum (case when  Actfinish=14 then labor_hour end)Ч_Ч_14,
-           sum (case when  Actfinish=15 then labor_hour end)Ч_Ч_15
-  from     A1 left join MAXIMO.CLASSSTRUCTURE CLS on CLS.CLASSSTRUCTUREID = A1.CLASSSTRUCTUREID where TYPEWORKORDER in ('Прочее', 'Путевые обходчики')
-  group by NVL(case when TYPEWORKORDER in ('Путевые обходчики') then 'Осмотр пути' else NVL(A1.OTHERWORK, CLS.DESCRIPTION) end, 'Прочие работы')
- )
-   order by  ТЕХ_КАРТА, ЕД_ИЗМ, наименов]]>
+     (SELECT   wo.wonum             ,
+               wo.PASSEGEWORK prohod,
+               wo.PASSTRAIN   poezd ,
+               WO.FENCINGPATH ograda,
+               WO.TYPEWORKORDER     ,
+               WO.OTHERWORK         ,
+               TO_CHAR (SUBSTR (
+                                  (SELECT sys_xmlagg(XMLELEMENT(col, asset.description
+                                                  || ' (от '
+                                                  || multiassetlocci.STARTMEASUREKM
+                                                  || ' км '
+                                                  || multiassetlocci.STARTMEASUREPIK
+                                                  || ' пк '
+                                                  || multiassetlocci.STARTMEASUREM
+                                                  || ' м до '
+                                                  || ' км '
+                                                  || multiassetlocci.ENDMEASUREPIK
+                                                  || ' пк '
+                                                  || multiassetlocci.ENDMEASUREM
+                                                  || ' м) ')).EXTRACT('/ROWSET/COL/text()').getclobval()
+                                  FROM    MAXIMO.multiassetlocci
+                                          JOIN maximo.asset
+                                                  ON      asset.assetnum   = multiassetlocci.assetnum
+                                                          AND asset.siteid = multiassetlocci.siteid
+                                  WHERE   multiassetlocci.recordkey        = wo.wonum
+                                          AND multiassetlocci.recordclass  = 'РАБОЧЕЕЗАДАНИЕ'
+                                  )
+                                ,1,2000)) mesto,
+               JOBPLAN.JPNUM              tk   ,
+               J1.Numvalue
+                         || ' '
+                         || J1.Measureunitid Ед_Изм             ,
+               JOBPLAN.DESCRIPTION наименов                     ,
+               wo.description rz                                ,
+               wo.Jpnum Тех_Карта                               ,
+               NVL(WO.NOKOEFDURATION, wo.JPDURATION) JPDURATION ,
+               J1.Numvalue                                      ,
+               extract (DAY FROM wo.Actfinish) Actfinish        ,
+               wo.fakt_wo                                       ,
+               wo.labor_hour                                    ,
+               Wo.Plan_Wo
+     FROM      Maximo.WORKORDER wo
+               LEFT JOIN MAXIMO.wojprelation jpr
+                         ON        wo.wonum               = jpr.wonum
+                                   AND jpr.usethismeasure = '1'
+               LEFT JOIN Maximo.Jobplan
+                         ON        Jobplan.jobplanid = jpr.jobplanid
+               LEFT JOIN Maximo.Jobplanspec J1
+                         ON        J1.jpnum           = jobplan.jpnum
+                                   AND J1.assetattrid = 'IZMRAB'
+     WHERE     wo.l_podr                              = $P{podr}
+               AND wo.l_pred                          =
+               (SELECT DISTINCT
+                       CASE
+                               WHEN pred.siteid = '17' THEN pred.location
+                               ELSE pred.parent
+                       END pred
+               FROM    MAXIMO.LOCHIERARCHY podr
+                       JOIN MAXIMO.LOCHIERARCHY PRED
+                               ON      podr.parent     = pred.location
+                                       AND podr.SITEID = pred.SITEID
+                       JOIN MAXIMO.LOCATIONS LOC1
+                               ON      LOC1.LOCATION   = PRED.LOCATION
+                                       AND LOC1.SITEID = PRED.SITEID
+                       JOIN maximo.locations loc2
+                               ON      LOC2.LOCATION   = PRED.parent
+                                       AND LOC2.SITEID = PRED.SITEID
+               WHERE   podr.location                   = $P{podr}
+                       AND PODR.SITEID                 = $P{mroSite}
+                       AND LOC1.STATUS                 = 'РАБОТАЕТ'
+                       AND LOC2.STATUS                 = 'РАБОТАЕТ'
+                       AND PRED.SYSTEMID               = 'ОС'
+                       AND podr.systemid               = 'ОС'
+               )
+               AND wo.siteid                       = $P{mroSite}
+               AND extract (DAY FROM wo.Actfinish) < 16
+               AND wo.Istask                       = '0'
+               AND TYPEWORKORDER IN ('Внеплановое', 'Плановое', 'Сопутствующая работа', 'Прочее')
+               AND wo.STATUS     IN ('НАПР_НА_УТ', 'ЗАВЕРШ', 'ОТКЛ_РГН', 'ОФОРМЛЕН', 'ЗАКРЫТО')
+               AND TO_CHAR(wo.Actfinish, 'MM')   = $P{month}
+               AND TO_CHAR(wo.Actfinish, 'YYYY') = $P{year}
+     )
+SELECT TO_CHAR (SUBSTR (a1.mesto,1,2000)) mesto ,
+  a1.Ед_Изм ,
+  a1.Наименов ,
+  a1.tk Тех_Карта ,
+  a1.JPDURATION Норма_Времени ,
+  a1.numvalue ,
+  SUM (a1.Plan_wo) PLAN ,
+  ROUND(SUM((a1.Plan_wo / a1.numvalue) * To_number(a1.JPDURATION)), 2) AS Норм_ч_месц_плн,
+  SUM (
+  CASE
+    WHEN Actfinish=1
+    THEN fakt_wo
+  END)За_1_Число,
+  SUM (
+  CASE
+    WHEN Actfinish=2
+    THEN fakt_wo
+  END)За_2_Число,
+  SUM (
+  CASE
+    WHEN Actfinish=3
+    THEN fakt_wo
+  END)За_3_Число,
+  SUM (
+  CASE
+    WHEN Actfinish=4
+    THEN fakt_wo
+  END)За_4_Число,
+  SUM (
+  CASE
+    WHEN Actfinish=5
+    THEN fakt_wo
+  END)За_5_Число,
+  SUM (
+  CASE
+    WHEN Actfinish=6
+    THEN fakt_wo
+  END)За_6_Число,
+  SUM (
+  CASE
+    WHEN Actfinish=7
+    THEN fakt_wo
+  END)За_7_Число,
+  SUM (
+  CASE
+    WHEN Actfinish=8
+    THEN fakt_wo
+  END)За_8_Число,
+  SUM (
+  CASE
+    WHEN Actfinish=9
+    THEN fakt_wo
+  END)За_9_Число,
+  SUM (
+  CASE
+    WHEN Actfinish=10
+    THEN fakt_wo
+  END)За_10_Число,
+  SUM (
+  CASE
+    WHEN Actfinish=11
+    THEN fakt_wo
+  END)За_11_Число,
+  SUM (
+  CASE
+    WHEN Actfinish=12
+    THEN fakt_wo
+  END)За_12_Число,
+  SUM (
+  CASE
+    WHEN Actfinish=13
+    THEN fakt_wo
+  END)За_13_Число,
+  SUM (
+  CASE
+    WHEN Actfinish=14
+    THEN fakt_wo
+  END)За_14_Число,
+  SUM (
+  CASE
+    WHEN Actfinish=15
+    THEN fakt_wo
+  END)За_15_Число,
+  SUM (
+  CASE
+    WHEN Actfinish=1
+    THEN labor_hour
+  END)Ч_Ч_1,
+  SUM (
+  CASE
+    WHEN Actfinish=2
+    THEN labor_hour
+  END)Ч_Ч_2,
+  SUM (
+  CASE
+    WHEN Actfinish=3
+    THEN labor_hour
+  END)Ч_Ч_3,
+  SUM (
+  CASE
+    WHEN Actfinish=4
+    THEN labor_hour
+  END)Ч_Ч_4,
+  SUM (
+  CASE
+    WHEN Actfinish=5
+    THEN labor_hour
+  END)Ч_Ч_5,
+  SUM (
+  CASE
+    WHEN Actfinish=6
+    THEN labor_hour
+  END)Ч_Ч_6,
+  SUM (
+  CASE
+    WHEN Actfinish=7
+    THEN labor_hour
+  END)Ч_Ч_7,
+  SUM (
+  CASE
+    WHEN Actfinish=8
+    THEN labor_hour
+  END)Ч_Ч_8,
+  SUM (
+  CASE
+    WHEN Actfinish=9
+    THEN labor_hour
+  END)Ч_Ч_9,
+  SUM (
+  CASE
+    WHEN Actfinish=10
+    THEN labor_hour
+  END)Ч_Ч_10,
+  SUM (
+  CASE
+    WHEN Actfinish=11
+    THEN labor_hour
+  END)Ч_Ч_11,
+  SUM (
+  CASE
+    WHEN Actfinish=12
+    THEN labor_hour
+  END)Ч_Ч_12,
+  SUM (
+  CASE
+    WHEN Actfinish=13
+    THEN labor_hour
+  END)Ч_Ч_13,
+  SUM (
+  CASE
+    WHEN Actfinish=14
+    THEN labor_hour
+  END)Ч_Ч_14,
+  SUM (
+  CASE
+    WHEN Actfinish=15
+    THEN labor_hour
+  END)Ч_Ч_15
+FROM a1
+WHERE TYPEWORKORDER IN ('Внеплановое', 'Плановое', 'Сопутствующая работа')
+GROUP BY TO_CHAR (SUBSTR (a1.mesto,1,2000)) ,
+  a1.Ед_Изм ,
+  a1.Наименов ,
+  a1.tk ,
+  a1.JPDURATION ,
+  a1.numvalue,
+  a1.wonum]]>
 	</queryString>
 	<field name="MESTO" class="java.lang.String"/>
 	<field name="ЕД_ИЗМ" class="java.lang.String"/>

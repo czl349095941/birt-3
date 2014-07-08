@@ -326,68 +326,88 @@ GROUP BY TO_CHAR (SUBSTR (a1.mesto,1,2000)) ,
 	</parameter>
 	<queryString>
 		<![CDATA[WITH a1 AS
-        (SELECT wo.wonum ,
-                wo.PASSEGEWORK prohod,
-                wo.PASSTRAIN   poezd,
-                WO.FENCINGPATH ograda,
-                WO.TYPEWORKORDER,
-                WO.OTHERWORK,
-                wo.CLASSSTRUCTUREID,
-                TO_CHAR (SUBSTR (
-                                   (SELECT sys_xmlagg(XMLELEMENT(col, regexp_REPLACE(asset.description, '"', '')
-                                                   || ' (от '
-                                                   || multiassetlocci.STARTMEASUREKM
-                                                   || ' км '
-                                                   || multiassetlocci.STARTMEASUREPIK
-                                                   || ' пк '
-                                                   || multiassetlocci.STARTMEASUREM
-                                                   || ' м до '
-                                                   || multiassetlocci.ENDMEASUREKM
-                                                   || ' км '
-                                                   || multiassetlocci.ENDMEASUREPIK
-                                                   || ' пк '
-                                                   || multiassetlocci.ENDMEASUREM
-                                                   || ' м) ')).EXTRACT('/ROWSET/COL/text()').getclobval()
-                                   FROM    MAXIMO.multiassetlocci
-                                           JOIN maximo.asset
-                                                   ON      asset.assetnum   = multiassetlocci.assetnum
-                                                           AND asset.siteid = multiassetlocci.siteid
-                                   WHERE   multiassetlocci.recordkey        = wo.wonum
-                                           AND 1                            = CASE WHEN (wo.origrecordid IS NOT NULL AND multiassetlocci.ISPRIMARY =1
-                                                           ) THEN 0 ELSE 1 END
-                                           AND multiassetlocci.recordclass = 'РАБОЧЕЕЗАДАНИЕ'
-                                   ),1,2000)) mesto,
-                JOBPLAN.JPNUM                 tk ,
-                J1.Numvalue
-                        || ' '
-                        || J1.Measureunitid Ед_Изм ,
-                JOBPLAN.DESCRIPTION наименов,
-                wo.description rz ,
-                wo.Jpnum Тех_Карта ,
-                CASE WHEN NVL(wo.JPDURATION, 0) = 0 THEN WO.NOKOEFDURATION ELSE wo.JPDURATION END JPDURATION ,
-                J1.Numvalue ,
-                extract (DAY FROM wo.Actfinish) Actfinish ,
-                wo.fakt_wo ,
-                wo.labor_hour ,
-                Wo.Plan_Wo
-        FROM    Maximo.WORKORDER wo
-                LEFT JOIN MAXIMO.wojprelation jpr
-                        ON      wo.wonum               = jpr.wonum
-                                AND jpr.usethismeasure = '1'
-                LEFT JOIN Maximo.Jobplan
-                        ON      Jobplan.jobplanid = jpr.jobplanid
-                LEFT JOIN Maximo.Jobplanspec J1
-                        ON      J1.jpnum            = jobplan.jpnum
-                                AND J1.assetattrid  = 'IZMRAB'
-        WHERE   wo.BRIGAD_LOCATION                  = $P{podr}
-                AND wo.siteid                       = $P{mroSite}
-                AND extract (DAY FROM wo.Actfinish) > 15
-                AND wo.Istask                       = '0'
-                AND TYPEWORKORDER IN ('Внеплановое', 'Плановое', 'Сопутствующая работа', 'Прочее', 'Путевые обходчики')
-                AND wo.STATUS     IN ('НАПР_НА_УТ', 'ЗАВЕРШ', 'ОТКЛ_РГН', 'ОФОРМЛЕН', 'ЗАКРЫТО')
-                AND TO_CHAR(wo.Actfinish, 'MM')   = $P{month}
-                AND TO_CHAR(wo.Actfinish, 'YYYY') = $P{year}
-        )
+  (SELECT wo.wonum ,
+    wo.PASSEGEWORK prohod,
+    wo.PASSTRAIN poezd,
+    WO.FENCINGPATH ograda,
+    WO.TYPEWORKORDER,
+    WO.OTHERWORK,
+    TO_CHAR (SUBSTR (
+    (SELECT sys_xmlagg(XMLELEMENT(col, asset.description
+      || ' (от '
+      || multiassetlocci.STARTMEASUREKM
+      || ' км '
+      || multiassetlocci.STARTMEASUREPIK
+      || ' пк '
+      || multiassetlocci.STARTMEASUREM
+      || ' м до '
+      || ' км '
+      || multiassetlocci.ENDMEASUREPIK
+      || ' пк '
+      || multiassetlocci.ENDMEASUREM
+      || ' м) ')).EXTRACT('/ROWSET/COL/text()').getclobval()
+    FROM MAXIMO.multiassetlocci
+    JOIN maximo.asset
+    ON asset.assetnum               = multiassetlocci.assetnum
+    AND asset.siteid                = multiassetlocci.siteid
+    WHERE multiassetlocci.recordkey = wo.wonum
+    AND multiassetlocci.recordclass = 'РАБОЧЕЕЗАДАНИЕ'
+    ),1,2000)) mesto,
+    JOBPLAN.JPNUM tk ,
+    J1.Numvalue
+    || ' '
+    || J1.Measureunitid Ед_Изм ,
+    JOBPLAN.DESCRIPTION наименов ,
+    wo.description rz ,
+    wo.Jpnum Тех_Карта ,
+    NVL(WO.NOKOEFDURATION, wo.JPDURATION) JPDURATION ,
+    J1.Numvalue ,
+    extract (DAY FROM wo.Actfinish) Actfinish ,
+    wo.fakt_wo ,
+    wo.labor_hour ,
+    Wo.Plan_Wo
+  FROM Maximo.WORKORDER wo
+  LEFT JOIN MAXIMO.wojprelation jpr
+  ON wo.wonum            = jpr.wonum
+  AND jpr.usethismeasure = '1'
+  LEFT JOIN Maximo.Jobplan
+  ON Jobplan.jobplanid = jpr.jobplanid
+  LEFT JOIN Maximo.Jobplanspec J1
+  ON J1.jpnum        = jobplan.jpnum
+  AND J1.assetattrid = 'IZMRAB'
+  WHERE wo.l_podr    = $P{podr}
+  AND wo.l_pred      =
+    (SELECT DISTINCT
+      CASE
+        WHEN pred.siteid = '17'
+        THEN pred.location
+        ELSE pred.parent
+      END pred
+    FROM MAXIMO.LOCHIERARCHY podr
+    JOIN MAXIMO.LOCHIERARCHY PRED
+    ON podr.parent  = pred.location
+    AND podr.SITEID = pred.SITEID
+    JOIN MAXIMO.LOCATIONS LOC1
+    ON LOC1.LOCATION = PRED.LOCATION
+    AND LOC1.SITEID  = PRED.SITEID
+    JOIN maximo.locations loc2
+    ON LOC2.LOCATION    = PRED.parent
+    AND LOC2.SITEID     = PRED.SITEID
+    WHERE podr.location = $P{podr}
+    AND PODR.SITEID     = $P{mroSite}
+    AND LOC1.STATUS     = 'РАБОТАЕТ'
+    AND LOC2.STATUS     = 'РАБОТАЕТ'
+    AND PRED.SYSTEMID   = 'ОС'
+    AND podr.systemid   = 'ОС'
+    )
+  AND wo.siteid                       = $P{mroSite}
+  AND extract (DAY FROM wo.Actfinish) > 15
+  AND wo.Istask                       = '0'
+  AND TYPEWORKORDER                  IN ('Внеплановое', 'Плановое', 'Сопутствующая работа', 'Прочее')
+  AND wo.STATUS                      IN ( 'ТЕХОТДЕЛ' , 'ЗАКРЫТО', 'ЗАВЕРШ', 'ДОРАБОТКА' )
+  AND TO_CHAR(wo.Actfinish, 'MM')     = $P{month}
+  AND TO_CHAR(wo.Actfinish, 'YYYY')   = $P{year}
+  )
  SELECT   'invis' mesto                                                               ,
            a1.Ед_Изм                                                                              ,
            nvl(a1.OTHERWORK, 'Прочие работы') Наименов                                                                            ,
@@ -533,18 +553,46 @@ GROUP BY TO_CHAR (SUBSTR (a1.mesto,1,2000)) ,
 	<detail>
 		<band height="34" splitType="Stretch">
 			<textField pattern="" isBlankWhenNull="true">
-				<reportElement x="19" y="0" width="341" height="34" uuid="4e6b547f-4a59-4249-a45b-b4228c64d8fa"/>
+				<reportElement x="239" y="0" width="55" height="34" uuid="3b016f08-0380-4544-aead-5bfe264da6f5"/>
 				<box>
 					<topPen lineWidth="0.75"/>
 					<leftPen lineWidth="0.75"/>
 					<bottomPen lineWidth="0.75"/>
 					<rightPen lineWidth="0.75"/>
 				</box>
-				<textElement textAlignment="Left" verticalAlignment="Middle">
+				<textElement textAlignment="Center" verticalAlignment="Middle">
 					<font fontName="Times New Roman" size="9" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
-					<paragraph leftIndent="1" rightIndent="1" spacingBefore="1" spacingAfter="1"/>
+					<paragraph leftIndent="2" rightIndent="2" spacingBefore="2" spacingAfter="2"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{ЕД_ИЗМ}]]></textFieldExpression>
+			</textField>
+			<textField pattern="" isBlankWhenNull="true">
+				<reportElement x="139" y="0" width="100" height="34" uuid="4e6b547f-4a59-4249-a45b-b4228c64d8fa"/>
+				<box>
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="9" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+					<paragraph leftIndent="2" rightIndent="2" spacingBefore="2" spacingAfter="2"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{НАИМЕНОВ}]]></textFieldExpression>
+			</textField>
+			<textField pattern="" isBlankWhenNull="true">
+				<reportElement x="294" y="0" width="66" height="34" uuid="0e371bd6-35cd-49cc-98e0-99378971cc20"/>
+				<box>
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="9" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+					<paragraph leftIndent="2" rightIndent="2" spacingBefore="2" spacingAfter="2"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{НОРМА_ВРЕМЕНИ}]]></textFieldExpression>
 			</textField>
 			<textField pattern="" isBlankWhenNull="true">
 				<reportElement x="360" y="0" width="19" height="34" uuid="7d0c1a6e-837a-46fc-8fdc-2b6408a5b67e"/>
@@ -554,9 +602,9 @@ GROUP BY TO_CHAR (SUBSTR (a1.mesto,1,2000)) ,
 					<bottomPen lineWidth="0.75"/>
 					<rightPen lineWidth="0.75"/>
 				</box>
-				<textElement textAlignment="Right" verticalAlignment="Middle">
+				<textElement textAlignment="Center" verticalAlignment="Middle">
 					<font fontName="Times New Roman" size="9" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
-					<paragraph leftIndent="1" rightIndent="1" spacingBefore="1" spacingAfter="1"/>
+					<paragraph leftIndent="2" rightIndent="2" spacingBefore="2" spacingAfter="2"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{PLAN}]]></textFieldExpression>
 			</textField>
@@ -568,11 +616,25 @@ GROUP BY TO_CHAR (SUBSTR (a1.mesto,1,2000)) ,
 					<bottomPen lineWidth="0.75"/>
 					<rightPen lineWidth="0.75"/>
 				</box>
-				<textElement textAlignment="Right" verticalAlignment="Middle">
+				<textElement textAlignment="Center" verticalAlignment="Middle">
 					<font fontName="Times New Roman" size="9" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
-					<paragraph leftIndent="1" rightIndent="1" spacingBefore="1" spacingAfter="1"/>
+					<paragraph leftIndent="2" rightIndent="2" spacingBefore="2" spacingAfter="2"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{НОРМ_Ч_МЕСЦ_ПЛН}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="19" y="0" width="120" height="34" uuid="818d0080-ab0b-4ec8-88e0-50128cee1818"/>
+				<box>
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="9" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+					<paragraph leftIndent="2" rightIndent="2" spacingBefore="2" spacingAfter="2"/>
+				</textElement>
+				<textFieldExpression><![CDATA[($F{MESTO} == "invis" ? "" : $F{MESTO})]]></textFieldExpression>
 			</textField>
 			<textField pattern="###0.0;-###0.0" isBlankWhenNull="true">
 				<reportElement mode="Transparent" x="423" y="0" width="20" height="34" forecolor="#000000" backcolor="#FFFFFF" uuid="d9c0605b-2b32-4288-8eaf-6aefb9ff34d4"/>
@@ -582,9 +644,9 @@ GROUP BY TO_CHAR (SUBSTR (a1.mesto,1,2000)) ,
 					<bottomPen lineWidth="0.75"/>
 					<rightPen lineWidth="0.75"/>
 				</box>
-				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" markup="none">
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
 					<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
-					<paragraph lineSpacing="Single" leftIndent="1" rightIndent="1" spacingBefore="1" spacingAfter="1"/>
+					<paragraph lineSpacing="Single"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{Ч_Ч_17}]]></textFieldExpression>
 			</textField>
@@ -596,9 +658,9 @@ GROUP BY TO_CHAR (SUBSTR (a1.mesto,1,2000)) ,
 					<bottomPen lineWidth="0.75"/>
 					<rightPen lineWidth="0.75"/>
 				</box>
-				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" markup="none">
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
 					<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
-					<paragraph lineSpacing="Single" leftIndent="1" rightIndent="1" spacingBefore="1" spacingAfter="1"/>
+					<paragraph lineSpacing="Single"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{Ч_Ч_16}]]></textFieldExpression>
 			</textField>
@@ -610,9 +672,9 @@ GROUP BY TO_CHAR (SUBSTR (a1.mesto,1,2000)) ,
 					<bottomPen lineWidth="0.75"/>
 					<rightPen lineWidth="0.75"/>
 				</box>
-				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" markup="none">
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
 					<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
-					<paragraph lineSpacing="Single" leftIndent="1" rightIndent="1" spacingBefore="1" spacingAfter="1"/>
+					<paragraph lineSpacing="Single"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{Ч_Ч_18}]]></textFieldExpression>
 			</textField>
@@ -624,9 +686,9 @@ GROUP BY TO_CHAR (SUBSTR (a1.mesto,1,2000)) ,
 					<bottomPen lineWidth="0.75"/>
 					<rightPen lineWidth="0.75"/>
 				</box>
-				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" markup="none">
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
 					<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
-					<paragraph lineSpacing="Single" leftIndent="1" rightIndent="1" spacingBefore="1" spacingAfter="1"/>
+					<paragraph lineSpacing="Single"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{Ч_Ч_19}]]></textFieldExpression>
 			</textField>
@@ -638,9 +700,9 @@ GROUP BY TO_CHAR (SUBSTR (a1.mesto,1,2000)) ,
 					<bottomPen lineWidth="0.75"/>
 					<rightPen lineWidth="0.75"/>
 				</box>
-				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" markup="none">
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
 					<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
-					<paragraph lineSpacing="Single" leftIndent="1" rightIndent="1" spacingBefore="1" spacingAfter="1"/>
+					<paragraph lineSpacing="Single"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{Ч_Ч_20}]]></textFieldExpression>
 			</textField>
@@ -652,9 +714,9 @@ GROUP BY TO_CHAR (SUBSTR (a1.mesto,1,2000)) ,
 					<bottomPen lineWidth="0.75"/>
 					<rightPen lineWidth="0.75"/>
 				</box>
-				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" markup="none">
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
 					<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
-					<paragraph lineSpacing="Single" leftIndent="1" rightIndent="1" spacingBefore="1" spacingAfter="1"/>
+					<paragraph lineSpacing="Single"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{Ч_Ч_21}]]></textFieldExpression>
 			</textField>
@@ -666,9 +728,9 @@ GROUP BY TO_CHAR (SUBSTR (a1.mesto,1,2000)) ,
 					<bottomPen lineWidth="0.75"/>
 					<rightPen lineWidth="0.75"/>
 				</box>
-				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" markup="none">
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
 					<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
-					<paragraph lineSpacing="Single" leftIndent="1" rightIndent="1" spacingBefore="1" spacingAfter="1"/>
+					<paragraph lineSpacing="Single"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{Ч_Ч_22}]]></textFieldExpression>
 			</textField>
@@ -680,9 +742,9 @@ GROUP BY TO_CHAR (SUBSTR (a1.mesto,1,2000)) ,
 					<bottomPen lineWidth="0.75"/>
 					<rightPen lineWidth="0.75"/>
 				</box>
-				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" markup="none">
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
 					<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
-					<paragraph lineSpacing="Single" leftIndent="1" rightIndent="1" spacingBefore="1" spacingAfter="1"/>
+					<paragraph lineSpacing="Single"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{Ч_Ч_23}]]></textFieldExpression>
 			</textField>
@@ -694,9 +756,9 @@ GROUP BY TO_CHAR (SUBSTR (a1.mesto,1,2000)) ,
 					<bottomPen lineWidth="0.75"/>
 					<rightPen lineWidth="0.75"/>
 				</box>
-				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" markup="none">
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
 					<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
-					<paragraph lineSpacing="Single" leftIndent="1" rightIndent="1" spacingBefore="1" spacingAfter="1"/>
+					<paragraph lineSpacing="Single"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{Ч_Ч_24}]]></textFieldExpression>
 			</textField>
@@ -708,9 +770,9 @@ GROUP BY TO_CHAR (SUBSTR (a1.mesto,1,2000)) ,
 					<bottomPen lineWidth="0.75"/>
 					<rightPen lineWidth="0.75"/>
 				</box>
-				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" markup="none">
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
 					<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
-					<paragraph lineSpacing="Single" leftIndent="1" rightIndent="1" spacingBefore="1" spacingAfter="1"/>
+					<paragraph lineSpacing="Single"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{Ч_Ч_25}]]></textFieldExpression>
 			</textField>
@@ -722,9 +784,9 @@ GROUP BY TO_CHAR (SUBSTR (a1.mesto,1,2000)) ,
 					<bottomPen lineWidth="0.75"/>
 					<rightPen lineWidth="0.75"/>
 				</box>
-				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" markup="none">
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
 					<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
-					<paragraph lineSpacing="Single" leftIndent="1" rightIndent="1" spacingBefore="1" spacingAfter="1"/>
+					<paragraph lineSpacing="Single"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{Ч_Ч_26}]]></textFieldExpression>
 			</textField>
@@ -736,9 +798,9 @@ GROUP BY TO_CHAR (SUBSTR (a1.mesto,1,2000)) ,
 					<bottomPen lineWidth="0.75"/>
 					<rightPen lineWidth="0.75"/>
 				</box>
-				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" markup="none">
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
 					<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
-					<paragraph lineSpacing="Single" leftIndent="1" rightIndent="1" spacingBefore="1" spacingAfter="1"/>
+					<paragraph lineSpacing="Single"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{Ч_Ч_27}]]></textFieldExpression>
 			</textField>
@@ -750,9 +812,9 @@ GROUP BY TO_CHAR (SUBSTR (a1.mesto,1,2000)) ,
 					<bottomPen lineWidth="0.75"/>
 					<rightPen lineWidth="0.75"/>
 				</box>
-				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" markup="none">
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
 					<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
-					<paragraph lineSpacing="Single" leftIndent="1" rightIndent="1" spacingBefore="1" spacingAfter="1"/>
+					<paragraph lineSpacing="Single"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{Ч_Ч_28}]]></textFieldExpression>
 			</textField>
@@ -764,9 +826,9 @@ GROUP BY TO_CHAR (SUBSTR (a1.mesto,1,2000)) ,
 					<bottomPen lineWidth="0.75"/>
 					<rightPen lineWidth="0.75"/>
 				</box>
-				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" markup="none">
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
 					<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
-					<paragraph lineSpacing="Single" leftIndent="1" rightIndent="1" spacingBefore="1" spacingAfter="1"/>
+					<paragraph lineSpacing="Single"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{Ч_Ч_29}]]></textFieldExpression>
 			</textField>
@@ -778,9 +840,9 @@ GROUP BY TO_CHAR (SUBSTR (a1.mesto,1,2000)) ,
 					<bottomPen lineWidth="0.75"/>
 					<rightPen lineWidth="0.75"/>
 				</box>
-				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" markup="none">
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
 					<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
-					<paragraph lineSpacing="Single" leftIndent="1" rightIndent="1" spacingBefore="1" spacingAfter="1"/>
+					<paragraph lineSpacing="Single"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{Ч_Ч_30}]]></textFieldExpression>
 			</textField>
@@ -792,9 +854,9 @@ GROUP BY TO_CHAR (SUBSTR (a1.mesto,1,2000)) ,
 					<bottomPen lineWidth="0.75"/>
 					<rightPen lineWidth="0.75"/>
 				</box>
-				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" markup="none">
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
 					<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
-					<paragraph lineSpacing="Single" leftIndent="1" rightIndent="1" spacingBefore="1" spacingAfter="1"/>
+					<paragraph lineSpacing="Single"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{Ч_Ч_31}]]></textFieldExpression>
 			</textField>
@@ -806,9 +868,9 @@ GROUP BY TO_CHAR (SUBSTR (a1.mesto,1,2000)) ,
 					<bottomPen lineWidth="0.75"/>
 					<rightPen lineWidth="0.75"/>
 				</box>
-				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" markup="none">
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
 					<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
-					<paragraph lineSpacing="Single" leftIndent="1" rightIndent="1" spacingBefore="1" spacingAfter="1"/>
+					<paragraph lineSpacing="Single"/>
 				</textElement>
 				<textFieldExpression><![CDATA[($F{Ч_Ч_16} == null ? 0 : $F{Ч_Ч_16})+
 ($F{Ч_Ч_17} == null ? 0 : $F{Ч_Ч_17})+
@@ -835,9 +897,9 @@ GROUP BY TO_CHAR (SUBSTR (a1.mesto,1,2000)) ,
 					<bottomPen lineWidth="0.75"/>
 					<rightPen lineWidth="0.75"/>
 				</box>
-				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" markup="none">
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
 					<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
-					<paragraph lineSpacing="Single" leftIndent="1" rightIndent="1" spacingBefore="1" spacingAfter="1"/>
+					<paragraph lineSpacing="Single"/>
 				</textElement>
 				<textFieldExpression><![CDATA[(
 ($F{ЗА_16_ЧИСЛО} == null ? 0 : $F{ЗА_16_ЧИСЛО})+
@@ -866,9 +928,9 @@ GROUP BY TO_CHAR (SUBSTR (a1.mesto,1,2000)) ,
 					<bottomPen lineWidth="0.75"/>
 					<rightPen lineWidth="0.75"/>
 				</box>
-				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" markup="none">
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
 					<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
-					<paragraph lineSpacing="Single" leftIndent="1" rightIndent="1" spacingBefore="1" spacingAfter="1"/>
+					<paragraph lineSpacing="Single"/>
 				</textElement>
 				<textFieldExpression><![CDATA[(
 ($F{ЗА_16_ЧИСЛО} == null ? 0 : $F{ЗА_16_ЧИСЛО})+
