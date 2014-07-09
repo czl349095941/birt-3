@@ -20,37 +20,18 @@
 	</parameter>
 	<queryString>
 		<![CDATA[WITH WORKO AS
-        (SELECT wonum                     ,
-                WO.BRIGAD_LOCATION        ,
-                ACTFINISH                 ,
+        (SELECT wonum ,
+                origrecordid,
+                ACTFINISH,
                 Wo.Description                       description,
-                TO_CHAR (wo.Actfinish, 'dd.mm.yyyy') reportdate ,
-                WO.FAKTMEASURE                                  ,
-                WO.PLAN_WO                                      ,
-                Wo.Fakt_Wo                                      ,
+                TO_CHAR (wo.Actfinish, 'dd.mm.yyyy') reportdate,
+                WO.FAKTMEASURE ,
+                WO.PLAN_WO ,
+                Wo.Fakt_Wo ,
                 siteid
         FROM    MAXIMO.WORKORDER WO
         WHERE   WO.TYPEWORKORDER = 'Путевые обходчики'
-                AND WO.STATUS IN ('ТЕХОТДЕЛ', 'ЗАКРЫТО', 'ЗАВ_ДИСП', 'ЗАВЕРШ', 'ДОРАБОТКА')
-                AND WO.L_PRED =
-                (SELECT DISTINCT CASE WHEN pred.siteid = '17' THEN pred.location ELSE pred.parent END pred
-                FROM    MAXIMO.LOCHIERARCHY podr
-                        JOIN MAXIMO.LOCHIERARCHY PRED
-                                ON      podr.parent     = pred.location
-                                        AND podr.SITEID = pred.SITEID
-                        JOIN MAXIMO.LOCATIONS LOC1
-                                ON      LOC1.LOCATION   = PRED.LOCATION
-                                        AND LOC1.SITEID = PRED.SITEID
-                        JOIN maximo.locations loc2
-                                ON      LOC2.LOCATION   = PRED.parent
-                                        AND LOC2.SITEID = PRED.SITEID
-                WHERE   podr.location                   = $P{podr}
-                        AND PODR.SITEID                 = $P{mroSite}
-                        AND LOC1.STATUS                 = 'РАБОТАЕТ'
-                        AND LOC2.STATUS                 = 'РАБОТАЕТ'
-                        AND PRED.SYSTEMID               = 'ОС'
-                        AND podr.systemid               = 'ОС'
-                )
+                AND WO.STATUS IN ('НАПР_НА_УТ', 'ЗАВЕРШ', 'ОТКЛ_РГН', 'ОФОРМЛЕН', 'ЗАКРЫТО')
                 AND WO.SITEID                     = $P{mroSite}
                 AND WO.BRIGAD_LOCATION            = $P{podr}
                 AND TO_CHAR(WO.ACTFINISH, 'YYYY') = $P{year}
@@ -58,19 +39,19 @@
         )
         ,
         labtr AS
-        (SELECT LABTRANS.REFWO           ,
-                LABTRANS.SITEID          ,
+        (SELECT LABTRANS.REFWO ,
+                LABTRANS.SITEID ,
                 LABORCRAFTRATE.SKILLLEVEL,
-                LABTRANS.LABORCODE       ,
-                LABTRANS.SIGNALIST       ,
-                LABTRANS.craft           ,
+                LABTRANS.LABORCODE ,
+                LABTRANS.SIGNALIST ,
+                LABTRANS.craft ,
                 LABTRANS.labor_hour
         FROM    MAXIMO.LABTRANS
                 JOIN MAXIMO.LABORCRAFTRATE
                         ON      LABORCRAFTRATE.LABORCODE = LABTRANS.LABORCODE
         WHERE   LABTRANS.LABORCODE             IS NOT NULL
                 AND LABORCRAFTRATE.DEFAULTCRAFT          = '1'
-                AND LABTRANS.SITEID                      = $P{mroSite}
+                AND LABTRANS.SITEID                      = '24'
                 AND LABTRANS.REFWO IN
                 (SELECT WONUM
                 FROM    WORKO
@@ -80,7 +61,7 @@ SELECT  SYS_XMLAGG(xmlelement(COL, PERSON.DISPLAYNAME
                 || ' ('
                 ||PERSON.TPPERSON
                 || '), ')).EXTRACT('/ROWSET/COL/text()').getclobval() FIO ,
-        TO_CHAR (SUBSTR((ast.description
+        TO_CHAR (SUBSTR((regexp_REPLACE(ast.description, '"', '')
                 || ' (от '
                 || mult.STARTMEASUREKM
                 || ' км '
@@ -88,22 +69,33 @@ SELECT  SYS_XMLAGG(xmlelement(COL, PERSON.DISPLAYNAME
                 || ' пк '
                 || mult.STARTMEASUREM
                 || ' м до '
+                || mult.ENDMEASUREKM
                 || ' км '
                 || mult.ENDMEASUREPIK
                 || ' пк '
                 || MULT.ENDMEASUREM
                 || ' м) '),1,2000)) mesto ,
-        WORKO.DESCRIPTION                 ,
-        worko.reportdate                  ,
-        WORKO.FAKTMEASURE                 ,
-        Worko.Plan_Wo Vup                 ,
-        Worko.Fakt_Wo Zad                 ,
+        WORKO.DESCRIPTION ,
+        worko.reportdate ,
+        MIN( CASE WHEN ast.itemnum IN ('ГЛПУТЬ', 'СТАНПУТЬ', 'ПУТЬП', 'ГППС') THEN 'км' WHEN ast.itemnum IN ('ПЕРЕЕЗД', 'СООР_ЗП', 'КРИВАЯ') THEN 'шт' WHEN ast.itemnum IN
+                                (SELECT ITEMNUM
+                                FROM    maximo.ITEM
+                                WHERE   ITEM.CLASSSTRUCTUREID IN
+                                        (SELECT CLASSSTRUCTUREID
+                                        FROM    maximo.CLASSSTRUCTURE
+                                        WHERE   PARENT = '090000010056'
+                                        )
+                                ) THEN 'шт' END) FAKTMEASURE,
+        Worko.Plan_Wo                            Vup ,
+        Worko.Fakt_Wo                            Zad ,
         MULT.ASSESSMENT
 FROM    worko
         LEFT JOIN MAXIMO.multiassetlocci mult
                 ON      Worko.wonum          = mult.recordkey
                         AND MULT.RECORDCLASS = 'РАБОЧЕЕЗАДАНИЕ'
                         AND Worko.siteid     = mult.siteid
+                        AND 1                = CASE WHEN (worko.origrecordid IS NOT NULL AND mult.ISPRIMARY =1
+                                        ) THEN 0 ELSE 1 END
         LEFT JOIN maximo.asset ast
                 ON      mult.assetnum   =ast.assetnum
                         AND MULT.SITEID = AST.SITEID
@@ -112,7 +104,7 @@ FROM    worko
                         AND WORKO.SITEID = LABTR.SITEID
         LEFT JOIN MAXIMO.PERSON
                 ON      PERSON.PERSONID = LABTR.LABORCODE
-GROUP BY TO_CHAR (SUBSTR((ast.description
+GROUP BY TO_CHAR (SUBSTR((regexp_REPLACE(ast.description, '"', '')
                 || ' (от '
                 || mult.STARTMEASUREKM
                 || ' км '
@@ -120,19 +112,19 @@ GROUP BY TO_CHAR (SUBSTR((ast.description
                 || ' пк '
                 || mult.STARTMEASUREM
                 || ' м до '
+                || mult.ENDMEASUREKM
                 || ' км '
                 || mult.ENDMEASUREPIK
                 || ' пк '
                 || MULT.ENDMEASUREM
                 || ' м) '),1,2000)),
-        WORKO.DESCRIPTION          ,
-        worko.reportdate           ,
-        WORKO.FAKTMEASURE          ,
-        Worko.Plan_Wo              ,
-        WORKO.FAKT_WO              ,
+        WORKO.DESCRIPTION ,
+        worko.reportdate ,
+        Worko.Plan_Wo ,
+        WORKO.FAKT_WO ,
         MULT.ASSESSMENT]]>
 	</queryString>
-	<field name="FIO" class="java.lang.String"/>
+	<field name="FIO" class="oracle.sql.CLOB"/>
 	<field name="MESTO" class="java.lang.String"/>
 	<field name="DESCRIPTION" class="java.lang.String"/>
 	<field name="REPORTDATE" class="java.lang.String"/>

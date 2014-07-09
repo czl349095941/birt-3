@@ -22,48 +22,30 @@
 	<queryString>
 		<![CDATA[WITH Matuse AS
         (SELECT Matusetrans.Itemnum ,
-                Matusetrans.Description
+                item.Description
                         || ' ('
                         || Matusetrans.Itemnum
-                        || ')' Description               ,
-                item.Issueunit                           ,
-                matusetrans.STORNTRANS                   ,
-                MATUSETRANS.ITEM_RZ_TYPE                 ,
+                        || ')' Description ,
+                item.Issueunit ,
+                matusetrans.STORNTRANS ,
+                MATUSETRANS.ITEM_RZ_TYPE ,
                 extract (DAY FROM wo.Actfinish) Actfinish,
-                MATUSETRANS.QUANTITY                     ,
+                MATUSETRANS.QUANTITY,
                 VALIDGROUP
         FROM    maximo.workorder wo
-                LEFT JOIN Maximo.Matusetrans
+                JOIN Maximo.Matusetrans
                         ON      wo.Wonum = Matusetrans.Refwo
                 JOIN Maximo.Item
                         ON      Item.Itemnum              = Matusetrans.Itemnum
                                 AND item.CLASSSTRUCTUREID = '090000021002'
         WHERE   wo.BRIGAD_LOCATION                        = $P{podr}
-                AND wo.l_pred                             =
-                (SELECT DISTINCT CASE WHEN pred.siteid = '17' THEN pred.location ELSE pred.parent END pred
-                FROM    MAXIMO.LOCHIERARCHY podr
-                        JOIN MAXIMO.LOCHIERARCHY PRED
-                                ON      podr.parent     = pred.location
-                                        AND podr.SITEID = pred.SITEID
-                        JOIN MAXIMO.LOCATIONS LOC1
-                                ON      LOC1.LOCATION   = PRED.LOCATION
-                                        AND LOC1.SITEID = PRED.SITEID
-                        JOIN maximo.locations loc2
-                                ON      LOC2.LOCATION   = PRED.parent
-                                        AND LOC2.SITEID = PRED.SITEID
-                WHERE   podr.location                   = $P{podr}
-                        AND PODR.SITEID                 = $P{mroSite}
-                        AND LOC1.STATUS                 = 'РАБОТАЕТ'
-                        AND LOC2.STATUS                 = 'РАБОТАЕТ'
-                        AND PRED.SYSTEMID               = 'ОС'
-                        AND podr.systemid               = 'ОС'
-                )
-                AND wo.siteid                       = $P{mroSite}
-                AND TO_CHAR(wo.Actfinish, 'YYYY')   = $P{year}
-                AND TO_CHAR(wo.Actfinish, 'MM')     = $P{month}
-                AND extract (DAY FROM wo.Actfinish) < 16
-                AND matusetrans.itemnum   IS NOT NULL
-                AND wo.STATUS IN ( 'ТЕХОТДЕЛ' , 'ЗАКРЫТО', 'ЗАВ_ДИСП', 'ЗАВЕРШ', 'ДОРАБОТКА' )
+                AND TYPEWORKORDER                        <>'Путевые обходчики'
+                AND wo.siteid                             = $P{mroSite}
+                AND TO_CHAR(wo.Actfinish, 'YYYY')         = $P{year}
+                AND TO_CHAR(wo.Actfinish, 'MM')           = $P{month}
+                AND extract (DAY FROM wo.Actfinish)       < 16
+                AND matusetrans.itemnum         IS NOT NULL
+                AND wo.STATUS IN ('НАПР_НА_УТ', 'ЗАВЕРШ', 'ОТКЛ_РГН', 'ОФОРМЛЕН', 'ЗАКРЫТО')
         )
         ,
         Unwork AS
@@ -72,11 +54,11 @@
                         || ' ('
                         || Unworkitem.Itemnum
                         || ')' Description ,
-                item.Issueunit             ,
-                'Unwork'                        STORNTRANS        ,
-                'Unwork'                        ITEM_RZ_TYPE      ,
-                extract (DAY FROM wo.Actfinish) Actfinish         ,
-                unworkitem.QUANTITY                               ,
+                item.Issueunit ,
+                'Unwork'                        STORNTRANS ,
+                'Unwork'                        ITEM_RZ_TYPE ,
+                extract (DAY FROM wo.Actfinish) Actfinish ,
+                unworkitem.QUANTITY,
                 '' VALIDGROUP
         FROM    maximo.workorder wo
                 LEFT JOIN Maximo.Unworkitem
@@ -84,438 +66,93 @@
                 JOIN Maximo.Item
                         ON      Item.Itemnum              = Unworkitem.Itemnum
                                 AND item.CLASSSTRUCTUREID = '090000021002'
-        WHERE   wo.BRIGAD_LOCATION                        = $P{podr}
-                AND wo.l_pred                             =
-                (SELECT DISTINCT CASE WHEN pred.siteid = '17' THEN pred.location ELSE pred.parent END pred
-                FROM    MAXIMO.LOCHIERARCHY podr
-                        JOIN MAXIMO.LOCHIERARCHY PRED
-                                ON      podr.parent     = pred.location
-                                        AND podr.SITEID = pred.SITEID
-                        JOIN MAXIMO.LOCATIONS LOC1
-                                ON      LOC1.LOCATION   = PRED.LOCATION
-                                        AND LOC1.SITEID = PRED.SITEID
-                        JOIN maximo.locations loc2
-                                ON      LOC2.LOCATION   = PRED.parent
-                                        AND LOC2.SITEID = PRED.SITEID
-                WHERE   podr.location                   = $P{podr}
-                        AND PODR.SITEID                 = $P{mroSite}
-                        AND LOC1.STATUS                 = 'РАБОТАЕТ'
-                        AND LOC2.STATUS                 = 'РАБОТАЕТ'
-                        AND PRED.SYSTEMID               = 'ОС'
-                        AND podr.systemid               = 'ОС'
-                )
-                AND wo.siteid                       =$P{mroSite}
-                AND TO_CHAR(wo.Actfinish, 'YYYY')   = $P{year}
-                AND TO_CHAR(wo.Actfinish, 'MM')     = $P{month}
-                AND extract (DAY FROM wo.Actfinish) < 16
-                AND Unworkitem.Itemnum    IS NOT NULL
-                AND Wo.Status IN ('ТЕХОТДЕЛ','ЗАКРЫТО', 'ЗАВ_ДИСП', 'ЗАВЕРШ', 'ДОРАБОТКА')
+        WHERE   wo.BRIGAD_LOCATION                        = 'PODR_108'
+                AND TYPEWORKORDER                        <>'Путевые обходчики'
+                AND wo.siteid                             ='24'
+                AND TO_CHAR(wo.Actfinish, 'YYYY')         = '2014'
+                AND TO_CHAR(wo.Actfinish, 'MM')           = 04
+                AND extract (DAY FROM wo.Actfinish)       < 16
+                AND Unworkitem.Itemnum          IS NOT NULL
+                AND Wo.Status IN ('НАПР_НА_УТ', 'ЗАВЕРШ', 'ОТКЛ_РГН', 'ОФОРМЛЕН', 'ЗАКРЫТО')
         )
-SELECT Description ,
-  Issueunit,
-  SUM (
-  CASE
-    WHEN Actfinish  =1
-    AND STORNTRANS IN ('СНЯТИЕ С ПУТИ', 'СНЯТИЕ С ПУТИ-СТОРНО')
-    THEN QUANTITY
-  END) SNG1,
-  SUM (
-  CASE
-    WHEN Actfinish  =2
-    AND STORNTRANS IN ('СНЯТИЕ С ПУТИ', 'СНЯТИЕ С ПУТИ-СТОРНО')
-    THEN QUANTITY
-  END) SNG2,
-  SUM (
-  CASE
-    WHEN Actfinish  =3
-    AND STORNTRANS IN ('СНЯТИЕ С ПУТИ', 'СНЯТИЕ С ПУТИ-СТОРНО')
-    THEN QUANTITY
-  END) SNG3,
-  SUM (
-  CASE
-    WHEN Actfinish  =4
-    AND STORNTRANS IN ('СНЯТИЕ С ПУТИ', 'СНЯТИЕ С ПУТИ-СТОРНО')
-    THEN QUANTITY
-  END) SNG4,
-  SUM (
-  CASE
-    WHEN Actfinish  =5
-    AND STORNTRANS IN ('СНЯТИЕ С ПУТИ', 'СНЯТИЕ С ПУТИ-СТОРНО')
-    THEN QUANTITY
-  END) SNG5,
-  SUM (
-  CASE
-    WHEN Actfinish  =6
-    AND STORNTRANS IN ('СНЯТИЕ С ПУТИ', 'СНЯТИЕ С ПУТИ-СТОРНО')
-    THEN QUANTITY
-  END) SNG6,
-  SUM (
-  CASE
-    WHEN Actfinish  =7
-    AND STORNTRANS IN ('СНЯТИЕ С ПУТИ', 'СНЯТИЕ С ПУТИ-СТОРНО')
-    THEN QUANTITY
-  END) SNG7,
-  SUM (
-  CASE
-    WHEN Actfinish  =8
-    AND STORNTRANS IN ('СНЯТИЕ С ПУТИ', 'СНЯТИЕ С ПУТИ-СТОРНО')
-    THEN QUANTITY
-  END) SNG8,
-  SUM (
-  CASE
-    WHEN Actfinish  =9
-    AND STORNTRANS IN ('СНЯТИЕ С ПУТИ', 'СНЯТИЕ С ПУТИ-СТОРНО')
-    THEN QUANTITY
-  END) SNG9,
-  SUM (
-  CASE
-    WHEN Actfinish  =10
-    AND STORNTRANS IN ('СНЯТИЕ С ПУТИ', 'СНЯТИЕ С ПУТИ-СТОРНО')
-    THEN QUANTITY
-  END) SNG10,
-  SUM (
-  CASE
-    WHEN Actfinish  =11
-    AND STORNTRANS IN ('СНЯТИЕ С ПУТИ', 'СНЯТИЕ С ПУТИ-СТОРНО')
-    THEN QUANTITY
-  END) SNG11,
-  SUM (
-  CASE
-    WHEN Actfinish  =12
-    AND STORNTRANS IN ('СНЯТИЕ С ПУТИ', 'СНЯТИЕ С ПУТИ-СТОРНО')
-    THEN QUANTITY
-  END) SNG12,
-  SUM (
-  CASE
-    WHEN Actfinish  =13
-    AND STORNTRANS IN ('СНЯТИЕ С ПУТИ', 'СНЯТИЕ С ПУТИ-СТОРНО')
-    THEN QUANTITY
-  END) SNG13,
-  SUM (
-  CASE
-    WHEN Actfinish  =14
-    AND STORNTRANS IN ('СНЯТИЕ С ПУТИ', 'СНЯТИЕ С ПУТИ-СТОРНО')
-    THEN QUANTITY
-  END) SNG14,
-  SUM (
-  CASE
-    WHEN Actfinish  =15
-    AND STORNTRANS IN ('СНЯТИЕ С ПУТИ', 'СНЯТИЕ С ПУТИ-СТОРНО')
-    THEN QUANTITY
-  END) SNG15,
-  SUM (
-  CASE
-    WHEN Actfinish =1
-    AND STORNTRANS = 'Unwork'
-    THEN QUANTITY
-  END) Snn1,
-  SUM (
-  CASE
-    WHEN Actfinish =2
-    AND STORNTRANS = 'Unwork'
-    THEN QUANTITY
-  END) Snn2,
-  SUM (
-  CASE
-    WHEN Actfinish =3
-    AND STORNTRANS = 'Unwork'
-    THEN QUANTITY
-  END) Snn3,
-  SUM (
-  CASE
-    WHEN Actfinish =4
-    AND STORNTRANS = 'Unwork'
-    THEN QUANTITY
-  END) Snn4,
-  SUM (
-  CASE
-    WHEN Actfinish =5
-    AND STORNTRANS = 'Unwork'
-    THEN QUANTITY
-  END) Snn5,
-  SUM (
-  CASE
-    WHEN Actfinish =6
-    AND STORNTRANS = 'Unwork'
-    THEN QUANTITY
-  END) Snn6,
-  SUM (
-  CASE
-    WHEN Actfinish =7
-    AND STORNTRANS = 'Unwork'
-    THEN QUANTITY
-  END) Snn7,
-  SUM (
-  CASE
-    WHEN Actfinish =8
-    AND STORNTRANS = 'Unwork'
-    THEN QUANTITY
-  END) Snn8,
-  SUM (
-  CASE
-    WHEN Actfinish =9
-    AND STORNTRANS = 'Unwork'
-    THEN QUANTITY
-  END) Snn9,
-  SUM (
-  CASE
-    WHEN Actfinish =10
-    AND STORNTRANS = 'Unwork'
-    THEN QUANTITY
-  END) Snn10,
-  SUM (
-  CASE
-    WHEN Actfinish =11
-    AND STORNTRANS = 'Unwork'
-    THEN QUANTITY
-  END) Snn11,
-  SUM (
-  CASE
-    WHEN Actfinish =12
-    AND STORNTRANS = 'Unwork'
-    THEN QUANTITY
-  END) Snn12,
-  SUM (
-  CASE
-    WHEN Actfinish =13
-    AND STORNTRANS = 'Unwork'
-    THEN QUANTITY
-  END) Snn13,
-  SUM (
-  CASE
-    WHEN Actfinish =14
-    AND STORNTRANS = 'Unwork'
-    THEN QUANTITY
-  END) Snn14,
-  SUM (
-  CASE
-    WHEN Actfinish =15
-    AND STORNTRANS = 'Unwork'
-    THEN QUANTITY
-  END) Snn15,
-  SUM (
-  CASE
-    WHEN Actfinish    =1
-    AND ITEM_RZ_TYPE IN ('1-Новые','3-ПКЗ Новые')
-    AND STORNTRANS   IN ('СПИСАНИЕ','СПИСАНИЕ-СТОРНО')
-    THEN QUANTITY     * -1
-  END) Uln1,
-  SUM (
-  CASE
-    WHEN Actfinish    =2
-    AND ITEM_RZ_TYPE IN ('1-Новые','3-ПКЗ Новые')
-    AND STORNTRANS   IN ('СПИСАНИЕ','СПИСАНИЕ-СТОРНО')
-    THEN QUANTITY     * -1
-  END) Uln2,
-  SUM (
-  CASE
-    WHEN Actfinish    =3
-    AND ITEM_RZ_TYPE IN ('1-Новые','3-ПКЗ Новые')
-    AND STORNTRANS   IN ('СПИСАНИЕ','СПИСАНИЕ-СТОРНО')
-    THEN QUANTITY     * -1
-  END) Uln3,
-  SUM (
-  CASE
-    WHEN Actfinish    =4
-    AND ITEM_RZ_TYPE IN ('1-Новые','3-ПКЗ Новые')
-    AND STORNTRANS   IN ('СПИСАНИЕ','СПИСАНИЕ-СТОРНО')
-    THEN QUANTITY     * -1
-  END) Uln4,
-  SUM (
-  CASE
-    WHEN Actfinish    =5
-    AND ITEM_RZ_TYPE IN ('1-Новые','3-ПКЗ Новые')
-    AND STORNTRANS   IN ('СПИСАНИЕ','СПИСАНИЕ-СТОРНО')
-    THEN QUANTITY     * -1
-  END) Uln5,
-  SUM (
-  CASE
-    WHEN Actfinish    =6
-    AND ITEM_RZ_TYPE IN ('1-Новые','3-ПКЗ Новые')
-    AND STORNTRANS   IN ('СПИСАНИЕ','СПИСАНИЕ-СТОРНО')
-    THEN QUANTITY     * -1
-  END) Uln6,
-  SUM (
-  CASE
-    WHEN Actfinish    =7
-    AND ITEM_RZ_TYPE IN ('1-Новые','3-ПКЗ Новые')
-    AND STORNTRANS   IN ('СПИСАНИЕ','СПИСАНИЕ-СТОРНО')
-    THEN QUANTITY     * -1
-  END) Uln7,
-  SUM (
-  CASE
-    WHEN Actfinish    =8
-    AND ITEM_RZ_TYPE IN ('1-Новые','3-ПКЗ Новые')
-    AND STORNTRANS   IN ('СПИСАНИЕ','СПИСАНИЕ-СТОРНО')
-    THEN QUANTITY     * -1
-  END) Uln8,
-  SUM (
-  CASE
-    WHEN Actfinish    =9
-    AND ITEM_RZ_TYPE IN ('1-Новые','3-ПКЗ Новые')
-    AND STORNTRANS   IN ('СПИСАНИЕ','СПИСАНИЕ-СТОРНО')
-    THEN QUANTITY     * -1
-  END) Uln9,
-  SUM (
-  CASE
-    WHEN Actfinish    =10
-    AND ITEM_RZ_TYPE IN ('1-Новые','3-ПКЗ Новые')
-    AND STORNTRANS   IN ('СПИСАНИЕ','СПИСАНИЕ-СТОРНО')
-    THEN QUANTITY     * -1
-  END) Uln10,
-  SUM (
-  CASE
-    WHEN Actfinish    =11
-    AND ITEM_RZ_TYPE IN ('1-Новые','3-ПКЗ Новые')
-    AND STORNTRANS   IN ('СПИСАНИЕ','СПИСАНИЕ-СТОРНО')
-    THEN QUANTITY     * -1
-  END) Uln11,
-  SUM (
-  CASE
-    WHEN Actfinish    =12
-    AND ITEM_RZ_TYPE IN ('1-Новые','3-ПКЗ Новые')
-    AND STORNTRANS   IN ('СПИСАНИЕ','СПИСАНИЕ-СТОРНО')
-    THEN QUANTITY     * -1
-  END) Uln12,
-  SUM (
-  CASE
-    WHEN Actfinish    =13
-    AND ITEM_RZ_TYPE IN ('1-Новые','3-ПКЗ Новые')
-    AND STORNTRANS   IN ('СПИСАНИЕ','СПИСАНИЕ-СТОРНО')
-    THEN QUANTITY     * -1
-  END) Uln13,
-  SUM (
-  CASE
-    WHEN Actfinish    =14
-    AND ITEM_RZ_TYPE IN ('1-Новые','3-ПКЗ Новые')
-    AND STORNTRANS   IN ('СПИСАНИЕ','СПИСАНИЕ-СТОРНО')
-    THEN QUANTITY     * -1
-  END) Uln14,
-  SUM (
-  CASE
-    WHEN Actfinish    =15
-    AND ITEM_RZ_TYPE IN ('1-Новые','3-ПКЗ Новые')
-    AND STORNTRANS   IN ('СПИСАНИЕ','СПИСАНИЕ-СТОРНО')
-    THEN QUANTITY     * -1
-  END) Uln15,
-  SUM (
-  CASE
-    WHEN Actfinish    =1
-    AND ITEM_RZ_TYPE IN ('2-ПовторногоИспользования', '4-ПКЗ ПовторногоИспользования')
-    AND STORNTRANS   IN ('СПИСАНИЕ','СПИСАНИЕ-СТОРНО')
-    THEN QUANTITY     * -1
-  END) Uls1,
-  SUM (
-  CASE
-    WHEN Actfinish    =2
-    AND ITEM_RZ_TYPE IN ('2-ПовторногоИспользования', '4-ПКЗ ПовторногоИспользования')
-    AND STORNTRANS   IN ('СПИСАНИЕ','СПИСАНИЕ-СТОРНО')
-    THEN QUANTITY     * -1
-  END) Uls2,
-  SUM (
-  CASE
-    WHEN Actfinish    =3
-    AND ITEM_RZ_TYPE IN ('2-ПовторногоИспользования', '4-ПКЗ ПовторногоИспользования')
-    AND STORNTRANS   IN ('СПИСАНИЕ','СПИСАНИЕ-СТОРНО')
-    THEN QUANTITY     * -1
-  END) Uls3,
-  SUM (
-  CASE
-    WHEN Actfinish    =4
-    AND ITEM_RZ_TYPE IN ('2-ПовторногоИспользования', '4-ПКЗ ПовторногоИспользования')
-    AND STORNTRANS   IN ('СПИСАНИЕ','СПИСАНИЕ-СТОРНО')
-    THEN QUANTITY     * -1
-  END) Uls4,
-  SUM (
-  CASE
-    WHEN Actfinish    =5
-    AND ITEM_RZ_TYPE IN ('2-ПовторногоИспользования', '4-ПКЗ ПовторногоИспользования')
-    AND STORNTRANS   IN ('СПИСАНИЕ','СПИСАНИЕ-СТОРНО')
-    THEN QUANTITY     * -1
-  END) Uls5,
-  SUM (
-  CASE
-    WHEN Actfinish    =6
-    AND ITEM_RZ_TYPE IN ('2-ПовторногоИспользования', '4-ПКЗ ПовторногоИспользования')
-    AND STORNTRANS   IN ('СПИСАНИЕ','СПИСАНИЕ-СТОРНО')
-    THEN QUANTITY     * -1
-  END) Uls6,
-  SUM (
-  CASE
-    WHEN Actfinish    =7
-    AND ITEM_RZ_TYPE IN ('2-ПовторногоИспользования', '4-ПКЗ ПовторногоИспользования')
-    AND STORNTRANS   IN ('СПИСАНИЕ','СПИСАНИЕ-СТОРНО')
-    THEN QUANTITY     * -1
-  END) Uls7,
-  SUM (
-  CASE
-    WHEN Actfinish    =8
-    AND ITEM_RZ_TYPE IN ('2-ПовторногоИспользования', '4-ПКЗ ПовторногоИспользования')
-    AND STORNTRANS   IN ('СПИСАНИЕ','СПИСАНИЕ-СТОРНО')
-    THEN QUANTITY     * -1
-  END) Uls8,
-  SUM (
-  CASE
-    WHEN Actfinish    =9
-    AND ITEM_RZ_TYPE IN ('2-ПовторногоИспользования', '4-ПКЗ ПовторногоИспользования')
-    AND STORNTRANS   IN ('СПИСАНИЕ','СПИСАНИЕ-СТОРНО')
-    THEN QUANTITY     * -1
-  END) Uls9,
-  SUM (
-  CASE
-    WHEN Actfinish    =10
-    AND ITEM_RZ_TYPE IN ('2-ПовторногоИспользования', '4-ПКЗ ПовторногоИспользования')
-    AND STORNTRANS   IN ('СПИСАНИЕ','СПИСАНИЕ-СТОРНО')
-    THEN QUANTITY     * -1
-  END) Uls10,
-  SUM (
-  CASE
-    WHEN Actfinish    =11
-    AND ITEM_RZ_TYPE IN ('2-ПовторногоИспользования', '4-ПКЗ ПовторногоИспользования')
-    AND STORNTRANS   IN ('СПИСАНИЕ','СПИСАНИЕ-СТОРНО')
-    THEN QUANTITY     * -1
-  END) Uls11,
-  SUM (
-  CASE
-    WHEN Actfinish    =12
-    AND ITEM_RZ_TYPE IN ('2-ПовторногоИспользования', '4-ПКЗ ПовторногоИспользования')
-    AND STORNTRANS   IN ('СПИСАНИЕ','СПИСАНИЕ-СТОРНО')
-    THEN QUANTITY     * -1
-  END) Uls12,
-  SUM (
-  CASE
-    WHEN Actfinish    =13
-    AND ITEM_RZ_TYPE IN ('2-ПовторногоИспользования', '4-ПКЗ ПовторногоИспользования')
-    AND STORNTRANS   IN ('СПИСАНИЕ','СПИСАНИЕ-СТОРНО')
-    THEN QUANTITY     * -1
-  END) Uls13,
-  SUM (
-  CASE
-    WHEN Actfinish    =14
-    AND ITEM_RZ_TYPE IN ('2-ПовторногоИспользования', '4-ПКЗ ПовторногоИспользования')
-    AND STORNTRANS   IN ('СПИСАНИЕ','СПИСАНИЕ-СТОРНО')
-    THEN QUANTITY     * -1
-  END) Uls14,
-  SUM (
-  CASE
-    WHEN Actfinish    =15
-    AND ITEM_RZ_TYPE IN ('2-ПовторногоИспользования', '4-ПКЗ ПовторногоИспользования')
-    AND STORNTRANS   IN ('СПИСАНИЕ','СПИСАНИЕ-СТОРНО')
-    THEN QUANTITY     * -1
-  END) Uls15,
-  '' Glputn,
-  '' Glputs,
-  '' Stanputn,
-  '' Stanputs,
-  '' Stpn,
-  '' Stps
-FROM
-  (SELECT * FROM matuse
-  UNION ALL
-  SELECT * FROM unwork
-  )
+SELECT  Description ,
+        Issueunit,
+        SUM ( CASE WHEN Actfinish =1 AND STORNTRANS  IN ('СНЯТИЕ С ПУТИ', 'СНЯТИЕ С ПУТИ-СТОРНО') THEN QUANTITY END)                                                                              SNG1,
+        SUM ( CASE WHEN Actfinish =2 AND STORNTRANS  IN ('СНЯТИЕ С ПУТИ', 'СНЯТИЕ С ПУТИ-СТОРНО') THEN QUANTITY END)                                                                              SNG2,
+        SUM ( CASE WHEN Actfinish =3 AND STORNTRANS  IN ('СНЯТИЕ С ПУТИ', 'СНЯТИЕ С ПУТИ-СТОРНО') THEN QUANTITY END)                                                                              SNG3,
+        SUM ( CASE WHEN Actfinish =4 AND STORNTRANS  IN ('СНЯТИЕ С ПУТИ', 'СНЯТИЕ С ПУТИ-СТОРНО') THEN QUANTITY END)                                                                              SNG4,
+        SUM ( CASE WHEN Actfinish =5 AND STORNTRANS  IN ('СНЯТИЕ С ПУТИ', 'СНЯТИЕ С ПУТИ-СТОРНО') THEN QUANTITY END)                                                                              SNG5,
+        SUM ( CASE WHEN Actfinish =6 AND STORNTRANS  IN ('СНЯТИЕ С ПУТИ', 'СНЯТИЕ С ПУТИ-СТОРНО') THEN QUANTITY END)                                                                              SNG6,
+        SUM ( CASE WHEN Actfinish =7 AND STORNTRANS  IN ('СНЯТИЕ С ПУТИ', 'СНЯТИЕ С ПУТИ-СТОРНО') THEN QUANTITY END)                                                                              SNG7,
+        SUM ( CASE WHEN Actfinish =8 AND STORNTRANS  IN ('СНЯТИЕ С ПУТИ', 'СНЯТИЕ С ПУТИ-СТОРНО') THEN QUANTITY END)                                                                              SNG8,
+        SUM ( CASE WHEN Actfinish =9 AND STORNTRANS  IN ('СНЯТИЕ С ПУТИ', 'СНЯТИЕ С ПУТИ-СТОРНО') THEN QUANTITY END)                                                                              SNG9,
+        SUM ( CASE WHEN Actfinish =10 AND STORNTRANS IN ('СНЯТИЕ С ПУТИ', 'СНЯТИЕ С ПУТИ-СТОРНО') THEN QUANTITY END)                                                                              SNG10,
+        SUM ( CASE WHEN Actfinish =11 AND STORNTRANS IN ('СНЯТИЕ С ПУТИ', 'СНЯТИЕ С ПУТИ-СТОРНО') THEN QUANTITY END)                                                                              SNG11,
+        SUM ( CASE WHEN Actfinish =12 AND STORNTRANS IN ('СНЯТИЕ С ПУТИ', 'СНЯТИЕ С ПУТИ-СТОРНО') THEN QUANTITY END)                                                                              SNG12,
+        SUM ( CASE WHEN Actfinish =13 AND STORNTRANS IN ('СНЯТИЕ С ПУТИ', 'СНЯТИЕ С ПУТИ-СТОРНО') THEN QUANTITY END)                                                                              SNG13,
+        SUM ( CASE WHEN Actfinish =14 AND STORNTRANS IN ('СНЯТИЕ С ПУТИ', 'СНЯТИЕ С ПУТИ-СТОРНО') THEN QUANTITY END)                                                                              SNG14,
+        SUM ( CASE WHEN Actfinish =15 AND STORNTRANS IN ('СНЯТИЕ С ПУТИ', 'СНЯТИЕ С ПУТИ-СТОРНО') THEN QUANTITY END)                                                                              SNG15,
+        SUM ( CASE WHEN Actfinish =1 AND STORNTRANS = 'Unwork' THEN QUANTITY END)                                                                                                                 Snn1,
+        SUM ( CASE WHEN Actfinish =2 AND STORNTRANS = 'Unwork' THEN QUANTITY END)                                                                                                                 Snn2,
+        SUM ( CASE WHEN Actfinish =3 AND STORNTRANS = 'Unwork' THEN QUANTITY END)                                                                                                                 Snn3,
+        SUM ( CASE WHEN Actfinish =4 AND STORNTRANS = 'Unwork' THEN QUANTITY END)                                                                                                                 Snn4,
+        SUM ( CASE WHEN Actfinish =5 AND STORNTRANS = 'Unwork' THEN QUANTITY END)                                                                                                                 Snn5,
+        SUM ( CASE WHEN Actfinish =6 AND STORNTRANS = 'Unwork' THEN QUANTITY END)                                                                                                                 Snn6,
+        SUM ( CASE WHEN Actfinish =7 AND STORNTRANS = 'Unwork' THEN QUANTITY END)                                                                                                                 Snn7,
+        SUM ( CASE WHEN Actfinish =8 AND STORNTRANS = 'Unwork' THEN QUANTITY END)                                                                                                                 Snn8,
+        SUM ( CASE WHEN Actfinish =9 AND STORNTRANS = 'Unwork' THEN QUANTITY END)                                                                                                                 Snn9,
+        SUM ( CASE WHEN Actfinish =10 AND STORNTRANS = 'Unwork' THEN QUANTITY END)                                                                                                                Snn10,
+        SUM ( CASE WHEN Actfinish =11 AND STORNTRANS = 'Unwork' THEN QUANTITY END)                                                                                                                Snn11,
+        SUM ( CASE WHEN Actfinish =12 AND STORNTRANS = 'Unwork' THEN QUANTITY END)                                                                                                                Snn12,
+        SUM ( CASE WHEN Actfinish =13 AND STORNTRANS = 'Unwork' THEN QUANTITY END)                                                                                                                Snn13,
+        SUM ( CASE WHEN Actfinish =14 AND STORNTRANS = 'Unwork' THEN QUANTITY END)                                                                                                                Snn14,
+        SUM ( CASE WHEN Actfinish =15 AND STORNTRANS = 'Unwork' THEN QUANTITY END)                                                                                                                Snn15,
+        SUM ( CASE WHEN Actfinish =1 AND ITEM_RZ_TYPE  IN ('1-Новые','3-ПКЗ Новые') AND STORNTRANS IN ('СПИСАНИЕ','СПИСАНИЕ-СТОРНО') THEN QUANTITY * -1 END)                                      Uln1,
+        SUM ( CASE WHEN Actfinish =2 AND ITEM_RZ_TYPE  IN ('1-Новые','3-ПКЗ Новые') AND STORNTRANS IN ('СПИСАНИЕ','СПИСАНИЕ-СТОРНО') THEN QUANTITY * -1 END)                                      Uln2,
+        SUM ( CASE WHEN Actfinish =3 AND ITEM_RZ_TYPE  IN ('1-Новые','3-ПКЗ Новые') AND STORNTRANS IN ('СПИСАНИЕ','СПИСАНИЕ-СТОРНО') THEN QUANTITY * -1 END)                                      Uln3,
+        SUM ( CASE WHEN Actfinish =4 AND ITEM_RZ_TYPE  IN ('1-Новые','3-ПКЗ Новые') AND STORNTRANS IN ('СПИСАНИЕ','СПИСАНИЕ-СТОРНО') THEN QUANTITY * -1 END)                                      Uln4,
+        SUM ( CASE WHEN Actfinish =5 AND ITEM_RZ_TYPE  IN ('1-Новые','3-ПКЗ Новые') AND STORNTRANS IN ('СПИСАНИЕ','СПИСАНИЕ-СТОРНО') THEN QUANTITY * -1 END)                                      Uln5,
+        SUM ( CASE WHEN Actfinish =6 AND ITEM_RZ_TYPE  IN ('1-Новые','3-ПКЗ Новые') AND STORNTRANS IN ('СПИСАНИЕ','СПИСАНИЕ-СТОРНО') THEN QUANTITY * -1 END)                                      Uln6,
+        SUM ( CASE WHEN Actfinish =7 AND ITEM_RZ_TYPE  IN ('1-Новые','3-ПКЗ Новые') AND STORNTRANS IN ('СПИСАНИЕ','СПИСАНИЕ-СТОРНО') THEN QUANTITY * -1 END)                                      Uln7,
+        SUM ( CASE WHEN Actfinish =8 AND ITEM_RZ_TYPE  IN ('1-Новые','3-ПКЗ Новые') AND STORNTRANS IN ('СПИСАНИЕ','СПИСАНИЕ-СТОРНО') THEN QUANTITY * -1 END)                                      Uln8,
+        SUM ( CASE WHEN Actfinish =9 AND ITEM_RZ_TYPE  IN ('1-Новые','3-ПКЗ Новые') AND STORNTRANS IN ('СПИСАНИЕ','СПИСАНИЕ-СТОРНО') THEN QUANTITY * -1 END)                                      Uln9,
+        SUM ( CASE WHEN Actfinish =10 AND ITEM_RZ_TYPE IN ('1-Новые','3-ПКЗ Новые') AND STORNTRANS IN ('СПИСАНИЕ','СПИСАНИЕ-СТОРНО') THEN QUANTITY * -1 END)                                      Uln10,
+        SUM ( CASE WHEN Actfinish =11 AND ITEM_RZ_TYPE IN ('1-Новые','3-ПКЗ Новые') AND STORNTRANS IN ('СПИСАНИЕ','СПИСАНИЕ-СТОРНО') THEN QUANTITY * -1 END)                                      Uln11,
+        SUM ( CASE WHEN Actfinish =12 AND ITEM_RZ_TYPE IN ('1-Новые','3-ПКЗ Новые') AND STORNTRANS IN ('СПИСАНИЕ','СПИСАНИЕ-СТОРНО') THEN QUANTITY * -1 END)                                      Uln12,
+        SUM ( CASE WHEN Actfinish =13 AND ITEM_RZ_TYPE IN ('1-Новые','3-ПКЗ Новые') AND STORNTRANS IN ('СПИСАНИЕ','СПИСАНИЕ-СТОРНО') THEN QUANTITY * -1 END)                                      Uln13,
+        SUM ( CASE WHEN Actfinish =14 AND ITEM_RZ_TYPE IN ('1-Новые','3-ПКЗ Новые') AND STORNTRANS IN ('СПИСАНИЕ','СПИСАНИЕ-СТОРНО') THEN QUANTITY * -1 END)                                      Uln14,
+        SUM ( CASE WHEN Actfinish =15 AND ITEM_RZ_TYPE IN ('1-Новые','3-ПКЗ Новые') AND STORNTRANS IN ('СПИСАНИЕ','СПИСАНИЕ-СТОРНО') THEN QUANTITY * -1 END)                                      Uln15,
+        SUM ( CASE WHEN Actfinish =1 AND ITEM_RZ_TYPE  IN ('2-ПовторногоИспользования', '4-ПКЗ ПовторногоИспользования') AND STORNTRANS IN ('СПИСАНИЕ','СПИСАНИЕ-СТОРНО') THEN QUANTITY * -1 END) Uls1,
+        SUM ( CASE WHEN Actfinish =2 AND ITEM_RZ_TYPE  IN ('2-ПовторногоИспользования', '4-ПКЗ ПовторногоИспользования') AND STORNTRANS IN ('СПИСАНИЕ','СПИСАНИЕ-СТОРНО') THEN QUANTITY * -1 END) Uls2,
+        SUM ( CASE WHEN Actfinish =3 AND ITEM_RZ_TYPE  IN ('2-ПовторногоИспользования', '4-ПКЗ ПовторногоИспользования') AND STORNTRANS IN ('СПИСАНИЕ','СПИСАНИЕ-СТОРНО') THEN QUANTITY * -1 END) Uls3,
+        SUM ( CASE WHEN Actfinish =4 AND ITEM_RZ_TYPE  IN ('2-ПовторногоИспользования', '4-ПКЗ ПовторногоИспользования') AND STORNTRANS IN ('СПИСАНИЕ','СПИСАНИЕ-СТОРНО') THEN QUANTITY * -1 END) Uls4,
+        SUM ( CASE WHEN Actfinish =5 AND ITEM_RZ_TYPE  IN ('2-ПовторногоИспользования', '4-ПКЗ ПовторногоИспользования') AND STORNTRANS IN ('СПИСАНИЕ','СПИСАНИЕ-СТОРНО') THEN QUANTITY * -1 END) Uls5,
+        SUM ( CASE WHEN Actfinish =6 AND ITEM_RZ_TYPE  IN ('2-ПовторногоИспользования', '4-ПКЗ ПовторногоИспользования') AND STORNTRANS IN ('СПИСАНИЕ','СПИСАНИЕ-СТОРНО') THEN QUANTITY * -1 END) Uls6,
+        SUM ( CASE WHEN Actfinish =7 AND ITEM_RZ_TYPE  IN ('2-ПовторногоИспользования', '4-ПКЗ ПовторногоИспользования') AND STORNTRANS IN ('СПИСАНИЕ','СПИСАНИЕ-СТОРНО') THEN QUANTITY * -1 END) Uls7,
+        SUM ( CASE WHEN Actfinish =8 AND ITEM_RZ_TYPE  IN ('2-ПовторногоИспользования', '4-ПКЗ ПовторногоИспользования') AND STORNTRANS IN ('СПИСАНИЕ','СПИСАНИЕ-СТОРНО') THEN QUANTITY * -1 END) Uls8,
+        SUM ( CASE WHEN Actfinish =9 AND ITEM_RZ_TYPE  IN ('2-ПовторногоИспользования', '4-ПКЗ ПовторногоИспользования') AND STORNTRANS IN ('СПИСАНИЕ','СПИСАНИЕ-СТОРНО') THEN QUANTITY * -1 END) Uls9,
+        SUM ( CASE WHEN Actfinish =10 AND ITEM_RZ_TYPE IN ('2-ПовторногоИспользования', '4-ПКЗ ПовторногоИспользования') AND STORNTRANS IN ('СПИСАНИЕ','СПИСАНИЕ-СТОРНО') THEN QUANTITY * -1 END) Uls10,
+        SUM ( CASE WHEN Actfinish =11 AND ITEM_RZ_TYPE IN ('2-ПовторногоИспользования', '4-ПКЗ ПовторногоИспользования') AND STORNTRANS IN ('СПИСАНИЕ','СПИСАНИЕ-СТОРНО') THEN QUANTITY * -1 END) Uls11,
+        SUM ( CASE WHEN Actfinish =12 AND ITEM_RZ_TYPE IN ('2-ПовторногоИспользования', '4-ПКЗ ПовторногоИспользования') AND STORNTRANS IN ('СПИСАНИЕ','СПИСАНИЕ-СТОРНО') THEN QUANTITY * -1 END) Uls12,
+        SUM ( CASE WHEN Actfinish =13 AND ITEM_RZ_TYPE IN ('2-ПовторногоИспользования', '4-ПКЗ ПовторногоИспользования') AND STORNTRANS IN ('СПИСАНИЕ','СПИСАНИЕ-СТОРНО') THEN QUANTITY * -1 END) Uls13,
+        SUM ( CASE WHEN Actfinish =14 AND ITEM_RZ_TYPE IN ('2-ПовторногоИспользования', '4-ПКЗ ПовторногоИспользования') AND STORNTRANS IN ('СПИСАНИЕ','СПИСАНИЕ-СТОРНО') THEN QUANTITY * -1 END) Uls14,
+        SUM ( CASE WHEN Actfinish =15 AND ITEM_RZ_TYPE IN ('2-ПовторногоИспользования', '4-ПКЗ ПовторногоИспользования') AND STORNTRANS IN ('СПИСАНИЕ','СПИСАНИЕ-СТОРНО') THEN QUANTITY * -1 END) Uls15,
+        ''                                                                                                                                                                                        Glputn,
+        ''                                                                                                                                                                                        Glputs,
+        ''                                                                                                                                                                                        Stanputn,
+        ''                                                                                                                                                                                        Stanputs,
+        ''                                                                                                                                                                                        Stpn,
+        ''                                                                                                                                                                                        Stps
+FROM    (SELECT *
+        FROM    matuse
+
+        UNION ALL
+
+        SELECT  *
+        FROM    unwork
+        )
 GROUP BY Description,
-  Issueunit]]>
+        Issueunit]]>
 	</queryString>
 	<field name="DESCRIPTION" class="java.lang.String"/>
 	<field name="ISSUEUNIT" class="java.lang.String"/>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="pu74_3_2" language="groovy" pageWidth="842" pageHeight="10000" orientation="Landscape" whenNoDataType="AllSectionsNoDetail" columnWidth="842" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="95636756-c076-45e6-a0e3-a324231c39c1">
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="pu74_3_2" language="groovy" pageWidth="842" pageHeight="10000" orientation="Landscape" whenNoDataType="AllSectionsNoDetail" columnWidth="842" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" isSummaryNewPage="true" uuid="95636756-c076-45e6-a0e3-a324231c39c1">
 	<property name="ireport.zoom" value="1.0"/>
 	<property name="ireport.x" value="0"/>
 	<property name="ireport.y" value="0"/>
@@ -21,7 +21,7 @@
 	<queryString>
 		<![CDATA[WITH a1 AS
         (SELECT wo.wonum ,
-                (SELECT sys_xmlagg(XMLELEMENT(col, asset.description
+                (SELECT sys_xmlagg(XMLELEMENT(col, regexp_REPLACE(asset.description, '"', '')
                                 || ' (от '
                                 || multiassetlocci.STARTMEASUREKM
                                 || ' км '
@@ -29,6 +29,7 @@
                                 || ' пк '
                                 || multiassetlocci.STARTMEASUREM
                                 || ' м до '
+                                || multiassetlocci.ENDMEASUREKM
                                 || ' км '
                                 || multiassetlocci.ENDMEASUREPIK
                                 || ' пк '
@@ -39,23 +40,24 @@
                                 ON      asset.assetnum   = multiassetlocci.assetnum
                                         AND asset.siteid = multiassetlocci.siteid
                 WHERE   multiassetlocci.recordkey        = wo.wonum
-                        AND multiassetlocci.recordclass  = 'РАБОЧЕЕЗАДАНИЕ'
-                )
-                mesto,
+                        AND 1                            = CASE WHEN (wo.origrecordid IS NOT NULL AND multiassetlocci.ISPRIMARY =1
+                                        ) THEN 0 ELSE 1 END
+                        AND multiassetlocci.recordclass = 'РАБОЧЕЕЗАДАНИЕ'
+                ) mesto,
                 Item.DESCRIPTION
                         || '('
                         || Item.ITEMNUM
                         || ')' WPTOOL ,
-                TOOL.TOOLQTY   kolvo  ,
+                TOOL.TOOLQTY   kolvo ,
                 wo.description wo_desc,
                 J1.Numvalue
                         || ' '
-                        || J1.Measureunitid           ed_izm  ,
-                NVL(wo.JPDURATION, WO.NOKOEFDURATION) norm    ,
-                wptool.AMOUNT                         zadanie ,
-                extract (DAY FROM wo.Actfinish)       dday    ,
-                tool.AMOUNT                           fakt_wo ,
-                tool.TOOLHRS                          Plan_Wo
+                        || J1.Measureunitid                                                       ed_izm ,
+                CASE WHEN NVL(wo.JPDURATION, 0) = 0 THEN WO.NOKOEFDURATION ELSE wo.JPDURATION END norm,
+                wptool.AMOUNT                                                                     zadanie,
+                extract (DAY FROM wo.Actfinish)                                                   dday ,
+                tool.AMOUNT                                                                       fakt_wo ,
+                tool.TOOLHRS                                                                      Plan_Wo
         FROM    MAXIMO.workorder wo
                 LEFT JOIN MAXIMO.wojprelation jpr
                         ON      wo.wonum               = jpr.wonum
@@ -73,84 +75,65 @@
                                 AND wptool.siteid = wo.siteid
                                 AND tool.itemnum  = wptool.itemnum
                 JOIN Maximo.Item
-                        ON      Item.Itemnum = tool.Itemnum
-        WHERE   wo.BRIGAD_LOCATION           = $P{podr}
-                AND wo.l_pred                =
-                (SELECT DISTINCT CASE WHEN pred.siteid = '17' THEN pred.location ELSE pred.parent END pred
-                FROM    MAXIMO.LOCHIERARCHY podr
-                        JOIN MAXIMO.LOCHIERARCHY PRED
-                                ON      podr.parent     = pred.location
-                                        AND podr.SITEID = pred.SITEID
-                        JOIN MAXIMO.LOCATIONS LOC1
-                                ON      LOC1.LOCATION   = PRED.LOCATION
-                                        AND LOC1.SITEID = PRED.SITEID
-                        JOIN maximo.locations loc2
-                                ON      LOC2.LOCATION   = PRED.parent
-                                        AND LOC2.SITEID = PRED.SITEID
-                WHERE   podr.location                   = $P{podr}
-                        AND PODR.SITEID                 = $P{mroSite}
-                        AND LOC1.STATUS                 = 'РАБОТАЕТ'
-                        AND LOC2.STATUS                 = 'РАБОТАЕТ'
-                        AND PRED.SYSTEMID               = 'ОС'
-                        AND podr.systemid               = 'ОС'
-                )
-                AND wo.siteid                       =$P{mroSite}
+                        ON      Item.Itemnum        = tool.Itemnum
+        WHERE   wo.BRIGAD_LOCATION                  = $P{podr}
+                AND wo.siteid                       = $P{mroSite}
                 AND TO_CHAR(wo.Actfinish, 'YYYY')   = $P{year}
                 AND TO_CHAR(wo.Actfinish, 'MM')     = $P{month}
                 AND extract (DAY FROM wo.Actfinish) > 15
                 AND ITEM.MAXIMOTYPE                 = 10
-                AND wo.STATUS IN ( 'ТЕХОТДЕЛ' , 'ЗАКРЫТО', 'ЗАВ_ДИСП', 'ЗАВЕРШ', 'ДОРАБОТКА' )
+                AND wo.STATUS IN ('НАПР_НА_УТ', 'ЗАВЕРШ', 'ОТКЛ_РГН', 'ОФОРМЛЕН', 'ЗАКРЫТО')
         )
-SELECT  wonum                                            ,
-        TO_CHAR (SUBSTR (mesto,1,2000)) mesto            ,
-        WPTOOL                                           ,
-        kolvo                                            ,
-        wo_desc                                          ,
-        ed_izm                                           ,
-        norm                                             ,
-        zadanie                                          ,
-        SUM ( CASE WHEN dday=16 THEN fakt_wo END)fact1   ,
-        SUM ( CASE WHEN dday=17 THEN fakt_wo END)fact2   ,
-        SUM ( CASE WHEN dday=18 THEN fakt_wo END)fact3   ,
-        SUM ( CASE WHEN dday=19 THEN fakt_wo END)fact4   ,
-        SUM ( CASE WHEN dday=20 THEN fakt_wo END)fact5   ,
-        SUM ( CASE WHEN dday=21 THEN fakt_wo END)fact6   ,
-        SUM ( CASE WHEN dday=22 THEN fakt_wo END)fact7   ,
-        SUM ( CASE WHEN dday=23 THEN fakt_wo END)fact8   ,
-        SUM ( CASE WHEN dday=24 THEN fakt_wo END)fact9   ,
-        SUM ( CASE WHEN dday=25 THEN fakt_wo END)fact10  ,
-        SUM ( CASE WHEN dday=26 THEN fakt_wo END)fact11  ,
-        SUM ( CASE WHEN dday=27 THEN fakt_wo END)fact12  ,
-        SUM ( CASE WHEN dday=28 THEN fakt_wo END)fact13  ,
-        SUM ( CASE WHEN dday=29 THEN fakt_wo END)fact14  ,
-        SUM ( CASE WHEN dday=30 THEN fakt_wo END)fact15  ,
+SELECT  wonum ,
+        TO_CHAR (SUBSTR (mesto,1,2000)) mesto ,
+        WPTOOL ,
+        kolvo ,
+        wo_desc,
+        ed_izm ,
+        norm ,
+        zadanie,
+        SUM ( CASE WHEN dday=16 THEN fakt_wo END)fact1,
+        SUM ( CASE WHEN dday=17 THEN fakt_wo END)fact2,
+        SUM ( CASE WHEN dday=18 THEN fakt_wo END)fact3,
+        SUM ( CASE WHEN dday=19 THEN fakt_wo END)fact4,
+        SUM ( CASE WHEN dday=20 THEN fakt_wo END)fact5,
+        SUM ( CASE WHEN dday=21 THEN fakt_wo END)fact6,
+        SUM ( CASE WHEN dday=22 THEN fakt_wo END)fact7,
+        SUM ( CASE WHEN dday=23 THEN fakt_wo END)fact8,
+        SUM ( CASE WHEN dday=24 THEN fakt_wo END)fact9,
+        SUM ( CASE WHEN dday=25 THEN fakt_wo END)fact10,
+        SUM ( CASE WHEN dday=26 THEN fakt_wo END)fact11,
+        SUM ( CASE WHEN dday=27 THEN fakt_wo END)fact12,
+        SUM ( CASE WHEN dday=28 THEN fakt_wo END)fact13,
+        SUM ( CASE WHEN dday=29 THEN fakt_wo END)fact14,
+        SUM ( CASE WHEN dday=30 THEN fakt_wo END)fact15,
         SUM (fakt_wo)                            fact_all,
-        SUM ( CASE WHEN dday=31 THEN fakt_wo END)fact31  ,
-        SUM ( CASE WHEN dday=16 THEN plan_wo END)plan1   ,
-        SUM ( CASE WHEN dday=17 THEN plan_wo END)plan2   ,
-        SUM ( CASE WHEN dday=18 THEN plan_wo END)plan3   ,
-        SUM ( CASE WHEN dday=19 THEN plan_wo END)plan4   ,
-        SUM ( CASE WHEN dday=20 THEN plan_wo END)plan5   ,
-        SUM ( CASE WHEN dday=21 THEN plan_wo END)plan6   ,
-        SUM ( CASE WHEN dday=22 THEN plan_wo END)plan7   ,
-        SUM ( CASE WHEN dday=23 THEN plan_wo END)plan8   ,
-        SUM ( CASE WHEN dday=24 THEN plan_wo END)plan9   ,
-        SUM ( CASE WHEN dday=25 THEN plan_wo END)plan10  ,
-        SUM ( CASE WHEN dday=26 THEN plan_wo END)plan11  ,
-        SUM ( CASE WHEN dday=27 THEN plan_wo END)plan12  ,
-        SUM ( CASE WHEN dday=28 THEN plan_wo END)plan13  ,
-        SUM ( CASE WHEN dday=29 THEN plan_wo END)plan14  ,
-        SUM ( CASE WHEN dday=30 THEN plan_wo END)plan15  ,
-        SUM ( CASE WHEN dday=31 THEN plan_wo END)plan31  ,
+        SUM ( CASE WHEN dday=31 THEN fakt_wo END)fact31,
+        SUM ( CASE WHEN dday=16 THEN plan_wo END)plan1,
+        SUM ( CASE WHEN dday=17 THEN plan_wo END)plan2,
+        SUM ( CASE WHEN dday=18 THEN plan_wo END)plan3,
+        SUM ( CASE WHEN dday=19 THEN plan_wo END)plan4,
+        SUM ( CASE WHEN dday=20 THEN plan_wo END)plan5,
+        SUM ( CASE WHEN dday=21 THEN plan_wo END)plan6,
+        SUM ( CASE WHEN dday=22 THEN plan_wo END)plan7,
+        SUM ( CASE WHEN dday=23 THEN plan_wo END)plan8,
+        SUM ( CASE WHEN dday=24 THEN plan_wo END)plan9,
+        SUM ( CASE WHEN dday=25 THEN plan_wo END)plan10,
+        SUM ( CASE WHEN dday=26 THEN plan_wo END)plan11,
+        SUM ( CASE WHEN dday=27 THEN plan_wo END)plan12,
+        SUM ( CASE WHEN dday=28 THEN plan_wo END)plan13,
+        SUM ( CASE WHEN dday=29 THEN plan_wo END)plan14,
+        SUM ( CASE WHEN dday=30 THEN plan_wo END)plan15,
+        SUM ( CASE WHEN dday=31 THEN plan_wo END)plan31,
         SUM (plan_wo)                            plan_all
 FROM    a1
-GROUP BY wonum                          ,
+GROUP BY wonum ,
         TO_CHAR (SUBSTR (mesto,1,2000)) ,
-        WPTOOL                          ,
-        kolvo                           ,
-        wo_desc                         ,
-        ed_izm                          ,
-        NORM                            ,
+        WPTOOL ,
+        kolvo ,
+        wo_desc,
+        ed_izm ,
+        norm ,
         zadanie]]>
 	</queryString>
 	<field name="WONUM" class="java.lang.String"/>

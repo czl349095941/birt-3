@@ -561,148 +561,55 @@ GROUP BY TO_CHAR (SUBSTR (a1.mesto,1,2000)) ,
                 AND TYPEWORKORDER IN ('Внеплановое', 'Плановое', 'Сопутствующая работа', 'Прочее', 'Путевые обходчики')
                 AND wo.STATUS     IN ('НАПР_НА_УТ', 'ЗАВЕРШ', 'ОТКЛ_РГН', 'ОФОРМЛЕН', 'ЗАКРЫТО')
                 AND TO_CHAR(wo.Actfinish, 'MM')   = $P{month}
-                AND TO_CHAR(WO.ACTFINISH, 'YYYY') = $P{year}
+                AND TO_CHAR(wo.Actfinish, 'YYYY') = $P{year}
         )
-select * from (
- select    a1.Наименов mesto                                                               ,
-           A1.ЕД_ИЗМ                                                                              ,
-           '0' Наименов                                                                            ,
-           a1.tk Тех_Карта                                                                        ,
-           a1.JPDURATION Норма_Времени                                                            ,
-           a1.numvalue                                                                            ,
-           SUM (a1.Plan_wo)                                                     PLAN              ,
-           ROUND(SUM((a1.Plan_wo / a1.numvalue) * To_number(a1.JPDURATION)), 2) AS Норм_ч_месц_плн,
-           sum (case when  Actfinish=1 then fakt_wo end)За_1_Число,
-           sum (case when  Actfinish=2 then fakt_wo end)За_2_Число,
-           sum (case when  Actfinish=3 then fakt_wo end)За_3_Число,
-           sum (case when  Actfinish=4 then fakt_wo end)За_4_Число,
-           sum (case when  Actfinish=5 then fakt_wo end)За_5_Число,
-           sum (case when  Actfinish=6 then fakt_wo end)За_6_Число,
-           sum (case when  Actfinish=7 then fakt_wo end)За_7_Число,
-           sum (case when  Actfinish=8 then fakt_wo end)За_8_Число,
-           sum (case when  Actfinish=9 then fakt_wo end)За_9_Число,
-           sum (case when  Actfinish=10 then fakt_wo end)За_10_Число,
-           sum (case when  Actfinish=11 then fakt_wo end)За_11_Число,
-           sum (case when  Actfinish=12 then fakt_wo end)За_12_Число,
-           sum (case when  Actfinish=13 then fakt_wo end)За_13_Число,
-           sum (case when  Actfinish=14 then fakt_wo end)За_14_Число,
-           sum (case when  Actfinish=15 then fakt_wo end)За_15_Число,
-           sum (case when  Actfinish=1 then labor_hour end)Ч_Ч_1,
-           sum (case when  Actfinish=2 then labor_hour end)Ч_Ч_2,
-           sum (case when  Actfinish=3 then labor_hour end)Ч_Ч_3,
-           sum (case when  Actfinish=4 then labor_hour end)Ч_Ч_4,
-           sum (case when  Actfinish=5 then labor_hour end)Ч_Ч_5,
-           sum (case when  Actfinish=6 then labor_hour end)Ч_Ч_6,
-           sum (case when  Actfinish=7 then labor_hour end)Ч_Ч_7,
-           sum (case when  Actfinish=8 then labor_hour end)Ч_Ч_8,
-           sum (case when  Actfinish=9 then labor_hour end)Ч_Ч_9,
-           sum (case when  Actfinish=10 then labor_hour end)Ч_Ч_10,
-           sum (case when  Actfinish=11 then labor_hour end)Ч_Ч_11,
-           sum (case when  Actfinish=12 then labor_hour end)Ч_Ч_12,
-           sum (case when  Actfinish=13 then labor_hour end)Ч_Ч_13,
-           sum (case when  Actfinish=14 then labor_hour end)Ч_Ч_14,
-           sum (case when  Actfinish=15 then labor_hour end)Ч_Ч_15
-  from     A1 where TYPEWORKORDER in ('Внеплановое', 'Плановое', 'Сопутствующая работа')
-  GROUP BY  --to_char (substr (a1.mesto,1,2000))         ,
-           a1.Ед_Изм     ,
-           a1.Наименов   ,
-           a1.tk         ,
-           a1.JPDURATION ,
-           A1.NUMVALUE
-  union all
-
-  select
-           to_char (substr (a1.mesto,1,2000)) mesto                                                               ,
-           A1.ЕД_ИЗМ                                                                              ,
-           '1' Наименов                                                                            ,
-           a1.tk Тех_Карта                                                                        ,
-           a1.JPDURATION Норма_Времени                                                            ,
-           a1.numvalue                                                                            ,
-           SUM (a1.Plan_wo)                                                     PLAN              ,
-           ROUND(SUM((a1.Plan_wo / a1.numvalue) * To_number(a1.JPDURATION)), 2) AS Норм_ч_месц_плн,
-           sum (case when  Actfinish=1 then fakt_wo end)За_1_Число,
-           sum (case when  Actfinish=2 then fakt_wo end)За_2_Число,
-           sum (case when  Actfinish=3 then fakt_wo end)За_3_Число,
-           sum (case when  Actfinish=4 then fakt_wo end)За_4_Число,
-           sum (case when  Actfinish=5 then fakt_wo end)За_5_Число,
-           sum (case when  Actfinish=6 then fakt_wo end)За_6_Число,
-           sum (case when  Actfinish=7 then fakt_wo end)За_7_Число,
-           sum (case when  Actfinish=8 then fakt_wo end)За_8_Число,
-           sum (case when  Actfinish=9 then fakt_wo end)За_9_Число,
-           sum (case when  Actfinish=10 then fakt_wo end)За_10_Число,
-           sum (case when  Actfinish=11 then fakt_wo end)За_11_Число,
-           sum (case when  Actfinish=12 then fakt_wo end)За_12_Число,
-           sum (case when  Actfinish=13 then fakt_wo end)За_13_Число,
-           sum (case when  Actfinish=14 then fakt_wo end)За_14_Число,
-           sum (case when  Actfinish=15 then fakt_wo end)За_15_Число,
-           sum (case when  Actfinish=1 then labor_hour end)Ч_Ч_1,
-           sum (case when  Actfinish=2 then labor_hour end)Ч_Ч_2,
-           sum (case when  Actfinish=3 then labor_hour end)Ч_Ч_3,
-           sum (case when  Actfinish=4 then labor_hour end)Ч_Ч_4,
-           sum (case when  Actfinish=5 then labor_hour end)Ч_Ч_5,
-           sum (case when  Actfinish=6 then labor_hour end)Ч_Ч_6,
-           sum (case when  Actfinish=7 then labor_hour end)Ч_Ч_7,
-           sum (case when  Actfinish=8 then labor_hour end)Ч_Ч_8,
-           sum (case when  Actfinish=9 then labor_hour end)Ч_Ч_9,
-           sum (case when  Actfinish=10 then labor_hour end)Ч_Ч_10,
-           sum (case when  Actfinish=11 then labor_hour end)Ч_Ч_11,
-           sum (case when  Actfinish=12 then labor_hour end)Ч_Ч_12,
-           sum (case when  Actfinish=13 then labor_hour end)Ч_Ч_13,
-           sum (case when  Actfinish=14 then labor_hour end)Ч_Ч_14,
-           sum (case when  Actfinish=15 then labor_hour end)Ч_Ч_15
-  from     A1 where TYPEWORKORDER in ('Внеплановое', 'Плановое', 'Сопутствующая работа')
-  GROUP BY to_char (substr (a1.mesto,1,2000))         ,
-           a1.Ед_Изм     ,
-           a1.Наименов   ,
-           a1.tk         ,
-           A1.JPDURATION ,
-           a1.numvalue
-
-
-  union all
-
-   SELECT  'invis' MESTO                                                               ,
-           '' ЕД_ИЗМ                                                                              ,
-          to_char(nvl(case when TYPEWORKORDER IN ('Путевые обходчики') then 'Осмотр пути' else NVL(a1.OTHERWORK, cls.description) end, 'Прочие работы')) Наименов,
-           'я' Тех_Карта                                                                        ,
-           to_number('') Норма_Времени                                                            ,
-           to_number('') numvalue                                                                            ,
-           SUM (a1.Plan_wo)                                                     PLAN              ,
-           ROUND(SUM((a1.Plan_wo / a1.numvalue) * To_number(a1.JPDURATION)), 2) AS Норм_ч_месц_плн,
-           sum (case when  Actfinish=1 then fakt_wo end)За_1_Число,
-           sum (case when  Actfinish=2 then fakt_wo end)За_2_Число,
-           sum (case when  Actfinish=3 then fakt_wo end)За_3_Число,
-           sum (case when  Actfinish=4 then fakt_wo end)За_4_Число,
-           sum (case when  Actfinish=5 then fakt_wo end)За_5_Число,
-           sum (case when  Actfinish=6 then fakt_wo end)За_6_Число,
-           sum (case when  Actfinish=7 then fakt_wo end)За_7_Число,
-           sum (case when  Actfinish=8 then fakt_wo end)За_8_Число,
-           sum (case when  Actfinish=9 then fakt_wo end)За_9_Число,
-           sum (case when  Actfinish=10 then fakt_wo end)За_10_Число,
-           sum (case when  Actfinish=11 then fakt_wo end)За_11_Число,
-           sum (case when  Actfinish=12 then fakt_wo end)За_12_Число,
-           sum (case when  Actfinish=13 then fakt_wo end)За_13_Число,
-           sum (case when  Actfinish=14 then fakt_wo end)За_14_Число,
-           sum (case when  Actfinish=15 then fakt_wo end)За_15_Число,
-           sum (case when  Actfinish=1 then labor_hour end)Ч_Ч_1,
-           sum (case when  Actfinish=2 then labor_hour end)Ч_Ч_2,
-           sum (case when  Actfinish=3 then labor_hour end)Ч_Ч_3,
-           sum (case when  Actfinish=4 then labor_hour end)Ч_Ч_4,
-           sum (case when  Actfinish=5 then labor_hour end)Ч_Ч_5,
-           sum (case when  Actfinish=6 then labor_hour end)Ч_Ч_6,
-           sum (case when  Actfinish=7 then labor_hour end)Ч_Ч_7,
-           sum (case when  Actfinish=8 then labor_hour end)Ч_Ч_8,
-           sum (case when  Actfinish=9 then labor_hour end)Ч_Ч_9,
-           sum (case when  Actfinish=10 then labor_hour end)Ч_Ч_10,
-           sum (case when  Actfinish=11 then labor_hour end)Ч_Ч_11,
-           sum (case when  Actfinish=12 then labor_hour end)Ч_Ч_12,
-           sum (case when  Actfinish=13 then labor_hour end)Ч_Ч_13,
-           sum (case when  Actfinish=14 then labor_hour end)Ч_Ч_14,
-           sum (case when  Actfinish=15 then labor_hour end)Ч_Ч_15
-  from     A1 left join MAXIMO.CLASSSTRUCTURE CLS on CLS.CLASSSTRUCTUREID = A1.CLASSSTRUCTUREID where TYPEWORKORDER in ('Прочее', 'Путевые обходчики')
-  group by NVL(case when TYPEWORKORDER in ('Путевые обходчики') then 'Осмотр пути' else NVL(A1.OTHERWORK, CLS.DESCRIPTION) end, 'Прочие работы')
- )
-   order by  ТЕХ_КАРТА, ЕД_ИЗМ, наименов]]>
+SELECT  TO_CHAR (SUBSTR (a1.mesto,1,2000)) mesto ,
+        a1.Ед_Изм ,
+        a1.Наименов ,
+        a1.tk Тех_Карта ,
+        a1.JPDURATION Норма_Времени ,
+        a1.numvalue ,
+        SUM (a1.Plan_wo)                                                     PLAN ,
+        ROUND(SUM((a1.Plan_wo / a1.numvalue) * To_number(a1.JPDURATION)), 2) AS Норм_ч_месц_плн,
+        SUM ( CASE WHEN Actfinish=1 THEN fakt_wo END)За_1_Число,
+        SUM ( CASE WHEN Actfinish=2 THEN fakt_wo END)За_2_Число,
+        SUM ( CASE WHEN Actfinish=3 THEN fakt_wo END)За_3_Число,
+        SUM ( CASE WHEN Actfinish=4 THEN fakt_wo END)За_4_Число,
+        SUM ( CASE WHEN Actfinish=5 THEN fakt_wo END)За_5_Число,
+        SUM ( CASE WHEN Actfinish=6 THEN fakt_wo END)За_6_Число,
+        SUM ( CASE WHEN Actfinish=7 THEN fakt_wo END)За_7_Число,
+        SUM ( CASE WHEN Actfinish=8 THEN fakt_wo END)За_8_Число,
+        SUM ( CASE WHEN Actfinish=9 THEN fakt_wo END)За_9_Число,
+        SUM ( CASE WHEN Actfinish=10 THEN fakt_wo END)За_10_Число,
+        SUM ( CASE WHEN Actfinish=11 THEN fakt_wo END)За_11_Число,
+        SUM ( CASE WHEN Actfinish=12 THEN fakt_wo END)За_12_Число,
+        SUM ( CASE WHEN Actfinish=13 THEN fakt_wo END)За_13_Число,
+        SUM ( CASE WHEN Actfinish=14 THEN fakt_wo END)За_14_Число,
+        SUM ( CASE WHEN Actfinish=15 THEN fakt_wo END)За_15_Число,
+        SUM ( CASE WHEN Actfinish=1 THEN labor_hour END)Ч_Ч_1,
+        SUM ( CASE WHEN Actfinish=2 THEN labor_hour END)Ч_Ч_2,
+        SUM ( CASE WHEN Actfinish=3 THEN labor_hour END)Ч_Ч_3,
+        SUM ( CASE WHEN Actfinish=4 THEN labor_hour END)Ч_Ч_4,
+        SUM ( CASE WHEN Actfinish=5 THEN labor_hour END)Ч_Ч_5,
+        SUM ( CASE WHEN Actfinish=6 THEN labor_hour END)Ч_Ч_6,
+        SUM ( CASE WHEN Actfinish=7 THEN labor_hour END)Ч_Ч_7,
+        SUM ( CASE WHEN Actfinish=8 THEN labor_hour END)Ч_Ч_8,
+        SUM ( CASE WHEN Actfinish=9 THEN labor_hour END)Ч_Ч_9,
+        SUM ( CASE WHEN Actfinish=10 THEN labor_hour END)Ч_Ч_10,
+        SUM ( CASE WHEN Actfinish=11 THEN labor_hour END)Ч_Ч_11,
+        SUM ( CASE WHEN Actfinish=12 THEN labor_hour END)Ч_Ч_12,
+        SUM ( CASE WHEN Actfinish=13 THEN labor_hour END)Ч_Ч_13,
+        SUM ( CASE WHEN Actfinish=14 THEN labor_hour END)Ч_Ч_14,
+        SUM ( CASE WHEN Actfinish=15 THEN labor_hour END)Ч_Ч_15
+FROM    a1
+WHERE   TYPEWORKORDER IN ('Внеплановое', 'Плановое', 'Сопутствующая работа')
+GROUP BY TO_CHAR (SUBSTR (a1.mesto,1,2000)) ,
+        a1.Ед_Изм ,
+        a1.Наименов ,
+        a1.tk ,
+        a1.JPDURATION ,
+        a1.numvalue
+ORDER BY a1.tk]]>
 	</queryString>
 	<field name="MESTO" class="java.lang.String"/>
 	<field name="ЕД_ИЗМ" class="java.lang.String"/>
@@ -742,6 +649,720 @@ select * from (
 	<field name="Ч_Ч_13" class="java.math.BigDecimal"/>
 	<field name="Ч_Ч_14" class="java.math.BigDecimal"/>
 	<field name="Ч_Ч_15" class="java.math.BigDecimal"/>
+	<variable name="PLAN_1" class="java.math.BigDecimal" resetType="Group" resetGroup="tk" calculation="Sum">
+		<variableExpression><![CDATA[$F{PLAN}]]></variableExpression>
+	</variable>
+	<variable name="НОРМ_Ч_МЕСЦ_ПЛН_1" class="java.math.BigDecimal" resetType="Group" resetGroup="tk" calculation="Sum">
+		<variableExpression><![CDATA[$F{НОРМ_Ч_МЕСЦ_ПЛН}]]></variableExpression>
+	</variable>
+	<variable name="Ч_Ч_1_1" class="java.math.BigDecimal" resetType="Group" resetGroup="tk" calculation="Sum">
+		<variableExpression><![CDATA[$F{Ч_Ч_1}]]></variableExpression>
+	</variable>
+	<variable name="Ч_Ч_2_1" class="java.math.BigDecimal" resetType="Group" resetGroup="tk" calculation="Sum">
+		<variableExpression><![CDATA[$F{Ч_Ч_2}]]></variableExpression>
+	</variable>
+	<variable name="Ч_Ч_3_1" class="java.math.BigDecimal" resetType="Group" resetGroup="tk" calculation="Sum">
+		<variableExpression><![CDATA[$F{Ч_Ч_3}]]></variableExpression>
+	</variable>
+	<variable name="Ч_Ч_4_1" class="java.math.BigDecimal" resetType="Group" resetGroup="tk" calculation="Sum">
+		<variableExpression><![CDATA[$F{Ч_Ч_4}]]></variableExpression>
+	</variable>
+	<variable name="Ч_Ч_5_1" class="java.math.BigDecimal" resetType="Group" resetGroup="tk" calculation="Sum">
+		<variableExpression><![CDATA[$F{Ч_Ч_5}]]></variableExpression>
+	</variable>
+	<variable name="Ч_Ч_6_1" class="java.math.BigDecimal" resetType="Group" resetGroup="tk" calculation="Sum">
+		<variableExpression><![CDATA[$F{Ч_Ч_6}]]></variableExpression>
+	</variable>
+	<variable name="Ч_Ч_7_1" class="java.math.BigDecimal" resetType="Group" resetGroup="tk" calculation="Sum">
+		<variableExpression><![CDATA[$F{Ч_Ч_7}]]></variableExpression>
+	</variable>
+	<variable name="Ч_Ч_8_1" class="java.math.BigDecimal" resetType="Group" resetGroup="tk" calculation="Sum">
+		<variableExpression><![CDATA[$F{Ч_Ч_8}]]></variableExpression>
+	</variable>
+	<variable name="Ч_Ч_9_1" class="java.math.BigDecimal" resetType="Group" resetGroup="tk" calculation="Sum">
+		<variableExpression><![CDATA[$F{Ч_Ч_9}]]></variableExpression>
+	</variable>
+	<variable name="Ч_Ч_10_1" class="java.math.BigDecimal" resetType="Group" resetGroup="tk" calculation="Sum">
+		<variableExpression><![CDATA[$F{Ч_Ч_10}]]></variableExpression>
+	</variable>
+	<variable name="Ч_Ч_11_1" class="java.math.BigDecimal" resetType="Group" resetGroup="tk" calculation="Sum">
+		<variableExpression><![CDATA[$F{Ч_Ч_11}]]></variableExpression>
+	</variable>
+	<variable name="Ч_Ч_12_1" class="java.math.BigDecimal" resetType="Group" resetGroup="tk" calculation="Sum">
+		<variableExpression><![CDATA[$F{Ч_Ч_12}]]></variableExpression>
+	</variable>
+	<variable name="Ч_Ч_13_1" class="java.math.BigDecimal" resetType="Group" resetGroup="tk" calculation="Sum">
+		<variableExpression><![CDATA[$F{Ч_Ч_13}]]></variableExpression>
+	</variable>
+	<variable name="Ч_Ч_14_1" class="java.math.BigDecimal" resetType="Group" resetGroup="tk" calculation="Sum">
+		<variableExpression><![CDATA[$F{Ч_Ч_14}]]></variableExpression>
+	</variable>
+	<variable name="Ч_Ч_15_1" class="java.math.BigDecimal" resetType="Group" resetGroup="tk" calculation="Sum">
+		<variableExpression><![CDATA[$F{Ч_Ч_15}]]></variableExpression>
+	</variable>
+	<variable name="ЗА_1_ЧИСЛО_1" class="java.math.BigDecimal" resetType="Group" resetGroup="tk" calculation="Sum">
+		<variableExpression><![CDATA[$F{ЗА_1_ЧИСЛО}]]></variableExpression>
+	</variable>
+	<variable name="ЗА_2_ЧИСЛО_1" class="java.math.BigDecimal" resetType="Group" resetGroup="tk" calculation="Sum">
+		<variableExpression><![CDATA[$F{ЗА_2_ЧИСЛО}]]></variableExpression>
+	</variable>
+	<variable name="ЗА_3_ЧИСЛО_1" class="java.math.BigDecimal" resetType="Group" resetGroup="tk" calculation="Sum">
+		<variableExpression><![CDATA[$F{ЗА_3_ЧИСЛО}]]></variableExpression>
+	</variable>
+	<variable name="ЗА_4_ЧИСЛО_1" class="java.math.BigDecimal" resetType="Group" resetGroup="tk" calculation="Sum">
+		<variableExpression><![CDATA[$F{ЗА_4_ЧИСЛО}]]></variableExpression>
+	</variable>
+	<variable name="ЗА_5_ЧИСЛО_1" class="java.math.BigDecimal" resetType="Group" resetGroup="tk" calculation="Sum">
+		<variableExpression><![CDATA[$F{ЗА_5_ЧИСЛО}]]></variableExpression>
+	</variable>
+	<variable name="ЗА_6_ЧИСЛО_1" class="java.math.BigDecimal" resetType="Group" resetGroup="tk" calculation="Sum">
+		<variableExpression><![CDATA[$F{ЗА_6_ЧИСЛО}]]></variableExpression>
+	</variable>
+	<variable name="ЗА_7_ЧИСЛО_1" class="java.math.BigDecimal" resetType="Group" resetGroup="tk" calculation="Sum">
+		<variableExpression><![CDATA[$F{ЗА_7_ЧИСЛО}]]></variableExpression>
+	</variable>
+	<variable name="ЗА_8_ЧИСЛО_1" class="java.math.BigDecimal" resetType="Group" resetGroup="tk" calculation="Sum">
+		<variableExpression><![CDATA[$F{ЗА_8_ЧИСЛО}]]></variableExpression>
+	</variable>
+	<variable name="ЗА_9_ЧИСЛО_1" class="java.math.BigDecimal" resetType="Group" resetGroup="tk" calculation="Sum">
+		<variableExpression><![CDATA[$F{ЗА_9_ЧИСЛО}]]></variableExpression>
+	</variable>
+	<variable name="ЗА_10_ЧИСЛО_1" class="java.math.BigDecimal" resetType="Group" resetGroup="tk" calculation="Sum">
+		<variableExpression><![CDATA[$F{ЗА_10_ЧИСЛО}]]></variableExpression>
+	</variable>
+	<variable name="ЗА_11_ЧИСЛО_1" class="java.math.BigDecimal" resetType="Group" resetGroup="tk" calculation="Sum">
+		<variableExpression><![CDATA[$F{ЗА_11_ЧИСЛО}]]></variableExpression>
+	</variable>
+	<variable name="Ч_Ч_12_2" class="java.math.BigDecimal" resetType="Group" resetGroup="tk" calculation="Sum">
+		<variableExpression><![CDATA[$F{Ч_Ч_12}]]></variableExpression>
+	</variable>
+	<variable name="ЗА_13_ЧИСЛО_1" class="java.math.BigDecimal" resetType="Group" resetGroup="tk" calculation="Sum">
+		<variableExpression><![CDATA[$F{ЗА_13_ЧИСЛО}]]></variableExpression>
+	</variable>
+	<variable name="Ч_Ч_14_2" class="java.math.BigDecimal" resetType="Group" resetGroup="tk" calculation="Sum">
+		<variableExpression><![CDATA[$F{Ч_Ч_14}]]></variableExpression>
+	</variable>
+	<variable name="Ч_Ч_15_2" class="java.math.BigDecimal" resetType="Group" resetGroup="tk" calculation="Sum">
+		<variableExpression><![CDATA[$F{Ч_Ч_15}]]></variableExpression>
+	</variable>
+	<variable name="ЗА_12_ЧИСЛО_1" class="java.math.BigDecimal" resetType="Group" resetGroup="tk" calculation="Sum">
+		<variableExpression><![CDATA[$F{ЗА_12_ЧИСЛО}]]></variableExpression>
+	</variable>
+	<variable name="ЗА_14_ЧИСЛО_1" class="java.math.BigDecimal" resetType="Group" resetGroup="tk" calculation="Sum">
+		<variableExpression><![CDATA[$F{ЗА_14_ЧИСЛО}]]></variableExpression>
+	</variable>
+	<variable name="ЗА_15_ЧИСЛО_1" class="java.math.BigDecimal" resetType="Group" resetGroup="tk" calculation="Sum">
+		<variableExpression><![CDATA[$F{ЗА_15_ЧИСЛО}]]></variableExpression>
+	</variable>
+	<group name="tk">
+		<groupExpression><![CDATA[$F{ТЕХ_КАРТА}]]></groupExpression>
+		<groupHeader>
+			<band height="54">
+				<textField>
+					<reportElement mode="Opaque" x="19" y="0" width="220" height="54" backcolor="#999999" uuid="65d2403a-e171-44cb-86c1-8c85cba1dec8"/>
+					<box>
+						<topPen lineWidth="0.75"/>
+						<leftPen lineWidth="0.75"/>
+						<bottomPen lineWidth="0.75"/>
+						<rightPen lineWidth="0.75"/>
+					</box>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Times New Roman" size="9"/>
+						<paragraph leftIndent="1" rightIndent="1"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{НАИМЕНОВ}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement mode="Opaque" x="239" y="0" width="55" height="54" backcolor="#999999" uuid="eb56af18-52f4-404f-b2f3-70b26e85bf7d"/>
+					<box>
+						<topPen lineWidth="0.75"/>
+						<leftPen lineWidth="0.75"/>
+						<bottomPen lineWidth="0.75"/>
+						<rightPen lineWidth="0.75"/>
+					</box>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Times New Roman" size="9"/>
+						<paragraph leftIndent="1" rightIndent="1"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{ЕД_ИЗМ}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement mode="Opaque" x="294" y="0" width="66" height="29" backcolor="#999999" uuid="d3b3cb17-833e-4a6e-8530-a61d4aa5f1cf"/>
+					<box>
+						<topPen lineWidth="0.75"/>
+						<leftPen lineWidth="0.75"/>
+						<bottomPen lineWidth="0.75"/>
+						<rightPen lineWidth="0.75"/>
+					</box>
+					<textElement textAlignment="Right">
+						<font fontName="Times New Roman" size="9"/>
+						<paragraph leftIndent="1" rightIndent="1"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{НОРМА_ВРЕМЕНИ}]]></textFieldExpression>
+				</textField>
+				<textField evaluationTime="Group" evaluationGroup="tk" pattern="###0.0;-###0.0" isBlankWhenNull="true">
+					<reportElement mode="Opaque" x="360" y="0" width="19" height="54" forecolor="#000000" backcolor="#999999" uuid="926b3d69-d770-4ea2-b369-187e31564ae2"/>
+					<box>
+						<topPen lineWidth="0.75"/>
+						<leftPen lineWidth="0.75"/>
+						<bottomPen lineWidth="0.75"/>
+						<rightPen lineWidth="0.75"/>
+					</box>
+					<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" markup="none">
+						<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+						<paragraph lineSpacing="Single" leftIndent="1" rightIndent="1"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{PLAN_1}]]></textFieldExpression>
+				</textField>
+				<textField evaluationTime="Group" evaluationGroup="tk" pattern="###0.0;-###0.0" isBlankWhenNull="true">
+					<reportElement mode="Opaque" x="379" y="0" width="24" height="54" forecolor="#000000" backcolor="#999999" uuid="9417e7a4-3e24-4fb4-a5d3-68d37f809c6f"/>
+					<box>
+						<topPen lineWidth="0.75"/>
+						<leftPen lineWidth="0.75"/>
+						<bottomPen lineWidth="0.75"/>
+						<rightPen lineWidth="0.75"/>
+					</box>
+					<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" markup="none">
+						<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+						<paragraph lineSpacing="Single" leftIndent="1" rightIndent="1"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{НОРМ_Ч_МЕСЦ_ПЛН_1}]]></textFieldExpression>
+				</textField>
+				<textField evaluationTime="Group" evaluationGroup="tk" pattern="###0.0;-###0.0" isBlankWhenNull="true">
+					<reportElement mode="Opaque" x="403" y="0" width="21" height="29" forecolor="#000000" backcolor="#999999" uuid="d5417912-d85c-4f66-926d-3519896eef92"/>
+					<box>
+						<topPen lineWidth="0.75"/>
+						<leftPen lineWidth="0.75"/>
+						<bottomPen lineWidth="0.75"/>
+						<rightPen lineWidth="0.75"/>
+					</box>
+					<textElement textAlignment="Right" verticalAlignment="Bottom" rotation="None" markup="none">
+						<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+						<paragraph lineSpacing="Single" leftIndent="1" rightIndent="1"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{Ч_Ч_1_1}]]></textFieldExpression>
+				</textField>
+				<textField evaluationTime="Group" evaluationGroup="tk" pattern="###0.0;-###0.0" isBlankWhenNull="true">
+					<reportElement mode="Opaque" x="424" y="0" width="21" height="29" forecolor="#000000" backcolor="#999999" uuid="4c5ff50a-ffd3-45c8-b8ed-2dcd25df5443"/>
+					<box>
+						<topPen lineWidth="0.75"/>
+						<leftPen lineWidth="0.75"/>
+						<bottomPen lineWidth="0.75"/>
+						<rightPen lineWidth="0.75"/>
+					</box>
+					<textElement textAlignment="Right" verticalAlignment="Bottom" rotation="None" markup="none">
+						<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+						<paragraph lineSpacing="Single" leftIndent="1" rightIndent="1"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{Ч_Ч_2_1}]]></textFieldExpression>
+				</textField>
+				<textField evaluationTime="Group" evaluationGroup="tk" pattern="###0.0;-###0.0" isBlankWhenNull="true">
+					<reportElement mode="Opaque" x="445" y="0" width="21" height="29" forecolor="#000000" backcolor="#999999" uuid="5ce88906-06b0-4587-a162-5b666f05768f"/>
+					<box>
+						<topPen lineWidth="0.75"/>
+						<leftPen lineWidth="0.75"/>
+						<bottomPen lineWidth="0.75"/>
+						<rightPen lineWidth="0.75"/>
+					</box>
+					<textElement textAlignment="Right" verticalAlignment="Bottom" rotation="None" markup="none">
+						<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+						<paragraph lineSpacing="Single" leftIndent="1" rightIndent="1"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{Ч_Ч_3_1}]]></textFieldExpression>
+				</textField>
+				<textField evaluationTime="Group" evaluationGroup="tk" pattern="###0.0;-###0.0" isBlankWhenNull="true">
+					<reportElement mode="Opaque" x="466" y="0" width="21" height="29" forecolor="#000000" backcolor="#999999" uuid="41417e51-0d54-4d95-a940-ebf83a9147c9"/>
+					<box>
+						<topPen lineWidth="0.75"/>
+						<leftPen lineWidth="0.75"/>
+						<bottomPen lineWidth="0.75"/>
+						<rightPen lineWidth="0.75"/>
+					</box>
+					<textElement textAlignment="Right" verticalAlignment="Bottom" rotation="None" markup="none">
+						<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+						<paragraph lineSpacing="Single" leftIndent="1" rightIndent="1"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{Ч_Ч_4_1}]]></textFieldExpression>
+				</textField>
+				<textField evaluationTime="Group" evaluationGroup="tk" pattern="###0.0;-###0.0" isBlankWhenNull="true">
+					<reportElement mode="Opaque" x="487" y="0" width="21" height="29" forecolor="#000000" backcolor="#999999" uuid="4aa9eebc-78cd-47a6-8f18-7eab8e7cef53"/>
+					<box>
+						<topPen lineWidth="0.75"/>
+						<leftPen lineWidth="0.75"/>
+						<bottomPen lineWidth="0.75"/>
+						<rightPen lineWidth="0.75"/>
+					</box>
+					<textElement textAlignment="Right" verticalAlignment="Bottom" rotation="None" markup="none">
+						<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+						<paragraph lineSpacing="Single" leftIndent="1" rightIndent="1"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{Ч_Ч_5_1}]]></textFieldExpression>
+				</textField>
+				<textField evaluationTime="Group" evaluationGroup="tk" pattern="###0.0;-###0.0" isBlankWhenNull="true">
+					<reportElement mode="Opaque" x="508" y="0" width="21" height="29" forecolor="#000000" backcolor="#999999" uuid="180a5357-f631-4049-baa3-f7cc578d7d51"/>
+					<box>
+						<topPen lineWidth="0.75"/>
+						<leftPen lineWidth="0.75"/>
+						<bottomPen lineWidth="0.75"/>
+						<rightPen lineWidth="0.75"/>
+					</box>
+					<textElement textAlignment="Right" verticalAlignment="Bottom" rotation="None" markup="none">
+						<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+						<paragraph lineSpacing="Single" leftIndent="1" rightIndent="1"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{Ч_Ч_6_1}]]></textFieldExpression>
+				</textField>
+				<textField evaluationTime="Group" evaluationGroup="tk" pattern="###0.0;-###0.0" isBlankWhenNull="true">
+					<reportElement mode="Opaque" x="529" y="0" width="21" height="29" forecolor="#000000" backcolor="#999999" uuid="5ceac465-f1c5-4a4b-9d97-9296313b1b08"/>
+					<box>
+						<topPen lineWidth="0.75"/>
+						<leftPen lineWidth="0.75"/>
+						<bottomPen lineWidth="0.75"/>
+						<rightPen lineWidth="0.75"/>
+					</box>
+					<textElement textAlignment="Right" verticalAlignment="Bottom" rotation="None" markup="none">
+						<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+						<paragraph lineSpacing="Single" leftIndent="1" rightIndent="1"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{Ч_Ч_7_1}]]></textFieldExpression>
+				</textField>
+				<textField evaluationTime="Group" evaluationGroup="tk" pattern="###0.0;-###0.0" isBlankWhenNull="true">
+					<reportElement mode="Opaque" x="550" y="0" width="21" height="29" forecolor="#000000" backcolor="#999999" uuid="1a0f1ddb-3aad-4252-a63b-550887561a04"/>
+					<box>
+						<topPen lineWidth="0.75"/>
+						<leftPen lineWidth="0.75"/>
+						<bottomPen lineWidth="0.75"/>
+						<rightPen lineWidth="0.75"/>
+					</box>
+					<textElement textAlignment="Right" verticalAlignment="Bottom" rotation="None" markup="none">
+						<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+						<paragraph lineSpacing="Single" leftIndent="1" rightIndent="1"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{Ч_Ч_8_1}]]></textFieldExpression>
+				</textField>
+				<textField evaluationTime="Group" evaluationGroup="tk" pattern="###0.0;-###0.0" isBlankWhenNull="true">
+					<reportElement mode="Opaque" x="571" y="0" width="21" height="29" forecolor="#000000" backcolor="#999999" uuid="1e007111-4953-452e-b6a0-59da28354aa7"/>
+					<box>
+						<topPen lineWidth="0.75"/>
+						<leftPen lineWidth="0.75"/>
+						<bottomPen lineWidth="0.75"/>
+						<rightPen lineWidth="0.75"/>
+					</box>
+					<textElement textAlignment="Right" verticalAlignment="Bottom" rotation="None" markup="none">
+						<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+						<paragraph lineSpacing="Single" leftIndent="1" rightIndent="1"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{Ч_Ч_9_1}]]></textFieldExpression>
+				</textField>
+				<textField evaluationTime="Group" evaluationGroup="tk" pattern="###0.0;-###0.0" isBlankWhenNull="true">
+					<reportElement mode="Opaque" x="592" y="0" width="21" height="29" forecolor="#000000" backcolor="#999999" uuid="e0d8de0e-297b-4c10-8f28-1bcbe8daa925"/>
+					<box>
+						<topPen lineWidth="0.75"/>
+						<leftPen lineWidth="0.75"/>
+						<bottomPen lineWidth="0.75"/>
+						<rightPen lineWidth="0.75"/>
+					</box>
+					<textElement textAlignment="Right" verticalAlignment="Bottom" rotation="None" markup="none">
+						<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+						<paragraph lineSpacing="Single" leftIndent="1" rightIndent="1"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{Ч_Ч_10_1}]]></textFieldExpression>
+				</textField>
+				<textField evaluationTime="Group" evaluationGroup="tk" pattern="###0.0;-###0.0" isBlankWhenNull="true">
+					<reportElement mode="Opaque" x="613" y="0" width="21" height="29" forecolor="#000000" backcolor="#999999" uuid="710a41dd-73fd-4503-a720-3b571c0b9c0d"/>
+					<box>
+						<topPen lineWidth="0.75"/>
+						<leftPen lineWidth="0.75"/>
+						<bottomPen lineWidth="0.75"/>
+						<rightPen lineWidth="0.75"/>
+					</box>
+					<textElement textAlignment="Right" verticalAlignment="Bottom" rotation="None" markup="none">
+						<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+						<paragraph lineSpacing="Single" leftIndent="1" rightIndent="1"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{Ч_Ч_11_1}]]></textFieldExpression>
+				</textField>
+				<textField evaluationTime="Group" evaluationGroup="tk" pattern="###0.0;-###0.0" isBlankWhenNull="true">
+					<reportElement mode="Opaque" x="634" y="0" width="21" height="29" forecolor="#000000" backcolor="#999999" uuid="730d728d-9cb9-4978-b17b-0e48f3b1d292"/>
+					<box>
+						<topPen lineWidth="0.75"/>
+						<leftPen lineWidth="0.75"/>
+						<bottomPen lineWidth="0.75"/>
+						<rightPen lineWidth="0.75"/>
+					</box>
+					<textElement textAlignment="Right" verticalAlignment="Bottom" rotation="None" markup="none">
+						<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+						<paragraph lineSpacing="Single" leftIndent="1" rightIndent="1"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{Ч_Ч_12_1}]]></textFieldExpression>
+				</textField>
+				<textField evaluationTime="Group" evaluationGroup="tk" pattern="###0.0;-###0.0" isBlankWhenNull="true">
+					<reportElement mode="Opaque" x="655" y="0" width="21" height="29" forecolor="#000000" backcolor="#999999" uuid="3402b339-1a42-43d2-b7c7-1990cb782b31"/>
+					<box>
+						<topPen lineWidth="0.75"/>
+						<leftPen lineWidth="0.75"/>
+						<bottomPen lineWidth="0.75"/>
+						<rightPen lineWidth="0.75"/>
+					</box>
+					<textElement textAlignment="Right" verticalAlignment="Bottom" rotation="None" markup="none">
+						<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+						<paragraph lineSpacing="Single" leftIndent="1" rightIndent="1"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{Ч_Ч_13_1}]]></textFieldExpression>
+				</textField>
+				<textField evaluationTime="Group" evaluationGroup="tk" pattern="###0.0;-###0.0" isBlankWhenNull="true">
+					<reportElement mode="Opaque" x="676" y="0" width="21" height="29" forecolor="#000000" backcolor="#999999" uuid="90d1727a-2f0a-42ac-817a-d7b565e593ea"/>
+					<box>
+						<topPen lineWidth="0.75"/>
+						<leftPen lineWidth="0.75"/>
+						<bottomPen lineWidth="0.75"/>
+						<rightPen lineWidth="0.75"/>
+					</box>
+					<textElement textAlignment="Right" verticalAlignment="Bottom" rotation="None" markup="none">
+						<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+						<paragraph lineSpacing="Single" leftIndent="1" rightIndent="1"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{Ч_Ч_14_1}]]></textFieldExpression>
+				</textField>
+				<textField evaluationTime="Group" evaluationGroup="tk" pattern="###0.0;-###0.0" isBlankWhenNull="true">
+					<reportElement mode="Opaque" x="697" y="0" width="21" height="29" forecolor="#000000" backcolor="#999999" uuid="4e6bcd8d-ee80-4fde-a0b1-bdd1b3443106"/>
+					<box>
+						<topPen lineWidth="0.75"/>
+						<leftPen lineWidth="0.75"/>
+						<bottomPen lineWidth="0.75"/>
+						<rightPen lineWidth="0.75"/>
+					</box>
+					<textElement textAlignment="Right" verticalAlignment="Bottom" rotation="None" markup="none">
+						<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+						<paragraph lineSpacing="Single" leftIndent="1" rightIndent="1"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{Ч_Ч_15_1}]]></textFieldExpression>
+				</textField>
+				<textField evaluationTime="Group" evaluationGroup="tk" pattern="###0.0;-###0.0" isBlankWhenNull="true">
+					<reportElement mode="Opaque" x="403" y="29" width="21" height="25" forecolor="#000000" backcolor="#999999" uuid="a605cc45-b9bf-461b-8d3c-d0651be92bcd"/>
+					<box>
+						<topPen lineWidth="0.75"/>
+						<leftPen lineWidth="0.75"/>
+						<bottomPen lineWidth="0.75"/>
+						<rightPen lineWidth="0.75"/>
+					</box>
+					<textElement textAlignment="Right" verticalAlignment="Bottom" rotation="None" markup="none">
+						<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+						<paragraph lineSpacing="Single" leftIndent="1" rightIndent="1"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{ЗА_1_ЧИСЛО_1}]]></textFieldExpression>
+				</textField>
+				<textField evaluationTime="Group" evaluationGroup="tk" pattern="###0.0;-###0.0" isBlankWhenNull="true">
+					<reportElement mode="Opaque" x="424" y="29" width="21" height="25" forecolor="#000000" backcolor="#999999" uuid="b4c7f0d9-d106-4f71-aec3-82cf98459c67"/>
+					<box>
+						<topPen lineWidth="0.75"/>
+						<leftPen lineWidth="0.75"/>
+						<bottomPen lineWidth="0.75"/>
+						<rightPen lineWidth="0.75"/>
+					</box>
+					<textElement textAlignment="Right" verticalAlignment="Bottom" rotation="None" markup="none">
+						<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+						<paragraph lineSpacing="Single" leftIndent="1" rightIndent="1"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{ЗА_2_ЧИСЛО_1}]]></textFieldExpression>
+				</textField>
+				<textField evaluationTime="Group" evaluationGroup="tk" pattern="###0.0;-###0.0" isBlankWhenNull="true">
+					<reportElement mode="Opaque" x="445" y="29" width="21" height="25" forecolor="#000000" backcolor="#999999" uuid="543d5da5-60a1-44fd-8f83-77d522130fb8"/>
+					<box>
+						<topPen lineWidth="0.75"/>
+						<leftPen lineWidth="0.75"/>
+						<bottomPen lineWidth="0.75"/>
+						<rightPen lineWidth="0.75"/>
+					</box>
+					<textElement textAlignment="Right" verticalAlignment="Bottom" rotation="None" markup="none">
+						<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+						<paragraph lineSpacing="Single" leftIndent="1" rightIndent="1"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{ЗА_3_ЧИСЛО_1}]]></textFieldExpression>
+				</textField>
+				<textField evaluationTime="Group" evaluationGroup="tk" pattern="###0.0;-###0.0" isBlankWhenNull="true">
+					<reportElement mode="Opaque" x="466" y="29" width="21" height="25" forecolor="#000000" backcolor="#999999" uuid="3f63e545-5dfc-45a3-8ec3-7b8d0126ece5"/>
+					<box>
+						<topPen lineWidth="0.75"/>
+						<leftPen lineWidth="0.75"/>
+						<bottomPen lineWidth="0.75"/>
+						<rightPen lineWidth="0.75"/>
+					</box>
+					<textElement textAlignment="Right" verticalAlignment="Bottom" rotation="None" markup="none">
+						<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+						<paragraph lineSpacing="Single" leftIndent="1" rightIndent="1"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{ЗА_4_ЧИСЛО_1}]]></textFieldExpression>
+				</textField>
+				<textField evaluationTime="Group" evaluationGroup="tk" pattern="###0.0;-###0.0" isBlankWhenNull="true">
+					<reportElement mode="Opaque" x="487" y="29" width="21" height="25" forecolor="#000000" backcolor="#999999" uuid="f3fb00cb-93c7-4b35-852e-45abeba3c339"/>
+					<box>
+						<topPen lineWidth="0.75"/>
+						<leftPen lineWidth="0.75"/>
+						<bottomPen lineWidth="0.75"/>
+						<rightPen lineWidth="0.75"/>
+					</box>
+					<textElement textAlignment="Right" verticalAlignment="Bottom" rotation="None" markup="none">
+						<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+						<paragraph lineSpacing="Single" leftIndent="1" rightIndent="1"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{ЗА_5_ЧИСЛО_1}]]></textFieldExpression>
+				</textField>
+				<textField evaluationTime="Group" evaluationGroup="tk" pattern="###0.0;-###0.0" isBlankWhenNull="true">
+					<reportElement mode="Opaque" x="508" y="29" width="21" height="25" forecolor="#000000" backcolor="#999999" uuid="5846a2d8-0018-44bb-aaec-637c9dc5acdf"/>
+					<box>
+						<topPen lineWidth="0.75"/>
+						<leftPen lineWidth="0.75"/>
+						<bottomPen lineWidth="0.75"/>
+						<rightPen lineWidth="0.75"/>
+					</box>
+					<textElement textAlignment="Right" verticalAlignment="Bottom" rotation="None" markup="none">
+						<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+						<paragraph lineSpacing="Single" leftIndent="1" rightIndent="1"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{ЗА_6_ЧИСЛО_1}]]></textFieldExpression>
+				</textField>
+				<textField evaluationTime="Group" evaluationGroup="tk" pattern="###0.0;-###0.0" isBlankWhenNull="true">
+					<reportElement mode="Opaque" x="529" y="29" width="21" height="25" forecolor="#000000" backcolor="#999999" uuid="fff1edc3-8e2d-4d8e-a5d7-700ccdfadb5e"/>
+					<box>
+						<topPen lineWidth="0.75"/>
+						<leftPen lineWidth="0.75"/>
+						<bottomPen lineWidth="0.75"/>
+						<rightPen lineWidth="0.75"/>
+					</box>
+					<textElement textAlignment="Right" verticalAlignment="Bottom" rotation="None" markup="none">
+						<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+						<paragraph lineSpacing="Single" leftIndent="1" rightIndent="1"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{ЗА_7_ЧИСЛО_1}]]></textFieldExpression>
+				</textField>
+				<textField evaluationTime="Group" evaluationGroup="tk" pattern="###0.0;-###0.0" isBlankWhenNull="true">
+					<reportElement mode="Opaque" x="550" y="29" width="21" height="25" forecolor="#000000" backcolor="#999999" uuid="1fe940b8-e911-48be-8fa8-adb8217cc6d2"/>
+					<box>
+						<topPen lineWidth="0.75"/>
+						<leftPen lineWidth="0.75"/>
+						<bottomPen lineWidth="0.75"/>
+						<rightPen lineWidth="0.75"/>
+					</box>
+					<textElement textAlignment="Right" verticalAlignment="Bottom" rotation="None" markup="none">
+						<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+						<paragraph lineSpacing="Single" leftIndent="1" rightIndent="1"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{ЗА_8_ЧИСЛО_1}]]></textFieldExpression>
+				</textField>
+				<textField evaluationTime="Group" evaluationGroup="tk" pattern="###0.0;-###0.0" isBlankWhenNull="true">
+					<reportElement mode="Opaque" x="571" y="29" width="21" height="25" forecolor="#000000" backcolor="#999999" uuid="1a5b9fe4-b4c6-4683-9a94-ee4d16bedd3e"/>
+					<box>
+						<topPen lineWidth="0.75"/>
+						<leftPen lineWidth="0.75"/>
+						<bottomPen lineWidth="0.75"/>
+						<rightPen lineWidth="0.75"/>
+					</box>
+					<textElement textAlignment="Right" verticalAlignment="Bottom" rotation="None" markup="none">
+						<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+						<paragraph lineSpacing="Single" leftIndent="1" rightIndent="1"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{ЗА_9_ЧИСЛО_1}]]></textFieldExpression>
+				</textField>
+				<textField evaluationTime="Group" evaluationGroup="tk" pattern="###0.0;-###0.0" isBlankWhenNull="true">
+					<reportElement mode="Opaque" x="592" y="29" width="21" height="25" forecolor="#000000" backcolor="#999999" uuid="23f1de25-73e2-4393-8be1-b887647bc8ca"/>
+					<box>
+						<topPen lineWidth="0.75"/>
+						<leftPen lineWidth="0.75"/>
+						<bottomPen lineWidth="0.75"/>
+						<rightPen lineWidth="0.75"/>
+					</box>
+					<textElement textAlignment="Right" verticalAlignment="Bottom" rotation="None" markup="none">
+						<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+						<paragraph lineSpacing="Single" leftIndent="1" rightIndent="1"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{ЗА_10_ЧИСЛО_1}]]></textFieldExpression>
+				</textField>
+				<textField evaluationTime="Group" evaluationGroup="tk" pattern="###0.0;-###0.0" isBlankWhenNull="true">
+					<reportElement mode="Opaque" x="613" y="29" width="21" height="25" forecolor="#000000" backcolor="#999999" uuid="05cbf5b4-984e-4ba3-a8a3-52e753c40450"/>
+					<box>
+						<topPen lineWidth="0.75"/>
+						<leftPen lineWidth="0.75"/>
+						<bottomPen lineWidth="0.75"/>
+						<rightPen lineWidth="0.75"/>
+					</box>
+					<textElement textAlignment="Right" verticalAlignment="Bottom" rotation="None" markup="none">
+						<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+						<paragraph lineSpacing="Single" leftIndent="1" rightIndent="1"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{ЗА_11_ЧИСЛО_1}]]></textFieldExpression>
+				</textField>
+				<textField evaluationTime="Group" evaluationGroup="tk" pattern="###0.0;-###0.0" isBlankWhenNull="true">
+					<reportElement mode="Opaque" x="655" y="29" width="21" height="25" forecolor="#000000" backcolor="#999999" uuid="60ca5310-7530-4156-a56b-eaf4a686ea6e"/>
+					<box>
+						<topPen lineWidth="0.75"/>
+						<leftPen lineWidth="0.75"/>
+						<bottomPen lineWidth="0.75"/>
+						<rightPen lineWidth="0.75"/>
+					</box>
+					<textElement textAlignment="Right" verticalAlignment="Bottom" rotation="None" markup="none">
+						<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+						<paragraph lineSpacing="Single" leftIndent="1" rightIndent="1"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{ЗА_13_ЧИСЛО_1}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement mode="Opaque" x="294" y="29" width="66" height="25" backcolor="#999999" uuid="8d4e437e-34b3-41ee-a47b-0e3e3c7d56aa"/>
+					<box>
+						<topPen lineWidth="0.75"/>
+						<leftPen lineWidth="0.75"/>
+						<bottomPen lineWidth="0.75"/>
+						<rightPen lineWidth="0.75"/>
+					</box>
+					<textElement textAlignment="Right">
+						<font fontName="Times New Roman" size="9"/>
+						<paragraph leftIndent="1" rightIndent="1"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{ТЕХ_КАРТА}]]></textFieldExpression>
+				</textField>
+				<textField evaluationTime="Group" evaluationGroup="tk" pattern="###0.0;-###0.0" isBlankWhenNull="true">
+					<reportElement mode="Opaque" x="718" y="0" width="27" height="54" forecolor="#000000" backcolor="#999999" uuid="4f02afa4-7723-4d18-b34f-0b0b876a4988"/>
+					<box>
+						<topPen lineWidth="0.75"/>
+						<leftPen lineWidth="0.75"/>
+						<bottomPen lineWidth="0.75"/>
+						<rightPen lineWidth="0.75"/>
+					</box>
+					<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" markup="none">
+						<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+						<paragraph lineSpacing="Single" leftIndent="1" rightIndent="1" spacingBefore="2" spacingAfter="2"/>
+					</textElement>
+					<textFieldExpression><![CDATA[($V{Ч_Ч_1_1} == null ? 0 : $V{Ч_Ч_1_1})+
+($V{Ч_Ч_2_1} == null ? 0 : $V{Ч_Ч_2_1})+
+($V{Ч_Ч_3_1} == null ? 0 : $V{Ч_Ч_3_1})+
+($V{Ч_Ч_4_1} == null ? 0 : $V{Ч_Ч_4_1})+
+($V{Ч_Ч_5_1} == null ? 0 : $V{Ч_Ч_5_1})+
+($V{Ч_Ч_6_1} == null ? 0 : $V{Ч_Ч_6_1})+
+($V{Ч_Ч_7_1} == null ? 0 : $V{Ч_Ч_7_1})+
+($V{Ч_Ч_8_1} == null ? 0 : $V{Ч_Ч_8_1})+
+($V{Ч_Ч_9_1} == null ? 0 : $V{Ч_Ч_9_1})+
+($V{Ч_Ч_10_1} == null ? 0 : $V{Ч_Ч_10_1})+
+($V{Ч_Ч_11_1} == null ? 0 : $V{Ч_Ч_11_1})+
+($V{Ч_Ч_12_1} == null ? 0 : $V{Ч_Ч_12_1})+
+($V{Ч_Ч_13_1} == null ? 0 : $V{Ч_Ч_13_1})+
+($V{Ч_Ч_14_1} == null ? 0 : $V{Ч_Ч_14_1})+
+($V{Ч_Ч_15_1} == null ? 0 : $V{Ч_Ч_15_1})]]></textFieldExpression>
+				</textField>
+				<textField evaluationTime="Group" evaluationGroup="tk" pattern="###0.0;-###0.0" isBlankWhenNull="true">
+					<reportElement mode="Opaque" x="745" y="0" width="32" height="54" forecolor="#000000" backcolor="#999999" uuid="7ffdd4f4-15d9-4ab1-9877-714b2881326e"/>
+					<box>
+						<topPen lineWidth="0.75"/>
+						<leftPen lineWidth="0.75"/>
+						<bottomPen lineWidth="0.75"/>
+						<rightPen lineWidth="0.75"/>
+					</box>
+					<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" markup="none">
+						<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+						<paragraph lineSpacing="Single" leftIndent="1" rightIndent="1"/>
+					</textElement>
+					<textFieldExpression><![CDATA[(
+($V{ЗА_1_ЧИСЛО_1} == null ? 0 : $V{ЗА_1_ЧИСЛО_1})+
+($V{ЗА_2_ЧИСЛО_1} == null ? 0 : $V{ЗА_2_ЧИСЛО_1})+
+($V{ЗА_3_ЧИСЛО_1} == null ? 0 : $V{ЗА_3_ЧИСЛО_1})+
+($V{ЗА_4_ЧИСЛО_1} == null ? 0 : $V{ЗА_4_ЧИСЛО_1})+
+($V{ЗА_5_ЧИСЛО_1} == null ? 0 : $V{ЗА_5_ЧИСЛО_1})+
+($V{ЗА_6_ЧИСЛО_1} == null ? 0 : $V{ЗА_6_ЧИСЛО_1})+
+($V{ЗА_7_ЧИСЛО_1} == null ? 0 : $V{ЗА_7_ЧИСЛО_1})+
+($V{ЗА_8_ЧИСЛО_1} == null ? 0 : $V{ЗА_8_ЧИСЛО_1})+
+($V{ЗА_9_ЧИСЛО_1} == null ? 0 : $V{ЗА_9_ЧИСЛО_1})+
+($V{ЗА_10_ЧИСЛО_1} == null ? 0 : $V{ЗА_10_ЧИСЛО_1})+
+($V{ЗА_11_ЧИСЛО_1} == null ? 0 : $V{ЗА_11_ЧИСЛО_1})+
+($V{ЗА_12_ЧИСЛО_1} == null ? 0 : $V{ЗА_12_ЧИСЛО_1})+
+($V{ЗА_13_ЧИСЛО_1} == null ? 0 : $V{ЗА_13_ЧИСЛО_1})+
+($V{ЗА_14_ЧИСЛО_1} == null ? 0 : $V{ЗА_14_ЧИСЛО_1})+
+($V{ЗА_15_ЧИСЛО_1} == null ? 0 : $V{ЗА_15_ЧИСЛО_1})
+)/$F{НОРМА_ВРЕМЕНИ}*$F{NUMVALUE}
+
+]]></textFieldExpression>
+				</textField>
+				<textField evaluationTime="Group" evaluationGroup="tk" pattern="###0.0;-###0.0" isBlankWhenNull="true">
+					<reportElement mode="Opaque" x="777" y="0" width="25" height="54" forecolor="#000000" backcolor="#999999" uuid="b1569c5b-f910-4378-a6ca-e4c5eecf8857"/>
+					<box>
+						<topPen lineWidth="0.75"/>
+						<leftPen lineWidth="0.75"/>
+						<bottomPen lineWidth="0.75"/>
+						<rightPen lineWidth="0.75"/>
+					</box>
+					<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" markup="none">
+						<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+						<paragraph lineSpacing="Single" leftIndent="1" rightIndent="1" spacingBefore="2" spacingAfter="2"/>
+					</textElement>
+					<textFieldExpression><![CDATA[($V{ЗА_1_ЧИСЛО_1} == null ? 0 : $V{ЗА_1_ЧИСЛО_1})+
+($V{ЗА_2_ЧИСЛО_1} == null ? 0 : $V{ЗА_2_ЧИСЛО_1})+
+($V{ЗА_3_ЧИСЛО_1} == null ? 0 : $V{ЗА_3_ЧИСЛО_1})+
+($V{ЗА_4_ЧИСЛО_1} == null ? 0 : $V{ЗА_4_ЧИСЛО_1})+
+($V{ЗА_5_ЧИСЛО_1} == null ? 0 : $V{ЗА_5_ЧИСЛО_1})+
+($V{ЗА_6_ЧИСЛО_1} == null ? 0 : $V{ЗА_6_ЧИСЛО_1})+
+($V{ЗА_7_ЧИСЛО_1} == null ? 0 : $V{ЗА_7_ЧИСЛО_1})+
+($V{ЗА_8_ЧИСЛО_1} == null ? 0 : $V{ЗА_8_ЧИСЛО_1})+
+($V{ЗА_9_ЧИСЛО_1} == null ? 0 : $V{ЗА_9_ЧИСЛО_1})+
+($V{ЗА_10_ЧИСЛО_1} == null ? 0 : $V{ЗА_10_ЧИСЛО_1})+
+($V{ЗА_11_ЧИСЛО_1} == null ? 0 : $V{ЗА_11_ЧИСЛО_1})+
+($V{ЗА_12_ЧИСЛО_1} == null ? 0 : $V{ЗА_12_ЧИСЛО_1})+
+($V{ЗА_13_ЧИСЛО_1} == null ? 0 : $V{ЗА_13_ЧИСЛО_1})+
+($V{ЗА_14_ЧИСЛО_1} == null ? 0 : $V{ЗА_14_ЧИСЛО_1})+
+($V{ЗА_15_ЧИСЛО_1} == null ? 0 : $V{ЗА_15_ЧИСЛО_1})]]></textFieldExpression>
+				</textField>
+				<textField evaluationTime="Group" evaluationGroup="tk" pattern="###0.0;-###0.0" isBlankWhenNull="true">
+					<reportElement mode="Opaque" x="634" y="29" width="21" height="25" forecolor="#000000" backcolor="#999999" uuid="23feb63a-146b-4bde-be44-75186de385db"/>
+					<box>
+						<topPen lineWidth="0.75"/>
+						<leftPen lineWidth="0.75"/>
+						<bottomPen lineWidth="0.75"/>
+						<rightPen lineWidth="0.75"/>
+					</box>
+					<textElement textAlignment="Right" verticalAlignment="Bottom" rotation="None" markup="none">
+						<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+						<paragraph lineSpacing="Single" leftIndent="1" rightIndent="1"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{ЗА_12_ЧИСЛО_1}]]></textFieldExpression>
+				</textField>
+				<textField evaluationTime="Group" evaluationGroup="tk" pattern="###0.0;-###0.0" isBlankWhenNull="true">
+					<reportElement mode="Opaque" x="676" y="29" width="21" height="25" forecolor="#000000" backcolor="#999999" uuid="ac0666e0-b1a9-4b33-bc60-5fa82644c0ca"/>
+					<box>
+						<topPen lineWidth="0.75"/>
+						<leftPen lineWidth="0.75"/>
+						<bottomPen lineWidth="0.75"/>
+						<rightPen lineWidth="0.75"/>
+					</box>
+					<textElement textAlignment="Right" verticalAlignment="Bottom" rotation="None" markup="none">
+						<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+						<paragraph lineSpacing="Single" leftIndent="1" rightIndent="1"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{ЗА_14_ЧИСЛО_1}]]></textFieldExpression>
+				</textField>
+				<textField evaluationTime="Group" evaluationGroup="tk" pattern="###0.0;-###0.0" isBlankWhenNull="true">
+					<reportElement mode="Opaque" x="697" y="29" width="21" height="25" forecolor="#000000" backcolor="#999999" uuid="0ce1762f-c1ae-49a0-8c8f-fee6b844ab5e"/>
+					<box>
+						<topPen lineWidth="0.75"/>
+						<leftPen lineWidth="0.75"/>
+						<bottomPen lineWidth="0.75"/>
+						<rightPen lineWidth="0.75"/>
+					</box>
+					<textElement textAlignment="Right" verticalAlignment="Bottom" rotation="None" markup="none">
+						<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+						<paragraph lineSpacing="Single" leftIndent="1" rightIndent="1"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{ЗА_15_ЧИСЛО_1}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement x="0" y="0" width="19" height="54" uuid="8a96c5ad-d93e-401b-9c98-63f413571df2"/>
+					<box>
+						<topPen lineWidth="0.75"/>
+						<leftPen lineWidth="0.75"/>
+						<bottomPen lineWidth="0.75"/>
+						<rightPen lineWidth="0.75"/>
+					</box>
+					<text><![CDATA[]]></text>
+				</staticText>
+			</band>
+		</groupHeader>
+	</group>
 	<background>
 		<band splitType="Stretch"/>
 	</background>
@@ -768,8 +1389,8 @@ select * from (
 					<bottomPen lineWidth="0.75"/>
 					<rightPen lineWidth="0.75"/>
 				</box>
-				<textElement>
-					<font fontName="Times New Roman" size="9" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="9" isBold="true" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
 					<paragraph leftIndent="2" rightIndent="2" spacingBefore="2" spacingAfter="2"/>
 				</textElement>
 				<text><![CDATA[Норма времени на измеритель в чел/час и №ТНВ]]></text>
@@ -784,7 +1405,7 @@ select * from (
 					<rightPen lineWidth="0.75"/>
 				</box>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Times New Roman" size="9" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+					<font fontName="Times New Roman" size="9" isBold="true" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
 					<paragraph leftIndent="2" rightIndent="2" spacingBefore="2" spacingAfter="2"/>
 				</textElement>
 				<text><![CDATA[Задание]]></text>
@@ -799,7 +1420,7 @@ select * from (
 					<rightPen lineWidth="0.75"/>
 				</box>
 				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="Left">
-					<font fontName="Times New Roman" size="9" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+					<font fontName="Times New Roman" size="9" isBold="true" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
 					<paragraph leftIndent="2" rightIndent="2" spacingBefore="2" spacingAfter="2"/>
 				</textElement>
 				<text><![CDATA[Кол-во работ]]></text>
@@ -814,7 +1435,7 @@ select * from (
 					<rightPen lineWidth="0.75"/>
 				</box>
 				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="Left">
-					<font fontName="Times New Roman" size="9" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+					<font fontName="Times New Roman" size="9" isBold="true" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
 					<paragraph leftIndent="2" rightIndent="2" spacingBefore="2" spacingAfter="2"/>
 				</textElement>
 				<text><![CDATA[Норма времени]]></text>
@@ -829,7 +1450,7 @@ select * from (
 					<rightPen lineWidth="0.75"/>
 				</box>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Times New Roman" size="9" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+					<font fontName="Times New Roman" size="9" isBold="true" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
 					<paragraph leftIndent="2" rightIndent="2" spacingBefore="2" spacingAfter="2"/>
 				</textElement>
 				<text><![CDATA[1]]></text>
@@ -844,7 +1465,7 @@ select * from (
 					<rightPen lineWidth="0.75"/>
 				</box>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Times New Roman" size="9" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+					<font fontName="Times New Roman" size="9" isBold="true" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
 					<paragraph leftIndent="2" rightIndent="2" spacingBefore="2" spacingAfter="2"/>
 				</textElement>
 				<text><![CDATA[2]]></text>
@@ -859,7 +1480,7 @@ select * from (
 					<rightPen lineWidth="0.75"/>
 				</box>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Times New Roman" size="9" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+					<font fontName="Times New Roman" size="9" isBold="true" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
 					<paragraph leftIndent="2" rightIndent="2" spacingBefore="2" spacingAfter="2"/>
 				</textElement>
 				<text><![CDATA[3]]></text>
@@ -874,7 +1495,7 @@ select * from (
 					<rightPen lineWidth="0.75"/>
 				</box>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Times New Roman" size="9" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+					<font fontName="Times New Roman" size="9" isBold="true" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
 					<paragraph leftIndent="2" rightIndent="2" spacingBefore="2" spacingAfter="2"/>
 				</textElement>
 				<text><![CDATA[4]]></text>
@@ -889,7 +1510,7 @@ select * from (
 					<rightPen lineWidth="0.75"/>
 				</box>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Times New Roman" size="9" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+					<font fontName="Times New Roman" size="9" isBold="true" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
 					<paragraph leftIndent="2" rightIndent="2" spacingBefore="2" spacingAfter="2"/>
 				</textElement>
 				<text><![CDATA[5]]></text>
@@ -904,7 +1525,7 @@ select * from (
 					<rightPen lineWidth="0.75"/>
 				</box>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Times New Roman" size="9" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+					<font fontName="Times New Roman" size="9" isBold="true" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
 					<paragraph leftIndent="2" rightIndent="2" spacingBefore="2" spacingAfter="2"/>
 				</textElement>
 				<text><![CDATA[6]]></text>
@@ -919,7 +1540,7 @@ select * from (
 					<rightPen lineWidth="0.75"/>
 				</box>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Times New Roman" size="9" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+					<font fontName="Times New Roman" size="9" isBold="true" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
 					<paragraph leftIndent="2" rightIndent="2" spacingBefore="2" spacingAfter="2"/>
 				</textElement>
 				<text><![CDATA[7]]></text>
@@ -934,7 +1555,7 @@ select * from (
 					<rightPen lineWidth="0.75"/>
 				</box>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Times New Roman" size="9" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+					<font fontName="Times New Roman" size="9" isBold="true" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
 					<paragraph leftIndent="2" rightIndent="2" spacingBefore="2" spacingAfter="2"/>
 				</textElement>
 				<text><![CDATA[8]]></text>
@@ -949,7 +1570,7 @@ select * from (
 					<rightPen lineWidth="0.75"/>
 				</box>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Times New Roman" size="9" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+					<font fontName="Times New Roman" size="9" isBold="true" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
 					<paragraph leftIndent="2" rightIndent="2" spacingBefore="2" spacingAfter="2"/>
 				</textElement>
 				<text><![CDATA[9]]></text>
@@ -964,7 +1585,7 @@ select * from (
 					<rightPen lineWidth="0.75"/>
 				</box>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Times New Roman" size="9" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+					<font fontName="Times New Roman" size="9" isBold="true" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
 					<paragraph leftIndent="2" rightIndent="2" spacingBefore="2" spacingAfter="2"/>
 				</textElement>
 				<text><![CDATA[10]]></text>
@@ -979,7 +1600,7 @@ select * from (
 					<rightPen lineWidth="0.75"/>
 				</box>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Times New Roman" size="9" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+					<font fontName="Times New Roman" size="9" isBold="true" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
 					<paragraph leftIndent="2" rightIndent="2" spacingBefore="2" spacingAfter="2"/>
 				</textElement>
 				<text><![CDATA[11]]></text>
@@ -994,7 +1615,7 @@ select * from (
 					<rightPen lineWidth="0.75"/>
 				</box>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Times New Roman" size="9" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+					<font fontName="Times New Roman" size="9" isBold="true" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
 					<paragraph leftIndent="2" rightIndent="2" spacingBefore="2" spacingAfter="2"/>
 				</textElement>
 				<text><![CDATA[12]]></text>
@@ -1009,7 +1630,7 @@ select * from (
 					<rightPen lineWidth="0.75"/>
 				</box>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Times New Roman" size="9" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+					<font fontName="Times New Roman" size="9" isBold="true" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
 					<paragraph leftIndent="2" rightIndent="2" spacingBefore="2" spacingAfter="2"/>
 				</textElement>
 				<text><![CDATA[13]]></text>
@@ -1024,7 +1645,7 @@ select * from (
 					<rightPen lineWidth="0.75"/>
 				</box>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Times New Roman" size="9" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+					<font fontName="Times New Roman" size="9" isBold="true" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
 					<paragraph leftIndent="2" rightIndent="2" spacingBefore="2" spacingAfter="2"/>
 				</textElement>
 				<text><![CDATA[14]]></text>
@@ -1039,7 +1660,7 @@ select * from (
 					<rightPen lineWidth="0.75"/>
 				</box>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Times New Roman" size="9" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+					<font fontName="Times New Roman" size="9" isBold="true" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
 					<paragraph leftIndent="2" rightIndent="2" spacingBefore="2" spacingAfter="2"/>
 				</textElement>
 				<text><![CDATA[15]]></text>
@@ -1054,7 +1675,7 @@ select * from (
 					<rightPen lineWidth="0.75"/>
 				</box>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Times New Roman" size="9"/>
+					<font fontName="Times New Roman" size="9" isBold="true"/>
 					<paragraph leftIndent="2" rightIndent="2" spacingBefore="2" spacingAfter="2"/>
 				</textElement>
 				<text><![CDATA[Выполнение задания]]></text>
@@ -1069,7 +1690,7 @@ select * from (
 					<rightPen lineWidth="0.75"/>
 				</box>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Times New Roman" size="9" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+					<font fontName="Times New Roman" size="9" isBold="true" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
 					<paragraph leftIndent="2" rightIndent="2" spacingBefore="2" spacingAfter="2"/>
 				</textElement>
 				<text><![CDATA[Числа месяца]]></text>
@@ -1084,7 +1705,7 @@ select * from (
 					<rightPen lineWidth="0.75"/>
 				</box>
 				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="Left">
-					<font fontName="Times New Roman" size="9" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+					<font fontName="Times New Roman" size="9" isBold="true" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
 					<paragraph leftIndent="2" rightIndent="2" spacingBefore="2" spacingAfter="2"/>
 				</textElement>
 				<text><![CDATA[Фактически отработано]]></text>
@@ -1099,7 +1720,7 @@ select * from (
 					<rightPen lineWidth="0.75"/>
 				</box>
 				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="Left">
-					<font fontName="Times New Roman" size="9" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+					<font fontName="Times New Roman" size="9" isBold="true" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
 					<paragraph leftIndent="2" rightIndent="2" spacingBefore="2" spacingAfter="2"/>
 				</textElement>
 				<text><![CDATA[нормированных]]></text>
@@ -1114,7 +1735,7 @@ select * from (
 					<rightPen lineWidth="0.75"/>
 				</box>
 				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="Left">
-					<font fontName="Times New Roman" size="9" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+					<font fontName="Times New Roman" size="9" isBold="true" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
 					<paragraph leftIndent="2" rightIndent="2" spacingBefore="2" spacingAfter="2"/>
 				</textElement>
 				<text><![CDATA[объём выполненных работ]]></text>
@@ -1128,14 +1749,14 @@ select * from (
 					<bottomPen lineWidth="0.75"/>
 					<rightPen lineWidth="0.75"/>
 				</box>
-				<textElement>
-					<font fontName="Times New Roman" size="9" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="9" isBold="true" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
 					<paragraph leftIndent="2" rightIndent="2" spacingBefore="2" spacingAfter="2"/>
 				</textElement>
 				<text><![CDATA[Единица измерения]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="139" y="0" width="100" height="95" uuid="54e535cd-8a2d-4090-9e02-44f15b06fd2e"/>
+				<reportElement x="19" y="0" width="220" height="44" uuid="54e535cd-8a2d-4090-9e02-44f15b06fd2e"/>
 				<box>
 					<pen lineWidth="0.75"/>
 					<topPen lineWidth="0.75"/>
@@ -1143,14 +1764,14 @@ select * from (
 					<bottomPen lineWidth="0.75"/>
 					<rightPen lineWidth="0.75"/>
 				</box>
-				<textElement>
-					<font fontName="Times New Roman" size="9" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="9" isBold="true" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
 					<paragraph leftIndent="2" rightIndent="2" spacingBefore="2" spacingAfter="2"/>
 				</textElement>
 				<text><![CDATA[Наименование работ (с указанием применяемых механизмов)]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="19" y="0" width="120" height="95" uuid="844a3e10-19b3-4e98-9e91-ffb67ce32a2a"/>
+				<reportElement x="19" y="44" width="220" height="51" uuid="844a3e10-19b3-4e98-9e91-ffb67ce32a2a"/>
 				<box>
 					<pen lineWidth="0.75"/>
 					<topPen lineWidth="0.75"/>
@@ -1158,8 +1779,8 @@ select * from (
 					<bottomPen lineWidth="0.75"/>
 					<rightPen lineWidth="0.75"/>
 				</box>
-				<textElement>
-					<font fontName="Times New Roman" size="9" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="9" isBold="true" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
 					<paragraph leftIndent="2" rightIndent="2" spacingBefore="2" spacingAfter="2"/>
 				</textElement>
 				<text><![CDATA[Место работы (км, пк, звено, № станционного пути, № стрелки и т.д.)]]></text>
@@ -1174,7 +1795,7 @@ select * from (
 					<rightPen lineWidth="0.75"/>
 				</box>
 				<textElement>
-					<font fontName="Times New Roman" size="9" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+					<font fontName="Times New Roman" size="9" isBold="true" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
 					<paragraph leftIndent="2" rightIndent="2" spacingBefore="2" spacingAfter="2"/>
 				</textElement>
 				<text><![CDATA[№ п.п.]]></text>
@@ -1183,8 +1804,8 @@ select * from (
 	</columnHeader>
 	<detail>
 		<band height="54" splitType="Stretch">
-			<textField pattern="" isBlankWhenNull="true">
-				<reportElement x="239" y="0" width="55" height="54" uuid="3b016f08-0380-4544-aead-5bfe264da6f5"/>
+			<textField pattern="###0.0;-###0.0" isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="360" y="0" width="19" height="54" forecolor="#000000" backcolor="#FFFFFF" uuid="7d0c1a6e-837a-46fc-8fdc-2b6408a5b67e"/>
 				<box>
 					<pen lineWidth="0.75"/>
 					<topPen lineWidth="0.75"/>
@@ -1192,74 +1813,14 @@ select * from (
 					<bottomPen lineWidth="0.75"/>
 					<rightPen lineWidth="0.75"/>
 				</box>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Times New Roman" size="9" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
-					<paragraph leftIndent="2" rightIndent="2" spacingBefore="2" spacingAfter="2"/>
-				</textElement>
-				<textFieldExpression><![CDATA[$F{ЕД_ИЗМ}]]></textFieldExpression>
-			</textField>
-			<textField pattern="" isBlankWhenNull="true">
-				<reportElement x="139" y="0" width="100" height="54" uuid="4e6b547f-4a59-4249-a45b-b4228c64d8fa"/>
-				<box>
-					<pen lineWidth="0.75"/>
-					<topPen lineWidth="0.75"/>
-					<leftPen lineWidth="0.75"/>
-					<bottomPen lineWidth="0.75"/>
-					<rightPen lineWidth="0.75"/>
-				</box>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Times New Roman" size="9" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
-					<paragraph leftIndent="2" rightIndent="2" spacingBefore="2" spacingAfter="2"/>
-				</textElement>
-				<textFieldExpression><![CDATA[$F{НАИМЕНОВ}]]></textFieldExpression>
-			</textField>
-			<textField pattern="###0.00;###0.00-" isBlankWhenNull="true">
-				<reportElement x="294" y="0" width="66" height="29" uuid="0e371bd6-35cd-49cc-98e0-99378971cc20"/>
-				<box>
-					<pen lineWidth="0.75"/>
-					<topPen lineWidth="0.75"/>
-					<leftPen lineWidth="0.75"/>
-					<bottomPen lineWidth="0.75"/>
-					<rightPen lineWidth="0.75"/>
-				</box>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Times New Roman" size="9" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
-					<paragraph leftIndent="2" rightIndent="2" spacingBefore="2" spacingAfter="2"/>
-				</textElement>
-				<textFieldExpression><![CDATA[$F{НОРМА_ВРЕМЕНИ}]]></textFieldExpression>
-			</textField>
-			<textField pattern="" isBlankWhenNull="true">
-				<reportElement x="294" y="29" width="66" height="25" uuid="52b0c2d0-0da2-4e94-b7e5-943cff72ff90"/>
-				<box>
-					<pen lineWidth="0.75"/>
-					<topPen lineWidth="0.75"/>
-					<leftPen lineWidth="0.75"/>
-					<bottomPen lineWidth="0.75"/>
-					<rightPen lineWidth="0.75"/>
-				</box>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Times New Roman" size="9" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
-					<paragraph leftIndent="2" rightIndent="2" spacingBefore="2" spacingAfter="2"/>
-				</textElement>
-				<textFieldExpression><![CDATA[$F{ТЕХ_КАРТА}]]></textFieldExpression>
-			</textField>
-			<textField pattern="" isBlankWhenNull="true">
-				<reportElement x="360" y="0" width="19" height="54" uuid="7d0c1a6e-837a-46fc-8fdc-2b6408a5b67e"/>
-				<box>
-					<pen lineWidth="0.75"/>
-					<topPen lineWidth="0.75"/>
-					<leftPen lineWidth="0.75"/>
-					<bottomPen lineWidth="0.75"/>
-					<rightPen lineWidth="0.75"/>
-				</box>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Times New Roman" size="9" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
-					<paragraph leftIndent="2" rightIndent="2" spacingBefore="2" spacingAfter="2"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+					<paragraph lineSpacing="Single" leftIndent="1" rightIndent="1" spacingBefore="2" spacingAfter="2"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{PLAN}]]></textFieldExpression>
 			</textField>
-			<textField pattern="" isBlankWhenNull="true">
-				<reportElement x="379" y="0" width="24" height="54" uuid="f96e11a6-892a-41c4-8cfa-78261017a488"/>
+			<textField pattern="###0.0;-###0.0" isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="379" y="0" width="24" height="54" forecolor="#000000" backcolor="#FFFFFF" uuid="f96e11a6-892a-41c4-8cfa-78261017a488"/>
 				<box>
 					<pen lineWidth="0.75"/>
 					<topPen lineWidth="0.75"/>
@@ -1267,14 +1828,14 @@ select * from (
 					<bottomPen lineWidth="0.75"/>
 					<rightPen lineWidth="0.75"/>
 				</box>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Times New Roman" size="9" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
-					<paragraph leftIndent="2" rightIndent="2" spacingBefore="2" spacingAfter="2"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+					<paragraph lineSpacing="Single" leftIndent="1" rightIndent="1" spacingBefore="2" spacingAfter="2"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{НОРМ_Ч_МЕСЦ_ПЛН}]]></textFieldExpression>
 			</textField>
 			<textField pattern="###0.0;-###0.0" isBlankWhenNull="true">
-				<reportElement x="403" y="0" width="21" height="29" uuid="53a696ca-19a1-4b07-a653-50ff6ea12a2f"/>
+				<reportElement mode="Transparent" x="403" y="0" width="21" height="29" forecolor="#000000" backcolor="#FFFFFF" uuid="53a696ca-19a1-4b07-a653-50ff6ea12a2f"/>
 				<box>
 					<pen lineWidth="0.75"/>
 					<topPen lineWidth="0.75"/>
@@ -1282,14 +1843,14 @@ select * from (
 					<bottomPen lineWidth="0.75"/>
 					<rightPen lineWidth="0.75"/>
 				</box>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Times New Roman" size="9" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
-					<paragraph leftIndent="2" rightIndent="2" spacingBefore="2" spacingAfter="2"/>
+				<textElement textAlignment="Right" verticalAlignment="Bottom" rotation="None" markup="none">
+					<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+					<paragraph lineSpacing="Single" leftIndent="1" rightIndent="1" spacingBefore="2" spacingAfter="2"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{Ч_Ч_1}]]></textFieldExpression>
 			</textField>
 			<textField pattern="###0.0;-###0.0" isBlankWhenNull="true">
-				<reportElement x="424" y="0" width="21" height="29" uuid="c963f9b5-1a40-4a0b-bd5d-96881b5083c8"/>
+				<reportElement mode="Transparent" x="424" y="0" width="21" height="29" forecolor="#000000" backcolor="#FFFFFF" uuid="c963f9b5-1a40-4a0b-bd5d-96881b5083c8"/>
 				<box>
 					<pen lineWidth="0.75"/>
 					<topPen lineWidth="0.75"/>
@@ -1297,14 +1858,14 @@ select * from (
 					<bottomPen lineWidth="0.75"/>
 					<rightPen lineWidth="0.75"/>
 				</box>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Times New Roman" size="9" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
-					<paragraph leftIndent="2" rightIndent="2" spacingBefore="2" spacingAfter="2"/>
+				<textElement textAlignment="Right" verticalAlignment="Bottom" rotation="None" markup="none">
+					<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+					<paragraph lineSpacing="Single" leftIndent="1" rightIndent="1" spacingBefore="2" spacingAfter="2"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{Ч_Ч_2}]]></textFieldExpression>
 			</textField>
 			<textField pattern="###0.0;-###0.0" isBlankWhenNull="true">
-				<reportElement x="445" y="0" width="21" height="29" uuid="cd2694f4-7e8d-41ef-9963-3dc3d11dc994"/>
+				<reportElement mode="Transparent" x="445" y="0" width="21" height="29" forecolor="#000000" backcolor="#FFFFFF" uuid="cd2694f4-7e8d-41ef-9963-3dc3d11dc994"/>
 				<box>
 					<pen lineWidth="0.75"/>
 					<topPen lineWidth="0.75"/>
@@ -1312,14 +1873,14 @@ select * from (
 					<bottomPen lineWidth="0.75"/>
 					<rightPen lineWidth="0.75"/>
 				</box>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Times New Roman" size="9" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
-					<paragraph leftIndent="2" rightIndent="2" spacingBefore="2" spacingAfter="2"/>
+				<textElement textAlignment="Right" verticalAlignment="Bottom" rotation="None" markup="none">
+					<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+					<paragraph lineSpacing="Single" leftIndent="1" rightIndent="1" spacingBefore="2" spacingAfter="2"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{Ч_Ч_3}]]></textFieldExpression>
 			</textField>
 			<textField pattern="###0.0;-###0.0" isBlankWhenNull="true">
-				<reportElement x="466" y="0" width="21" height="29" uuid="df307357-1f9a-4a10-9641-ed0909ce5a9a"/>
+				<reportElement mode="Transparent" x="466" y="0" width="21" height="29" forecolor="#000000" backcolor="#FFFFFF" uuid="df307357-1f9a-4a10-9641-ed0909ce5a9a"/>
 				<box>
 					<pen lineWidth="0.75"/>
 					<topPen lineWidth="0.75"/>
@@ -1327,14 +1888,14 @@ select * from (
 					<bottomPen lineWidth="0.75"/>
 					<rightPen lineWidth="0.75"/>
 				</box>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Times New Roman" size="9" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
-					<paragraph leftIndent="2" rightIndent="2" spacingBefore="2" spacingAfter="2"/>
+				<textElement textAlignment="Right" verticalAlignment="Bottom" rotation="None" markup="none">
+					<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+					<paragraph lineSpacing="Single" leftIndent="1" rightIndent="1" spacingBefore="2" spacingAfter="2"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{Ч_Ч_4}]]></textFieldExpression>
 			</textField>
 			<textField pattern="###0.0;-###0.0" isBlankWhenNull="true">
-				<reportElement x="487" y="0" width="21" height="29" uuid="6fb6cc04-de3b-42e3-b936-75655f7f1757"/>
+				<reportElement mode="Transparent" x="487" y="0" width="21" height="29" forecolor="#000000" backcolor="#FFFFFF" uuid="6fb6cc04-de3b-42e3-b936-75655f7f1757"/>
 				<box>
 					<pen lineWidth="0.75"/>
 					<topPen lineWidth="0.75"/>
@@ -1342,14 +1903,14 @@ select * from (
 					<bottomPen lineWidth="0.75"/>
 					<rightPen lineWidth="0.75"/>
 				</box>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Times New Roman" size="9" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
-					<paragraph leftIndent="2" rightIndent="2" spacingBefore="2" spacingAfter="2"/>
+				<textElement textAlignment="Right" verticalAlignment="Bottom" rotation="None" markup="none">
+					<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+					<paragraph lineSpacing="Single" leftIndent="1" rightIndent="1" spacingBefore="2" spacingAfter="2"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{Ч_Ч_5}]]></textFieldExpression>
 			</textField>
 			<textField pattern="###0.0;-###0.0" isBlankWhenNull="true">
-				<reportElement x="508" y="0" width="21" height="29" uuid="7a606b8e-ac85-42ff-8443-aff5d3e63756"/>
+				<reportElement mode="Transparent" x="508" y="0" width="21" height="29" forecolor="#000000" backcolor="#FFFFFF" uuid="7a606b8e-ac85-42ff-8443-aff5d3e63756"/>
 				<box>
 					<pen lineWidth="0.75"/>
 					<topPen lineWidth="0.75"/>
@@ -1357,14 +1918,14 @@ select * from (
 					<bottomPen lineWidth="0.75"/>
 					<rightPen lineWidth="0.75"/>
 				</box>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Times New Roman" size="9" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
-					<paragraph leftIndent="2" rightIndent="2" spacingBefore="2" spacingAfter="2"/>
+				<textElement textAlignment="Right" verticalAlignment="Bottom" rotation="None" markup="none">
+					<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+					<paragraph lineSpacing="Single" leftIndent="1" rightIndent="1" spacingBefore="2" spacingAfter="2"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{Ч_Ч_6}]]></textFieldExpression>
 			</textField>
 			<textField pattern="###0.0;-###0.0" isBlankWhenNull="true">
-				<reportElement x="529" y="0" width="21" height="29" uuid="4aa9dcd1-9879-42de-bc7c-1609b3368e60"/>
+				<reportElement mode="Transparent" x="529" y="0" width="21" height="29" forecolor="#000000" backcolor="#FFFFFF" uuid="4aa9dcd1-9879-42de-bc7c-1609b3368e60"/>
 				<box>
 					<pen lineWidth="0.75"/>
 					<topPen lineWidth="0.75"/>
@@ -1372,14 +1933,14 @@ select * from (
 					<bottomPen lineWidth="0.75"/>
 					<rightPen lineWidth="0.75"/>
 				</box>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Times New Roman" size="9" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
-					<paragraph leftIndent="2" rightIndent="2" spacingBefore="2" spacingAfter="2"/>
+				<textElement textAlignment="Right" verticalAlignment="Bottom" rotation="None" markup="none">
+					<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+					<paragraph lineSpacing="Single" leftIndent="1" rightIndent="1" spacingBefore="2" spacingAfter="2"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{Ч_Ч_7}]]></textFieldExpression>
 			</textField>
 			<textField pattern="###0.0;-###0.0" isBlankWhenNull="true">
-				<reportElement x="550" y="0" width="21" height="29" uuid="8bd3bc0f-4723-4570-9a05-c0cb0e687b23"/>
+				<reportElement mode="Transparent" x="550" y="0" width="21" height="29" forecolor="#000000" backcolor="#FFFFFF" uuid="8bd3bc0f-4723-4570-9a05-c0cb0e687b23"/>
 				<box>
 					<pen lineWidth="0.75"/>
 					<topPen lineWidth="0.75"/>
@@ -1387,14 +1948,14 @@ select * from (
 					<bottomPen lineWidth="0.75"/>
 					<rightPen lineWidth="0.75"/>
 				</box>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Times New Roman" size="9" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
-					<paragraph leftIndent="2" rightIndent="2" spacingBefore="2" spacingAfter="2"/>
+				<textElement textAlignment="Right" verticalAlignment="Bottom" rotation="None" markup="none">
+					<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+					<paragraph lineSpacing="Single" leftIndent="1" rightIndent="1" spacingBefore="2" spacingAfter="2"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{Ч_Ч_8}]]></textFieldExpression>
 			</textField>
 			<textField pattern="###0.0;-###0.0" isBlankWhenNull="true">
-				<reportElement x="571" y="0" width="21" height="29" uuid="b0661743-b237-4e8d-80d3-104c3fc0ebd5"/>
+				<reportElement mode="Transparent" x="571" y="0" width="21" height="29" forecolor="#000000" backcolor="#FFFFFF" uuid="b0661743-b237-4e8d-80d3-104c3fc0ebd5"/>
 				<box>
 					<pen lineWidth="0.75"/>
 					<topPen lineWidth="0.75"/>
@@ -1402,14 +1963,14 @@ select * from (
 					<bottomPen lineWidth="0.75"/>
 					<rightPen lineWidth="0.75"/>
 				</box>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Times New Roman" size="9" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
-					<paragraph leftIndent="2" rightIndent="2" spacingBefore="2" spacingAfter="2"/>
+				<textElement textAlignment="Right" verticalAlignment="Bottom" rotation="None" markup="none">
+					<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+					<paragraph lineSpacing="Single" leftIndent="1" rightIndent="1" spacingBefore="2" spacingAfter="2"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{Ч_Ч_9}]]></textFieldExpression>
 			</textField>
 			<textField pattern="###0.0;-###0.0" isBlankWhenNull="true">
-				<reportElement x="592" y="0" width="21" height="29" uuid="1b3e1818-d2c7-4e79-b564-cd44ca8426ad"/>
+				<reportElement mode="Transparent" x="592" y="0" width="21" height="29" forecolor="#000000" backcolor="#FFFFFF" uuid="1b3e1818-d2c7-4e79-b564-cd44ca8426ad"/>
 				<box>
 					<pen lineWidth="0.75"/>
 					<topPen lineWidth="0.75"/>
@@ -1417,14 +1978,14 @@ select * from (
 					<bottomPen lineWidth="0.75"/>
 					<rightPen lineWidth="0.75"/>
 				</box>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Times New Roman" size="9" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
-					<paragraph leftIndent="2" rightIndent="2" spacingBefore="2" spacingAfter="2"/>
+				<textElement textAlignment="Right" verticalAlignment="Bottom" rotation="None" markup="none">
+					<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+					<paragraph lineSpacing="Single" leftIndent="1" rightIndent="1" spacingBefore="2" spacingAfter="2"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{Ч_Ч_10}]]></textFieldExpression>
 			</textField>
 			<textField pattern="###0.0;-###0.0" isBlankWhenNull="true">
-				<reportElement x="613" y="0" width="21" height="29" uuid="60e624e1-a6f7-483f-b8c8-2c246d3c3850"/>
+				<reportElement mode="Transparent" x="613" y="0" width="21" height="29" forecolor="#000000" backcolor="#FFFFFF" uuid="60e624e1-a6f7-483f-b8c8-2c246d3c3850"/>
 				<box>
 					<pen lineWidth="0.75"/>
 					<topPen lineWidth="0.75"/>
@@ -1432,14 +1993,14 @@ select * from (
 					<bottomPen lineWidth="0.75"/>
 					<rightPen lineWidth="0.75"/>
 				</box>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Times New Roman" size="9" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
-					<paragraph leftIndent="2" rightIndent="2" spacingBefore="2" spacingAfter="2"/>
+				<textElement textAlignment="Right" verticalAlignment="Bottom" rotation="None" markup="none">
+					<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+					<paragraph lineSpacing="Single" leftIndent="1" rightIndent="1" spacingBefore="2" spacingAfter="2"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{Ч_Ч_11}]]></textFieldExpression>
 			</textField>
 			<textField pattern="###0.0;-###0.0" isBlankWhenNull="true">
-				<reportElement x="634" y="0" width="21" height="29" uuid="740a7720-3f90-4e4d-ab90-f8747dd85b65"/>
+				<reportElement mode="Transparent" x="634" y="0" width="21" height="29" forecolor="#000000" backcolor="#FFFFFF" uuid="740a7720-3f90-4e4d-ab90-f8747dd85b65"/>
 				<box>
 					<pen lineWidth="0.75"/>
 					<topPen lineWidth="0.75"/>
@@ -1447,14 +2008,14 @@ select * from (
 					<bottomPen lineWidth="0.75"/>
 					<rightPen lineWidth="0.75"/>
 				</box>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Times New Roman" size="9" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
-					<paragraph leftIndent="2" rightIndent="2" spacingBefore="2" spacingAfter="2"/>
+				<textElement textAlignment="Right" verticalAlignment="Bottom" rotation="None" markup="none">
+					<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+					<paragraph lineSpacing="Single" leftIndent="1" rightIndent="1" spacingBefore="2" spacingAfter="2"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{Ч_Ч_12}]]></textFieldExpression>
 			</textField>
 			<textField pattern="###0.0;-###0.0" isBlankWhenNull="true">
-				<reportElement x="655" y="0" width="21" height="29" uuid="2c78df61-4aaf-4fe0-891a-4b8dde6c2236"/>
+				<reportElement mode="Transparent" x="655" y="0" width="21" height="29" forecolor="#000000" backcolor="#FFFFFF" uuid="2c78df61-4aaf-4fe0-891a-4b8dde6c2236"/>
 				<box>
 					<pen lineWidth="0.75"/>
 					<topPen lineWidth="0.75"/>
@@ -1462,14 +2023,14 @@ select * from (
 					<bottomPen lineWidth="0.75"/>
 					<rightPen lineWidth="0.75"/>
 				</box>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Times New Roman" size="9" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
-					<paragraph leftIndent="2" rightIndent="2" spacingBefore="2" spacingAfter="2"/>
+				<textElement textAlignment="Right" verticalAlignment="Bottom" rotation="None" markup="none">
+					<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+					<paragraph lineSpacing="Single" leftIndent="1" rightIndent="1" spacingBefore="2" spacingAfter="2"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{Ч_Ч_13}]]></textFieldExpression>
 			</textField>
 			<textField pattern="###0.0;-###0.0" isBlankWhenNull="true">
-				<reportElement x="676" y="0" width="21" height="29" uuid="0281d7a1-d1cd-4295-bb2f-96d9291660b1"/>
+				<reportElement mode="Transparent" x="676" y="0" width="21" height="29" forecolor="#000000" backcolor="#FFFFFF" uuid="0281d7a1-d1cd-4295-bb2f-96d9291660b1"/>
 				<box>
 					<pen lineWidth="0.75"/>
 					<topPen lineWidth="0.75"/>
@@ -1477,14 +2038,14 @@ select * from (
 					<bottomPen lineWidth="0.75"/>
 					<rightPen lineWidth="0.75"/>
 				</box>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Times New Roman" size="9" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
-					<paragraph leftIndent="2" rightIndent="2" spacingBefore="2" spacingAfter="2"/>
+				<textElement textAlignment="Right" verticalAlignment="Bottom" rotation="None" markup="none">
+					<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+					<paragraph lineSpacing="Single" leftIndent="1" rightIndent="1" spacingBefore="2" spacingAfter="2"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{Ч_Ч_14}]]></textFieldExpression>
 			</textField>
 			<textField pattern="###0.0;-###0.0" isBlankWhenNull="true">
-				<reportElement x="697" y="0" width="21" height="29" uuid="2894ca69-c1e9-4c6a-8178-c07801658fd8"/>
+				<reportElement mode="Transparent" x="697" y="0" width="21" height="29" forecolor="#000000" backcolor="#FFFFFF" uuid="2894ca69-c1e9-4c6a-8178-c07801658fd8"/>
 				<box>
 					<pen lineWidth="0.75"/>
 					<topPen lineWidth="0.75"/>
@@ -1492,14 +2053,14 @@ select * from (
 					<bottomPen lineWidth="0.75"/>
 					<rightPen lineWidth="0.75"/>
 				</box>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Times New Roman" size="9" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
-					<paragraph leftIndent="2" rightIndent="2" spacingBefore="2" spacingAfter="2"/>
+				<textElement textAlignment="Right" verticalAlignment="Bottom" rotation="None" markup="none">
+					<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+					<paragraph lineSpacing="Single" leftIndent="1" rightIndent="1" spacingBefore="2" spacingAfter="2"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{Ч_Ч_15}]]></textFieldExpression>
 			</textField>
 			<textField pattern="###0.0;-###0.0" isBlankWhenNull="true">
-				<reportElement x="403" y="29" width="21" height="25" uuid="7d61963d-88d7-4da5-9e5f-dc1aa07b5ee2"/>
+				<reportElement mode="Transparent" x="403" y="29" width="21" height="25" forecolor="#000000" backcolor="#FFFFFF" uuid="7d61963d-88d7-4da5-9e5f-dc1aa07b5ee2"/>
 				<box>
 					<pen lineWidth="0.75"/>
 					<topPen lineWidth="0.75"/>
@@ -1507,14 +2068,14 @@ select * from (
 					<bottomPen lineWidth="0.75"/>
 					<rightPen lineWidth="0.75"/>
 				</box>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Times New Roman" size="9" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
-					<paragraph leftIndent="2" rightIndent="2" spacingBefore="2" spacingAfter="2"/>
+				<textElement textAlignment="Right" verticalAlignment="Bottom" rotation="None" markup="none">
+					<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+					<paragraph lineSpacing="Single" leftIndent="1" rightIndent="1" spacingBefore="2" spacingAfter="2"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{ЗА_1_ЧИСЛО}]]></textFieldExpression>
 			</textField>
 			<textField pattern="###0.0;-###0.0" isBlankWhenNull="true">
-				<reportElement x="424" y="29" width="21" height="25" uuid="fa522722-428c-420d-96d6-145e85e1c899"/>
+				<reportElement mode="Transparent" x="424" y="29" width="21" height="25" forecolor="#000000" backcolor="#FFFFFF" uuid="fa522722-428c-420d-96d6-145e85e1c899"/>
 				<box>
 					<pen lineWidth="0.75"/>
 					<topPen lineWidth="0.75"/>
@@ -1522,14 +2083,14 @@ select * from (
 					<bottomPen lineWidth="0.75"/>
 					<rightPen lineWidth="0.75"/>
 				</box>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Times New Roman" size="9" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
-					<paragraph leftIndent="2" rightIndent="2" spacingBefore="2" spacingAfter="2"/>
+				<textElement textAlignment="Right" verticalAlignment="Bottom" rotation="None" markup="none">
+					<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+					<paragraph lineSpacing="Single" leftIndent="1" rightIndent="1" spacingBefore="2" spacingAfter="2"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{ЗА_2_ЧИСЛО}]]></textFieldExpression>
 			</textField>
 			<textField pattern="###0.0;-###0.0" isBlankWhenNull="true">
-				<reportElement x="445" y="29" width="21" height="25" uuid="c39b1d0d-bd34-4981-98b6-ca65a55514f7"/>
+				<reportElement mode="Transparent" x="445" y="29" width="21" height="25" forecolor="#000000" backcolor="#FFFFFF" uuid="c39b1d0d-bd34-4981-98b6-ca65a55514f7"/>
 				<box>
 					<pen lineWidth="0.75"/>
 					<topPen lineWidth="0.75"/>
@@ -1537,14 +2098,14 @@ select * from (
 					<bottomPen lineWidth="0.75"/>
 					<rightPen lineWidth="0.75"/>
 				</box>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Times New Roman" size="9" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
-					<paragraph leftIndent="2" rightIndent="2" spacingBefore="2" spacingAfter="2"/>
+				<textElement textAlignment="Right" verticalAlignment="Bottom" rotation="None" markup="none">
+					<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+					<paragraph lineSpacing="Single" leftIndent="1" rightIndent="1" spacingBefore="2" spacingAfter="2"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{ЗА_3_ЧИСЛО}]]></textFieldExpression>
 			</textField>
 			<textField pattern="###0.0;-###0.0" isBlankWhenNull="true">
-				<reportElement x="466" y="29" width="21" height="25" uuid="f993fe02-5958-40e0-89f8-585e5495c75e"/>
+				<reportElement mode="Transparent" x="466" y="29" width="21" height="25" forecolor="#000000" backcolor="#FFFFFF" uuid="f993fe02-5958-40e0-89f8-585e5495c75e"/>
 				<box>
 					<pen lineWidth="0.75"/>
 					<topPen lineWidth="0.75"/>
@@ -1552,14 +2113,14 @@ select * from (
 					<bottomPen lineWidth="0.75"/>
 					<rightPen lineWidth="0.75"/>
 				</box>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Times New Roman" size="9" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
-					<paragraph leftIndent="2" rightIndent="2" spacingBefore="2" spacingAfter="2"/>
+				<textElement textAlignment="Right" verticalAlignment="Bottom" rotation="None" markup="none">
+					<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+					<paragraph lineSpacing="Single" leftIndent="1" rightIndent="1" spacingBefore="2" spacingAfter="2"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{ЗА_4_ЧИСЛО}]]></textFieldExpression>
 			</textField>
 			<textField pattern="###0.0;-###0.0" isBlankWhenNull="true">
-				<reportElement x="487" y="29" width="21" height="25" uuid="194265c3-4485-4411-86f8-a1726abb0197"/>
+				<reportElement mode="Transparent" x="487" y="29" width="21" height="25" forecolor="#000000" backcolor="#FFFFFF" uuid="194265c3-4485-4411-86f8-a1726abb0197"/>
 				<box>
 					<pen lineWidth="0.75"/>
 					<topPen lineWidth="0.75"/>
@@ -1567,14 +2128,14 @@ select * from (
 					<bottomPen lineWidth="0.75"/>
 					<rightPen lineWidth="0.75"/>
 				</box>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Times New Roman" size="9" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
-					<paragraph leftIndent="2" rightIndent="2" spacingBefore="2" spacingAfter="2"/>
+				<textElement textAlignment="Right" verticalAlignment="Bottom" rotation="None" markup="none">
+					<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+					<paragraph lineSpacing="Single" leftIndent="1" rightIndent="1" spacingBefore="2" spacingAfter="2"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{ЗА_5_ЧИСЛО}]]></textFieldExpression>
 			</textField>
 			<textField pattern="###0.0;-###0.0" isBlankWhenNull="true">
-				<reportElement x="508" y="29" width="21" height="25" uuid="2b41a1f5-c6a8-4aaa-8a59-2f8c1636f131"/>
+				<reportElement mode="Transparent" x="508" y="29" width="21" height="25" forecolor="#000000" backcolor="#FFFFFF" uuid="2b41a1f5-c6a8-4aaa-8a59-2f8c1636f131"/>
 				<box>
 					<pen lineWidth="0.75"/>
 					<topPen lineWidth="0.75"/>
@@ -1582,14 +2143,14 @@ select * from (
 					<bottomPen lineWidth="0.75"/>
 					<rightPen lineWidth="0.75"/>
 				</box>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Times New Roman" size="9" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
-					<paragraph leftIndent="2" rightIndent="2" spacingBefore="2" spacingAfter="2"/>
+				<textElement textAlignment="Right" verticalAlignment="Bottom" rotation="None" markup="none">
+					<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+					<paragraph lineSpacing="Single" leftIndent="1" rightIndent="1" spacingBefore="2" spacingAfter="2"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{ЗА_6_ЧИСЛО}]]></textFieldExpression>
 			</textField>
 			<textField pattern="###0.0;-###0.0" isBlankWhenNull="true">
-				<reportElement x="529" y="29" width="21" height="25" uuid="265cfb81-d007-4591-9c0f-f2df8b2268ce"/>
+				<reportElement mode="Transparent" x="529" y="29" width="21" height="25" forecolor="#000000" backcolor="#FFFFFF" uuid="265cfb81-d007-4591-9c0f-f2df8b2268ce"/>
 				<box>
 					<pen lineWidth="0.75"/>
 					<topPen lineWidth="0.75"/>
@@ -1597,14 +2158,14 @@ select * from (
 					<bottomPen lineWidth="0.75"/>
 					<rightPen lineWidth="0.75"/>
 				</box>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Times New Roman" size="9" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
-					<paragraph leftIndent="2" rightIndent="2" spacingBefore="2" spacingAfter="2"/>
+				<textElement textAlignment="Right" verticalAlignment="Bottom" rotation="None" markup="none">
+					<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+					<paragraph lineSpacing="Single" leftIndent="1" rightIndent="1" spacingBefore="2" spacingAfter="2"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{ЗА_7_ЧИСЛО}]]></textFieldExpression>
 			</textField>
 			<textField pattern="###0.0;-###0.0" isBlankWhenNull="true">
-				<reportElement x="550" y="29" width="21" height="25" uuid="6e5abd9e-8333-43a8-977a-953ba0e366f1"/>
+				<reportElement mode="Transparent" x="550" y="29" width="21" height="25" forecolor="#000000" backcolor="#FFFFFF" uuid="6e5abd9e-8333-43a8-977a-953ba0e366f1"/>
 				<box>
 					<pen lineWidth="0.75"/>
 					<topPen lineWidth="0.75"/>
@@ -1612,14 +2173,14 @@ select * from (
 					<bottomPen lineWidth="0.75"/>
 					<rightPen lineWidth="0.75"/>
 				</box>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Times New Roman" size="9" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
-					<paragraph leftIndent="2" rightIndent="2" spacingBefore="2" spacingAfter="2"/>
+				<textElement textAlignment="Right" verticalAlignment="Bottom" rotation="None" markup="none">
+					<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+					<paragraph lineSpacing="Single" leftIndent="1" rightIndent="1" spacingBefore="2" spacingAfter="2"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{ЗА_8_ЧИСЛО}]]></textFieldExpression>
 			</textField>
 			<textField pattern="###0.0;-###0.0" isBlankWhenNull="true">
-				<reportElement x="571" y="29" width="21" height="25" uuid="2faba62f-013b-4362-825b-434b800d803e"/>
+				<reportElement mode="Transparent" x="571" y="29" width="21" height="25" forecolor="#000000" backcolor="#FFFFFF" uuid="2faba62f-013b-4362-825b-434b800d803e"/>
 				<box>
 					<pen lineWidth="0.75"/>
 					<topPen lineWidth="0.75"/>
@@ -1627,14 +2188,14 @@ select * from (
 					<bottomPen lineWidth="0.75"/>
 					<rightPen lineWidth="0.75"/>
 				</box>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Times New Roman" size="9" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
-					<paragraph leftIndent="2" rightIndent="2" spacingBefore="2" spacingAfter="2"/>
+				<textElement textAlignment="Right" verticalAlignment="Bottom" rotation="None" markup="none">
+					<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+					<paragraph lineSpacing="Single" leftIndent="1" rightIndent="1" spacingBefore="2" spacingAfter="2"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{ЗА_9_ЧИСЛО}]]></textFieldExpression>
 			</textField>
 			<textField pattern="###0.0;-###0.0" isBlankWhenNull="true">
-				<reportElement x="592" y="29" width="21" height="25" uuid="511f2812-8498-4cd3-bd0d-6f242ddccaa0"/>
+				<reportElement mode="Transparent" x="592" y="29" width="21" height="25" forecolor="#000000" backcolor="#FFFFFF" uuid="511f2812-8498-4cd3-bd0d-6f242ddccaa0"/>
 				<box>
 					<pen lineWidth="0.75"/>
 					<topPen lineWidth="0.75"/>
@@ -1642,14 +2203,14 @@ select * from (
 					<bottomPen lineWidth="0.75"/>
 					<rightPen lineWidth="0.75"/>
 				</box>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Times New Roman" size="9" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
-					<paragraph leftIndent="2" rightIndent="2" spacingBefore="2" spacingAfter="2"/>
+				<textElement textAlignment="Right" verticalAlignment="Bottom" rotation="None" markup="none">
+					<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+					<paragraph lineSpacing="Single" leftIndent="1" rightIndent="1" spacingBefore="2" spacingAfter="2"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{ЗА_10_ЧИСЛО}]]></textFieldExpression>
 			</textField>
 			<textField pattern="###0.0;-###0.0" isBlankWhenNull="true">
-				<reportElement x="613" y="29" width="21" height="25" uuid="cb894d37-1161-4ee5-9453-00a93e12941a"/>
+				<reportElement mode="Transparent" x="613" y="29" width="21" height="25" forecolor="#000000" backcolor="#FFFFFF" uuid="cb894d37-1161-4ee5-9453-00a93e12941a"/>
 				<box>
 					<pen lineWidth="0.75"/>
 					<topPen lineWidth="0.75"/>
@@ -1657,14 +2218,14 @@ select * from (
 					<bottomPen lineWidth="0.75"/>
 					<rightPen lineWidth="0.75"/>
 				</box>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Times New Roman" size="9" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
-					<paragraph leftIndent="2" rightIndent="2" spacingBefore="2" spacingAfter="2"/>
+				<textElement textAlignment="Right" verticalAlignment="Bottom" rotation="None" markup="none">
+					<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+					<paragraph lineSpacing="Single" leftIndent="1" rightIndent="1" spacingBefore="2" spacingAfter="2"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{ЗА_11_ЧИСЛО}]]></textFieldExpression>
 			</textField>
 			<textField pattern="###0.0;-###0.0" isBlankWhenNull="true">
-				<reportElement x="634" y="29" width="21" height="25" uuid="f37849a2-5deb-4ef2-8281-c77cd48c15c9"/>
+				<reportElement mode="Transparent" x="634" y="29" width="21" height="25" forecolor="#000000" backcolor="#FFFFFF" uuid="f37849a2-5deb-4ef2-8281-c77cd48c15c9"/>
 				<box>
 					<pen lineWidth="0.75"/>
 					<topPen lineWidth="0.75"/>
@@ -1672,14 +2233,14 @@ select * from (
 					<bottomPen lineWidth="0.75"/>
 					<rightPen lineWidth="0.75"/>
 				</box>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Times New Roman" size="9" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
-					<paragraph leftIndent="2" rightIndent="2" spacingBefore="2" spacingAfter="2"/>
+				<textElement textAlignment="Right" verticalAlignment="Bottom" rotation="None" markup="none">
+					<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+					<paragraph lineSpacing="Single" leftIndent="1" rightIndent="1" spacingBefore="2" spacingAfter="2"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{ЗА_12_ЧИСЛО}]]></textFieldExpression>
 			</textField>
 			<textField pattern="###0.0;-###0.0" isBlankWhenNull="true">
-				<reportElement x="655" y="29" width="21" height="25" uuid="2a22afea-c838-4266-b96f-361003d7793b"/>
+				<reportElement mode="Transparent" x="655" y="29" width="21" height="25" forecolor="#000000" backcolor="#FFFFFF" uuid="2a22afea-c838-4266-b96f-361003d7793b"/>
 				<box>
 					<pen lineWidth="0.75"/>
 					<topPen lineWidth="0.75"/>
@@ -1687,14 +2248,14 @@ select * from (
 					<bottomPen lineWidth="0.75"/>
 					<rightPen lineWidth="0.75"/>
 				</box>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Times New Roman" size="9" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
-					<paragraph leftIndent="2" rightIndent="2" spacingBefore="2" spacingAfter="2"/>
+				<textElement textAlignment="Right" verticalAlignment="Bottom" rotation="None" markup="none">
+					<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+					<paragraph lineSpacing="Single" leftIndent="1" rightIndent="1" spacingBefore="2" spacingAfter="2"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{ЗА_13_ЧИСЛО}]]></textFieldExpression>
 			</textField>
 			<textField pattern="###0.0;-###0.0" isBlankWhenNull="true">
-				<reportElement x="676" y="29" width="21" height="25" uuid="b6009732-6d75-4156-b3e1-ddced5a6a9ae"/>
+				<reportElement mode="Transparent" x="676" y="29" width="21" height="25" forecolor="#000000" backcolor="#FFFFFF" uuid="b6009732-6d75-4156-b3e1-ddced5a6a9ae"/>
 				<box>
 					<pen lineWidth="0.75"/>
 					<topPen lineWidth="0.75"/>
@@ -1702,14 +2263,14 @@ select * from (
 					<bottomPen lineWidth="0.75"/>
 					<rightPen lineWidth="0.75"/>
 				</box>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Times New Roman" size="9" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
-					<paragraph leftIndent="2" rightIndent="2" spacingBefore="2" spacingAfter="2"/>
+				<textElement textAlignment="Right" verticalAlignment="Bottom" rotation="None" markup="none">
+					<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+					<paragraph lineSpacing="Single" leftIndent="1" rightIndent="1" spacingBefore="2" spacingAfter="2"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{ЗА_14_ЧИСЛО}]]></textFieldExpression>
 			</textField>
 			<textField pattern="###0.0;-###0.0" isBlankWhenNull="true">
-				<reportElement x="697" y="29" width="21" height="25" uuid="f63d9e0c-399e-449d-affd-dc91c8f857ab"/>
+				<reportElement mode="Transparent" x="697" y="29" width="21" height="25" forecolor="#000000" backcolor="#FFFFFF" uuid="f63d9e0c-399e-449d-affd-dc91c8f857ab"/>
 				<box>
 					<pen lineWidth="0.75"/>
 					<topPen lineWidth="0.75"/>
@@ -1717,14 +2278,14 @@ select * from (
 					<bottomPen lineWidth="0.75"/>
 					<rightPen lineWidth="0.75"/>
 				</box>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Times New Roman" size="9" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
-					<paragraph leftIndent="2" rightIndent="2" spacingBefore="2" spacingAfter="2"/>
+				<textElement textAlignment="Right" verticalAlignment="Bottom" rotation="None" markup="none">
+					<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+					<paragraph lineSpacing="Single" leftIndent="1" rightIndent="1" spacingBefore="2" spacingAfter="2"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{ЗА_15_ЧИСЛО}]]></textFieldExpression>
 			</textField>
-			<textField isBlankWhenNull="true">
-				<reportElement x="777" y="0" width="25" height="54" uuid="7c124378-11c9-498a-a698-24b6b087f440"/>
+			<textField pattern="###0.0;-###0.0" isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="777" y="0" width="25" height="54" forecolor="#000000" backcolor="#FFFFFF" uuid="7c124378-11c9-498a-a698-24b6b087f440"/>
 				<box>
 					<pen lineWidth="0.75"/>
 					<topPen lineWidth="0.75"/>
@@ -1732,9 +2293,9 @@ select * from (
 					<bottomPen lineWidth="0.75"/>
 					<rightPen lineWidth="0.75"/>
 				</box>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Times New Roman" size="9" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
-					<paragraph leftIndent="2" rightIndent="2" spacingBefore="2" spacingAfter="2"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+					<paragraph lineSpacing="Single" leftIndent="1" rightIndent="1" spacingBefore="2" spacingAfter="2"/>
 				</textElement>
 				<textFieldExpression><![CDATA[($F{ЗА_1_ЧИСЛО} == null ? 0 : $F{ЗА_1_ЧИСЛО})+
 ($F{ЗА_2_ЧИСЛО} == null ? 0 : $F{ЗА_2_ЧИСЛО})+
@@ -1767,8 +2328,8 @@ select * from (
 				</textElement>
 				<textFieldExpression><![CDATA[$V{REPORT_COUNT}]]></textFieldExpression>
 			</textField>
-			<textField>
-				<reportElement x="718" y="0" width="27" height="54" uuid="f234fc41-d536-4dba-af83-6a32bfbb86a7"/>
+			<textField pattern="###0.0;-###0.0" isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="718" y="0" width="27" height="54" forecolor="#000000" backcolor="#FFFFFF" uuid="f234fc41-d536-4dba-af83-6a32bfbb86a7"/>
 				<box>
 					<pen lineWidth="0.75"/>
 					<topPen lineWidth="0.75"/>
@@ -1776,9 +2337,9 @@ select * from (
 					<bottomPen lineWidth="0.75"/>
 					<rightPen lineWidth="0.75"/>
 				</box>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Times New Roman" size="9" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
-					<paragraph leftIndent="2" rightIndent="2" spacingBefore="2" spacingAfter="2"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+					<paragraph lineSpacing="Single" leftIndent="1" rightIndent="1" spacingBefore="2" spacingAfter="2"/>
 				</textElement>
 				<textFieldExpression><![CDATA[($F{Ч_Ч_1} == null ? 0 : $F{Ч_Ч_1})+
 ($F{Ч_Ч_2} == null ? 0 : $F{Ч_Ч_2})+
@@ -1796,8 +2357,8 @@ select * from (
 ($F{Ч_Ч_14} == null ? 0 : $F{Ч_Ч_14})+
 ($F{Ч_Ч_15} == null ? 0 : $F{Ч_Ч_15})]]></textFieldExpression>
 			</textField>
-			<textField pattern="###0.00;-###0.00">
-				<reportElement x="745" y="0" width="32" height="54" uuid="fab2783e-faef-46c6-939b-fb0f0768b455"/>
+			<textField pattern="###0.0;-###0.0" isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="745" y="0" width="32" height="54" forecolor="#000000" backcolor="#FFFFFF" uuid="fab2783e-faef-46c6-939b-fb0f0768b455"/>
 				<box>
 					<pen lineWidth="0.75"/>
 					<topPen lineWidth="0.75"/>
@@ -1805,8 +2366,9 @@ select * from (
 					<bottomPen lineWidth="0.75"/>
 					<rightPen lineWidth="0.75"/>
 				</box>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Times New Roman" size="9" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+					<paragraph lineSpacing="Single" leftIndent="1" rightIndent="1"/>
 				</textElement>
 				<textFieldExpression><![CDATA[(
 ($F{ЗА_1_ЧИСЛО} == null ? 0 : $F{ЗА_1_ЧИСЛО})+
@@ -1827,7 +2389,7 @@ select * from (
 )/$F{НОРМА_ВРЕМЕНИ}*$F{NUMVALUE}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="19" y="0" width="120" height="54" uuid="818d0080-ab0b-4ec8-88e0-50128cee1818"/>
+				<reportElement x="19" y="0" width="341" height="54" uuid="818d0080-ab0b-4ec8-88e0-50128cee1818"/>
 				<box>
 					<pen lineWidth="0.75"/>
 					<topPen lineWidth="0.75"/>
@@ -1835,9 +2397,9 @@ select * from (
 					<bottomPen lineWidth="0.75"/>
 					<rightPen lineWidth="0.75"/>
 				</box>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
+				<textElement textAlignment="Left" verticalAlignment="Middle">
 					<font fontName="Times New Roman" size="9" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
-					<paragraph leftIndent="2" rightIndent="2" spacingBefore="2" spacingAfter="2"/>
+					<paragraph leftIndent="1" rightIndent="1" spacingBefore="2" spacingAfter="2"/>
 				</textElement>
 				<textFieldExpression><![CDATA[($F{MESTO} == "invis" ? "" : $F{MESTO})]]></textFieldExpression>
 			</textField>
