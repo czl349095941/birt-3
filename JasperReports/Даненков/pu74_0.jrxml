@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="pu74_all" language="groovy" pageWidth="842" pageHeight="200000" orientation="Landscape" whenNoDataType="AllSectionsNoDetail" columnWidth="802" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" isTitleNewPage="true" uuid="6a70ac9d-c574-4484-8c8c-e5a5633cfb0d">
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="pu74_all" language="groovy" pageWidth="842" pageHeight="200000" orientation="Landscape" whenNoDataType="AllSectionsNoDetail" columnWidth="802" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" isSummaryNewPage="true" uuid="6a70ac9d-c574-4484-8c8c-e5a5633cfb0d">
 	<property name="ireport.zoom" value="1.0"/>
 	<property name="ireport.x" value="0"/>
 	<property name="ireport.y" value="0"/>
@@ -21,35 +21,494 @@
 		<defaultValueExpression><![CDATA["C:\\Users\\Mihail.Danenkov\\Dropbox\\Работа\\Скрипты\\birt\\JasperReports\\Даненков\\"]]></defaultValueExpression>
 	</parameter>
 	<queryString>
-		<![CDATA[]]>
+		<![CDATA[with KONT as
+(
+select  COUNT (distinct LABTRANS.LABORCODE) FK,
+        SUM(LABTRANS.labor_hour)            fk_hour
+FROM    MAXIMO.LABTRANS
+        JOIN MAXIMO.LABORCRAFTRATE
+                ON      LABORCRAFTRATE.LABORCODE = LABTRANS.LABORCODE
+WHERE   LABTRANS.LABORCODE             IS NOT NULL
+        AND LABTRANS.labor_hour                  > 0
+        AND LABORCRAFTRATE.DEFAULTCRAFT          = '1'
+        AND LABTRANS.SITEID                      = '24'
+        AND LABTRANS.REFWO IN
+        (SELECT wonum
+        FROM    Maximo.Workorder Wo
+        WHERE   WO.SITEID                         = '24'
+                AND TO_CHAR(wo.Actfinish, 'MM')   = 04
+                AND TO_CHAR(wo.Actfinish, 'YYYY') = '2014'
+                AND WO.BRIGAD_LOCATION            = 'PODR_108'
+                AND WO.STATUS     IN ('НАПР_НА_УТ', 'ЗАВЕРШ', 'ОТКЛ_РГН', 'ОФОРМЛЕН', 'ЗАКРЫТО')
+                AND TYPEWORKORDER IN ('Внеплановое', 'Плановое', 'Сопутствующая работа', 'Прочее', 'Путевые обходчики')
+        )
+)
+SELECT  pd.Description   pd ,
+        pchu.Description pchu ,
+        PCH.DESCRIPTION  PCH ,
+        SITE.DESCRIPTION SITEID ,
+        (SELECT COUNT (*)
+        FROM    maximo.person
+                JOIN maximo.LABORCRAFTRATE
+                        ON      person.personid                 = LABORCRAFTRATE.laborcode
+                                AND LABORCRAFTRATE.DEFAULTCRAFT = 1
+                                AND LABORCRAFTRATE.craft IN ('00000205', 'МНТР_ПТ', 'СГНЛСТ', '00000346')
+        WHERE   person.l_podr           = pd.location
+                AND person.locationsite = pd.SITEID
+                AND person.status       = 'АКТИВНО'
+        )                RASCH_KONTINGENT,
+        (select FK from KONT) FK,
+        (select fk_hour from KONT) FK_hour,
+        (SELECT  ' на ' || (
+                CASE
+                        WHEN 07 = 01 THEN ' январь '
+                        WHEN 07 = 02 THEN ' февраль '
+                        WHEN 07 = 03 THEN ' март '
+                        WHEN 07 = 04 THEN ' апрель '
+                        WHEN 07 = 05 THEN ' май '
+                        WHEN 07 = 06 THEN ' июнь '
+                        WHEN 07 = 07 THEN ' июль '
+                        WHEN 07 = 08 THEN ' август '
+                        WHEN 07 = 09 THEN ' сентябрь '
+                        WHEN 07 = 10 THEN ' октябрь '
+                        WHEN 07 = 11 THEN ' ноябрь '
+                        WHEN 07 = 12 THEN ' декабрь '
+                        ELSE ''
+                END || 2014) || ' г.' DAT
+FROM    dual) mon,
+        DORM.DISPLAYNAME DORM ,
+        norm.Displayname norm
+FROM    maximo.locations pd
+        JOIN MAXIMO.lochierarchy lh_pd
+                ON      pd.location   = lh_pd.location
+                        AND pd.siteid = lh_pd.siteid
+        JOIN maximo.locations pchu
+                ON      lh_pd.parent     = pchu.location
+                        AND lh_pd.siteid = pchu.siteid
+        JOIN MAXIMO.lochierarchy lh_pchu
+                ON      pchu.location   = lh_pchu.location
+                        AND pchu.siteid = lh_pchu.siteid
+        JOIN maximo.locations pch
+                ON      lh_pchu.parent     = pch.location
+                        AND lh_pchu.siteid = pch.siteid
+        JOIN maximo.site
+                ON      PD.SITEID = SITE.SITEID
+        LEFT JOIN
+                (SELECT lpodr.l_podr,
+                        person.locationsite siteid,
+                        TO_CHAR(SYS_XMLAGG(xmlelement(COL, person.Displayname
+                                || ', ')).extract('/ROWSET/COL/text()').GETCLOBVAL()) Displayname
+                FROM    MAXIMO.LPODR
+                        JOIN maximo.person
+                                ON      LPODR.PERSONID = PERSON.PERSONID
+                        JOIN Maximo.Laborcraftrate
+                                ON      PERSON.PERSONID = LABORCRAFTRATE.LABORCODE
+                        JOIN MAXIMO.CRAFT
+                                ON      LABORCRAFTRATE.CRAFT = CRAFT.CRAFT
+                WHERE   LABORCRAFTRATE.CRAFT IN ('СТМАСТЕР_ДОР', '00000640')
+                        AND LABORCRAFTRATE.DEFAULTCRAFT = '1'
+                        AND PERSON.STATUS               = 'АКТИВНО'
+                        AND lpodr.l_podr      IS NOT NULL
+                GROUP BY lpodr.l_podr,
+                        person.locationsite
+                ) dorm
+                ON      pd.location   = dorm.l_podr
+                        AND pd.siteid = dorm.siteid
+        LEFT JOIN
+                (SELECT lpodr.l_podr,
+                        person.locationsite siteid,
+                        TO_CHAR(SYS_XMLAGG(xmlelement(COL, person.Displayname
+                                || ', ')).extract('/ROWSET/COL/text()').GETCLOBVAL()) Displayname
+                FROM    MAXIMO.LPODR
+                        JOIN maximo.person
+                                ON      LPODR.PERSONID = PERSON.PERSONID
+                        JOIN Maximo.Laborcraftrate
+                                ON      PERSON.PERSONID = LABORCRAFTRATE.LABORCODE
+                        JOIN MAXIMO.CRAFT
+                                ON      LABORCRAFTRATE.CRAFT = CRAFT.CRAFT
+                WHERE   LABORCRAFTRATE.CRAFT IN ('ИНЖ_НРМТРД', '00000576', 'ВЕДИНЖ_НРМТРД', '00003979')
+                        AND LABORCRAFTRATE.DEFAULTCRAFT = '1'
+                        AND PERSON.STATUS               = 'АКТИВНО'
+                        AND lpodr.l_podr      IS NOT NULL
+                GROUP BY lpodr.l_podr,
+                        person.locationsite
+                ) NORM
+                ON      pd.location   = norm.l_podr
+                        AND pd.siteid = norm.siteid
+WHERE   pd.location                   = 'PODR_108'
+        AND pd.SITEID                 = '24']]>
 	</queryString>
-	<field name="1" class="java.math.BigDecimal"/>
+	<field name="PD" class="java.lang.String"/>
+	<field name="PCHU" class="java.lang.String"/>
+	<field name="PCH" class="java.lang.String"/>
+	<field name="SITEID" class="java.lang.String"/>
+	<field name="RASCH_KONTINGENT" class="java.math.BigDecimal"/>
+	<field name="FK" class="java.math.BigDecimal"/>
+	<field name="FK_HOUR" class="java.math.BigDecimal"/>
+	<field name="MON" class="java.lang.String"/>
+	<field name="DORM" class="java.lang.String"/>
+	<field name="NORM" class="java.lang.String"/>
 	<background>
 		<band splitType="Stretch"/>
 	</background>
 	<title>
-		<band height="20" splitType="Stretch">
-			<staticText>
-				<reportElement x="0" y="0" width="802" height="20" uuid="b720da39-5c17-47f9-a30a-dd5430137ab5"/>
-				<textElement textAlignment="Center"/>
-				<text><![CDATA[ПУ-74. Здесь будет заголовок, но могла бы быть ваша реклама]]></text>
-			</staticText>
-		</band>
+		<band splitType="Stretch"/>
 	</title>
 	<pageHeader>
-		<band height="35" splitType="Stretch"/>
+		<band splitType="Stretch"/>
 	</pageHeader>
 	<columnHeader>
-		<band height="61" splitType="Stretch"/>
+		<band height="411" splitType="Stretch">
+			<textField>
+				<reportElement x="31" y="3" width="100" height="12" uuid="70502317-0138-489d-85ae-565528c55b9e"/>
+				<textElement textAlignment="Center">
+					<font fontName="Times New Roman" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{SITEID}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="31" y="15" width="100" height="12" uuid="14b33a6c-7c00-44c9-a8b2-8fa6561bf838"/>
+				<textElement textAlignment="Center">
+					<font fontName="Times New Roman" size="8"/>
+				</textElement>
+				<text><![CDATA[(железная дорога)]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="668" y="3" width="65" height="12" uuid="adc450e8-cd46-4c6f-89bd-05c21d501dcf"/>
+				<textElement textAlignment="Right">
+					<font fontName="Times New Roman" size="8"/>
+				</textElement>
+				<text><![CDATA[Форма ПУ-74   ]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="630" y="39" width="150" height="12" uuid="cbcc1eee-4d17-4102-ba39-0341b163ad0c"/>
+				<textElement textAlignment="Right">
+					<font fontName="Times New Roman" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{PCH}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="630" y="51" width="150" height="12" uuid="6fbd8ebe-13d5-46b0-b39a-6aa1fbce1df6"/>
+				<textElement textAlignment="Right">
+					<font fontName="Times New Roman" size="8"/>
+				</textElement>
+				<text><![CDATA[ ___________________(подпись)]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="630" y="63" width="150" height="12" uuid="27e34df0-bd17-4e88-bf11-5c1b86c5fb5c"/>
+				<textElement textAlignment="Right">
+					<font fontName="Times New Roman" size="8"/>
+				</textElement>
+				<text><![CDATA[«____»______________20____г.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="630" y="15" width="150" height="12" uuid="d7f3c74d-be59-408c-a1d2-0f27f3a5aef1"/>
+				<textElement textAlignment="Right">
+					<font fontName="Times New Roman" size="8"/>
+				</textElement>
+				<text><![CDATA[Утверждена ОАО «РЖД» в 2004 г.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="630" y="27" width="150" height="12" uuid="20628e08-cd7a-4afa-989f-a4a7276f7362"/>
+				<textElement textAlignment="Center">
+					<font fontName="Times New Roman" size="8"/>
+				</textElement>
+				<text><![CDATA[Утверждаю]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="733" y="3" width="47" height="12" uuid="f7898754-0101-42d6-b50d-ec276998b955"/>
+				<box>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center">
+					<font fontName="Times New Roman" size="8"/>
+				</textElement>
+				<text><![CDATA[0359838]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="131" y="145" width="499" height="17" uuid="4a52b79b-229a-4d42-8774-fae59a7db31e"/>
+				<textElement textAlignment="Center">
+					<font fontName="Times New Roman" size="14"/>
+				</textElement>
+				<text><![CDATA[планирования и учета выполнения работ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="131" y="162" width="499" height="17" uuid="e2b9b2d7-c007-4bdc-a0fc-1345041b10e7"/>
+				<textElement textAlignment="Center">
+					<font fontName="Times New Roman" size="14"/>
+				</textElement>
+				<text><![CDATA[по текущему содержанию пути и сооружений]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="131" y="179" width="499" height="17" uuid="26f6be17-2ce4-4118-af47-4e4517acbdcd"/>
+				<textElement textAlignment="Center">
+					<font fontName="Times New Roman" size="14"/>
+				</textElement>
+				<text><![CDATA[и оценка их состояния]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="131" y="75" width="499" height="70" uuid="5254bf95-98df-431b-8cc1-64de0d275454"/>
+				<textElement textAlignment="Center" verticalAlignment="Bottom">
+					<font fontName="Times New Roman" size="16"/>
+				</textElement>
+				<text><![CDATA[ЖУРНАЛ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="131" y="196" width="499" height="31" uuid="a273f2ac-c1eb-4640-bd7c-91d2807e32b0"/>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="131" y="227" width="499" height="15" uuid="c38a5143-60f9-408f-8410-5f2e9dcbd8ac"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{PCH} + " дистанции пути"]]></textFieldExpression>
+			</textField>
+			<textField pattern="" isBlankWhenNull="false">
+				<reportElement mode="Transparent" x="131" y="242" width="300" height="15" forecolor="#000000" backcolor="#FFFFFF" uuid="840a315c-b77b-43a0-80d2-0f9f6176271a"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="Times New Roman" size="12" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{PD} + " околотка"]]></textFieldExpression>
+			</textField>
+			<textField pattern="" isBlankWhenNull="false">
+				<reportElement mode="Transparent" x="131" y="257" width="499" height="15" forecolor="#000000" backcolor="#FFFFFF" uuid="30fcf66c-b8cd-4509-b2c2-1129c2d75cac"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="Times New Roman" size="12" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{MON}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement mode="Transparent" x="131" y="272" width="100" height="15" forecolor="#000000" backcolor="#FFFFFF" uuid="c833a4af-eff0-49b7-a05e-31b2cde0c52c"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="Times New Roman" size="12" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[Контингент:]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="331" y="272" width="100" height="15" forecolor="#000000" backcolor="#FFFFFF" uuid="286da4d1-b562-4e7f-afda-52c6803354aa"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="Times New Roman" size="12" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{RASCH_KONTINGENT}]]></textFieldExpression>
+			</textField>
+			<textField pattern="" isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="331" y="287" width="100" height="15" forecolor="#000000" backcolor="#FFFFFF" uuid="5cedbd9d-b4d6-4a34-8101-d194ef2e53ff"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="Times New Roman" size="12" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{FK}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement mode="Transparent" x="231" y="272" width="100" height="15" forecolor="#000000" backcolor="#FFFFFF" uuid="b957e0f1-32cc-4cae-a854-42780a087cf1"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="Times New Roman" size="12" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[расчетный]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="231" y="287" width="100" height="15" forecolor="#000000" backcolor="#FFFFFF" uuid="17da0ca6-0eb0-43e9-a1f2-96bc91377ebe"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="Times New Roman" size="12" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[фактический]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="431" y="272" width="32" height="15" forecolor="#000000" backcolor="#FFFFFF" uuid="4535dd71-96c5-4a58-8190-c4a9b27ba9a5"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="Times New Roman" size="12" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[чел.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="431" y="287" width="32" height="15" forecolor="#000000" backcolor="#FFFFFF" uuid="2311b37f-91d9-47e9-a67e-56150ffb1d44"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="Times New Roman" size="12" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[чел.]]></text>
+			</staticText>
+			<textField pattern="" isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="463" y="287" width="120" height="15" forecolor="#000000" backcolor="#FFFFFF" uuid="8211ab2b-877a-440f-bf41-da56d38afd1e"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="Times New Roman" size="12" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{FK_HOUR}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement mode="Transparent" x="583" y="272" width="47" height="15" forecolor="#000000" backcolor="#FFFFFF" uuid="0cb9b79d-7dbe-48ae-9dba-305c84f5a564"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="Times New Roman" size="12" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[чел./час]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="583" y="287" width="47" height="15" forecolor="#000000" backcolor="#FFFFFF" uuid="d971fa16-ed17-4079-a999-e9b8788ea11f"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="Times New Roman" size="12" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[чел./час]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="131" y="302" width="200" height="15" forecolor="#000000" backcolor="#FFFFFF" uuid="cd47e565-0ef5-4540-a66f-aef7bcb2e218"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="Times New Roman" size="12" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[Укомплектованность околотка]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="583" y="302" width="47" height="15" forecolor="#000000" backcolor="#FFFFFF" uuid="44cf6b73-dc3d-48d1-97e6-1717887fd8a6"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="Times New Roman" size="12" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[%]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="331" y="302" width="252" height="15" forecolor="#000000" backcolor="#FFFFFF" uuid="7578fbcf-4698-4a96-9ba3-77bae6be11d4"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="Times New Roman" size="12" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[_________________________________________________]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="131" y="317" width="100" height="15" forecolor="#000000" backcolor="#FFFFFF" uuid="d77edc42-ae24-4da1-9830-a64f3b10ba25"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="Times New Roman" size="12" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[Фонд оплаты труда:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="231" y="317" width="100" height="15" forecolor="#000000" backcolor="#FFFFFF" uuid="1e8e57e5-a3ed-444a-b290-a84236746e6f"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="Times New Roman" size="12" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[по договору]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="231" y="332" width="100" height="15" forecolor="#000000" backcolor="#FFFFFF" uuid="381a2bc0-a191-4dc8-b5f9-96aafbd3efb4"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="Times New Roman" size="12" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[к выплате]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="331" y="317" width="252" height="15" forecolor="#000000" backcolor="#FFFFFF" uuid="60540fb4-77e1-4b51-93e4-9f891d7b1614"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="Times New Roman" size="12" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[_________________________________________________]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="331" y="332" width="252" height="15" forecolor="#000000" backcolor="#FFFFFF" uuid="8a3b5d9d-47e3-4d45-ba41-70974e53e0e3"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="Times New Roman" size="12" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[_________________________________________________]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="583" y="317" width="47" height="15" forecolor="#000000" backcolor="#FFFFFF" uuid="e7064134-3ebd-43f9-b04e-64a9e8921967"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="Times New Roman" size="12" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[руб.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="583" y="332" width="47" height="15" forecolor="#000000" backcolor="#FFFFFF" uuid="99345d11-b521-478a-b49f-824c88af2e47"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="Times New Roman" size="12" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[руб.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="131" y="347" width="200" height="15" forecolor="#000000" backcolor="#FFFFFF" uuid="d32becc5-a37b-48d8-88bf-b581244d3fe1"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="Times New Roman" size="12" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[Инженер по организации]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="131" y="362" width="200" height="15" forecolor="#000000" backcolor="#FFFFFF" uuid="0b36c669-e0ac-4ecd-aa63-7ca745a642c5"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="Times New Roman" size="12" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[и нормированию труда]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="131" y="377" width="200" height="15" forecolor="#000000" backcolor="#FFFFFF" uuid="78eae1ab-b192-4d94-89fa-f33dfef6e56f"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="Times New Roman" size="12" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[Старший дорожный мастер]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="331" y="347" width="299" height="15" forecolor="#000000" backcolor="#FFFFFF" uuid="34c0982c-3b01-4b47-91dc-53918baa67ee"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="Times New Roman" size="12" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{NORM}]]></textFieldExpression>
+			</textField>
+			<textField pattern="" isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="331" y="377" width="299" height="15" forecolor="#000000" backcolor="#FFFFFF" uuid="4248e3e9-dd08-4e80-afa2-0c87a5f13cc7"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="Times New Roman" size="12" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{DORM}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement mode="Transparent" x="505" y="242" width="125" height="15" forecolor="#000000" backcolor="#FFFFFF" uuid="a5241da1-e055-434b-bf39-5c02a838abf2"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="Times New Roman" size="12" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[рабочего отделения]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="431" y="242" width="74" height="15" forecolor="#000000" backcolor="#FFFFFF" uuid="6bdc274e-42a2-4d21-82ca-55570863bd2c"/>
+				<textElement textAlignment="Right" verticalAlignment="Bottom" rotation="None" markup="none">
+					<font fontName="Times New Roman" size="12" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[_____________]]></text>
+			</staticText>
+		</band>
 	</columnHeader>
 	<detail>
-		<band height="125" splitType="Stretch"/>
+		<band splitType="Stretch"/>
 	</detail>
 	<columnFooter>
-		<band height="45" splitType="Stretch"/>
+		<band splitType="Stretch"/>
 	</columnFooter>
 	<pageFooter>
-		<band height="54" splitType="Stretch"/>
+		<band splitType="Stretch"/>
 	</pageFooter>
 	<summary>
 		<band height="42" splitType="Stretch">
