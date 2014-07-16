@@ -2,7 +2,7 @@
 <report xmlns="http://www.eclipse.org/birt/2005/design" version="3.2.17" id="1">
     <property name="createdBy">Eclipse BIRT Designer Version 2.3.2.r232_20090202 Build &lt;2.3.2.v20090218-0730></property>
     <property name="units">in</property>
-    <text-property name="title">Контроль заполнения средств малой механизации по предприятию за период</text-property>
+    <text-property name="title">Ведомость оборота материалов по текущему содержанию пути в разрезе ТНК по ДИ за период</text-property>
     <property name="comments">IBM Confidential
 
 OCO Source Materials
@@ -33,8 +33,7 @@ if(params["month"]=='' || params["month"] == null || params["month"] == '""' )
 BirtDateTime.month(BirtDateTime.now());}
 else if(params["month"]!='')
 {params["month"] = (params["month"]).replace("=","")}
-
-params["pred"] = (params["pred"]).replace("=","")]]></method>
+]]></method>
     <method name="afterFactory"><![CDATA[MXReportScriptContext.close();]]></method>
     <property name="theme">MaximoSystemLibrary.maximoTheme</property>
     <text-property name="displayName">Tivoli Maximo Grouped Chart Template</text-property>
@@ -69,18 +68,6 @@ params["pred"] = (params["pred"]).replace("=","")]]></method>
             <property name="dataType">integer</property>
             <property name="paramType">simple</property>
             <text-property name="promptText">Дорога</text-property>
-            <property name="isRequired">true</property>
-            <property name="controlType">text-box</property>
-            <property name="distinct">true</property>
-            <structure name="format">
-                <property name="category">Unformatted</property>
-            </structure>
-        </scalar-parameter>
-        <scalar-parameter name="pred" id="17062">
-            <property name="valueType">static</property>
-            <property name="dataType">string</property>
-            <property name="paramType">simple</property>
-            <text-property name="promptText">Дистанция</text-property>
             <property name="isRequired">true</property>
             <property name="controlType">text-box</property>
             <property name="distinct">true</property>
@@ -319,7 +306,7 @@ sqlText = ""
 +"                        AND mut.itemnum  = rub.itemnum "
 +"		  join maximo.item on mut.itemnum = item.itemnum "
 +"WHERE   WO.SITEID = "+ params["mroSite"]  
-+"        AND WO.L_PRED = '"+ params["pred"]+"'" 
+//+"        AND WO.L_PRED = '"+ params["pred"]+"'" 
 +"        AND extract (month from WO.ACTFINISH) = "+ params["month"] 
 +"        AND extract (year from WO.ACTFINISH) = "+ params["year"] 
 +"GROUP BY jp.jpnum, " 
@@ -409,7 +396,7 @@ var sqlText = new String();
 sqlText = "" 
 sqlText = "" 
 +"SELECT  site.DESCRIPTION site_d, " 
-+"		  loc.description loc_d, "
++"		  '' loc_d, "
 +"        CASE "+params["month"] 
 +"                WHEN 1 THEN ' январь ' " 
 +"                WHEN 2 THEN ' февраль ' " 
@@ -426,9 +413,9 @@ sqlText = ""
 +"                ELSE '' " 
 +"        END mmonth " 
 +"FROM    MAXIMO.SITE "
-+"		  join maximo.locations loc on site.siteid = loc.siteid " 
+//+"		  join maximo.locations loc on site.siteid = loc.siteid " 
 +"WHERE   site.SITEID = '"+params["mroSite"]+"' "
-+"		  and loc.location = '"+params["pred"]+"' "
+//+"		  and loc.location = '"+params["pred"]+"' "
 ;
 
 
@@ -524,7 +511,7 @@ return (true);]]></method>
                 <structure>
                     <property name="name">SITE_D</property>
                     <property name="displayName">SITE_D</property>
-                    <expression name="expression">"Сводный отчет по планированию и учету работ (ПУ-74) на "+dataSetRow["LOC_D"]+ " " + dataSetRow["SITE_D"].replace("ая", "ой") + " ДИ за" + dataSetRow["MMONTH"]+ params["year"].value + " года"</expression>
+                    <expression name="expression">"Ведомость оборота материалов по текущему содержанию пути в разрезе ТНК по " + dataSetRow["SITE_D"].replace("ая", "ой") + " ДИ за" + dataSetRow["MMONTH"]+ params["year"].value + " года"</expression>
                     <property name="dataType">string</property>
                 </structure>
             </list-property>
@@ -712,6 +699,20 @@ return (true);]]></method>
                             <expression name="value">row["ULOZH_S_COST"]</expression>
                         </structure>
                     </list-property>
+                </structure>
+            </list-property>
+            <list-property name="sort">
+                <structure>
+                    <expression name="key">row["JPNUM"]</expression>
+                    <property name="direction">asc</property>
+                </structure>
+                <structure>
+                    <expression name="key">row["JPNUM"].replace(/^\D*/,"").replace(/\/(\d)*$/, "").split(".").join("")*1</expression>
+                    <property name="direction">asc</property>
+                </structure>
+                <structure>
+                    <expression name="key">row["ITEMNUM"]</expression>
+                    <property name="direction">asc</property>
                 </structure>
             </list-property>
             <column id="17859">
@@ -1145,6 +1146,10 @@ return (true);]]></method>
                 <property name="pageBreakBefore">auto</property>
                 <property name="pageBreakInside">auto</property>
                 <list-property name="sort">
+                    <structure>
+                        <expression name="key">row["JPNUM"]</expression>
+                        <property name="direction">asc</property>
+                    </structure>
                     <structure>
                         <expression name="key">row["JPNUM"].replace(/^\D*/,"").replace(/\/(\d)*$/, "").split(".").join("")*1</expression>
                         <property name="direction">asc</property>
