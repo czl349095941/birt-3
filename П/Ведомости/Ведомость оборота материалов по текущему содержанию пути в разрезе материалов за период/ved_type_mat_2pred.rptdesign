@@ -2,7 +2,7 @@
 <report xmlns="http://www.eclipse.org/birt/2005/design" version="3.2.17" id="1">
     <property name="createdBy">Eclipse BIRT Designer Version 2.3.2.r232_20090202 Build &lt;2.3.2.v20090218-0730></property>
     <property name="units">in</property>
-    <text-property name="title">Ведомость учета объемов выполняемых работ и затрат рабочего времени в разрезе ТНК по дистанции за период</text-property>
+    <text-property name="title">Ведомость оборота материалов по текущему содержанию пути в разрезе материалов по предприятию за период</text-property>
     <property name="comments">IBM Confidential
 
 OCO Source Materials
@@ -24,7 +24,17 @@ mxReportScriptContext = MXReportScriptContext.initialize(reportContext);
 mxReportScriptContext.setDefaultLogLevel("DEBUG");
 mxReportScriptContext.setDefaultLogFile("c:/temp/tetttt.txt");
 
-params["pred"] = params["pred"].replace("=", "")]]></method>
+
+if(params["year"]=='' || params["year"] == null || params["year"] == '""' )
+{params["year"]= BirtDateTime.year(BirtDateTime.now());}
+
+if(params["month"]=='' || params["month"] == null || params["month"] == '""' )
+{params["month"] = 
+BirtDateTime.month(BirtDateTime.now());}
+else if(params["month"]!='')
+{params["month"] = (params["month"]).replace("=","")}
+
+params["pred"] = (params["pred"]).replace("=","")]]></method>
     <method name="afterFactory"><![CDATA[MXReportScriptContext.close();]]></method>
     <property name="theme">MaximoSystemLibrary.maximoTheme</property>
     <text-property name="displayName">Tivoli Maximo Grouped Chart Template</text-property>
@@ -66,22 +76,11 @@ params["pred"] = params["pred"].replace("=", "")]]></method>
                 <property name="category">Unformatted</property>
             </structure>
         </scalar-parameter>
-        <scalar-parameter name="pred" id="18064">
+        <scalar-parameter name="pred" id="17062">
             <property name="valueType">static</property>
             <property name="dataType">string</property>
             <property name="paramType">simple</property>
             <text-property name="promptText">Дистанция</text-property>
-            <property name="controlType">text-box</property>
-            <property name="distinct">true</property>
-            <structure name="format">
-                <property name="category">Unformatted</property>
-            </structure>
-        </scalar-parameter>
-        <scalar-parameter name="date1" id="17788">
-            <property name="valueType">static</property>
-            <property name="dataType">string</property>
-            <property name="paramType">simple</property>
-            <text-property name="promptText">Начало периода</text-property>
             <property name="isRequired">true</property>
             <property name="controlType">text-box</property>
             <property name="distinct">true</property>
@@ -89,12 +88,24 @@ params["pred"] = params["pred"].replace("=", "")]]></method>
                 <property name="category">Unformatted</property>
             </structure>
         </scalar-parameter>
-        <scalar-parameter name="date2" id="17789">
+        <scalar-parameter name="year" id="17959">
             <property name="valueType">static</property>
             <property name="dataType">string</property>
             <property name="paramType">simple</property>
-            <text-property name="promptText">Конец периода</text-property>
-            <property name="isRequired">true</property>
+            <text-property name="promptText">Год</text-property>
+            <property name="isRequired">false</property>
+            <property name="controlType">text-box</property>
+            <property name="distinct">true</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="month" id="17788">
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="paramType">simple</property>
+            <text-property name="promptText">Месяц</text-property>
+            <property name="isRequired">false</property>
             <property name="controlType">text-box</property>
             <property name="distinct">true</property>
             <structure name="format">
@@ -110,163 +121,163 @@ params["pred"] = params["pred"].replace("=", "")]]></method>
             <list-property name="resultSetHints">
                 <structure>
                     <property name="position">1</property>
-                    <property name="name">FLAG</property>
+                    <property name="name">JPNUM</property>
                     <property name="dataType">string</property>
                 </structure>
                 <structure>
                     <property name="position">2</property>
-                    <property name="name">L_PRED</property>
+                    <property name="name">JP_DESC</property>
                     <property name="dataType">string</property>
                 </structure>
                 <structure>
                     <property name="position">3</property>
-                    <property name="name">PRED_D</property>
+                    <property name="name">ITEM_D</property>
                     <property name="dataType">string</property>
                 </structure>
                 <structure>
                     <property name="position">4</property>
-                    <property name="name">WO_D</property>
+                    <property name="name">IZMRAB</property>
                     <property name="dataType">string</property>
                 </structure>
                 <structure>
                     <property name="position">5</property>
-                    <property name="name">NUMVALUE</property>
+                    <property name="name">ITEMNUM</property>
                     <property name="dataType">string</property>
                 </structure>
                 <structure>
                     <property name="position">6</property>
-                    <property name="name">MEASUREUNITID</property>
+                    <property name="name">WO_CNT</property>
                     <property name="dataType">string</property>
                 </structure>
                 <structure>
                     <property name="position">7</property>
-                    <property name="name">CNT_WO</property>
+                    <property name="name">SNIATO</property>
                     <property name="dataType">string</property>
                 </structure>
                 <structure>
                     <property name="position">8</property>
-                    <property name="name">PLAN_WO</property>
+                    <property name="name">SNIATO_COST</property>
                     <property name="dataType">string</property>
                 </structure>
                 <structure>
                     <property name="position">9</property>
-                    <property name="name">FAKT_WO</property>
+                    <property name="name">ULOZH_N</property>
                     <property name="dataType">string</property>
                 </structure>
                 <structure>
                     <property name="position">10</property>
-                    <property name="name">LABOR_HOUR</property>
+                    <property name="name">ULOZH_N_COST</property>
                     <property name="dataType">string</property>
                 </structure>
                 <structure>
                     <property name="position">11</property>
-                    <property name="name">NORM_HOUR</property>
+                    <property name="name">ULOZH_S</property>
                     <property name="dataType">string</property>
                 </structure>
                 <structure>
                     <property name="position">12</property>
-                    <property name="name">DOLIA</property>
+                    <property name="name">ULOZH_S_COST</property>
                     <property name="dataType">string</property>
                 </structure>
             </list-property>
             <list-property name="columnHints">
                 <structure>
-                    <property name="columnName">FLAG</property>
+                    <property name="columnName">JPNUM</property>
                 </structure>
                 <structure>
-                    <property name="columnName">L_PRED</property>
+                    <property name="columnName">JP_DESC</property>
                 </structure>
                 <structure>
-                    <property name="columnName">PRED_D</property>
+                    <property name="columnName">ITEM_D</property>
                 </structure>
                 <structure>
-                    <property name="columnName">WO_D</property>
+                    <property name="columnName">IZMRAB</property>
                 </structure>
                 <structure>
-                    <property name="columnName">NUMVALUE</property>
+                    <property name="columnName">ITEMNUM</property>
                 </structure>
                 <structure>
-                    <property name="columnName">MEASUREUNITID</property>
+                    <property name="columnName">WO_CNT</property>
                 </structure>
                 <structure>
-                    <property name="columnName">CNT_WO</property>
+                    <property name="columnName">SNIATO</property>
                 </structure>
                 <structure>
-                    <property name="columnName">FAKT_WO</property>
+                    <property name="columnName">SNIATO_COST</property>
                 </structure>
                 <structure>
-                    <property name="columnName">LABOR_HOUR</property>
+                    <property name="columnName">ULOZH_N</property>
                 </structure>
                 <structure>
-                    <property name="columnName">NORM_HOUR</property>
+                    <property name="columnName">ULOZH_N_COST</property>
                 </structure>
                 <structure>
-                    <property name="columnName">DOLIA</property>
+                    <property name="columnName">ULOZH_S</property>
                 </structure>
                 <structure>
-                    <property name="columnName">PLAN_WO</property>
+                    <property name="columnName">ULOZH_S_COST</property>
                 </structure>
             </list-property>
             <structure name="cachedMetaData">
                 <list-property name="resultSet">
                     <structure>
                         <property name="position">1</property>
-                        <property name="name">FLAG</property>
+                        <property name="name">JPNUM</property>
                         <property name="dataType">string</property>
                     </structure>
                     <structure>
                         <property name="position">2</property>
-                        <property name="name">L_PRED</property>
+                        <property name="name">JP_DESC</property>
                         <property name="dataType">string</property>
                     </structure>
                     <structure>
                         <property name="position">3</property>
-                        <property name="name">PRED_D</property>
+                        <property name="name">ITEM_D</property>
                         <property name="dataType">string</property>
                     </structure>
                     <structure>
                         <property name="position">4</property>
-                        <property name="name">WO_D</property>
+                        <property name="name">IZMRAB</property>
                         <property name="dataType">string</property>
                     </structure>
                     <structure>
                         <property name="position">5</property>
-                        <property name="name">NUMVALUE</property>
+                        <property name="name">ITEMNUM</property>
                         <property name="dataType">string</property>
                     </structure>
                     <structure>
                         <property name="position">6</property>
-                        <property name="name">MEASUREUNITID</property>
+                        <property name="name">WO_CNT</property>
                         <property name="dataType">string</property>
                     </structure>
                     <structure>
                         <property name="position">7</property>
-                        <property name="name">CNT_WO</property>
+                        <property name="name">SNIATO</property>
                         <property name="dataType">string</property>
                     </structure>
                     <structure>
                         <property name="position">8</property>
-                        <property name="name">PLAN_WO</property>
+                        <property name="name">SNIATO_COST</property>
                         <property name="dataType">string</property>
                     </structure>
                     <structure>
                         <property name="position">9</property>
-                        <property name="name">FAKT_WO</property>
+                        <property name="name">ULOZH_N</property>
                         <property name="dataType">string</property>
                     </structure>
                     <structure>
                         <property name="position">10</property>
-                        <property name="name">LABOR_HOUR</property>
+                        <property name="name">ULOZH_N_COST</property>
                         <property name="dataType">string</property>
                     </structure>
                     <structure>
                         <property name="position">11</property>
-                        <property name="name">NORM_HOUR</property>
+                        <property name="name">ULOZH_S</property>
                         <property name="dataType">string</property>
                     </structure>
                     <structure>
                         <property name="position">12</property>
-                        <property name="name">DOLIA</property>
+                        <property name="name">ULOZH_S_COST</property>
                         <property name="dataType">string</property>
                     </structure>
                 </list-property>
@@ -278,114 +289,37 @@ maximoDataSet.open();
 var sqlText = new String();
 
 sqlText = "" 
- +" WITH ALLWO AS "
- +"         ( SELECT wo.*, "
- +"                 loc.description pred_d "
- +"         FROM    MAXIMO.WORKORDER WO "
- +"                 JOIN maximo.locations loc "
- +"                         ON      loc.siteid       = wo.siteid "
- +"                                 AND loc.location = wo.brigad_location "
- +"         WHERE   WO.STATUS IN ('НАПР_НА_УТ', 'ЗАВЕРШ', 'ОТКЛ_РГН', 'ОФОРМЛЕН', 'ЗАКРЫТО') "
- +"                 AND WO.H      = 800 "
- +"                 AND WO.SITEID = '"+ params["mroSite"]+"'"
- +"                 AND WO.L_PRED = '"+params["pred"]+"'"
- +"                 AND WO.ACTFINISH BETWEEN TO_DATE ('"+params["date1"]+"') AND TO_DATE ('"+params["date2"]+"')+1 "
- +"         ) "
- +"         , "
- +"         SUMWO AS "
- +"         ( SELECT SUM(LABOR_HOUR) SUMWO, "
- +"                 brigad_location "
- +"         FROM    allwo "
- +"         GROUP BY brigad_location "
- +"         ) "
- +"         , "
- +"         NORM AS "
- +"         (SELECT L_PRED, "
- +"                 pred_d, "
- +"                 CASE WHEN DOLIA < 0.01 THEN 'Остальные работы (доля от общего объема трудозатрат менее 1%)' ELSE WO_D END WO_D, "
- +"                 CASE WHEN DOLIA < 0.01 THEN TO_NUMBER('') ELSE NUMVALUE END                                               NUMVALUE, "
- +"                 CASE WHEN DOLIA < 0.01 THEN '' ELSE MEASUREUNITID END                                                    MEASUREUNITID, "
- +"                 SUM(CNT_WO)                                                                                               CNT_WO, "
- +"                 SUM (PLAN_WO)                                                                                             PLAN_WO, "
- +"                 SUM (FAKT_WO)                                                                                             FAKT_WO, "
- +"                 SUM (LABOR_HOUR)                                                                                          LABOR_HOUR, "
- +"                 SUM(NORM_HOUR)                                                                                            NORM_HOUR, "
- +"                 SUM(DOLIA)                                                                                                DOLIA "
- +"         FROM    (SELECT WO.brigad_location L_PRED, "
- +"                         wo.pred_d, "
- +"                         NVL (jp.description, 'Техкарта не указана') wo_d, "
- +"                         jps.numvalue, "
- +"                         JPS.MEASUREUNITID, "
- +"                         COUNT (WO.WONUM)                                                                        CNT_WO, "
- +"                         NVL (SUM (WO.PLAN_WO), 0)                                                               PLAN_WO, "
- +"                         NVL (SUM (WO.FAKT_WO), 0)                                                               FAKT_WO, "
- +"                         NVL (SUM (WO.LABOR_HOUR), 0)                                                            LABOR_HOUR, "
- +"                         NVL (ROUND (SUM (WO.FAKT_WO/JPS.NUMVALUE*NVL(WO.JPDURATION, WO.NOKOEFDURATION)), 2), 0) NORM_HOUR, "
- +"                         NVL(SUM(LABOR_HOUR/ "
- +"                         (SELECT SUMWO.sumwo "
- +"                         FROM    SUMWO "
- +"                         WHERE   SUMWO.brigad_location = wo.brigad_location "
- +"                         )),0) dolia "
- +"                 FROM    allWO wo "
- +"                         LEFT JOIN MAXIMO.wojprelation wojp "
- +"                                 ON      wo.wonum                = wojp.wonum "
- +"                                         AND WOJP.USETHISMEASURE = 1 "
- +"                         LEFT JOIN maximo.jobplan jp "
- +"                                 ON      WOJP.JOBPLANID = JP.JOBPLANID "
- +"                         LEFT JOIN maximo.jobplanspec jps "
- +"                                 ON      jps.jpnum       = jp.jpnum "
- +"                                         AND ASSETATTRID = 'IZMRAB' "
- +"                 WHERE   WO.TYPEWORKORDER NOT IN ('Прочее', 'Путевые обходчики') "
- +"                 GROUP BY WO.brigad_location, "
- +"                         wo.pred_d, "
- +"                         jp.description, "
- +"                         jps.numvalue, "
- +"                         JPS.MEASUREUNITID "
- +"                 ) "
- +"         GROUP BY L_PRED, "
- +"                 pred_d, "
- +"                 CASE WHEN DOLIA < 0.01 THEN 'Остальные работы (доля от общего объема трудозатрат менее 1%)' ELSE WO_D END, "
- +"                 CASE WHEN DOLIA < 0.01 THEN TO_NUMBER('') ELSE NUMVALUE END, "
- +"                 CASE WHEN DOLIA < 0.01 THEN '' ELSE MEASUREUNITID END "
- +"         ) "
- +"         , "
- +"         NONORM AS "
- +"         ( SELECT L_PRED, "
- +"                 pred_d, "
- +"                 CASE WHEN DOLIA < 0.01 THEN 'Остальные прочие работы (доля от общего объема трудозатрат менее 1%)' ELSE WO_D END WO_D, "
- +"                 TO_NUMBER('')                                                                                                                    NUMVALUE, "
- +"                 ''                                                                                                                              MEASUREUNITID, "
- +"                 SUM(CNT_WO)                                                                                                                      CNT_WO, "
- +"                 0                                                                                                                                PLAN_WO, "
- +"                 0                                                                                                                                FAKT_WO, "
- +"                 SUM (LABOR_HOUR)                                                                                                                 LABOR_HOUR, "
- +"                 0                                                                                                                                NORM_HOUR, "
- +"                 SUM(DOLIA)                                                                                                                       DOLIA "
- +"         FROM    ( SELECT WO.brigad_location L_PRED, "
- +"                         wo.pred_d, "
- +"                         CASE WHEN WO.TYPEWORKORDER = 'Путевые обходчики' THEN 'Осмотр пути' ELSE CLASSSTRUCTURE.DESCRIPTION END wo_d, "
- +"                         COUNT (WO.WONUM)                                                                                        CNT_WO, "
- +"                         NVL (SUM (WO.LABOR_HOUR), 0)                                                                            LABOR_HOUR, "
- +"                         NVL(SUM(LABOR_HOUR/ "
- +"                         (SELECT SUMWO.sumwo "
- +"                         FROM    SUMWO "
- +"                         WHERE   SUMWO.brigad_location = wo.brigad_location "
- +"                         )),0) dolia "
- +"                 FROM    allwo wo "
- +"                         JOIN MAXIMO.CLASSSTRUCTURE "
- +"                                 ON      WO.CLASSSTRUCTUREID = CLASSSTRUCTURE.CLASSSTRUCTUREID "
- +"                 WHERE   typeworkorder IN ('Прочее', 'Путевые обходчики') "
- +"                 GROUP BY WO.brigad_location, "
- +"                         wo.pred_d, "
- +"                         CASE WHEN WO.TYPEWORKORDER = 'Путевые обходчики' THEN 'Осмотр пути' ELSE CLASSSTRUCTURE.DESCRIPTION END "
- +"                 ) "
- +"         GROUP BY L_PRED, "
- +"                 pred_d, "
- +"                 CASE WHEN DOLIA < 0.01 THEN 'Остальные прочие работы (доля от общего объема трудозатрат менее 1%)' ELSE WO_D END "
- +"         ) "
- +"   select case when WO_D = 'Остальные работы (доля от общего объема трудозатрат менее 1%)' then 3 else 2 end flag, norm.* from NORM "
- +"     union all "
- +"   select  case when WO_D = 'Остальные прочие работы (доля от общего объема трудозатрат менее 1%)' then 1 else 0 end flag, nonorm.* from nonorm "
++"SELECT  ITEM.CLASSSTRUCTUREID jpnum, " 
++"        cls.description JP_DESC, " 
++"        MUT.DESCRIPTION ITEM_D, " 
++"        item.ISSUEUNIT izmrab, " 
++"        MUT.ITEMNUM, " 
++"        COUNT (WO.WONUM)                                                                                                                                                                                        WO_CNT, " 
++"        (NVL (SUM ( CASE WHEN STORNTRANS   IN ('СНЯТИЕ С ПУТИ', 'СНЯТИЕ С ПУТИ-СТОРНО') THEN MUT.QUANTITY END ), 0))                                                                                   SNIATO, " 
++"        (NVL (SUM ( CASE WHEN STORNTRANS   IN ('СНЯТИЕ С ПУТИ', 'СНЯТИЕ С ПУТИ-СТОРНО') THEN MUT.QUANTITY*RUB.AVGCOST END ), 0))                                                                      SNIATO_COST, " 
++"        (NVL (SUM ( CASE WHEN ITEM_RZ_TYPE IN ('1-Новые','3-ПКЗ Новые') AND STORNTRANS IN ('СПИСАНИЕ','СПИСАНИЕ-СТОРНО') THEN MUT.QUANTITY*(-1) END ), 0))                                                  ULOZH_N, " 
++"        (NVL (SUM ( CASE WHEN ITEM_RZ_TYPE IN ('1-Новые','3-ПКЗ Новые') AND STORNTRANS IN ('СПИСАНИЕ','СПИСАНИЕ-СТОРНО') THEN MUT.QUANTITY*rub.avgcost*(-1) END ), 0))                                      ULOZH_n_cost, " 
++"        (NVL (SUM ( CASE WHEN ITEM_RZ_TYPE IN ('2-ПовторногоИспользования', '4-ПКЗ ПовторногоИспользования') AND STORNTRANS IN ('СПИСАНИЕ','СПИСАНИЕ-СТОРНО') THEN MUT.QUANTITY*(-1) END ), 0))             ULOZH_S, " 
++"        (NVL (SUM ( CASE WHEN ITEM_RZ_TYPE IN ('2-ПовторногоИспользования', '4-ПКЗ ПовторногоИспользования') AND STORNTRANS IN ('СПИСАНИЕ','СПИСАНИЕ-СТОРНО') THEN MUT.QUANTITY*rub.avgcost*(-1) END ), 0)) ULOZH_S_cost " 
++"FROM    maximo.workorder wo " 
++"        JOIN maximo.matusetrans mut " 
++"                ON      MUT.REFWO      = WO.WONUM " 
++"                        AND MUT.SITEID = WO.SITEID " 
++"        LEFT JOIN maximo.invcost rub " 
++"                ON      wo.siteid        = rub.siteid " 
++"                        AND MUT.STORELOC = RUB.location " 
++"                        AND mut.itemnum  = rub.itemnum "
++"		  join maximo.item on mut.itemnum = item.itemnum "
++"		  join MAXIMO.CLASSSTRUCTURE cls on item.CLASSSTRUCTUREID = cls.CLASSSTRUCTUREID "
++"WHERE   WO.SITEID = "+ params["mroSite"]  
++"        AND WO.L_PRED = '"+ params["pred"]+"'" 
++"        AND extract (month from WO.ACTFINISH) = "+ params["month"] 
++"        AND extract (year from WO.ACTFINISH) = "+ params["year"] 
++"GROUP BY ITEM.CLASSSTRUCTUREID, " 
++"        cls.description, " 
++"        MUT.ITEMNUM, " 
++"        MUT.DESCRIPTION, " 
++"        item.ISSUEUNIT"
 
  ;
 
@@ -393,79 +327,67 @@ sqlText = ""
 maximoDataSet.setQuery(sqlText);]]></method>
             <method name="fetch"><![CDATA[if (!maximoDataSet.fetch())
 	return (false);
-row["FLAG"] = maximoDataSet.getString("FLAG");
-row["L_PRED"] = maximoDataSet.getString("L_PRED");
-row["PRED_D"] = maximoDataSet.getString("PRED_D");
-row["WO_D"] = maximoDataSet.getString("WO_D");
-row["NUMVALUE"] = maximoDataSet.getString("NUMVALUE");
-row["MEASUREUNITID"] = maximoDataSet.getString("MEASUREUNITID");
-row["CNT_WO"] = maximoDataSet.getString("CNT_WO");
-row["PLAN_WO"] = maximoDataSet.getString("PLAN_WO");
-row["FAKT_WO"] = maximoDataSet.getString("FAKT_WO");
-row["LABOR_HOUR"] = maximoDataSet.getString("LABOR_HOUR");
-row["NORM_HOUR"] = maximoDataSet.getString("NORM_HOUR");
-row["DOLIA"] = maximoDataSet.getString("DOLIA");
+row["JPNUM"] = maximoDataSet.getString("JPNUM");
+row["JP_DESC"] = maximoDataSet.getString("JP_DESC");
+row["ITEM_D"] = maximoDataSet.getString("ITEM_D");
+row["IZMRAB"] = maximoDataSet.getString("IZMRAB");
+row["ITEMNUM"] = maximoDataSet.getString("ITEMNUM");
+row["WO_CNT"] = maximoDataSet.getString("WO_CNT");
+row["SNIATO"] = maximoDataSet.getString("SNIATO");
+row["SNIATO_COST"] = maximoDataSet.getString("SNIATO_COST");
+row["ULOZH_N"] = maximoDataSet.getString("ULOZH_N");
+row["ULOZH_N_COST"] = maximoDataSet.getString("ULOZH_N_COST");
+row["ULOZH_S"] = maximoDataSet.getString("ULOZH_S");
+row["ULOZH_S_COST"] = maximoDataSet.getString("ULOZH_S_COST");
 
+
+	
 return (true);]]></method>
         </script-data-set>
-        <script-data-set name="label" id="13864">
+        <script-data-set name="0label" id="18005">
             <list-property name="resultSetHints">
                 <structure>
                     <property name="position">1</property>
-                    <property name="name">PRED_D</property>
+                    <property name="name">SITE_D</property>
                     <property name="dataType">string</property>
                 </structure>
                 <structure>
                     <property name="position">2</property>
-                    <property name="name">SITE_D</property>
+                    <property name="name">LOC_D</property>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="position">3</property>
+                    <property name="name">MMONTH</property>
                     <property name="dataType">string</property>
                 </structure>
             </list-property>
             <list-property name="columnHints">
                 <structure>
-                    <property name="columnName">PODREZ_USTR</property>
-                </structure>
-                <structure>
-                    <property name="columnName">RAZGON</property>
-                </structure>
-                <structure>
-                    <property name="columnName">RAZGON_USTR</property>
-                </structure>
-                <structure>
-                    <property name="columnName">UGON</property>
-                </structure>
-                <structure>
-                    <property name="columnName">UGON_USTR</property>
-                </structure>
-                <structure>
-                    <property name="columnName">d</property>
-                </structure>
-                <structure>
-                    <property name="columnName">site</property>
-                </structure>
-                <structure>
-                    <property name="columnName">SITE</property>
-                </structure>
-                <structure>
-                    <property name="columnName">PODR</property>
-                </structure>
-                <structure>
-                    <property name="columnName">PRED_D</property>
-                </structure>
-                <structure>
                     <property name="columnName">SITE_D</property>
+                </structure>
+                <structure>
+                    <property name="columnName">LOC_D</property>
+                </structure>
+                <structure>
+                    <property name="columnName">LOC</property>
                 </structure>
             </list-property>
             <structure name="cachedMetaData">
                 <list-property name="resultSet">
                     <structure>
                         <property name="position">1</property>
-                        <property name="name">PRED_D</property>
+                        <property name="name">SITE_D</property>
                         <property name="dataType">string</property>
                     </structure>
                     <structure>
                         <property name="position">2</property>
-                        <property name="name">SITE_D</property>
+                        <property name="name">LOC_D</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">3</property>
+                        <property name="name">MMONTH</property>
                         <property name="dataType">string</property>
                     </structure>
                 </list-property>
@@ -474,19 +396,31 @@ return (true);]]></method>
             <method name="open"><![CDATA[maximoDataSet = MXReportDataSetProvider.create(this.getDataSource().getName(), this.getName());
 maximoDataSet.open();
 
-
-
 var sqlText = new String();
 
 sqlText = "" 
-+"SELECT  preds.description pred_d, " 
-+"        site.description  site_d " 
-+"FROM    maximo.preds " 
-+"        JOIN maximo.site " 
-+"                ON      preds.siteid = site.siteid " 
-+"WHERE   preds.siteid                 = '"+params["mroSite"]+"'" 
-+"        AND preds.location           = '"+params["pred"]+"'"  
- 
+sqlText = "" 
++"SELECT  site.DESCRIPTION site_d, " 
++"		  loc.description loc_d, "
++"        CASE "+params["month"] 
++"                WHEN 1 THEN ' январь ' " 
++"                WHEN 2 THEN ' февраль ' " 
++"                WHEN 3 THEN ' март ' " 
++"                WHEN 4 THEN ' апрель ' " 
++"                WHEN 5 THEN ' май ' " 
++"                WHEN 6 THEN ' июнь ' " 
++"                WHEN 7 THEN ' июль ' " 
++"                WHEN 8 THEN ' август ' " 
++"                WHEN 9 THEN ' сентябрь ' " 
++"                WHEN 10 THEN ' октябрь ' " 
++"                WHEN 11 THEN ' ноябрь ' " 
++"                WHEN 12 THEN ' декабрь ' " 
++"                ELSE '' " 
++"        END mmonth " 
++"FROM    MAXIMO.SITE "
++"		  join maximo.locations loc on site.siteid = loc.siteid " 
++"WHERE   site.SITEID = '"+params["mroSite"]+"' "
++"		  and loc.location = '"+params["pred"]+"' "
 ;
 
 
@@ -494,75 +428,15 @@ maximoDataSet.setQuery(sqlText);]]></method>
             <method name="fetch"><![CDATA[if (!maximoDataSet.fetch())
 	return (false);
 
-row["PRED_D"] = maximoDataSet.getString("PRED_D");
 row["SITE_D"] = maximoDataSet.getString("SITE_D");
+row["LOC_D"] = maximoDataSet.getString("LOC_D");
+row["MMONTH"] = maximoDataSet.getString("MMONTH");
 
+
+	
 return (true);]]></method>
         </script-data-set>
     </data-sets>
-    <cubes>
-        <tabular-cube name="Data Cube" id="17529">
-            <property name="dimensions">
-                <tabular-dimension name="Group" id="17530">
-                    <property name="defaultHierarchy">NewTabularHierarchy</property>
-                    <property name="hierarchies">
-                        <tabular-hierarchy name="NewTabularHierarchy" id="17531">
-                            <property name="levels">
-                                <tabular-level name="L_PODR" id="17532">
-                                    <property name="dataType">string</property>
-                                    <property name="columnName">L_PODR</property>
-                                </tabular-level>
-                                <tabular-level name="L_PODR_D" id="17569">
-                                    <property name="dataType">string</property>
-                                    <property name="columnName">L_PODR_D</property>
-                                </tabular-level>
-                            </property>
-                        </tabular-hierarchy>
-                    </property>
-                </tabular-dimension>
-                <tabular-dimension name="Group1" id="17533">
-                    <property name="defaultHierarchy">NewTabularHierarchy1</property>
-                    <property name="hierarchies">
-                        <tabular-hierarchy name="NewTabularHierarchy1" id="17534">
-                            <property name="levels">
-                                <tabular-level name="JPNUM" id="17535">
-                                    <property name="dataType">string</property>
-                                    <property name="columnName">JPNUM</property>
-                                </tabular-level>
-                            </property>
-                        </tabular-hierarchy>
-                    </property>
-                </tabular-dimension>
-            </property>
-            <property name="measureGroups">
-                <tabular-measure-group name="Summary Field" id="17536">
-                    <property name="measures">
-                        <tabular-measure name="ALL_WO" id="17537">
-                            <expression name="measureExpression">dataSetRow["ALL_WO"]</expression>
-                            <property name="dataType">string</property>
-                        </tabular-measure>
-                    </property>
-                </tabular-measure-group>
-                <tabular-measure-group name="Summary Field1" id="17538">
-                    <property name="measures">
-                        <tabular-measure name="ALL_TK" id="17539">
-                            <expression name="measureExpression">dataSetRow["ALL_TK"]</expression>
-                            <property name="dataType">string</property>
-                        </tabular-measure>
-                    </property>
-                </tabular-measure-group>
-                <tabular-measure-group name="Summary Field2" id="17540">
-                    <property name="measures">
-                        <tabular-measure name="YESNO" id="17541">
-                            <expression name="measureExpression">dataSetRow["YESNO"]</expression>
-                            <property name="dataType">string</property>
-                        </tabular-measure>
-                    </property>
-                </tabular-measure-group>
-            </property>
-            <property name="dataSet">11</property>
-        </tabular-cube>
-    </cubes>
     <page-setup>
         <simple-master-page name="maximoLandscape" id="47" extends="MaximoSystemLibrary.maximoLandscape">
             <property name="type">a4</property>
@@ -633,335 +507,207 @@ return (true);]]></method>
         </simple-master-page>
     </page-setup>
     <body>
-        <data id="17791">
+        <data id="18006">
             <property name="fontSize">medium</property>
+            <property name="fontWeight">bold</property>
             <property name="textAlign">center</property>
-            <property name="dataSet">label</property>
+            <property name="dataSet">0label</property>
             <list-property name="boundDataColumns">
                 <structure>
-                    <property name="name">PRED_D</property>
-                    <property name="displayName">PRED_D</property>
-                    <expression name="expression">"Ведомость учета объемов выполняемых работ и затрат рабочего времени в разрезе ТНК по " +dataSetRow["PRED_D"]+ " " + dataSetRow["SITE_D"].replace("ая", "ой") + " ДИ за период с " + params["date1"].value + " по " + params["date2"].value</expression>
+                    <property name="name">SITE_D</property>
+                    <property name="displayName">SITE_D</property>
+                    <expression name="expression">"Ведомость оборота материалов по текущему содержанию пути в разрезе материалов по "+dataSetRow["LOC_D"]+ " " + dataSetRow["SITE_D"].replace("ая", "ой") + " ДИ за" + dataSetRow["MMONTH"]+ params["year"].value + " года"</expression>
                     <property name="dataType">string</property>
                 </structure>
             </list-property>
-            <property name="resultSetColumn">PRED_D</property>
+            <property name="resultSetColumn">SITE_D</property>
         </data>
         <label id="17792"/>
-        <table id="17856">
+        <table id="17795">
             <property name="width">100%</property>
             <property name="dataSet">11</property>
             <list-property name="boundDataColumns">
                 <structure>
-                    <property name="name">FLAG</property>
-                    <property name="displayName">FLAG</property>
-                    <expression name="expression">dataSetRow["FLAG"]</expression>
-                    <property name="dataType">integer</property>
-                </structure>
-                <structure>
-                    <property name="name">L_PRED</property>
-                    <property name="displayName">L_PRED</property>
-                    <expression name="expression">dataSetRow["L_PRED"]</expression>
+                    <property name="name">JPNUM</property>
+                    <property name="displayName">JPNUM</property>
+                    <expression name="expression">dataSetRow["JPNUM"]</expression>
                     <property name="dataType">string</property>
                 </structure>
                 <structure>
-                    <property name="name">PRED_D</property>
-                    <property name="displayName">PRED_D</property>
-                    <expression name="expression">dataSetRow["PRED_D"]</expression>
+                    <property name="name">JP_DESC</property>
+                    <property name="displayName">JP_DESC</property>
+                    <expression name="expression">dataSetRow["JP_DESC"]</expression>
                     <property name="dataType">string</property>
                 </structure>
                 <structure>
-                    <property name="name">WO_D</property>
-                    <property name="displayName">WO_D</property>
-                    <expression name="expression">dataSetRow["WO_D"]</expression>
+                    <property name="name">ITEM_D</property>
+                    <property name="displayName">ITEM_D</property>
+                    <expression name="expression">dataSetRow["ITEM_D"]</expression>
                     <property name="dataType">string</property>
                 </structure>
                 <structure>
-                    <property name="name">NUMVALUE</property>
-                    <property name="displayName">NUMVALUE</property>
-                    <expression name="expression">dataSetRow["NUMVALUE"]</expression>
-                    <property name="dataType">float</property>
-                </structure>
-                <structure>
-                    <property name="name">MEASUREUNITID</property>
-                    <property name="displayName">MEASUREUNITID</property>
-                    <expression name="expression">dataSetRow["MEASUREUNITID"]</expression>
+                    <property name="name">IZMRAB</property>
+                    <property name="displayName">IZMRAB</property>
+                    <expression name="expression">dataSetRow["IZMRAB"]</expression>
                     <property name="dataType">string</property>
                 </structure>
                 <structure>
-                    <property name="name">CNT_WO</property>
-                    <property name="displayName">CNT_WO</property>
-                    <expression name="expression">dataSetRow["CNT_WO"]</expression>
-                    <property name="dataType">integer</property>
-                </structure>
-                <structure>
-                    <property name="name">FAKT_WO</property>
-                    <property name="displayName">FAKT_WO</property>
-                    <expression name="expression">dataSetRow["FAKT_WO"]</expression>
-                    <property name="dataType">float</property>
-                </structure>
-                <structure>
-                    <property name="name">LABOR_HOUR</property>
-                    <property name="displayName">LABOR_HOUR</property>
-                    <expression name="expression">dataSetRow["LABOR_HOUR"]</expression>
-                    <property name="dataType">float</property>
-                </structure>
-                <structure>
-                    <property name="name">NORM_HOUR</property>
-                    <property name="displayName">NORM_HOUR</property>
-                    <expression name="expression">dataSetRow["NORM_HOUR"]</expression>
-                    <property name="dataType">float</property>
-                </structure>
-                <structure>
-                    <property name="name">DOLIA</property>
-                    <property name="displayName">DOLIA</property>
-                    <expression name="expression">dataSetRow["DOLIA"]</expression>
-                    <property name="dataType">float</property>
-                </structure>
-                <structure>
-                    <property name="name">cnt_wo</property>
-                    <property name="dataType">integer</property>
-                    <simple-property-list name="aggregateOn">
-                        <value>pred</value>
-                    </simple-property-list>
-                    <property name="aggregateFunction">SUM</property>
-                    <list-property name="arguments">
-                        <structure>
-                            <property name="name">Expression</property>
-                            <expression name="value">row["CNT_WO"]</expression>
-                        </structure>
-                    </list-property>
-                </structure>
-                <structure>
-                    <property name="name">pred_fakt_wo</property>
-                    <property name="dataType">float</property>
-                    <simple-property-list name="aggregateOn">
-                        <value>pred</value>
-                    </simple-property-list>
-                    <property name="aggregateFunction">SUM</property>
-                    <list-property name="arguments">
-                        <structure>
-                            <property name="name">Expression</property>
-                            <expression name="value">row["FAKT_WO"]</expression>
-                        </structure>
-                    </list-property>
-                </structure>
-                <structure>
-                    <property name="name">pred_labor_hour</property>
-                    <property name="dataType">float</property>
-                    <simple-property-list name="aggregateOn">
-                        <value>pred</value>
-                    </simple-property-list>
-                    <property name="aggregateFunction">SUM</property>
-                    <list-property name="arguments">
-                        <structure>
-                            <property name="name">Expression</property>
-                            <expression name="value">row["LABOR_HOUR"]</expression>
-                        </structure>
-                    </list-property>
-                </structure>
-                <structure>
-                    <property name="name">pred_norm_hour</property>
-                    <property name="dataType">float</property>
-                    <simple-property-list name="aggregateOn">
-                        <value>pred</value>
-                    </simple-property-list>
-                    <property name="aggregateFunction">SUM</property>
-                    <list-property name="arguments">
-                        <structure>
-                            <property name="name">Expression</property>
-                            <expression name="value">row["NORM_HOUR"]</expression>
-                        </structure>
-                    </list-property>
-                </structure>
-                <structure>
-                    <property name="name">vip_norm_hour</property>
-                    <expression name="expression">if (row["NORM_HOUR"] != "")
-row["LABOR_HOUR"]/row["NORM_HOUR"]</expression>
-                    <property name="dataType">float</property>
-                </structure>
-                <structure>
-                    <property name="name">pred_vip_hour</property>
-                    <expression name="expression">row["pred_labor_hour"]/row["pred_norm_hour"]</expression>
-                    <property name="dataType">float</property>
-                </structure>
-                <structure>
-                    <property name="name">tab_cnt_wo</property>
-                    <property name="dataType">integer</property>
-                    <property name="aggregateFunction">SUM</property>
-                    <list-property name="arguments">
-                        <structure>
-                            <property name="name">Expression</property>
-                            <expression name="value">row["CNT_WO"]</expression>
-                        </structure>
-                    </list-property>
-                </structure>
-                <structure>
-                    <property name="name">tab_fakt_wo</property>
-                    <property name="dataType">integer</property>
-                    <property name="aggregateFunction">SUM</property>
-                    <list-property name="arguments">
-                        <structure>
-                            <property name="name">Expression</property>
-                            <expression name="value">row["CNT_WO"]</expression>
-                        </structure>
-                    </list-property>
-                </structure>
-                <structure>
-                    <property name="name">tab_labor_hour</property>
-                    <property name="dataType">float</property>
-                    <property name="aggregateFunction">SUM</property>
-                    <list-property name="arguments">
-                        <structure>
-                            <property name="name">Expression</property>
-                            <expression name="value">row["LABOR_HOUR"]</expression>
-                        </structure>
-                    </list-property>
-                </structure>
-                <structure>
-                    <property name="name">tab_norm_hour</property>
-                    <property name="dataType">float</property>
-                    <property name="aggregateFunction">SUM</property>
-                    <list-property name="arguments">
-                        <structure>
-                            <property name="name">Expression</property>
-                            <expression name="value">row["NORM_HOUR"]</expression>
-                        </structure>
-                    </list-property>
-                </structure>
-                <structure>
-                    <property name="name">type_cnt_wo</property>
-                    <property name="dataType">integer</property>
-                    <simple-property-list name="aggregateOn">
-                        <value>typewo</value>
-                    </simple-property-list>
-                    <property name="aggregateFunction">SUM</property>
-                    <list-property name="arguments">
-                        <structure>
-                            <property name="name">Expression</property>
-                            <expression name="value">row["CNT_WO"]</expression>
-                        </structure>
-                    </list-property>
-                </structure>
-                <structure>
-                    <property name="name">type_fakt_wo</property>
-                    <property name="dataType">float</property>
-                    <simple-property-list name="aggregateOn">
-                        <value>typewo</value>
-                    </simple-property-list>
-                    <property name="aggregateFunction">SUM</property>
-                    <list-property name="arguments">
-                        <structure>
-                            <property name="name">Expression</property>
-                            <expression name="value">row["FAKT_WO"]</expression>
-                        </structure>
-                    </list-property>
-                </structure>
-                <structure>
-                    <property name="name">type_labor_haur</property>
-                    <property name="dataType">float</property>
-                    <simple-property-list name="aggregateOn">
-                        <value>typewo</value>
-                    </simple-property-list>
-                    <property name="aggregateFunction">SUM</property>
-                    <list-property name="arguments">
-                        <structure>
-                            <property name="name">Expression</property>
-                            <expression name="value">row["LABOR_HOUR"]</expression>
-                        </structure>
-                    </list-property>
-                </structure>
-                <structure>
-                    <property name="name">type_norm_hour</property>
-                    <property name="dataType">float</property>
-                    <simple-property-list name="aggregateOn">
-                        <value>typewo</value>
-                    </simple-property-list>
-                    <property name="aggregateFunction">SUM</property>
-                    <list-property name="arguments">
-                        <structure>
-                            <property name="name">Expression</property>
-                            <expression name="value">row["NORM_HOUR"]</expression>
-                        </structure>
-                    </list-property>
-                </structure>
-                <structure>
-                    <property name="name">type_dolia</property>
-                    <property name="dataType">float</property>
-                    <simple-property-list name="aggregateOn">
-                        <value>typewo</value>
-                    </simple-property-list>
-                    <property name="aggregateFunction">SUM</property>
-                    <list-property name="arguments">
-                        <structure>
-                            <property name="name">Expression</property>
-                            <expression name="value">row["DOLIA"]</expression>
-                        </structure>
-                    </list-property>
-                </structure>
-                <structure>
-                    <property name="name">type_itog</property>
-                    <expression name="expression">if (row["FLAG"] == 0 || row["FLAG"] == 1)  this.text = "Прочие работы";
-if (dataSetRow["FLAG"] == 2 || dataSetRow["FLAG"] == 3) this.text = "Нормированные работы";</expression>
+                    <property name="name">ITEMNUM</property>
+                    <property name="displayName">ITEMNUM</property>
+                    <expression name="expression">dataSetRow["ITEMNUM"]</expression>
                     <property name="dataType">string</property>
                 </structure>
                 <structure>
-                    <property name="name">PLAN_WO</property>
-                    <property name="displayName">PLAN_WO</property>
-                    <expression name="expression">dataSetRow["PLAN_WO"]</expression>
+                    <property name="name">WO_CNT</property>
+                    <property name="displayName">WO_CNT</property>
+                    <expression name="expression">dataSetRow["WO_CNT"]</expression>
+                    <property name="dataType">integer</property>
+                </structure>
+                <structure>
+                    <property name="name">SNIATO</property>
+                    <property name="displayName">SNIATO</property>
+                    <expression name="expression">dataSetRow["SNIATO"]</expression>
                     <property name="dataType">float</property>
                 </structure>
                 <structure>
-                    <property name="name">pred_plan_wo</property>
+                    <property name="name">SNIATO_COST</property>
+                    <property name="displayName">SNIATO_COST</property>
+                    <expression name="expression">dataSetRow["SNIATO_COST"]</expression>
                     <property name="dataType">float</property>
+                </structure>
+                <structure>
+                    <property name="name">ULOZH_N</property>
+                    <property name="displayName">ULOZH_N</property>
+                    <expression name="expression">dataSetRow["ULOZH_N"]</expression>
+                    <property name="dataType">float</property>
+                </structure>
+                <structure>
+                    <property name="name">ULOZH_N_COST</property>
+                    <property name="displayName">ULOZH_N_COST</property>
+                    <expression name="expression">dataSetRow["ULOZH_N_COST"]</expression>
+                    <property name="dataType">float</property>
+                </structure>
+                <structure>
+                    <property name="name">ULOZH_S</property>
+                    <property name="displayName">ULOZH_S</property>
+                    <expression name="expression">dataSetRow["ULOZH_S"]</expression>
+                    <property name="dataType">float</property>
+                </structure>
+                <structure>
+                    <property name="name">ULOZH_S_COST</property>
+                    <property name="displayName">ULOZH_S_COST</property>
+                    <expression name="expression">dataSetRow["ULOZH_S_COST"]</expression>
+                    <property name="dataType">float</property>
+                </structure>
+                <structure>
+                    <property name="name">gr_jpnum</property>
+                    <property name="displayName">JPNUM</property>
+                    <expression name="expression">"Итого по " + dataSetRow["JPNUM"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">gr_wo_cnt</property>
+                    <property name="dataType">integer</property>
                     <simple-property-list name="aggregateOn">
-                        <value>pred</value>
+                        <value>jp</value>
                     </simple-property-list>
                     <property name="aggregateFunction">SUM</property>
                     <list-property name="arguments">
                         <structure>
                             <property name="name">Expression</property>
-                            <expression name="value">row["PLAN_WO"]</expression>
+                            <expression name="value">row["WO_CNT"]</expression>
                         </structure>
                     </list-property>
                 </structure>
                 <structure>
-                    <property name="name">type_plan_wo</property>
+                    <property name="name">jp_sniato_cost</property>
                     <property name="dataType">float</property>
                     <simple-property-list name="aggregateOn">
-                        <value>typewo</value>
+                        <value>jp</value>
                     </simple-property-list>
                     <property name="aggregateFunction">SUM</property>
                     <list-property name="arguments">
                         <structure>
                             <property name="name">Expression</property>
-                            <expression name="value">row["PLAN_WO"]</expression>
+                            <expression name="value">row["SNIATO_COST"]</expression>
                         </structure>
                     </list-property>
                 </structure>
                 <structure>
-                    <property name="name">tab_plan_wo</property>
+                    <property name="name">jp_ulozh_n_cost</property>
+                    <property name="dataType">float</property>
+                    <simple-property-list name="aggregateOn">
+                        <value>jp</value>
+                    </simple-property-list>
+                    <property name="aggregateFunction">SUM</property>
+                    <list-property name="arguments">
+                        <structure>
+                            <property name="name">Expression</property>
+                            <expression name="value">row["ULOZH_N_COST"]</expression>
+                        </structure>
+                    </list-property>
+                </structure>
+                <structure>
+                    <property name="name">jp_ulozh_s_cost</property>
+                    <property name="dataType">float</property>
+                    <simple-property-list name="aggregateOn">
+                        <value>jp</value>
+                    </simple-property-list>
+                    <property name="aggregateFunction">SUM</property>
+                    <list-property name="arguments">
+                        <structure>
+                            <property name="name">Expression</property>
+                            <expression name="value">row["ULOZH_S_COST"]</expression>
+                        </structure>
+                    </list-property>
+                </structure>
+                <structure>
+                    <property name="name">tab_wo_cnt</property>
+                    <property name="dataType">integer</property>
+                    <property name="aggregateFunction">SUM</property>
+                    <list-property name="arguments">
+                        <structure>
+                            <property name="name">Expression</property>
+                            <expression name="value">row["WO_CNT"]</expression>
+                        </structure>
+                    </list-property>
+                </structure>
+                <structure>
+                    <property name="name">tab_sniato_cost</property>
                     <property name="dataType">float</property>
                     <property name="aggregateFunction">SUM</property>
                     <list-property name="arguments">
                         <structure>
                             <property name="name">Expression</property>
-                            <expression name="value">row["PLAN_WO"]</expression>
+                            <expression name="value">row["SNIATO_COST"]</expression>
+                        </structure>
+                    </list-property>
+                </structure>
+                <structure>
+                    <property name="name">tab_ulozh_n_cost</property>
+                    <property name="dataType">float</property>
+                    <property name="aggregateFunction">SUM</property>
+                    <list-property name="arguments">
+                        <structure>
+                            <property name="name">Expression</property>
+                            <expression name="value">row["ULOZH_N_COST"]</expression>
+                        </structure>
+                    </list-property>
+                </structure>
+                <structure>
+                    <property name="name">tab_ulozh_s_cost</property>
+                    <property name="dataType">float</property>
+                    <property name="aggregateFunction">SUM</property>
+                    <list-property name="arguments">
+                        <structure>
+                            <property name="name">Expression</property>
+                            <expression name="value">row["ULOZH_S_COST"]</expression>
                         </structure>
                     </list-property>
                 </structure>
             </list-property>
-            <list-property name="sort">
-                <structure>
-                    <expression name="key">row["FLAG"]</expression>
-                    <property name="direction">asc</property>
-                </structure>
-                <structure>
-                    <expression name="key">row["DOLIA"]</expression>
-                    <property name="direction">desc</property>
-                </structure>
-            </list-property>
-            <column id="17915">
+            <column id="17859">
+                <property name="suppressDuplicates">true</property>
                 <list-property name="visibility">
                     <structure>
                         <property name="format">all</property>
@@ -969,7 +715,8 @@ if (dataSetRow["FLAG"] == 2 || dataSetRow["FLAG"] == 3) this.text = "Норми�
                     </structure>
                 </list-property>
             </column>
-            <column id="17916">
+            <column id="17860">
+                <property name="suppressDuplicates">true</property>
                 <list-property name="visibility">
                     <structure>
                         <property name="format">all</property>
@@ -977,147 +724,22 @@ if (dataSetRow["FLAG"] == 2 || dataSetRow["FLAG"] == 3) this.text = "Норми�
                     </structure>
                 </list-property>
             </column>
-            <column id="17917">
-                <list-property name="visibility">
-                    <structure>
-                        <property name="format">all</property>
-                        <expression name="valueExpr">true</expression>
-                    </structure>
-                </list-property>
-            </column>
-            <column id="17918"/>
-            <column id="17919"/>
-            <column id="17920"/>
-            <column id="17921"/>
-            <column id="17922"/>
-            <column id="18057"/>
-            <column id="17923"/>
-            <column id="17924"/>
-            <column id="17971"/>
-            <column id="17925"/>
+            <column id="17861"/>
+            <column id="17862"/>
+            <column id="17863"/>
+            <column id="17864"/>
+            <column id="17865"/>
+            <column id="17866"/>
+            <column id="17867"/>
+            <column id="17868"/>
+            <column id="17869"/>
+            <column id="17870"/>
             <header>
-                <row id="17857">
+                <row id="17871">
                     <property name="backgroundColor">#C0C0C0</property>
-                    <cell id="17858">
-                        <property name="borderBottomColor">#000000</property>
-                        <property name="borderBottomStyle">solid</property>
-                        <property name="borderBottomWidth">thin</property>
-                        <property name="borderLeftColor">#000000</property>
-                        <property name="borderLeftStyle">solid</property>
-                        <property name="borderLeftWidth">thin</property>
-                        <property name="borderRightColor">#000000</property>
-                        <property name="borderRightStyle">solid</property>
-                        <property name="borderRightWidth">thin</property>
-                        <property name="borderTopColor">#000000</property>
-                        <property name="borderTopStyle">solid</property>
-                        <property name="borderTopWidth">thin</property>
-                        <label id="17859">
-                            <text-property name="text">FLAG</text-property>
-                        </label>
-                    </cell>
-                    <cell id="17860">
-                        <property name="borderBottomColor">#000000</property>
-                        <property name="borderBottomStyle">solid</property>
-                        <property name="borderBottomWidth">thin</property>
-                        <property name="borderLeftColor">#000000</property>
-                        <property name="borderLeftStyle">solid</property>
-                        <property name="borderLeftWidth">thin</property>
-                        <property name="borderRightColor">#000000</property>
-                        <property name="borderRightStyle">solid</property>
-                        <property name="borderRightWidth">thin</property>
-                        <property name="borderTopColor">#000000</property>
-                        <property name="borderTopStyle">solid</property>
-                        <property name="borderTopWidth">thin</property>
-                        <label id="17861">
-                            <text-property name="text">L_PRED</text-property>
-                        </label>
-                    </cell>
-                    <cell id="17862">
-                        <property name="borderBottomColor">#000000</property>
-                        <property name="borderBottomStyle">solid</property>
-                        <property name="borderBottomWidth">thin</property>
-                        <property name="borderLeftColor">#000000</property>
-                        <property name="borderLeftStyle">solid</property>
-                        <property name="borderLeftWidth">thin</property>
-                        <property name="borderRightColor">#000000</property>
-                        <property name="borderRightStyle">solid</property>
-                        <property name="borderRightWidth">thin</property>
-                        <property name="borderTopColor">#000000</property>
-                        <property name="borderTopStyle">solid</property>
-                        <property name="borderTopWidth">thin</property>
-                        <label id="17863">
-                            <text-property name="text">PRED_D</text-property>
-                        </label>
-                    </cell>
-                    <cell id="17864">
-                        <property name="borderBottomColor">#000000</property>
-                        <property name="borderBottomStyle">solid</property>
-                        <property name="borderBottomWidth">thin</property>
-                        <property name="borderLeftColor">#000000</property>
-                        <property name="borderLeftStyle">solid</property>
-                        <property name="borderLeftWidth">thin</property>
-                        <property name="borderRightColor">#000000</property>
-                        <property name="borderRightStyle">solid</property>
-                        <property name="borderRightWidth">thin</property>
-                        <property name="borderTopColor">#000000</property>
-                        <property name="borderTopStyle">solid</property>
-                        <property name="borderTopWidth">thin</property>
-                        <label id="17865">
-                            <text-property name="text">ТНВ с измерителем работ</text-property>
-                        </label>
-                    </cell>
-                    <cell id="17866">
-                        <property name="borderBottomColor">#000000</property>
-                        <property name="borderBottomStyle">solid</property>
-                        <property name="borderBottomWidth">thin</property>
-                        <property name="borderLeftColor">#000000</property>
-                        <property name="borderLeftStyle">solid</property>
-                        <property name="borderLeftWidth">thin</property>
-                        <property name="borderRightColor">#000000</property>
-                        <property name="borderRightStyle">solid</property>
-                        <property name="borderRightWidth">thin</property>
-                        <property name="borderTopColor">#000000</property>
-                        <property name="borderTopStyle">solid</property>
-                        <property name="borderTopWidth">thin</property>
-                        <label id="17867">
-                            <text-property name="text">Измеритель работы по ТНВ</text-property>
-                        </label>
-                    </cell>
-                    <cell id="17868">
-                        <property name="borderBottomColor">#000000</property>
-                        <property name="borderBottomStyle">solid</property>
-                        <property name="borderBottomWidth">thin</property>
-                        <property name="borderLeftColor">#000000</property>
-                        <property name="borderLeftStyle">solid</property>
-                        <property name="borderLeftWidth">thin</property>
-                        <property name="borderRightColor">#000000</property>
-                        <property name="borderRightStyle">solid</property>
-                        <property name="borderRightWidth">thin</property>
-                        <property name="borderTopColor">#000000</property>
-                        <property name="borderTopStyle">solid</property>
-                        <property name="borderTopWidth">thin</property>
-                        <label id="17869">
-                            <text-property name="text">Единица измерения</text-property>
-                        </label>
-                    </cell>
-                    <cell id="17870">
-                        <property name="borderBottomColor">#000000</property>
-                        <property name="borderBottomStyle">solid</property>
-                        <property name="borderBottomWidth">thin</property>
-                        <property name="borderLeftColor">#000000</property>
-                        <property name="borderLeftStyle">solid</property>
-                        <property name="borderLeftWidth">thin</property>
-                        <property name="borderRightColor">#000000</property>
-                        <property name="borderRightStyle">solid</property>
-                        <property name="borderRightWidth">thin</property>
-                        <property name="borderTopColor">#000000</property>
-                        <property name="borderTopStyle">solid</property>
-                        <property name="borderTopWidth">thin</property>
-                        <label id="17871">
-                            <text-property name="text">Кол-во РЗ</text-property>
-                        </label>
-                    </cell>
                     <cell id="17872">
+                        <property name="colSpan">2</property>
+                        <property name="rowSpan">2</property>
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
                         <property name="borderBottomWidth">thin</property>
@@ -1130,28 +752,13 @@ if (dataSetRow["FLAG"] == 2 || dataSetRow["FLAG"] == 3) this.text = "Норми�
                         <property name="borderTopColor">#000000</property>
                         <property name="borderTopStyle">solid</property>
                         <property name="borderTopWidth">thin</property>
-                        <label id="17873">
-                            <text-property name="text">Плановый объем работы</text-property>
-                        </label>
-                    </cell>
-                    <cell id="18050">
-                        <property name="borderBottomColor">#000000</property>
-                        <property name="borderBottomStyle">solid</property>
-                        <property name="borderBottomWidth">thin</property>
-                        <property name="borderLeftColor">#000000</property>
-                        <property name="borderLeftStyle">solid</property>
-                        <property name="borderLeftWidth">thin</property>
-                        <property name="borderRightColor">#000000</property>
-                        <property name="borderRightStyle">solid</property>
-                        <property name="borderRightWidth">thin</property>
-                        <property name="borderTopColor">#000000</property>
-                        <property name="borderTopStyle">solid</property>
-                        <property name="borderTopWidth">thin</property>
-                        <label id="18059">
-                            <text-property name="text">Фактический объем работ</text-property>
+                        <label id="17897">
+                            <text-property name="text">Тех.карта</text-property>
                         </label>
                     </cell>
                     <cell id="17874">
+                        <property name="colSpan">1</property>
+                        <property name="rowSpan">3</property>
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
                         <property name="borderBottomWidth">thin</property>
@@ -1164,11 +771,32 @@ if (dataSetRow["FLAG"] == 2 || dataSetRow["FLAG"] == 3) this.text = "Норми�
                         <property name="borderTopColor">#000000</property>
                         <property name="borderTopStyle">solid</property>
                         <property name="borderTopWidth">thin</property>
-                        <label id="17875">
-                            <text-property name="text">Фактическое время, ч-час</text-property>
+                        <label id="17802">
+                            <text-property name="text">Наименование материала</text-property>
+                        </label>
+                    </cell>
+                    <cell id="17875">
+                        <property name="colSpan">1</property>
+                        <property name="rowSpan">3</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <label id="17804">
+                            <text-property name="text">Ед. изм.</text-property>
                         </label>
                     </cell>
                     <cell id="17876">
+                        <property name="colSpan">1</property>
+                        <property name="rowSpan">3</property>
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
                         <property name="borderBottomWidth">thin</property>
@@ -1181,11 +809,13 @@ if (dataSetRow["FLAG"] == 2 || dataSetRow["FLAG"] == 3) this.text = "Норми�
                         <property name="borderTopColor">#000000</property>
                         <property name="borderTopStyle">solid</property>
                         <property name="borderTopWidth">thin</property>
-                        <label id="17877">
-                            <text-property name="text">Нормиро-ванное время, ч-час</text-property>
+                        <label id="17806">
+                            <text-property name="text">Код СК МТР</text-property>
                         </label>
                     </cell>
-                    <cell id="17966">
+                    <cell id="17877">
+                        <property name="colSpan">1</property>
+                        <property name="rowSpan">3</property>
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
                         <property name="borderBottomWidth">thin</property>
@@ -1198,11 +828,13 @@ if (dataSetRow["FLAG"] == 2 || dataSetRow["FLAG"] == 3) this.text = "Норми�
                         <property name="borderTopColor">#000000</property>
                         <property name="borderTopStyle">solid</property>
                         <property name="borderTopWidth">thin</property>
-                        <label id="17994">
-                            <text-property name="text">Выполнение нормы по выработке</text-property>
+                        <label id="17808">
+                            <text-property name="text">Количество РЗ</text-property>
                         </label>
                     </cell>
                     <cell id="17878">
+                        <property name="colSpan">2</property>
+                        <property name="rowSpan">1</property>
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
                         <property name="borderBottomWidth">thin</property>
@@ -1215,14 +847,52 @@ if (dataSetRow["FLAG"] == 2 || dataSetRow["FLAG"] == 3) this.text = "Норми�
                         <property name="borderTopColor">#000000</property>
                         <property name="borderTopStyle">solid</property>
                         <property name="borderTopWidth">thin</property>
-                        <label id="17879">
-                            <text-property name="text">Доля от общего объема трудозатрат</text-property>
+                        <label id="17898">
+                            <text-property name="text">Снято с пути материалов</text-property>
+                        </label>
+                    </cell>
+                    <cell id="17880">
+                        <property name="colSpan">2</property>
+                        <property name="rowSpan">1</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <label id="17913">
+                            <text-property name="text">Уложено в путь материалов (новые)</text-property>
+                        </label>
+                    </cell>
+                    <cell id="17882">
+                        <property name="colSpan">2</property>
+                        <property name="rowSpan">1</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <label id="17914">
+                            <text-property name="text">Уложено в путь материалов (старогодных)</text-property>
                         </label>
                     </cell>
                 </row>
-                <row id="17972">
+                <row id="17884">
                     <property name="backgroundColor">#C0C0C0</property>
-                    <cell id="17973">
+                    <cell id="17891">
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
                         <property name="borderBottomWidth">thin</property>
@@ -1235,53 +905,11 @@ if (dataSetRow["FLAG"] == 2 || dataSetRow["FLAG"] == 3) this.text = "Норми�
                         <property name="borderTopColor">#000000</property>
                         <property name="borderTopStyle">solid</property>
                         <property name="borderTopWidth">thin</property>
-                    </cell>
-                    <cell id="17974">
-                        <property name="borderBottomColor">#000000</property>
-                        <property name="borderBottomStyle">solid</property>
-                        <property name="borderBottomWidth">thin</property>
-                        <property name="borderLeftColor">#000000</property>
-                        <property name="borderLeftStyle">solid</property>
-                        <property name="borderLeftWidth">thin</property>
-                        <property name="borderRightColor">#000000</property>
-                        <property name="borderRightStyle">solid</property>
-                        <property name="borderRightWidth">thin</property>
-                        <property name="borderTopColor">#000000</property>
-                        <property name="borderTopStyle">solid</property>
-                        <property name="borderTopWidth">thin</property>
-                    </cell>
-                    <cell id="17975">
-                        <property name="borderBottomColor">#000000</property>
-                        <property name="borderBottomStyle">solid</property>
-                        <property name="borderBottomWidth">thin</property>
-                        <property name="borderLeftColor">#000000</property>
-                        <property name="borderLeftStyle">solid</property>
-                        <property name="borderLeftWidth">thin</property>
-                        <property name="borderRightColor">#000000</property>
-                        <property name="borderRightStyle">solid</property>
-                        <property name="borderRightWidth">thin</property>
-                        <property name="borderTopColor">#000000</property>
-                        <property name="borderTopStyle">solid</property>
-                        <property name="borderTopWidth">thin</property>
-                    </cell>
-                    <cell id="17976">
-                        <property name="borderBottomColor">#000000</property>
-                        <property name="borderBottomStyle">solid</property>
-                        <property name="borderBottomWidth">thin</property>
-                        <property name="borderLeftColor">#000000</property>
-                        <property name="borderLeftStyle">solid</property>
-                        <property name="borderLeftWidth">thin</property>
-                        <property name="borderRightColor">#000000</property>
-                        <property name="borderRightStyle">solid</property>
-                        <property name="borderRightWidth">thin</property>
-                        <property name="borderTopColor">#000000</property>
-                        <property name="borderTopStyle">solid</property>
-                        <property name="borderTopWidth">thin</property>
-                        <label id="17985">
-                            <text-property name="text">1</text-property>
+                        <label id="17899">
+                            <text-property name="text">Кол-во в натур.ед. изм</text-property>
                         </label>
                     </cell>
-                    <cell id="17977">
+                    <cell id="17892">
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
                         <property name="borderBottomWidth">thin</property>
@@ -1294,11 +922,11 @@ if (dataSetRow["FLAG"] == 2 || dataSetRow["FLAG"] == 3) this.text = "Норми�
                         <property name="borderTopColor">#000000</property>
                         <property name="borderTopStyle">solid</property>
                         <property name="borderTopWidth">thin</property>
-                        <label id="17986">
-                            <text-property name="text">2</text-property>
+                        <label id="17900">
+                            <text-property name="text">Сумма, руб</text-property>
                         </label>
                     </cell>
-                    <cell id="17978">
+                    <cell id="17893">
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
                         <property name="borderBottomWidth">thin</property>
@@ -1311,11 +939,11 @@ if (dataSetRow["FLAG"] == 2 || dataSetRow["FLAG"] == 3) this.text = "Норми�
                         <property name="borderTopColor">#000000</property>
                         <property name="borderTopStyle">solid</property>
                         <property name="borderTopWidth">thin</property>
-                        <label id="17987">
-                            <text-property name="text">3</text-property>
+                        <label id="17905">
+                            <text-property name="text">Кол-во в натур.ед. изм</text-property>
                         </label>
                     </cell>
-                    <cell id="17979">
+                    <cell id="17894">
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
                         <property name="borderBottomWidth">thin</property>
@@ -1328,11 +956,11 @@ if (dataSetRow["FLAG"] == 2 || dataSetRow["FLAG"] == 3) this.text = "Норми�
                         <property name="borderTopColor">#000000</property>
                         <property name="borderTopStyle">solid</property>
                         <property name="borderTopWidth">thin</property>
-                        <label id="17988">
-                            <text-property name="text">4</text-property>
+                        <label id="17907">
+                            <text-property name="text">Сумма, руб</text-property>
                         </label>
                     </cell>
-                    <cell id="17980">
+                    <cell id="17895">
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
                         <property name="borderBottomWidth">thin</property>
@@ -1345,11 +973,11 @@ if (dataSetRow["FLAG"] == 2 || dataSetRow["FLAG"] == 3) this.text = "Норми�
                         <property name="borderTopColor">#000000</property>
                         <property name="borderTopStyle">solid</property>
                         <property name="borderTopWidth">thin</property>
-                        <label id="17989">
-                            <text-property name="text">5</text-property>
+                        <label id="17906">
+                            <text-property name="text">Кол-во в натур.ед. изм</text-property>
                         </label>
                     </cell>
-                    <cell id="18051">
+                    <cell id="17896">
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
                         <property name="borderBottomWidth">thin</property>
@@ -1362,11 +990,14 @@ if (dataSetRow["FLAG"] == 2 || dataSetRow["FLAG"] == 3) this.text = "Норми�
                         <property name="borderTopColor">#000000</property>
                         <property name="borderTopStyle">solid</property>
                         <property name="borderTopWidth">thin</property>
-                        <label id="17990">
-                            <text-property name="text">6</text-property>
+                        <label id="17908">
+                            <text-property name="text">Сумма, руб</text-property>
                         </label>
                     </cell>
-                    <cell id="17981">
+                </row>
+                <row id="17796">
+                    <property name="backgroundColor">#C0C0C0</property>
+                    <cell id="17797">
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
                         <property name="borderBottomWidth">thin</property>
@@ -1379,11 +1010,11 @@ if (dataSetRow["FLAG"] == 2 || dataSetRow["FLAG"] == 3) this.text = "Норми�
                         <property name="borderTopColor">#000000</property>
                         <property name="borderTopStyle">solid</property>
                         <property name="borderTopWidth">thin</property>
-                        <label id="17991">
-                            <text-property name="text">7</text-property>
+                        <label id="17798">
+                            <text-property name="text">Номер</text-property>
                         </label>
                     </cell>
-                    <cell id="17982">
+                    <cell id="17799">
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
                         <property name="borderBottomWidth">thin</property>
@@ -1396,11 +1027,11 @@ if (dataSetRow["FLAG"] == 2 || dataSetRow["FLAG"] == 3) this.text = "Норми�
                         <property name="borderTopColor">#000000</property>
                         <property name="borderTopStyle">solid</property>
                         <property name="borderTopWidth">thin</property>
-                        <label id="17992">
-                            <text-property name="text">8</text-property>
+                        <label id="17800">
+                            <text-property name="text">Описание</text-property>
                         </label>
                     </cell>
-                    <cell id="17983">
+                    <cell id="17809">
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
                         <property name="borderBottomWidth">thin</property>
@@ -1413,11 +1044,11 @@ if (dataSetRow["FLAG"] == 2 || dataSetRow["FLAG"] == 3) this.text = "Норми�
                         <property name="borderTopColor">#000000</property>
                         <property name="borderTopStyle">solid</property>
                         <property name="borderTopWidth">thin</property>
-                        <label id="17993">
-                            <text-property name="text">9</text-property>
+                        <label id="17810">
+                            <text-property name="text">ЕК АСУИ</text-property>
                         </label>
                     </cell>
-                    <cell id="17984">
+                    <cell id="17811">
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
                         <property name="borderBottomWidth">thin</property>
@@ -1430,45 +1061,210 @@ if (dataSetRow["FLAG"] == 2 || dataSetRow["FLAG"] == 3) this.text = "Норми�
                         <property name="borderTopColor">#000000</property>
                         <property name="borderTopStyle">solid</property>
                         <property name="borderTopWidth">thin</property>
-                        <label id="18058">
-                            <text-property name="text">10</text-property>
+                        <label id="17812">
+                            <text-property name="text">Расчетная с учетом цены АСУФР (2101)</text-property>
+                        </label>
+                    </cell>
+                    <cell id="17813">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <label id="17909">
+                            <text-property name="text">ЕК АСУИ</text-property>
+                        </label>
+                    </cell>
+                    <cell id="17815">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <label id="17911">
+                            <text-property name="text">Расчетная с учетом цены АСУФР (2101)</text-property>
+                        </label>
+                    </cell>
+                    <cell id="17817">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <label id="17910">
+                            <text-property name="text">ЕК АСУИ</text-property>
+                        </label>
+                    </cell>
+                    <cell id="17819">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <label id="17912">
+                            <text-property name="text">Расчетная с учетом цены АСУФР (2101)</text-property>
                         </label>
                     </cell>
                 </row>
             </header>
-            <group id="17926">
-                <property name="groupName">pred</property>
+            <group id="17915">
+                <property name="groupName">jp</property>
                 <property name="interval">none</property>
                 <property name="sortDirection">asc</property>
-                <expression name="keyExpr">row["L_PRED"]</expression>
+                <expression name="keyExpr">row["JPNUM"]</expression>
                 <structure name="toc">
-                    <expression name="expressionValue">row["L_PRED"]</expression>
+                    <expression name="expressionValue">row["JPNUM"]</expression>
                 </structure>
                 <property name="repeatHeader">true</property>
                 <property name="hideDetail">false</property>
                 <property name="pageBreakAfter">auto</property>
-                <property name="pageBreakBefore">always-excluding-first</property>
+                <property name="pageBreakBefore">auto</property>
                 <property name="pageBreakInside">auto</property>
                 <list-property name="sort">
                     <structure>
-                        <expression name="key">row["PRED_D"].replace(/^\D{1,}/, "").replace(/\D{1,}$/, "")*1</expression>
+                        <expression name="key">row["JPNUM"]</expression>
+                        <property name="direction">asc</property>
+                    </structure>
+                    <structure>
+                        <expression name="key">row["JPNUM"].replace(/^\D*/,"").replace(/\/(\d)*$/, "").split(".").join("")*1</expression>
+                        <property name="direction">asc</property>
+                    </structure>
+                    <structure>
+                        <expression name="key">row["ITEMNUM"]</expression>
                         <property name="direction">asc</property>
                     </structure>
                 </list-property>
                 <header>
-                    <row id="17927">
+                    <row id="18007">
                         <property name="backgroundColor">#FFFF80</property>
                         <property name="fontWeight">bold</property>
-                        <cell id="17928">
-                            <data id="17951">
-                                <property name="resultSetColumn">L_PRED</property>
-                            </data>
-                        </cell>
-                        <cell id="17929"/>
-                        <cell id="17930"/>
-                        <cell id="17931">
+                        <property name="textAlign">right</property>
+                        <cell id="18008"/>
+                        <cell id="18009"/>
+                        <cell id="18010">
                             <property name="colSpan">3</property>
                             <property name="rowSpan">1</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">thin</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">thin</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">thin</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">thin</property>
+                            <data id="17823">
+                                <list-property name="visibility">
+                                    <structure>
+                                        <property name="format">all</property>
+                                        <expression name="valueExpr">true</expression>
+                                    </structure>
+                                </list-property>
+                                <property name="resultSetColumn">JPNUM</property>
+                            </data>
+                            <data id="17825">
+                                <property name="textAlign">left</property>
+                                <property name="resultSetColumn">JP_DESC</property>
+                            </data>
+                        </cell>
+                        <cell id="18013">
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">thin</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">thin</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">thin</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">thin</property>
+                            <data id="17950">
+                                <property name="resultSetColumn">gr_wo_cnt</property>
+                            </data>
+                        </cell>
+                        <cell id="18014">
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">thin</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">thin</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">thin</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">thin</property>
+                        </cell>
+                        <cell id="18015">
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">thin</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">thin</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">thin</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">thin</property>
+                            <data id="17951">
+                                <structure name="numberFormat">
+                                    <property name="category">Custom</property>
+                                    <property name="pattern">###,##0.00</property>
+                                </structure>
+                                <property name="resultSetColumn">jp_sniato_cost</property>
+                            </data>
+                        </cell>
+                        <cell id="18016">
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">thin</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">thin</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">thin</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">thin</property>
+                        </cell>
+                        <cell id="18017">
                             <property name="borderBottomColor">#000000</property>
                             <property name="borderBottomStyle">solid</property>
                             <property name="borderBottomWidth">thin</property>
@@ -1482,60 +1278,14 @@ if (dataSetRow["FLAG"] == 2 || dataSetRow["FLAG"] == 3) this.text = "Норми�
                             <property name="borderTopStyle">solid</property>
                             <property name="borderTopWidth">thin</property>
                             <data id="17952">
-                                <property name="resultSetColumn">PRED_D</property>
-                            </data>
-                        </cell>
-                        <cell id="17955">
-                            <property name="borderBottomColor">#000000</property>
-                            <property name="borderBottomStyle">solid</property>
-                            <property name="borderBottomWidth">thin</property>
-                            <property name="borderLeftColor">#000000</property>
-                            <property name="borderLeftStyle">solid</property>
-                            <property name="borderLeftWidth">thin</property>
-                            <property name="borderRightColor">#000000</property>
-                            <property name="borderRightStyle">solid</property>
-                            <property name="borderRightWidth">thin</property>
-                            <property name="borderTopColor">#000000</property>
-                            <property name="borderTopStyle">solid</property>
-                            <property name="borderTopWidth">thin</property>
-                            <property name="textAlign">right</property>
-                            <data id="17960">
-                                <structure name="numberFormat">
-                                    <property name="category">Custom</property>
-                                    <property name="pattern">###,##0</property>
-                                </structure>
-                                <property name="resultSetColumn">cnt_wo</property>
-                            </data>
-                        </cell>
-                        <cell id="17956">
-                            <property name="borderBottomColor">#000000</property>
-                            <property name="borderBottomStyle">solid</property>
-                            <property name="borderBottomWidth">thin</property>
-                            <property name="borderLeftColor">#000000</property>
-                            <property name="borderLeftStyle">solid</property>
-                            <property name="borderLeftWidth">thin</property>
-                            <property name="borderRightColor">#000000</property>
-                            <property name="borderRightStyle">solid</property>
-                            <property name="borderRightWidth">thin</property>
-                            <property name="borderTopColor">#000000</property>
-                            <property name="borderTopStyle">solid</property>
-                            <property name="borderTopWidth">thin</property>
-                            <property name="textAlign">right</property>
-                            <data id="18061">
                                 <structure name="numberFormat">
                                     <property name="category">Custom</property>
                                     <property name="pattern">###,##0.00</property>
                                 </structure>
-                                <list-property name="visibility">
-                                    <structure>
-                                        <property name="format">all</property>
-                                        <expression name="valueExpr">true</expression>
-                                    </structure>
-                                </list-property>
-                                <property name="resultSetColumn">pred_plan_wo</property>
+                                <property name="resultSetColumn">jp_ulozh_n_cost</property>
                             </data>
                         </cell>
-                        <cell id="18052">
+                        <cell id="18018">
                             <property name="borderBottomColor">#000000</property>
                             <property name="borderBottomStyle">solid</property>
                             <property name="borderBottomWidth">thin</property>
@@ -1548,311 +1298,33 @@ if (dataSetRow["FLAG"] == 2 || dataSetRow["FLAG"] == 3) this.text = "Норми�
                             <property name="borderTopColor">#000000</property>
                             <property name="borderTopStyle">solid</property>
                             <property name="borderTopWidth">thin</property>
-                            <property name="textAlign">right</property>
-                            <data id="17961">
+                        </cell>
+                        <cell id="18019">
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">thin</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">thin</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">thin</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">thin</property>
+                            <data id="17953">
                                 <structure name="numberFormat">
                                     <property name="category">Custom</property>
                                     <property name="pattern">###,##0.00</property>
                                 </structure>
-                                <list-property name="visibility">
-                                    <structure>
-                                        <property name="format">all</property>
-                                        <expression name="valueExpr">true</expression>
-                                    </structure>
-                                </list-property>
-                                <property name="resultSetColumn">pred_fakt_wo</property>
-                            </data>
-                        </cell>
-                        <cell id="17957">
-                            <property name="borderBottomColor">#000000</property>
-                            <property name="borderBottomStyle">solid</property>
-                            <property name="borderBottomWidth">thin</property>
-                            <property name="borderLeftColor">#000000</property>
-                            <property name="borderLeftStyle">solid</property>
-                            <property name="borderLeftWidth">thin</property>
-                            <property name="borderRightColor">#000000</property>
-                            <property name="borderRightStyle">solid</property>
-                            <property name="borderRightWidth">thin</property>
-                            <property name="borderTopColor">#000000</property>
-                            <property name="borderTopStyle">solid</property>
-                            <property name="borderTopWidth">thin</property>
-                            <property name="textAlign">right</property>
-                            <data id="17962">
-                                <structure name="numberFormat">
-                                    <property name="category">Custom</property>
-                                    <property name="pattern">###,##0.00</property>
-                                </structure>
-                                <property name="resultSetColumn">pred_labor_hour</property>
-                            </data>
-                        </cell>
-                        <cell id="17958">
-                            <property name="borderBottomColor">#000000</property>
-                            <property name="borderBottomStyle">solid</property>
-                            <property name="borderBottomWidth">thin</property>
-                            <property name="borderLeftColor">#000000</property>
-                            <property name="borderLeftStyle">solid</property>
-                            <property name="borderLeftWidth">thin</property>
-                            <property name="borderRightColor">#000000</property>
-                            <property name="borderRightStyle">solid</property>
-                            <property name="borderRightWidth">thin</property>
-                            <property name="borderTopColor">#000000</property>
-                            <property name="borderTopStyle">solid</property>
-                            <property name="borderTopWidth">thin</property>
-                            <property name="textAlign">right</property>
-                            <data id="17963">
-                                <structure name="numberFormat">
-                                    <property name="category">Custom</property>
-                                    <property name="pattern">###,##0.00</property>
-                                </structure>
-                                <property name="resultSetColumn">pred_norm_hour</property>
-                            </data>
-                        </cell>
-                        <cell id="17967">
-                            <property name="borderBottomColor">#000000</property>
-                            <property name="borderBottomStyle">solid</property>
-                            <property name="borderBottomWidth">thin</property>
-                            <property name="borderLeftColor">#000000</property>
-                            <property name="borderLeftStyle">solid</property>
-                            <property name="borderLeftWidth">thin</property>
-                            <property name="borderRightColor">#000000</property>
-                            <property name="borderRightStyle">solid</property>
-                            <property name="borderRightWidth">thin</property>
-                            <property name="borderTopColor">#000000</property>
-                            <property name="borderTopStyle">solid</property>
-                            <property name="borderTopWidth">thin</property>
-                            <property name="textAlign">right</property>
-                            <data id="17996">
-                                <structure name="numberFormat">
-                                    <property name="category">Custom</property>
-                                    <property name="pattern">###,##0.00</property>
-                                </structure>
-                                <list-property name="visibility">
-                                    <structure>
-                                        <property name="format">all</property>
-                                        <expression name="valueExpr">true</expression>
-                                    </structure>
-                                </list-property>
-                                <property name="resultSetColumn">pred_vip_hour</property>
-                            </data>
-                        </cell>
-                        <cell id="17959">
-                            <property name="borderBottomColor">#000000</property>
-                            <property name="borderBottomStyle">solid</property>
-                            <property name="borderBottomWidth">thin</property>
-                            <property name="borderLeftColor">#000000</property>
-                            <property name="borderLeftStyle">solid</property>
-                            <property name="borderLeftWidth">thin</property>
-                            <property name="borderRightColor">#000000</property>
-                            <property name="borderRightStyle">solid</property>
-                            <property name="borderRightWidth">thin</property>
-                            <property name="borderTopColor">#000000</property>
-                            <property name="borderTopStyle">solid</property>
-                            <property name="borderTopWidth">thin</property>
-                            <property name="textAlign">right</property>
-                            <label id="17965">
-                                <text-property name="text">100,00%</text-property>
-                            </label>
-                        </cell>
-                    </row>
-                </header>
-            </group>
-            <group id="18002">
-                <property name="groupName">typewo</property>
-                <property name="interval">none</property>
-                <property name="sortDirection">asc</property>
-                <expression name="keyExpr">if (row["FLAG"] == 1) "0" 
-else if  (row["FLAG"] == 3) "2"
-else row["FLAG"];</expression>
-                <property name="repeatHeader">true</property>
-                <property name="hideDetail">false</property>
-                <property name="pageBreakAfter">auto</property>
-                <property name="pageBreakBefore">auto</property>
-                <property name="pageBreakInside">auto</property>
-                <header>
-                    <row id="18036">
-                        <property name="backgroundColor">#80FFFF</property>
-                        <property name="fontWeight">bold</property>
-                        <property name="textAlign">right</property>
-                        <cell id="18037"/>
-                        <cell id="18038"/>
-                        <cell id="18039"/>
-                        <cell id="18040">
-                            <property name="colSpan">3</property>
-                            <property name="rowSpan">1</property>
-                            <property name="borderBottomColor">#000000</property>
-                            <property name="borderBottomStyle">solid</property>
-                            <property name="borderBottomWidth">thin</property>
-                            <property name="borderLeftColor">#000000</property>
-                            <property name="borderLeftStyle">solid</property>
-                            <property name="borderLeftWidth">thin</property>
-                            <property name="borderRightColor">#000000</property>
-                            <property name="borderRightStyle">solid</property>
-                            <property name="borderRightWidth">thin</property>
-                            <property name="borderTopColor">#000000</property>
-                            <property name="borderTopStyle">solid</property>
-                            <property name="borderTopWidth">thin</property>
-                            <data id="18049">
-                                <property name="textAlign">left</property>
-                                <property name="resultSetColumn">type_itog</property>
-                            </data>
-                        </cell>
-                        <cell id="18043">
-                            <property name="borderBottomColor">#000000</property>
-                            <property name="borderBottomStyle">solid</property>
-                            <property name="borderBottomWidth">thin</property>
-                            <property name="borderLeftColor">#000000</property>
-                            <property name="borderLeftStyle">solid</property>
-                            <property name="borderLeftWidth">thin</property>
-                            <property name="borderRightColor">#000000</property>
-                            <property name="borderRightStyle">solid</property>
-                            <property name="borderRightWidth">thin</property>
-                            <property name="borderTopColor">#000000</property>
-                            <property name="borderTopStyle">solid</property>
-                            <property name="borderTopWidth">thin</property>
-                            <data id="18030">
-                                <structure name="numberFormat">
-                                    <property name="category">Custom</property>
-                                    <property name="pattern">###,##0</property>
-                                </structure>
-                                <property name="resultSetColumn">type_cnt_wo</property>
-                            </data>
-                        </cell>
-                        <cell id="18044">
-                            <property name="borderBottomColor">#000000</property>
-                            <property name="borderBottomStyle">solid</property>
-                            <property name="borderBottomWidth">thin</property>
-                            <property name="borderLeftColor">#000000</property>
-                            <property name="borderLeftStyle">solid</property>
-                            <property name="borderLeftWidth">thin</property>
-                            <property name="borderRightColor">#000000</property>
-                            <property name="borderRightStyle">solid</property>
-                            <property name="borderRightWidth">thin</property>
-                            <property name="borderTopColor">#000000</property>
-                            <property name="borderTopStyle">solid</property>
-                            <property name="borderTopWidth">thin</property>
-                            <data id="18062">
-                                <structure name="numberFormat">
-                                    <property name="category">Custom</property>
-                                    <property name="pattern">###,##0.00</property>
-                                </structure>
-                                <list-property name="visibility">
-                                    <structure>
-                                        <property name="format">all</property>
-                                        <expression name="valueExpr">true</expression>
-                                    </structure>
-                                </list-property>
-                                <property name="resultSetColumn">type_plan_wo</property>
-                            </data>
-                        </cell>
-                        <cell id="18053">
-                            <property name="borderBottomColor">#000000</property>
-                            <property name="borderBottomStyle">solid</property>
-                            <property name="borderBottomWidth">thin</property>
-                            <property name="borderLeftColor">#000000</property>
-                            <property name="borderLeftStyle">solid</property>
-                            <property name="borderLeftWidth">thin</property>
-                            <property name="borderRightColor">#000000</property>
-                            <property name="borderRightStyle">solid</property>
-                            <property name="borderRightWidth">thin</property>
-                            <property name="borderTopColor">#000000</property>
-                            <property name="borderTopStyle">solid</property>
-                            <property name="borderTopWidth">thin</property>
-                            <data id="18031">
-                                <structure name="numberFormat">
-                                    <property name="category">Custom</property>
-                                    <property name="pattern">###,##0.00</property>
-                                </structure>
-                                <list-property name="visibility">
-                                    <structure>
-                                        <property name="format">all</property>
-                                        <expression name="valueExpr">true</expression>
-                                    </structure>
-                                </list-property>
-                                <property name="resultSetColumn">type_fakt_wo</property>
-                            </data>
-                        </cell>
-                        <cell id="18045">
-                            <property name="borderBottomColor">#000000</property>
-                            <property name="borderBottomStyle">solid</property>
-                            <property name="borderBottomWidth">thin</property>
-                            <property name="borderLeftColor">#000000</property>
-                            <property name="borderLeftStyle">solid</property>
-                            <property name="borderLeftWidth">thin</property>
-                            <property name="borderRightColor">#000000</property>
-                            <property name="borderRightStyle">solid</property>
-                            <property name="borderRightWidth">thin</property>
-                            <property name="borderTopColor">#000000</property>
-                            <property name="borderTopStyle">solid</property>
-                            <property name="borderTopWidth">thin</property>
-                            <data id="18032">
-                                <structure name="numberFormat">
-                                    <property name="category">Custom</property>
-                                    <property name="pattern">###,##0.00</property>
-                                </structure>
-                                <property name="resultSetColumn">type_labor_haur</property>
-                            </data>
-                        </cell>
-                        <cell id="18046">
-                            <property name="borderBottomColor">#000000</property>
-                            <property name="borderBottomStyle">solid</property>
-                            <property name="borderBottomWidth">thin</property>
-                            <property name="borderLeftColor">#000000</property>
-                            <property name="borderLeftStyle">solid</property>
-                            <property name="borderLeftWidth">thin</property>
-                            <property name="borderRightColor">#000000</property>
-                            <property name="borderRightStyle">solid</property>
-                            <property name="borderRightWidth">thin</property>
-                            <property name="borderTopColor">#000000</property>
-                            <property name="borderTopStyle">solid</property>
-                            <property name="borderTopWidth">thin</property>
-                            <data id="18033">
-                                <structure name="numberFormat">
-                                    <property name="category">Custom</property>
-                                    <property name="pattern">###,##0.00</property>
-                                </structure>
-                                <property name="resultSetColumn">type_norm_hour</property>
-                            </data>
-                        </cell>
-                        <cell id="18047">
-                            <property name="borderBottomColor">#000000</property>
-                            <property name="borderBottomStyle">solid</property>
-                            <property name="borderBottomWidth">thin</property>
-                            <property name="borderLeftColor">#000000</property>
-                            <property name="borderLeftStyle">solid</property>
-                            <property name="borderLeftWidth">thin</property>
-                            <property name="borderRightColor">#000000</property>
-                            <property name="borderRightStyle">solid</property>
-                            <property name="borderRightWidth">thin</property>
-                            <property name="borderTopColor">#000000</property>
-                            <property name="borderTopStyle">solid</property>
-                            <property name="borderTopWidth">thin</property>
-                        </cell>
-                        <cell id="18048">
-                            <property name="borderBottomColor">#000000</property>
-                            <property name="borderBottomStyle">solid</property>
-                            <property name="borderBottomWidth">thin</property>
-                            <property name="borderLeftColor">#000000</property>
-                            <property name="borderLeftStyle">solid</property>
-                            <property name="borderLeftWidth">thin</property>
-                            <property name="borderRightColor">#000000</property>
-                            <property name="borderRightStyle">solid</property>
-                            <property name="borderRightWidth">thin</property>
-                            <property name="borderTopColor">#000000</property>
-                            <property name="borderTopStyle">solid</property>
-                            <property name="borderTopWidth">thin</property>
-                            <data id="18034">
-                                <structure name="numberFormat">
-                                    <property name="category">Percent</property>
-                                    <property name="pattern">Percent</property>
-                                </structure>
-                                <property name="resultSetColumn">type_dolia</property>
+                                <property name="resultSetColumn">jp_ulozh_s_cost</property>
                             </data>
                         </cell>
                     </row>
                 </header>
                 <footer>
-                    <row id="18016">
-                        <property name="backgroundColor">#C0C0C0</property>
+                    <row id="17929">
+                        <property name="backgroundColor">#FFFF80</property>
                         <property name="fontWeight">bold</property>
                         <property name="textAlign">right</property>
                         <list-property name="visibility">
@@ -1861,11 +1333,8 @@ else row["FLAG"];</expression>
                                 <expression name="valueExpr">true</expression>
                             </structure>
                         </list-property>
-                        <cell id="18017"/>
-                        <cell id="18018"/>
-                        <cell id="18019"/>
-                        <cell id="18020">
-                            <property name="colSpan">3</property>
+                        <cell id="17930">
+                            <property name="colSpan">5</property>
                             <property name="rowSpan">1</property>
                             <property name="borderBottomColor">#000000</property>
                             <property name="borderBottomStyle">solid</property>
@@ -1879,11 +1348,14 @@ else row["FLAG"];</expression>
                             <property name="borderTopColor">#000000</property>
                             <property name="borderTopStyle">solid</property>
                             <property name="borderTopWidth">thin</property>
-                            <data id="18035">
-                                <property name="resultSetColumn">type_itog</property>
+                            <data id="17943">
+                                <property name="textAlign">right</property>
+                                <property name="resultSetColumn">gr_jpnum</property>
                             </data>
                         </cell>
-                        <cell id="18023">
+                        <cell id="17935">
+                            <property name="colSpan">1</property>
+                            <property name="rowSpan">1</property>
                             <property name="borderBottomColor">#000000</property>
                             <property name="borderBottomStyle">solid</property>
                             <property name="borderBottomWidth">thin</property>
@@ -1897,7 +1369,7 @@ else row["FLAG"];</expression>
                             <property name="borderTopStyle">solid</property>
                             <property name="borderTopWidth">thin</property>
                         </cell>
-                        <cell id="18024">
+                        <cell id="17944">
                             <property name="borderBottomColor">#000000</property>
                             <property name="borderBottomStyle">solid</property>
                             <property name="borderBottomWidth">thin</property>
@@ -1911,7 +1383,7 @@ else row["FLAG"];</expression>
                             <property name="borderTopStyle">solid</property>
                             <property name="borderTopWidth">thin</property>
                         </cell>
-                        <cell id="18055">
+                        <cell id="17945">
                             <property name="borderBottomColor">#000000</property>
                             <property name="borderBottomStyle">solid</property>
                             <property name="borderBottomWidth">thin</property>
@@ -1925,7 +1397,7 @@ else row["FLAG"];</expression>
                             <property name="borderTopStyle">solid</property>
                             <property name="borderTopWidth">thin</property>
                         </cell>
-                        <cell id="18025">
+                        <cell id="17946">
                             <property name="borderBottomColor">#000000</property>
                             <property name="borderBottomStyle">solid</property>
                             <property name="borderBottomWidth">thin</property>
@@ -1939,7 +1411,7 @@ else row["FLAG"];</expression>
                             <property name="borderTopStyle">solid</property>
                             <property name="borderTopWidth">thin</property>
                         </cell>
-                        <cell id="18026">
+                        <cell id="17947">
                             <property name="borderBottomColor">#000000</property>
                             <property name="borderBottomStyle">solid</property>
                             <property name="borderBottomWidth">thin</property>
@@ -1953,7 +1425,7 @@ else row["FLAG"];</expression>
                             <property name="borderTopStyle">solid</property>
                             <property name="borderTopWidth">thin</property>
                         </cell>
-                        <cell id="18027">
+                        <cell id="17948">
                             <property name="borderBottomColor">#000000</property>
                             <property name="borderBottomStyle">solid</property>
                             <property name="borderBottomWidth">thin</property>
@@ -1967,7 +1439,7 @@ else row["FLAG"];</expression>
                             <property name="borderTopStyle">solid</property>
                             <property name="borderTopWidth">thin</property>
                         </cell>
-                        <cell id="18028">
+                        <cell id="17949">
                             <property name="borderBottomColor">#000000</property>
                             <property name="borderBottomStyle">solid</property>
                             <property name="borderBottomWidth">thin</property>
@@ -1985,28 +1457,24 @@ else row["FLAG"];</expression>
                 </footer>
             </group>
             <detail>
-                <row id="17880">
-                    <list-property name="highlightRules">
-                        <structure>
-                            <property name="operator">eq</property>
-                            <property name="backgroundColor">#80FF80</property>
-                            <property name="fontWeight">bold</property>
-                            <expression name="testExpr">row["FLAG"]</expression>
-                            <simple-property-list name="value1">
-                                <value>1</value>
-                            </simple-property-list>
-                        </structure>
-                        <structure>
-                            <property name="operator">eq</property>
-                            <property name="backgroundColor">#80FF80</property>
-                            <property name="fontWeight">bold</property>
-                            <expression name="testExpr">row["FLAG"]</expression>
-                            <simple-property-list name="value1">
-                                <value>3</value>
-                            </simple-property-list>
-                        </structure>
-                    </list-property>
-                    <cell id="17881">
+                <row id="17821">
+                    <cell id="17822">
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                    </cell>
+                    <cell id="17824">
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                    </cell>
+                    <cell id="17826">
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
                         <property name="borderBottomWidth">thin</property>
@@ -2016,14 +1484,11 @@ else row["FLAG"];</expression>
                         <property name="borderRightColor">#000000</property>
                         <property name="borderRightStyle">solid</property>
                         <property name="borderRightWidth">thin</property>
-                        <property name="borderTopColor">#000000</property>
-                        <property name="borderTopStyle">solid</property>
-                        <property name="borderTopWidth">thin</property>
-                        <data id="17882">
-                            <property name="resultSetColumn">FLAG</property>
+                        <data id="17827">
+                            <property name="resultSetColumn">ITEM_D</property>
                         </data>
                     </cell>
-                    <cell id="17883">
+                    <cell id="17828">
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
                         <property name="borderBottomWidth">thin</property>
@@ -2033,14 +1498,11 @@ else row["FLAG"];</expression>
                         <property name="borderRightColor">#000000</property>
                         <property name="borderRightStyle">solid</property>
                         <property name="borderRightWidth">thin</property>
-                        <property name="borderTopColor">#000000</property>
-                        <property name="borderTopStyle">solid</property>
-                        <property name="borderTopWidth">thin</property>
-                        <data id="17884">
-                            <property name="resultSetColumn">L_PRED</property>
+                        <data id="17829">
+                            <property name="resultSetColumn">IZMRAB</property>
                         </data>
                     </cell>
-                    <cell id="17885">
+                    <cell id="17830">
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
                         <property name="borderBottomWidth">thin</property>
@@ -2050,14 +1512,11 @@ else row["FLAG"];</expression>
                         <property name="borderRightColor">#000000</property>
                         <property name="borderRightStyle">solid</property>
                         <property name="borderRightWidth">thin</property>
-                        <property name="borderTopColor">#000000</property>
-                        <property name="borderTopStyle">solid</property>
-                        <property name="borderTopWidth">thin</property>
-                        <data id="17886">
-                            <property name="resultSetColumn">PRED_D</property>
+                        <data id="17831">
+                            <property name="resultSetColumn">ITEMNUM</property>
                         </data>
                     </cell>
-                    <cell id="17887">
+                    <cell id="17832">
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
                         <property name="borderBottomWidth">thin</property>
@@ -2067,14 +1526,12 @@ else row["FLAG"];</expression>
                         <property name="borderRightColor">#000000</property>
                         <property name="borderRightStyle">solid</property>
                         <property name="borderRightWidth">thin</property>
-                        <property name="borderTopColor">#000000</property>
-                        <property name="borderTopStyle">solid</property>
-                        <property name="borderTopWidth">thin</property>
-                        <data id="17888">
-                            <property name="resultSetColumn">WO_D</property>
+                        <property name="textAlign">right</property>
+                        <data id="17833">
+                            <property name="resultSetColumn">WO_CNT</property>
                         </data>
                     </cell>
-                    <cell id="17889">
+                    <cell id="17834">
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
                         <property name="borderBottomWidth">thin</property>
@@ -2084,19 +1541,16 @@ else row["FLAG"];</expression>
                         <property name="borderRightColor">#000000</property>
                         <property name="borderRightStyle">solid</property>
                         <property name="borderRightWidth">thin</property>
-                        <property name="borderTopColor">#000000</property>
-                        <property name="borderTopStyle">solid</property>
-                        <property name="borderTopWidth">thin</property>
-                        <data id="17890">
+                        <property name="textAlign">right</property>
+                        <data id="17835">
                             <structure name="numberFormat">
                                 <property name="category">Fixed</property>
-                                <property name="pattern">###0.000</property>
+                                <property name="pattern">Fixed</property>
                             </structure>
-                            <property name="textAlign">right</property>
-                            <property name="resultSetColumn">NUMVALUE</property>
+                            <property name="resultSetColumn">SNIATO</property>
                         </data>
                     </cell>
-                    <cell id="17891">
+                    <cell id="17836">
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
                         <property name="borderBottomWidth">thin</property>
@@ -2106,58 +1560,16 @@ else row["FLAG"];</expression>
                         <property name="borderRightColor">#000000</property>
                         <property name="borderRightStyle">solid</property>
                         <property name="borderRightWidth">thin</property>
-                        <property name="borderTopColor">#000000</property>
-                        <property name="borderTopStyle">solid</property>
-                        <property name="borderTopWidth">thin</property>
-                        <data id="17892">
-                            <property name="resultSetColumn">MEASUREUNITID</property>
-                        </data>
-                    </cell>
-                    <cell id="17893">
-                        <property name="borderBottomColor">#000000</property>
-                        <property name="borderBottomStyle">solid</property>
-                        <property name="borderBottomWidth">thin</property>
-                        <property name="borderLeftColor">#000000</property>
-                        <property name="borderLeftStyle">solid</property>
-                        <property name="borderLeftWidth">thin</property>
-                        <property name="borderRightColor">#000000</property>
-                        <property name="borderRightStyle">solid</property>
-                        <property name="borderRightWidth">thin</property>
-                        <property name="borderTopColor">#000000</property>
-                        <property name="borderTopStyle">solid</property>
-                        <property name="borderTopWidth">thin</property>
-                        <data id="17894">
-                            <structure name="numberFormat">
-                                <property name="category">Custom</property>
-                                <property name="pattern">###,##0</property>
-                            </structure>
-                            <property name="textAlign">right</property>
-                            <property name="resultSetColumn">CNT_WO</property>
-                        </data>
-                    </cell>
-                    <cell id="17895">
-                        <property name="borderBottomColor">#000000</property>
-                        <property name="borderBottomStyle">solid</property>
-                        <property name="borderBottomWidth">thin</property>
-                        <property name="borderLeftColor">#000000</property>
-                        <property name="borderLeftStyle">solid</property>
-                        <property name="borderLeftWidth">thin</property>
-                        <property name="borderRightColor">#000000</property>
-                        <property name="borderRightStyle">solid</property>
-                        <property name="borderRightWidth">thin</property>
-                        <property name="borderTopColor">#000000</property>
-                        <property name="borderTopStyle">solid</property>
-                        <property name="borderTopWidth">thin</property>
-                        <data id="18060">
+                        <property name="textAlign">right</property>
+                        <data id="17837">
                             <structure name="numberFormat">
                                 <property name="category">Custom</property>
                                 <property name="pattern">###,##0.00</property>
                             </structure>
-                            <property name="textAlign">right</property>
-                            <property name="resultSetColumn">PLAN_WO</property>
+                            <property name="resultSetColumn">SNIATO_COST</property>
                         </data>
                     </cell>
-                    <cell id="18054">
+                    <cell id="17838">
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
                         <property name="borderBottomWidth">thin</property>
@@ -2167,19 +1579,35 @@ else row["FLAG"];</expression>
                         <property name="borderRightColor">#000000</property>
                         <property name="borderRightStyle">solid</property>
                         <property name="borderRightWidth">thin</property>
-                        <property name="borderTopColor">#000000</property>
-                        <property name="borderTopStyle">solid</property>
-                        <property name="borderTopWidth">thin</property>
-                        <data id="17896">
+                        <property name="textAlign">right</property>
+                        <data id="17839">
+                            <structure name="numberFormat">
+                                <property name="category">Fixed</property>
+                                <property name="pattern">Fixed</property>
+                            </structure>
+                            <property name="resultSetColumn">ULOZH_N</property>
+                        </data>
+                    </cell>
+                    <cell id="17840">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="textAlign">right</property>
+                        <data id="17841">
                             <structure name="numberFormat">
                                 <property name="category">Custom</property>
                                 <property name="pattern">###,##0.00</property>
                             </structure>
-                            <property name="textAlign">right</property>
-                            <property name="resultSetColumn">FAKT_WO</property>
+                            <property name="resultSetColumn">ULOZH_N_COST</property>
                         </data>
                     </cell>
-                    <cell id="17897">
+                    <cell id="17842">
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
                         <property name="borderBottomWidth">thin</property>
@@ -2189,95 +1617,72 @@ else row["FLAG"];</expression>
                         <property name="borderRightColor">#000000</property>
                         <property name="borderRightStyle">solid</property>
                         <property name="borderRightWidth">thin</property>
-                        <property name="borderTopColor">#000000</property>
-                        <property name="borderTopStyle">solid</property>
-                        <property name="borderTopWidth">thin</property>
-                        <data id="17898">
+                        <property name="textAlign">right</property>
+                        <data id="17843">
+                            <structure name="numberFormat">
+                                <property name="category">Fixed</property>
+                                <property name="pattern">Fixed</property>
+                            </structure>
+                            <property name="resultSetColumn">ULOZH_S</property>
+                        </data>
+                    </cell>
+                    <cell id="17844">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="textAlign">right</property>
+                        <data id="17845">
                             <structure name="numberFormat">
                                 <property name="category">Custom</property>
                                 <property name="pattern">###,##0.00</property>
                             </structure>
-                            <property name="textAlign">right</property>
-                            <property name="resultSetColumn">LABOR_HOUR</property>
-                        </data>
-                    </cell>
-                    <cell id="17899">
-                        <property name="borderBottomColor">#000000</property>
-                        <property name="borderBottomStyle">solid</property>
-                        <property name="borderBottomWidth">thin</property>
-                        <property name="borderLeftColor">#000000</property>
-                        <property name="borderLeftStyle">solid</property>
-                        <property name="borderLeftWidth">thin</property>
-                        <property name="borderRightColor">#000000</property>
-                        <property name="borderRightStyle">solid</property>
-                        <property name="borderRightWidth">thin</property>
-                        <property name="borderTopColor">#000000</property>
-                        <property name="borderTopStyle">solid</property>
-                        <property name="borderTopWidth">thin</property>
-                        <data id="17900">
-                            <structure name="numberFormat">
-                                <property name="category">Custom</property>
-                                <property name="pattern">###,##0.00</property>
-                            </structure>
-                            <property name="textAlign">right</property>
-                            <property name="resultSetColumn">NORM_HOUR</property>
-                        </data>
-                    </cell>
-                    <cell id="17968">
-                        <property name="borderBottomColor">#000000</property>
-                        <property name="borderBottomStyle">solid</property>
-                        <property name="borderBottomWidth">thin</property>
-                        <property name="borderLeftColor">#000000</property>
-                        <property name="borderLeftStyle">solid</property>
-                        <property name="borderLeftWidth">thin</property>
-                        <property name="borderRightColor">#000000</property>
-                        <property name="borderRightStyle">solid</property>
-                        <property name="borderRightWidth">thin</property>
-                        <property name="borderTopColor">#000000</property>
-                        <property name="borderTopStyle">solid</property>
-                        <property name="borderTopWidth">thin</property>
-                        <data id="17995">
-                            <structure name="numberFormat">
-                                <property name="category">Percent</property>
-                                <property name="pattern">Percent</property>
-                            </structure>
-                            <property name="textAlign">right</property>
-                            <property name="resultSetColumn">vip_norm_hour</property>
-                        </data>
-                    </cell>
-                    <cell id="17901">
-                        <property name="borderBottomColor">#000000</property>
-                        <property name="borderBottomStyle">solid</property>
-                        <property name="borderBottomWidth">thin</property>
-                        <property name="borderLeftColor">#000000</property>
-                        <property name="borderLeftStyle">solid</property>
-                        <property name="borderLeftWidth">thin</property>
-                        <property name="borderRightColor">#000000</property>
-                        <property name="borderRightStyle">solid</property>
-                        <property name="borderRightWidth">thin</property>
-                        <property name="borderTopColor">#000000</property>
-                        <property name="borderTopStyle">solid</property>
-                        <property name="borderTopWidth">thin</property>
-                        <data id="17902">
-                            <structure name="numberFormat">
-                                <property name="category">Percent</property>
-                                <property name="pattern">Percent</property>
-                            </structure>
-                            <property name="textAlign">right</property>
-                            <property name="resultSetColumn">DOLIA</property>
+                            <property name="resultSetColumn">ULOZH_S_COST</property>
                         </data>
                     </cell>
                 </row>
             </detail>
             <footer>
-                <row id="17903">
+                <row id="17846">
                     <property name="backgroundColor">#C0C0C0</property>
                     <property name="fontWeight">bold</property>
                     <property name="textAlign">right</property>
-                    <cell id="17904"/>
-                    <cell id="17905"/>
-                    <cell id="17906"/>
-                    <cell id="17907">
+                    <cell id="17847">
+                        <property name="colSpan">1</property>
+                        <property name="rowSpan">1</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                    </cell>
+                    <cell id="18020">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                    </cell>
+                    <cell id="18021">
                         <property name="colSpan">3</property>
                         <property name="rowSpan">1</property>
                         <property name="borderBottomColor">#000000</property>
@@ -2292,11 +1697,11 @@ else row["FLAG"];</expression>
                         <property name="borderTopColor">#000000</property>
                         <property name="borderTopStyle">solid</property>
                         <property name="borderTopWidth">thin</property>
-                        <label id="17997">
-                            <text-property name="text">Итого по дистанции</text-property>
+                        <label id="17954">
+                            <text-property name="text">ИТОГО ПО СТАТЬЕ 2101</text-property>
                         </label>
                     </cell>
-                    <cell id="17910">
+                    <cell id="17852">
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
                         <property name="borderBottomWidth">thin</property>
@@ -2309,15 +1714,11 @@ else row["FLAG"];</expression>
                         <property name="borderTopColor">#000000</property>
                         <property name="borderTopStyle">solid</property>
                         <property name="borderTopWidth">thin</property>
-                        <data id="17998">
-                            <structure name="numberFormat">
-                                <property name="category">Custom</property>
-                                <property name="pattern">###,##0</property>
-                            </structure>
-                            <property name="resultSetColumn">tab_cnt_wo</property>
+                        <data id="17955">
+                            <property name="resultSetColumn">tab_wo_cnt</property>
                         </data>
                     </cell>
-                    <cell id="17911">
+                    <cell id="17853">
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
                         <property name="borderBottomWidth">thin</property>
@@ -2330,21 +1731,8 @@ else row["FLAG"];</expression>
                         <property name="borderTopColor">#000000</property>
                         <property name="borderTopStyle">solid</property>
                         <property name="borderTopWidth">thin</property>
-                        <data id="18063">
-                            <structure name="numberFormat">
-                                <property name="category">Custom</property>
-                                <property name="pattern">###,##0.00</property>
-                            </structure>
-                            <list-property name="visibility">
-                                <structure>
-                                    <property name="format">all</property>
-                                    <expression name="valueExpr">true</expression>
-                                </structure>
-                            </list-property>
-                            <property name="resultSetColumn">tab_plan_wo</property>
-                        </data>
                     </cell>
-                    <cell id="18056">
+                    <cell id="17854">
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
                         <property name="borderBottomWidth">thin</property>
@@ -2357,42 +1745,15 @@ else row["FLAG"];</expression>
                         <property name="borderTopColor">#000000</property>
                         <property name="borderTopStyle">solid</property>
                         <property name="borderTopWidth">thin</property>
-                        <data id="17999">
-                            <structure name="numberFormat">
-                                <property name="category">Custom</property>
-                                <property name="pattern">###,##0</property>
-                            </structure>
-                            <list-property name="visibility">
-                                <structure>
-                                    <property name="format">all</property>
-                                    <expression name="valueExpr">true</expression>
-                                </structure>
-                            </list-property>
-                            <property name="resultSetColumn">tab_fakt_wo</property>
-                        </data>
-                    </cell>
-                    <cell id="17912">
-                        <property name="borderBottomColor">#000000</property>
-                        <property name="borderBottomStyle">solid</property>
-                        <property name="borderBottomWidth">thin</property>
-                        <property name="borderLeftColor">#000000</property>
-                        <property name="borderLeftStyle">solid</property>
-                        <property name="borderLeftWidth">thin</property>
-                        <property name="borderRightColor">#000000</property>
-                        <property name="borderRightStyle">solid</property>
-                        <property name="borderRightWidth">thin</property>
-                        <property name="borderTopColor">#000000</property>
-                        <property name="borderTopStyle">solid</property>
-                        <property name="borderTopWidth">thin</property>
-                        <data id="18000">
+                        <data id="17956">
                             <structure name="numberFormat">
                                 <property name="category">Custom</property>
                                 <property name="pattern">###,##0.00</property>
                             </structure>
-                            <property name="resultSetColumn">tab_labor_hour</property>
+                            <property name="resultSetColumn">tab_sniato_cost</property>
                         </data>
                     </cell>
-                    <cell id="17913">
+                    <cell id="17855">
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
                         <property name="borderBottomWidth">thin</property>
@@ -2405,15 +1766,29 @@ else row["FLAG"];</expression>
                         <property name="borderTopColor">#000000</property>
                         <property name="borderTopStyle">solid</property>
                         <property name="borderTopWidth">thin</property>
-                        <data id="18001">
+                    </cell>
+                    <cell id="17856">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <data id="17957">
                             <structure name="numberFormat">
                                 <property name="category">Custom</property>
                                 <property name="pattern">###,##0.00</property>
                             </structure>
-                            <property name="resultSetColumn">tab_norm_hour</property>
+                            <property name="resultSetColumn">tab_ulozh_n_cost</property>
                         </data>
                     </cell>
-                    <cell id="17970">
+                    <cell id="17857">
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
                         <property name="borderBottomWidth">thin</property>
@@ -2427,7 +1802,7 @@ else row["FLAG"];</expression>
                         <property name="borderTopStyle">solid</property>
                         <property name="borderTopWidth">thin</property>
                     </cell>
-                    <cell id="17914">
+                    <cell id="17858">
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
                         <property name="borderBottomWidth">thin</property>
@@ -2440,6 +1815,13 @@ else row["FLAG"];</expression>
                         <property name="borderTopColor">#000000</property>
                         <property name="borderTopStyle">solid</property>
                         <property name="borderTopWidth">thin</property>
+                        <data id="17958">
+                            <structure name="numberFormat">
+                                <property name="category">Custom</property>
+                                <property name="pattern">###,##0.00</property>
+                            </structure>
+                            <property name="resultSetColumn">tab_ulozh_s_cost</property>
+                        </data>
                     </cell>
                 </row>
             </footer>
