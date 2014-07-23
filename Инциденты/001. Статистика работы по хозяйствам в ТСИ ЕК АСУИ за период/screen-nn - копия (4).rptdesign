@@ -210,27 +210,37 @@ mxReportScriptContext.setDefaultLogFile("c:/temp/tetttt.txt");
                 </structure>
                 <structure>
                     <property name="position">15</property>
+                    <property name="name">US_COUNT</property>
+                    <property name="dataType">float</property>
+                </structure>
+                <structure>
+                    <property name="position">16</property>
                     <property name="name">N</property>
                     <property name="dataType">integer</property>
                 </structure>
                 <structure>
-                    <property name="position">16</property>
+                    <property name="position">17</property>
                     <property name="name">ustr_sr_tsi</property>
                     <property name="dataType">integer</property>
                 </structure>
                 <structure>
-                    <property name="position">17</property>
+                    <property name="position">18</property>
                     <property name="name">ustr_sr_esmd</property>
                     <property name="dataType">integer</property>
                 </structure>
                 <structure>
-                    <property name="position">18</property>
+                    <property name="position">19</property>
                     <property name="name">otk_tsi</property>
                     <property name="dataType">integer</property>
                 </structure>
                 <structure>
-                    <property name="position">19</property>
+                    <property name="position">20</property>
                     <property name="name">otk_esmd</property>
+                    <property name="dataType">integer</property>
+                </structure>
+                <structure>
+                    <property name="position">21</property>
+                    <property name="name">sys_users</property>
                     <property name="dataType">integer</property>
                 </structure>
             </list-property>
@@ -278,6 +288,9 @@ mxReportScriptContext.setDefaultLogFile("c:/temp/tetttt.txt");
                     <property name="columnName">LOCATION</property>
                 </structure>
                 <structure>
+                    <property name="columnName">US_COUNT</property>
+                </structure>
+                <structure>
                     <property name="columnName">N</property>
                 </structure>
                 <structure>
@@ -291,6 +304,9 @@ mxReportScriptContext.setDefaultLogFile("c:/temp/tetttt.txt");
                 </structure>
                 <structure>
                     <property name="columnName">otk_esmd</property>
+                </structure>
+                <structure>
+                    <property name="columnName">sys_users</property>
                 </structure>
             </list-property>
             <structure name="cachedMetaData">
@@ -367,27 +383,37 @@ mxReportScriptContext.setDefaultLogFile("c:/temp/tetttt.txt");
                     </structure>
                     <structure>
                         <property name="position">15</property>
+                        <property name="name">US_COUNT</property>
+                        <property name="dataType">float</property>
+                    </structure>
+                    <structure>
+                        <property name="position">16</property>
                         <property name="name">N</property>
                         <property name="dataType">integer</property>
                     </structure>
                     <structure>
-                        <property name="position">16</property>
+                        <property name="position">17</property>
                         <property name="name">ustr_sr_tsi</property>
                         <property name="dataType">integer</property>
                     </structure>
                     <structure>
-                        <property name="position">17</property>
+                        <property name="position">18</property>
                         <property name="name">ustr_sr_esmd</property>
                         <property name="dataType">integer</property>
                     </structure>
                     <structure>
-                        <property name="position">18</property>
+                        <property name="position">19</property>
                         <property name="name">otk_tsi</property>
                         <property name="dataType">integer</property>
                     </structure>
                     <structure>
-                        <property name="position">19</property>
+                        <property name="position">20</property>
                         <property name="name">otk_esmd</property>
+                        <property name="dataType">integer</property>
+                    </structure>
+                    <structure>
+                        <property name="position">21</property>
+                        <property name="name">sys_users</property>
                         <property name="dataType">integer</property>
                     </structure>
                 </list-property>
@@ -440,7 +466,35 @@ sqlText = ""
  +"    A1.PRED, "
  +"   LOC.DESCRIPTION, a1.siteid "
  +" ) "
- +"  "
+ +" , "
+ +" ALLUSR as ( "
+ +" select   USR.DEFSITE , "
+ +"          PERSON.location "
+ +"          ,usr.userid                  "
+ +"           "
+ +" FROM     maximo.maxuser usr "
+ +"          JOIN MAXIMO.GROUPUSER "
+ +"          on     USR.USERID = GROUPUSER.USERID "
+ +"          and USR.STATUS = 'АКТИВНО' "
+ +"          join MAXIMO.PERSON "
+ +"          on USR.PERSONID = PERSON.PERSONID "
+ +"          and PERSON.STATUS = 'АКТИВНО' "
+ +" where    usr.defsite = '"+params["mroSite"]+"' and person.locationsite = '"+params["mroSite"]+"' "
+ +"          and GROUPUSER.GROUPNAME in ('CRAFT_DISPTSI','CRAFT_REGISTRATOR','CRAFT_RUKGRUPNAZ_E','CRAFT_RUKGRUPNAZ', 'CRAFT_SHNS','CRAFT_RUKRABOT','CRAFT_STDISPCUSI', 'CRAFT_DISPTSI_NGS','CRAFT_REGISTRATOR_NGS','CRAFT_RUKGRUPNAZ_NGS','CRAFT_STDISPCUSI_NGS') "
+ //+"          and PERSON.location in (select pred from osnova) "
+ +"          ), "
+ +" user_work as "
+ +" ( "
+ +" select   ALLUSR.DEFSITE siteid, "
+ +"          ALLUSR.location, "
+ +"          COUNT (distinct ALLUSR.USERID) SYS_USERS "
+ +"         ,COUNT (distinct hist.USERR) US_COUNT "
+ +"           "
+ +" from     ALLUSR "
+ +"          left join MAXIMO.MAXUSERHIST HIST on HIST.USERR = allUSR.USERID and HIST.LOGINDATE between "+start+" and "+finish
+ +" group by ALLUSR.DEFSITE, "
+ +"          ALLUSR.location "
+ +" ) "
  +"  "
  +" select  "
  +" OSNOVA.N, "
@@ -448,6 +502,8 @@ sqlText = ""
  +" OSNOVA.CEH, "
  +" OSNOVA.NOM, "
  +" osnova.description, "
+ +" sys_users , "
+ +" US_COUNT , "
  +" tsi , "
  +" esmd , "
  +" work_tsi , "
@@ -462,7 +518,7 @@ sqlText = ""
  +" ustr_sr_esmd , "
  +" OTK_TSI , "
  +" otk_esmd "
- +" from OSNOVA "
+ +" from OSNOVA join USER_WORK UW on OSNOVA.PRED = UW.location and OSNOVA.SITEID = UW.SITEID "
  +"  "
  //+" join MAXIMO.lochierarchy lo on osnova.siteid = lo.siteid and osnova.pred = lo.location "
  //+"     JOIN maximo.LOCATIONSPEC spc3 "
@@ -509,7 +565,8 @@ row["ustr_sr_esmd"] = maximoDataSet.getInteger("ustr_sr_esmd");
 row["otk_tsi"] = maximoDataSet.getInteger("otk_tsi");
 row["otk_esmd"] = maximoDataSet.getInteger("otk_esmd");
 row["LOCATION"] = maximoDataSet.getString("LOCATION"); 
-
+row["US_COUNT"] = maximoDataSet.getFloat("US_COUNT"); 
+row["sys_users"] = maximoDataSet.getInteger("sys_users");  
 return (true);]]></method>
         </script-data-set>
         <script-data-set name="site" id="7885">
@@ -913,6 +970,26 @@ else
                     <property name="dataType">string</property>
                 </structure>
                 <structure>
+                    <property name="name">US_COUNT</property>
+                    <property name="displayName">US_COUNT</property>
+                    <expression name="expression">dataSetRow["US_COUNT"]</expression>
+                    <property name="dataType">float</property>
+                </structure>
+                <structure>
+                    <property name="name">SUM_US_COUNT</property>
+                    <property name="dataType">integer</property>
+                    <simple-property-list name="aggregateOn">
+                        <value>NewTableGroup1</value>
+                    </simple-property-list>
+                    <property name="aggregateFunction">SUM</property>
+                    <list-property name="arguments">
+                        <structure>
+                            <property name="name">Expression</property>
+                            <expression name="value">row["US_COUNT"]</expression>
+                        </structure>
+                    </list-property>
+                </structure>
+                <structure>
                     <property name="name">WORK_TSI</property>
                     <property name="displayName">WORK_TSI</property>
                     <expression name="expression">dataSetRow["WORK_TSI"]</expression>
@@ -1291,6 +1368,48 @@ else
                     </list-property>
                 </structure>
                 <structure>
+                    <property name="name">sys_users</property>
+                    <property name="displayName">sys_users</property>
+                    <expression name="expression">dataSetRow["sys_users"]</expression>
+                    <property name="dataType">integer</property>
+                </structure>
+                <structure>
+                    <property name="name">all_users</property>
+                    <property name="dataType">integer</property>
+                    <simple-property-list name="aggregateOn">
+                        <value>NewTableGroup1</value>
+                    </simple-property-list>
+                    <property name="aggregateFunction">SUM</property>
+                    <list-property name="arguments">
+                        <structure>
+                            <property name="name">Expression</property>
+                            <expression name="value">row["sys_users"]</expression>
+                        </structure>
+                    </list-property>
+                </structure>
+                <structure>
+                    <property name="name">Aggregation</property>
+                    <property name="dataType">integer</property>
+                    <property name="aggregateFunction">SUM</property>
+                    <list-property name="arguments">
+                        <structure>
+                            <property name="name">Expression</property>
+                            <expression name="value">row["all_users"]</expression>
+                        </structure>
+                    </list-property>
+                </structure>
+                <structure>
+                    <property name="name">Aggregation_7</property>
+                    <property name="dataType">integer</property>
+                    <property name="aggregateFunction">SUM</property>
+                    <list-property name="arguments">
+                        <structure>
+                            <property name="name">Expression</property>
+                            <expression name="value">row["US_COUNT"]</expression>
+                        </structure>
+                    </list-property>
+                </structure>
+                <structure>
                     <property name="name">Aggregation_8</property>
                     <property name="dataType">integer</property>
                     <property name="aggregateFunction">SUM</property>
@@ -1568,6 +1687,12 @@ else
             <column id="11329">
                 <property name="width">170pt</property>
             </column>
+            <column id="11330">
+                <property name="width">80pt</property>
+            </column>
+            <column id="11331">
+                <property name="width">80pt</property>
+            </column>
             <column id="11332"/>
             <column id="11333"/>
             <column id="11334"/>
@@ -1647,6 +1772,50 @@ else
                         <label id="11081">
                             <property name="fontSize">12pt</property>
                             <text-property name="text">Предприятие</text-property>
+                        </label>
+                    </cell>
+                    <cell id="11082">
+                        <property name="colSpan">1</property>
+                        <property name="rowSpan">3</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <property name="textAlign">center</property>
+                        <property name="verticalAlign">middle</property>
+                        <label id="11083">
+                            <property name="fontSize">10pt</property>
+                            <text-property name="text">Количество зарегистрированных пользователей</text-property>
+                        </label>
+                    </cell>
+                    <cell id="11084">
+                        <property name="colSpan">1</property>
+                        <property name="rowSpan">3</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <property name="textAlign">center</property>
+                        <property name="verticalAlign">middle</property>
+                        <label id="11085">
+                            <property name="fontSize">10pt</property>
+                            <text-property name="text">Среднее количество пользователей, входивших в систему</text-property>
                         </label>
                     </cell>
                     <cell id="11086">
@@ -2301,7 +2470,7 @@ else
                             <property name="borderTopWidth">thin</property>
                         </cell>
                         <cell id="11160">
-                            <property name="colSpan">22</property>
+                            <property name="colSpan">24</property>
                             <property name="rowSpan">1</property>
                             <property name="borderBottomColor">#000000</property>
                             <property name="borderBottomStyle">solid</property>
@@ -2404,6 +2573,46 @@ else
                                 <property name="paddingRight">2pt</property>
                                 <property name="textAlign">left</property>
                                 <property name="resultSetColumn">Column Binding_2</property>
+                            </data>
+                        </cell>
+                        <cell id="11169">
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">thin</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">thin</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">thin</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">thin</property>
+                            <property name="textAlign">left</property>
+                            <data id="11170">
+                                <property name="fontSize">12pt</property>
+                                <property name="fontWeight">bold</property>
+                                <property name="resultSetColumn">all_users</property>
+                            </data>
+                        </cell>
+                        <cell id="11171">
+                            <property name="fontWeight">bold</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">thin</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">thin</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">thin</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">thin</property>
+                            <property name="textAlign">left</property>
+                            <data id="11172">
+                                <property name="fontSize">12pt</property>
+                                <property name="resultSetColumn">SUM_US_COUNT</property>
                             </data>
                         </cell>
                         <cell id="11173">
@@ -2886,6 +3095,54 @@ else
                             </structure>
                         </data>
                     </cell>
+                    <cell id="11226">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <property name="textAlign">left</property>
+                        <data id="11227">
+                            <property name="fontSize">12pt</property>
+                            <property name="resultSetColumn">sys_users</property>
+                            <structure name="action">
+                                <property name="linkType">none</property>
+                            </structure>
+                        </data>
+                    </cell>
+                    <cell id="11228">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <property name="textAlign">left</property>
+                        <data id="11229">
+                            <property name="fontSize">12pt</property>
+                            <structure name="numberFormat">
+                                <property name="category">Fixed</property>
+                                <property name="pattern">Fixed</property>
+                            </structure>
+                            <property name="resultSetColumn">US_COUNT</property>
+                            <structure name="action">
+                                <property name="linkType">none</property>
+                            </structure>
+                        </data>
+                    </cell>
                     <cell id="11230">
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
@@ -3358,6 +3615,51 @@ else
                             <property name="fontSize">12pt</property>
                             <text-property name="text">Итого</text-property>
                         </label>
+                    </cell>
+                    <cell id="11279">
+                        <property name="fontWeight">bold</property>
+                        <property name="fontStyle">italic</property>
+                        <property name="textUnderline">underline</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <property name="verticalAlign">middle</property>
+                        <data id="11280">
+                            <property name="fontSize">12pt</property>
+                            <property name="resultSetColumn">Aggregation</property>
+                        </data>
+                    </cell>
+                    <cell id="11281">
+                        <property name="fontWeight">bold</property>
+                        <property name="fontStyle">italic</property>
+                        <property name="textUnderline">underline</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <property name="textAlign">left</property>
+                        <property name="verticalAlign">middle</property>
+                        <data id="11282">
+                            <property name="fontSize">12pt</property>
+                            <property name="resultSetColumn">Aggregation_7</property>
+                        </data>
                     </cell>
                     <cell id="11283">
                         <property name="fontWeight">bold</property>
@@ -3974,6 +4276,26 @@ else
                     <property name="dataType">string</property>
                 </structure>
                 <structure>
+                    <property name="name">US_COUNT</property>
+                    <property name="displayName">US_COUNT</property>
+                    <expression name="expression">dataSetRow["US_COUNT"]</expression>
+                    <property name="dataType">float</property>
+                </structure>
+                <structure>
+                    <property name="name">SUM_US_COUNT</property>
+                    <property name="dataType">integer</property>
+                    <simple-property-list name="aggregateOn">
+                        <value>NewTableGroup1</value>
+                    </simple-property-list>
+                    <property name="aggregateFunction">SUM</property>
+                    <list-property name="arguments">
+                        <structure>
+                            <property name="name">Expression</property>
+                            <expression name="value">row["US_COUNT"]</expression>
+                        </structure>
+                    </list-property>
+                </structure>
+                <structure>
                     <property name="name">WORK_TSI</property>
                     <property name="displayName">WORK_TSI</property>
                     <expression name="expression">dataSetRow["WORK_TSI"]</expression>
@@ -4352,6 +4674,59 @@ else
                     </list-property>
                 </structure>
                 <structure>
+                    <property name="name">sys_users</property>
+                    <property name="displayName">sys_users</property>
+                    <expression name="expression">dataSetRow["sys_users"]</expression>
+                    <property name="dataType">integer</property>
+                </structure>
+                <structure>
+                    <property name="name">all_users</property>
+                    <property name="dataType">integer</property>
+                    <simple-property-list name="aggregateOn">
+                        <value>NewTableGroup1</value>
+                    </simple-property-list>
+                    <property name="aggregateFunction">SUM</property>
+                    <list-property name="arguments">
+                        <structure>
+                            <property name="name">Expression</property>
+                            <expression name="value">row["sys_users"]</expression>
+                        </structure>
+                    </list-property>
+                </structure>
+                <structure>
+                    <property name="name">Aggregation</property>
+                    <property name="dataType">integer</property>
+                    <property name="aggregateFunction">SUM</property>
+                    <list-property name="arguments">
+                        <structure>
+                            <property name="name">Expression</property>
+                            <expression name="value">row["sys_users"]</expression>
+                        </structure>
+                    </list-property>
+                </structure>
+                <structure>
+                    <property name="name">Aggregation_7</property>
+                    <property name="dataType">integer</property>
+                    <property name="aggregateFunction">SUM</property>
+                    <list-property name="arguments">
+                        <structure>
+                            <property name="name">Expression</property>
+                            <expression name="value">row["sys_users"]</expression>
+                        </structure>
+                    </list-property>
+                </structure>
+                <structure>
+                    <property name="name">all_us_count</property>
+                    <property name="dataType">integer</property>
+                    <property name="aggregateFunction">SUM</property>
+                    <list-property name="arguments">
+                        <structure>
+                            <property name="name">Expression</property>
+                            <expression name="value">row["US_COUNT"]</expression>
+                        </structure>
+                    </list-property>
+                </structure>
+                <structure>
                     <property name="name">all_tsi</property>
                     <property name="dataType">integer</property>
                     <property name="aggregateFunction">SUM</property>
@@ -4629,6 +5004,8 @@ else
                 </list-property>
             </column>
             <column id="8749"/>
+            <column id="8750"/>
+            <column id="8751"/>
             <column id="8752"/>
             <column id="8753"/>
             <column id="8754"/>
@@ -4692,6 +5069,52 @@ else
                             <property name="fontSize">small</property>
                             <property name="fontWeight">bold</property>
                             <text-property name="text">Предприятие</text-property>
+                        </label>
+                    </cell>
+                    <cell id="10635">
+                        <property name="colSpan">1</property>
+                        <property name="rowSpan">3</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <property name="textAlign">center</property>
+                        <property name="verticalAlign">middle</property>
+                        <label id="8437">
+                            <property name="fontSize">small</property>
+                            <property name="fontWeight">bold</property>
+                            <text-property name="text">Количество зарегистрированных пользователей</text-property>
+                        </label>
+                    </cell>
+                    <cell id="10636">
+                        <property name="colSpan">1</property>
+                        <property name="rowSpan">3</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <property name="textAlign">center</property>
+                        <property name="verticalAlign">middle</property>
+                        <label id="8085">
+                            <property name="fontSize">small</property>
+                            <property name="fontWeight">bold</property>
+                            <text-property name="text">Среднее количество пользователей, входивших в систему</text-property>
                         </label>
                     </cell>
                     <cell id="10637">
@@ -5397,6 +5820,38 @@ else
                         <property name="borderTopWidth">thin</property>
                         <property name="textAlign">center</property>
                         <property name="verticalAlign">middle</property>
+                    </cell>
+                    <cell id="10664">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <property name="textAlign">center</property>
+                        <property name="verticalAlign">middle</property>
+                    </cell>
+                    <cell id="10665">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <property name="textAlign">center</property>
+                        <property name="verticalAlign">middle</property>
                         <label name="ДИ" id="8398">
                             <property name="fontSize">small</property>
                             <property name="fontWeight">bold</property>
@@ -5812,7 +6267,7 @@ else
                             <property name="borderTopWidth">thin</property>
                         </cell>
                         <cell id="8564">
-                            <property name="colSpan">22</property>
+                            <property name="colSpan">24</property>
                             <property name="rowSpan">1</property>
                             <property name="borderBottomColor">#000000</property>
                             <property name="borderBottomStyle">solid</property>
@@ -6530,6 +6985,48 @@ else true;</expression>
                                 <property name="resultSetColumn">Column Binding_2</property>
                             </data>
                         </cell>
+                        <cell id="8613">
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">thin</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">thin</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">thin</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">thin</property>
+                            <property name="textAlign">left</property>
+                            <data id="8614">
+                                <property name="fontSize">small</property>
+                                <property name="fontWeight">bold</property>
+                                <property name="textAlign">center</property>
+                                <property name="resultSetColumn">all_users</property>
+                            </data>
+                        </cell>
+                        <cell id="8615">
+                            <property name="fontWeight">bold</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">thin</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">thin</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">thin</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">thin</property>
+                            <property name="textAlign">left</property>
+                            <data id="8616">
+                                <property name="fontSize">small</property>
+                                <property name="textAlign">center</property>
+                                <property name="resultSetColumn">SUM_US_COUNT</property>
+                            </data>
+                        </cell>
                         <cell id="8617">
                             <property name="fontWeight">bold</property>
                             <property name="borderBottomColor">#000000</property>
@@ -7038,6 +7535,90 @@ else true;</expression>
                                     <structure>
                                         <property name="paramName">mroSite</property>
                                         <expression name="expression">params["mroSite"].value</expression>
+                                    </structure>
+                                </list-property>
+                            </structure>
+                        </data>
+                    </cell>
+                    <cell id="8670">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <property name="textAlign">left</property>
+                        <data id="8671">
+                            <property name="fontSize">small</property>
+                            <property name="textAlign">center</property>
+                            <property name="resultSetColumn">sys_users</property>
+                        </data>
+                    </cell>
+                    <cell id="8672">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <property name="textAlign">left</property>
+                        <data id="8673">
+                            <property name="fontSize">small</property>
+                            <structure name="numberFormat">
+                                <property name="category">Fixed</property>
+                                <property name="pattern">Fixed</property>
+                            </structure>
+                            <property name="textAlign">center</property>
+                            <property name="resultSetColumn">US_COUNT</property>
+                            <structure name="action">
+                                <property name="linkType">drill-through</property>
+                                <property name="reportName">screenDetail.rptdesign</property>
+                                <property name="targetBookmarkType">bookmark</property>
+                                <property name="targetWindow">_blank</property>
+                                <property name="targetFileType">report-design</property>
+                                <list-property name="paramBindings">
+                                    <structure>
+                                        <property name="paramName">where</property>
+                                        <expression name="expression">params["appname"].value</expression>
+                                    </structure>
+                                    <structure>
+                                        <property name="paramName">appname</property>
+                                        <expression name="expression">params["appname"].value</expression>
+                                    </structure>
+                                    <structure>
+                                        <property name="paramName">paramdelimiter</property>
+                                        <expression name="expression">params["paramdelimiter"].value</expression>
+                                    </structure>
+                                    <structure>
+                                        <property name="paramName">paramstring</property>
+                                    </structure>
+                                    <structure>
+                                        <property name="paramName">locationId</property>
+                                        <expression name="expression">row["LOCATION"]</expression>
+                                    </structure>
+                                    <structure>
+                                        <property name="paramName">par</property>
+                                        <expression name="expression">params["par"].value</expression>
+                                    </structure>
+                                    <structure>
+                                        <property name="paramName">fin</property>
+                                        <expression name="expression">params["fin"].value</expression>
+                                    </structure>
+                                    <structure>
+                                        <property name="paramName">userName</property>
+                                        <expression name="expression">params["userName"].value</expression>
                                     </structure>
                                 </list-property>
                             </structure>
@@ -8200,6 +8781,55 @@ else true;</expression>
                             <text-property name="text">Итого</text-property>
                         </label>
                     </cell>
+                    <cell id="8722">
+                        <property name="fontSize">x-small</property>
+                        <property name="fontWeight">bold</property>
+                        <property name="fontStyle">italic</property>
+                        <property name="textUnderline">underline</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <property name="verticalAlign">middle</property>
+                        <data id="9591">
+                            <property name="fontSize">small</property>
+                            <property name="textAlign">center</property>
+                            <property name="resultSetColumn">Aggregation_7</property>
+                        </data>
+                    </cell>
+                    <cell id="8723">
+                        <property name="fontSize">x-small</property>
+                        <property name="fontWeight">bold</property>
+                        <property name="fontStyle">italic</property>
+                        <property name="textUnderline">underline</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <property name="textAlign">left</property>
+                        <property name="verticalAlign">middle</property>
+                        <data id="9592">
+                            <property name="fontSize">small</property>
+                            <property name="textAlign">center</property>
+                            <property name="resultSetColumn">all_us_count</property>
+                        </data>
+                    </cell>
                     <cell id="8724">
                         <property name="fontSize">x-small</property>
                         <property name="fontWeight">bold</property>
@@ -8846,6 +9476,26 @@ else
                     <property name="dataType">string</property>
                 </structure>
                 <structure>
+                    <property name="name">US_COUNT</property>
+                    <property name="displayName">US_COUNT</property>
+                    <expression name="expression">dataSetRow["US_COUNT"]</expression>
+                    <property name="dataType">float</property>
+                </structure>
+                <structure>
+                    <property name="name">SUM_US_COUNT</property>
+                    <property name="dataType">integer</property>
+                    <simple-property-list name="aggregateOn">
+                        <value>NewTableGroup1</value>
+                    </simple-property-list>
+                    <property name="aggregateFunction">SUM</property>
+                    <list-property name="arguments">
+                        <structure>
+                            <property name="name">Expression</property>
+                            <expression name="value">row["US_COUNT"]</expression>
+                        </structure>
+                    </list-property>
+                </structure>
+                <structure>
                     <property name="name">WORK_TSI</property>
                     <property name="displayName">WORK_TSI</property>
                     <expression name="expression">dataSetRow["WORK_TSI"]</expression>
@@ -9224,6 +9874,48 @@ else
                     </list-property>
                 </structure>
                 <structure>
+                    <property name="name">sys_users</property>
+                    <property name="displayName">sys_users</property>
+                    <expression name="expression">dataSetRow["sys_users"]</expression>
+                    <property name="dataType">integer</property>
+                </structure>
+                <structure>
+                    <property name="name">all_users</property>
+                    <property name="dataType">integer</property>
+                    <simple-property-list name="aggregateOn">
+                        <value>NewTableGroup1</value>
+                    </simple-property-list>
+                    <property name="aggregateFunction">SUM</property>
+                    <list-property name="arguments">
+                        <structure>
+                            <property name="name">Expression</property>
+                            <expression name="value">row["sys_users"]</expression>
+                        </structure>
+                    </list-property>
+                </structure>
+                <structure>
+                    <property name="name">Aggregation</property>
+                    <property name="dataType">integer</property>
+                    <property name="aggregateFunction">SUM</property>
+                    <list-property name="arguments">
+                        <structure>
+                            <property name="name">Expression</property>
+                            <expression name="value">row["all_users"]</expression>
+                        </structure>
+                    </list-property>
+                </structure>
+                <structure>
+                    <property name="name">Aggregation_7</property>
+                    <property name="dataType">integer</property>
+                    <property name="aggregateFunction">SUM</property>
+                    <list-property name="arguments">
+                        <structure>
+                            <property name="name">Expression</property>
+                            <expression name="value">row["US_COUNT"]</expression>
+                        </structure>
+                    </list-property>
+                </structure>
+                <structure>
                     <property name="name">Aggregation_8</property>
                     <property name="dataType">integer</property>
                     <property name="aggregateFunction">SUM</property>
@@ -9496,6 +10188,8 @@ else
                 </list-property>
             </column>
             <column id="9183"/>
+            <column id="9184"/>
+            <column id="9185"/>
             <column id="9186"/>
             <column id="9187"/>
             <column id="9188"/>
@@ -9577,6 +10271,52 @@ else
                             <property name="fontSize">small</property>
                             <property name="fontWeight">bold</property>
                             <text-property name="text">Предприятие</text-property>
+                        </label>
+                    </cell>
+                    <cell id="9468">
+                        <property name="colSpan">1</property>
+                        <property name="rowSpan">3</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <property name="textAlign">center</property>
+                        <property name="verticalAlign">middle</property>
+                        <label id="9554">
+                            <property name="fontSize">small</property>
+                            <property name="fontWeight">bold</property>
+                            <text-property name="text">Количество зарегистрированных пользователей</text-property>
+                        </label>
+                    </cell>
+                    <cell id="9469">
+                        <property name="colSpan">1</property>
+                        <property name="rowSpan">3</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <property name="textAlign">center</property>
+                        <property name="verticalAlign">middle</property>
+                        <label id="9555">
+                            <property name="fontSize">small</property>
+                            <property name="fontWeight">bold</property>
+                            <text-property name="text">Среднее количество пользователей, входивших в систему</text-property>
                         </label>
                     </cell>
                     <cell id="9470">
@@ -10294,6 +11034,46 @@ else
                                 <property name="resultSetColumn">Column Binding_2</property>
                             </data>
                         </cell>
+                        <cell id="9047">
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">thin</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">thin</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">thin</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">thin</property>
+                            <property name="textAlign">center</property>
+                            <data id="9048">
+                                <property name="fontSize">small</property>
+                                <property name="fontWeight">bold</property>
+                                <property name="resultSetColumn">all_users</property>
+                            </data>
+                        </cell>
+                        <cell id="9049">
+                            <property name="fontWeight">bold</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">thin</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">thin</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">thin</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">thin</property>
+                            <property name="textAlign">center</property>
+                            <data id="9050">
+                                <property name="fontSize">small</property>
+                                <property name="resultSetColumn">SUM_US_COUNT</property>
+                            </data>
+                        </cell>
                         <cell id="9051">
                             <property name="fontWeight">bold</property>
                             <property name="borderBottomColor">#000000</property>
@@ -10774,6 +11554,54 @@ else
                             <property name="paddingLeft">2pt</property>
                             <property name="textAlign">left</property>
                             <property name="resultSetColumn">DESCRIPTION</property>
+                            <structure name="action">
+                                <property name="linkType">none</property>
+                            </structure>
+                        </data>
+                    </cell>
+                    <cell id="9104">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <property name="textAlign">center</property>
+                        <data id="9105">
+                            <property name="fontSize">small</property>
+                            <property name="resultSetColumn">sys_users</property>
+                            <structure name="action">
+                                <property name="linkType">none</property>
+                            </structure>
+                        </data>
+                    </cell>
+                    <cell id="9106">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <property name="textAlign">center</property>
+                        <data id="9107">
+                            <property name="fontSize">small</property>
+                            <structure name="numberFormat">
+                                <property name="category">Fixed</property>
+                                <property name="pattern">Fixed</property>
+                            </structure>
+                            <property name="resultSetColumn">US_COUNT</property>
                             <structure name="action">
                                 <property name="linkType">none</property>
                             </structure>
@@ -11278,6 +12106,52 @@ else
                             <property name="fontSize">small</property>
                             <text-property name="text">Итого</text-property>
                         </label>
+                    </cell>
+                    <cell id="9156">
+                        <property name="fontWeight">bold</property>
+                        <property name="fontStyle">italic</property>
+                        <property name="textUnderline">underline</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <property name="textAlign">center</property>
+                        <property name="verticalAlign">middle</property>
+                        <data id="9644">
+                            <property name="fontSize">small</property>
+                            <property name="resultSetColumn">Aggregation</property>
+                        </data>
+                    </cell>
+                    <cell id="9157">
+                        <property name="fontWeight">bold</property>
+                        <property name="fontStyle">italic</property>
+                        <property name="textUnderline">underline</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <property name="textAlign">center</property>
+                        <property name="verticalAlign">middle</property>
+                        <data id="9645">
+                            <property name="fontSize">small</property>
+                            <property name="resultSetColumn">Aggregation_7</property>
+                        </data>
                     </cell>
                     <cell id="9158">
                         <property name="fontWeight">bold</property>

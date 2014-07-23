@@ -1,0 +1,1804 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<report xmlns="http://www.eclipse.org/birt/2005/design" version="3.2.17" id="1">
+    <property name="createdBy">Eclipse BIRT Designer Version 2.3.2.r232_20090202 Build &lt;2.3.2.v20090218-0730></property>
+    <property name="units">in</property>
+    <property name="comments">IBM Confidential
+
+OCO Source Materials
+
+5724-M19
+
+(C) COPYRIGHT IBM CORP. 2006
+
+The source code for this program is not published or otherwise
+divested of its trade secrets, irrespective of what has been
+deposited with the U.S. Copyright Office.</property>
+    <html-property name="description">This template will create a report with one or more groups, each having identical data fields, and contains three styles of charts.</html-property>
+    <method name="initialize"><![CDATA[importPackage(Packages.com.ibm.tivoli.maximo.report.script);
+
+mxReportScriptContext = MXReportScriptContext.initialize(reportContext);
+ 
+var finishStr= new String(params["fin"].value);
+if (finishStr.length==8)
+{
+var date = new Date(   2000+ Number( finishStr.substr(6,2) ), Number( finishStr.substr(3,2) ) - 1 , finishStr.substr(0,2) ) ;
+var now = new Date();
+
+if( date.getDate()== now.getDate() &amp;&amp; date.getMonth()==now.getMonth() &amp;&amp; date.getFullYear()==now.getFullYear() )
+{
+	finishStr = date.getDate()+"."+( date.getMonth()+1 )+"."+ ( date.getFullYear() - 2000 ) +" "+now.getHours()+":"+now.getMinutes()+":"+now.getSeconds();
+}
+else 
+	finishStr = date.getDate()+"."+( date.getMonth()+1 )+"."+ ( date.getFullYear() - 2000 ) +" 23:59:59"
+
+}
+
+
+mxReportScriptContext = MXReportScriptContext.initialize(reportContext);
+mxReportScriptContext.setDefaultLogLevel("DEBUG");
+mxReportScriptContext.setDefaultLogFile("c:/temp/tetttt.txt");]]></method>
+    <method name="afterFactory"><![CDATA[MXReportScriptContext.close();]]></method>
+    <property name="theme">MaximoSystemLibrary.maximoTheme</property>
+    <text-property name="displayName">Tivoli Maximo Grouped Chart Template</text-property>
+    <list-property name="libraries">
+        <structure>
+            <property name="fileName">MaximoSystemLibrary.rptlibrary</property>
+            <property name="namespace">MaximoSystemLibrary</property>
+        </structure>
+    </list-property>
+    <parameters>
+        <scalar-parameter name="where" id="25">
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="isRequired">false</property>
+            <property name="controlType">text-box</property>
+            <property name="defaultValue">1=1</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="appname" id="240">
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="isRequired">false</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="paramdelimiter" id="241">
+            <property name="hidden">true</property>
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="isRequired">false</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="paramstring" id="242">
+            <property name="hidden">true</property>
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="isRequired">false</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="mroSite" id="7480">
+            <property name="hidden">false</property>
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="paramType">simple</property>
+            <property name="isRequired">true</property>
+            <property name="controlType">text-box</property>
+            <property name="distinct">true</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="par" id="7814">
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="paramType">simple</property>
+            <property name="isRequired">true</property>
+            <property name="controlType">text-box</property>
+            <property name="distinct">true</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="fin" id="8001">
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="paramType">simple</property>
+            <property name="isRequired">true</property>
+            <property name="controlType">text-box</property>
+            <property name="distinct">true</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="locationId" id="8002">
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="paramType">simple</property>
+            <property name="isRequired">false</property>
+            <property name="controlType">text-box</property>
+            <property name="distinct">true</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="count" id="8454">
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="paramType">simple</property>
+            <property name="isRequired">false</property>
+            <property name="controlType">text-box</property>
+            <property name="distinct">true</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="type" id="8754">
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <property name="distinct">true</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+    </parameters>
+    <data-sources>
+        <script-data-source name="maximoDataSource" id="64" extends="MaximoSystemLibrary.maximoDataSource"/>
+    </data-sources>
+    <data-sets>
+        <script-data-set name="Workreport" id="368">
+            <list-property name="resultSetHints">
+                <structure>
+                    <property name="position">1</property>
+                    <property name="name">mesto</property>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="position">2</property>
+                    <property name="name">inc_count</property>
+                    <property name="dataType">integer</property>
+                </structure>
+                <structure>
+                    <property name="position">3</property>
+                    <property name="name">loc</property>
+                    <property name="dataType">string</property>
+                </structure>
+            </list-property>
+            <list-property name="columnHints">
+                <structure>
+                    <property name="columnName">VID</property>
+                </structure>
+                <structure>
+                    <property name="columnName">mesto</property>
+                </structure>
+                <structure>
+                    <property name="columnName">sum</property>
+                </structure>
+                <structure>
+                    <property name="columnName">location</property>
+                </structure>
+                <structure>
+                    <property name="columnName">description</property>
+                </structure>
+                <structure>
+                    <property name="columnName">inc_count</property>
+                </structure>
+                <structure>
+                    <property name="columnName">loc</property>
+                </structure>
+            </list-property>
+            <structure name="cachedMetaData">
+                <list-property name="resultSet">
+                    <structure>
+                        <property name="position">1</property>
+                        <property name="name">mesto</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">2</property>
+                        <property name="name">inc_count</property>
+                        <property name="dataType">integer</property>
+                    </structure>
+                    <structure>
+                        <property name="position">3</property>
+                        <property name="name">loc</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                </list-property>
+            </structure>
+            <property name="dataSource">maximoDataSource</property>
+            <method name="open"><![CDATA[maximoDataSet = MXReportDataSetProvider.create(this.getDataSource().getName(), this.getName());
+	maximoDataSet.open();
+	var sqlText = new String();
+
+
+
+var start = new String(params["par"]);
+
+start = "to_date ('"+params["par"]+"','DD.MM.YY')"
+
+var finish = new String(finishStr);
+finish = "to_date ('"+finishStr+"','DD.MM.YY HH24:MI:SS')"
+
+var locationId = new String(params["locationId"]);
+
+if(params["locationId"]!='')
+{locationId = "'" + (params["locationId"]).replace("=","") + "'"}
+
+
+
+var type = new String(params["type"]);
+type =(params["type"]).replace("=","")
+
+
+sqlText =  "  with  "
+ +"		T as ( "
++"      select "
++"         i.ticketid as id "
++"		  ,l.description||case when spc.assetattrid = 'TIP_RAZMST' then ' (станция)' when spc.assetattrid = 'TIP_RAZM_MSP'  then ' (перегон)'  end  mesto "
++"        ,i.location as loc "
++"      from maximo.tk_rep2 i "
+
++"          join maximo.LOCATIONSPEC spc  on (i.location = spc.location and i.siteid = spc.siteid "
++"          									and 1= case when "+type+"=1 and spc.assetattrid in ('TIP_RAZMST','TIP_RAZM_MSP') then 1"
++"															when "+type+"=2 and spc.assetattrid = 'TIP_RAZMST' then 1"
++"															when "+type+"=3 and spc.assetattrid = 'TIP_RAZM_MSP' then 1"
++"														else 0 end "
++"												and spc.numvalue=1) "
++"          join maximo.locations l on spc.location=l.location and spc.siteid=l.siteid "
++"      where " 
+
+ +"   ( 1=CASE WHEN i.extsystemid is not null and i.extsystemid != 703   THEN 1 "
+ +" 				WHEN (i.extsystemid is null and i.h in ('090004000002','090004000003','090004000004') )  "
+ +"					THEN 1 else 0 end )"
+ +"		and to_date (   to_char  (i.reportdate,'DD.MM.YY HH24:MI:SS') ,'DD.MM.YY HH24:MI:SS') between " + start + " and  " + finish + ""
+ +"  	and  i.status  not in ('ОБЪЕДИНЕН','ЛОЖНЫЙ', 'УДАЛЕНО') "
++"        and "
++"        i.siteid = '"+params["mroSite"]+"'"
++"        and "
++"        (case when i.extsystemid is not null then i.pred end ) =  "+locationId
+
++"      ) " 
++"   select "
++"  count(distinct T.id) as inc_count "
++"  ,T.mesto "
++"  ,T.loc "
++"  from T "
++"	group by T.mesto, T.loc  "
+
+;
+
+
+maximoDataSet.setQuery(sqlText);]]></method>
+            <method name="fetch"><![CDATA[if (!maximoDataSet.fetch())
+     return (false);
+     
+
+row["inc_count"] = maximoDataSet.getInteger("inc_count");
+row["mesto"] = maximoDataSet.getString("mesto");
+row["loc"] = maximoDataSet.getString("loc");
+  
+return (true);]]></method>
+        </script-data-set>
+        <script-data-set name="site" id="7885">
+            <list-property name="resultSetHints">
+                <structure>
+                    <property name="position">1</property>
+                    <property name="name">description</property>
+                    <property name="dataType">string</property>
+                </structure>
+            </list-property>
+            <list-property name="columnHints">
+                <structure>
+                    <property name="columnName">description</property>
+                </structure>
+            </list-property>
+            <structure name="cachedMetaData">
+                <list-property name="resultSet">
+                    <structure>
+                        <property name="position">1</property>
+                        <property name="name">description</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                </list-property>
+            </structure>
+            <property name="dataSource">maximoDataSource</property>
+            <method name="open"><![CDATA[maximoDataSet = MXReportDataSetProvider.create(this.getDataSource().getName(), this.getName());
+	maximoDataSet.open();
+	
+
+	var sqlText = new String();
+
+	sqlText = " select description "
+ + "  from maximo.site "
+ + "  where siteid = '"+params["mroSite"]+"'"
+ ;
+	maximoDataSet.setQuery(sqlText);
+ ;
+	maximoDataSet.setQuery(sqlText);]]></method>
+            <method name="fetch"><![CDATA[if (!maximoDataSet.fetch())
+	   return (false);
+	// Add a line for each output column
+	row["description"] = maximoDataSet.getString("description");
+	return (true);]]></method>
+        </script-data-set>
+        <script-data-set name="location" id="8211">
+            <list-property name="resultSetHints">
+                <structure>
+                    <property name="position">1</property>
+                    <property name="name">description</property>
+                    <property name="dataType">string</property>
+                </structure>
+            </list-property>
+            <list-property name="columnHints">
+                <structure>
+                    <property name="columnName">description</property>
+                </structure>
+            </list-property>
+            <structure name="cachedMetaData">
+                <list-property name="resultSet">
+                    <structure>
+                        <property name="position">1</property>
+                        <property name="name">description</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                </list-property>
+            </structure>
+            <property name="dataSource">maximoDataSource</property>
+            <method name="open"><![CDATA[maximoDataSet = MXReportDataSetProvider.create(this.getDataSource().getName(), this.getName());
+	maximoDataSet.open();
+
+
+var locationId = new String(params["locationId"]);
+
+if(params["locationId"]!='')
+{locationId = "'" + (params["locationId"]).replace("=","") + "'"}
+
+
+
+
+var sqlText = new String();
+
+	sqlText = 
+ "	select spec.alnvalue || ', ' || spec2.alnvalue as description "
++"	from maximo.locationspec spec "
++"  	join maximo.locationspec spec2 on (spec.location = spec2.location) "
++"	where spec.location = "+locationId+""
++" 			and spec.assetattrid = 'SNAME' and spec2.assetattrid = 'SNAME2'"
+;
+	maximoDataSet.setQuery(sqlText);]]></method>
+            <method name="fetch"><![CDATA[if (!maximoDataSet.fetch())
+	   return (false);
+	// Add a line for each output column
+	row["description"] = maximoDataSet.getString("description");
+	return (true);]]></method>
+        </script-data-set>
+        <script-data-set name="dates" id="11389">
+            <list-property name="resultSetHints">
+                <structure>
+                    <property name="position">1</property>
+                    <property name="name">DAT1</property>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="position">2</property>
+                    <property name="name">DAT2</property>
+                    <property name="dataType">string</property>
+                </structure>
+            </list-property>
+            <list-property name="columnHints">
+                <structure>
+                    <property name="columnName">DAT1</property>
+                </structure>
+                <structure>
+                    <property name="columnName">DAT2</property>
+                </structure>
+            </list-property>
+            <structure name="cachedMetaData">
+                <list-property name="resultSet">
+                    <structure>
+                        <property name="position">1</property>
+                        <property name="name">DAT1</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">2</property>
+                        <property name="name">DAT2</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                </list-property>
+            </structure>
+            <property name="dataSource">maximoDataSource</property>
+            <method name="open"><![CDATA[maximoDataSet = MXReportDataSetProvider.create(this.getDataSource().getName(), this.getName());
+	maximoDataSet.open();
+
+
+
+
+	var sqlText = new String();
+
+	sqlText = " SELECT  "
+ +" CASE  "
+ +" WHEN EXTRACT (MONTH FROM TO_DATE('" + params["par"] + " ')) = 1 THEN EXTRACT (DAY FROM TO_DATE('" + params["par"] + " '))||' января '||EXTRACT (YEAR FROM TO_DATE('" + params["par"] + " '))||' г.'  "
+ +" WHEN EXTRACT (MONTH FROM TO_DATE('" + params["par"] + " ')) = 2 THEN EXTRACT (DAY FROM TO_DATE('" + params["par"] + " '))||' февраля '||EXTRACT (YEAR FROM TO_DATE('" + params["par"] + " '))||' г.'  "
+ +" WHEN EXTRACT (MONTH FROM TO_DATE('" + params["par"] + " ')) = 3 THEN EXTRACT (DAY FROM TO_DATE('" + params["par"] + " '))||' марта '||EXTRACT (YEAR FROM TO_DATE('" + params["par"] + " '))||' г.'  "
+ +" WHEN EXTRACT (MONTH FROM TO_DATE('" + params["par"] + " ')) = 4 THEN EXTRACT (DAY FROM TO_DATE('" + params["par"] + " '))||' апреля '||EXTRACT (YEAR FROM TO_DATE('" + params["par"] + " '))||' г.'  "
+ +" WHEN EXTRACT (MONTH FROM TO_DATE('" + params["par"] + " ')) = 5 THEN EXTRACT (DAY FROM TO_DATE('" + params["par"] + " '))||' мая '||EXTRACT (YEAR FROM TO_DATE('" + params["par"] + " '))||' г.'  "
+ +" WHEN EXTRACT (MONTH FROM TO_DATE('" + params["par"] + " ')) = 6 THEN EXTRACT (DAY FROM TO_DATE('" + params["par"] + " '))||' июня '||EXTRACT (YEAR FROM TO_DATE('" + params["par"] + " '))||' г.'  "
+ +" WHEN EXTRACT (MONTH FROM TO_DATE('" + params["par"] + " ')) = 7 THEN EXTRACT (DAY FROM TO_DATE('" + params["par"] + " '))||' июля '||EXTRACT (YEAR FROM TO_DATE('" + params["par"] + " '))||' г.'  "
+ +" WHEN EXTRACT (MONTH FROM TO_DATE('" + params["par"] + " ')) = 8 THEN EXTRACT (DAY FROM TO_DATE('" + params["par"] + " '))||' августа '||EXTRACT (YEAR FROM TO_DATE('" + params["par"] + " '))||' г.'  "
+ +" WHEN EXTRACT (MONTH FROM TO_DATE('" + params["par"] + " ')) = 9 THEN EXTRACT (DAY FROM TO_DATE('" + params["par"] + " '))||' сентября '||EXTRACT (YEAR FROM TO_DATE('" + params["par"] + " '))||' г.'  "
+ +" WHEN EXTRACT (MONTH FROM TO_DATE('" + params["par"] + " ')) = 10 THEN EXTRACT (DAY FROM TO_DATE('" + params["par"] + " '))||' октября '||EXTRACT (YEAR FROM TO_DATE('" + params["par"] + " '))||' г.'  "
+ +" WHEN EXTRACT (MONTH FROM TO_DATE('" + params["par"] + " ')) = 11 THEN EXTRACT (DAY FROM TO_DATE('" + params["par"] + " '))||' ноября '||EXTRACT (YEAR FROM TO_DATE('" + params["par"] + " '))||' г.'  "
+ +" WHEN EXTRACT (MONTH FROM TO_DATE('" + params["par"] + " ')) = 12 THEN EXTRACT (DAY FROM TO_DATE('" + params["par"] + " '))||' декабря '||EXTRACT (YEAR FROM TO_DATE('" + params["par"] + " '))||' г.'  "
+ +" end DAT1, "
+ +" CASE  "
+ +" WHEN EXTRACT (MONTH FROM TO_DATE('" + params["fin"] + " ')) = 1 THEN EXTRACT (DAY FROM TO_DATE('" + params["fin"] + " '))||' января '||EXTRACT (YEAR FROM TO_DATE('" + params["fin"] + " '))||' г.'  "
+ +" WHEN EXTRACT (MONTH FROM TO_DATE('" + params["fin"] + " ')) = 2 THEN EXTRACT (DAY FROM TO_DATE('" + params["fin"] + " '))||' февраля '||EXTRACT (YEAR FROM TO_DATE('" + params["fin"] + " '))||' г.'  "
+ +" WHEN EXTRACT (MONTH FROM TO_DATE('" + params["fin"] + " ')) = 3 THEN EXTRACT (DAY FROM TO_DATE('" + params["fin"] + " '))||' марта '||EXTRACT (YEAR FROM TO_DATE('" + params["fin"] + " '))||' г.'  "
+ +" WHEN EXTRACT (MONTH FROM TO_DATE('" + params["fin"] + " ')) = 4 THEN EXTRACT (DAY FROM TO_DATE('" + params["fin"] + " '))||' апреля '||EXTRACT (YEAR FROM TO_DATE('" + params["fin"] + " '))||' г.'  "
+ +" WHEN EXTRACT (MONTH FROM TO_DATE('" + params["fin"] + " ')) = 5 THEN EXTRACT (DAY FROM TO_DATE('" + params["fin"] + " '))||' мая '||EXTRACT (YEAR FROM TO_DATE('" + params["fin"] + " '))||' г.'  "
+ +" WHEN EXTRACT (MONTH FROM TO_DATE('" + params["fin"] + " ')) = 6 THEN EXTRACT (DAY FROM TO_DATE('" + params["fin"] + " '))||' июня '||EXTRACT (YEAR FROM TO_DATE('" + params["fin"] + " '))||' г.'  "
+ +" WHEN EXTRACT (MONTH FROM TO_DATE('" + params["fin"] + " ')) = 7 THEN EXTRACT (DAY FROM TO_DATE('" + params["fin"] + " '))||' июля '||EXTRACT (YEAR FROM TO_DATE('" + params["fin"] + " '))||' г.'  "
+ +" WHEN EXTRACT (MONTH FROM TO_DATE('" + params["fin"] + " ')) = 8 THEN EXTRACT (DAY FROM TO_DATE('" + params["fin"] + " '))||' августа '||EXTRACT (YEAR FROM TO_DATE('" + params["fin"] + " '))||' г.'  "
+ +" WHEN EXTRACT (MONTH FROM TO_DATE('" + params["fin"] + " ')) = 9 THEN EXTRACT (DAY FROM TO_DATE('" + params["fin"] + " '))||' сентября '||EXTRACT (YEAR FROM TO_DATE('" + params["fin"] + " '))||' г.'  "
+ +" WHEN EXTRACT (MONTH FROM TO_DATE('" + params["fin"] + " ')) = 10 THEN EXTRACT (DAY FROM TO_DATE('" + params["fin"] + " '))||' октября '||EXTRACT (YEAR FROM TO_DATE('" + params["fin"] + " '))||' г.'  "
+ +" WHEN EXTRACT (MONTH FROM TO_DATE('" + params["fin"] + " ')) = 11 THEN EXTRACT (DAY FROM TO_DATE('" + params["fin"] + " '))||' ноября '||EXTRACT (YEAR FROM TO_DATE('" + params["fin"] + " '))||' г.'  "
+ +" WHEN EXTRACT (MONTH FROM TO_DATE('" + params["fin"] + " ')) = 12 THEN EXTRACT (DAY FROM TO_DATE('" + params["fin"] + " '))||' декабря '||EXTRACT (YEAR FROM TO_DATE('" + params["fin"] + " '))||' г.'  "
+ +" END DAT2 "
+ +" from dual ";
+
+ 
+	maximoDataSet.setQuery(sqlText);]]></method>
+            <method name="fetch"><![CDATA[if (!maximoDataSet.fetch())
+	   return (false);
+	// Add a line for each output column
+	row["DAT1"] = maximoDataSet.getString("DAT1");
+	row["DAT2"] = maximoDataSet.getString("DAT2");
+	
+	return (true);]]></method>
+        </script-data-set>
+    </data-sets>
+    <page-setup>
+        <simple-master-page name="maximoLandscape" id="47" extends="MaximoSystemLibrary.maximoLandscape">
+            <property name="type">a4</property>
+            <overridden-values>
+                <ref-entry baseId="304" name="NewGrid2" id="304"/>
+                <ref-entry baseId="305" id="305"/>
+                <ref-entry baseId="306" id="306"/>
+                <ref-entry baseId="307" id="307"/>
+                <ref-entry baseId="308" id="308"/>
+                <ref-entry baseId="340" name="NewImage1" id="340">
+                    <property name="source">file</property>
+                    <expression name="uri">"IBM_logo_Black.gif"</expression>
+                    <property name="height">1px</property>
+                    <property name="width">3px</property>
+                </ref-entry>
+                <ref-entry baseId="309" id="309"/>
+                <ref-entry baseId="310" name="NewImage" id="310">
+                    <property name="height">1px</property>
+                    <property name="width">1px</property>
+                </ref-entry>
+                <ref-entry baseId="322" name="NewGrid" id="322">
+                    <list-property name="visibility">
+                        <structure>
+                            <property name="format">xls</property>
+                            <expression name="valueExpr">true</expression>
+                        </structure>
+                        <structure>
+                            <property name="format">pdf</property>
+                            <expression name="valueExpr">true</expression>
+                        </structure>
+                    </list-property>
+                </ref-entry>
+                <ref-entry baseId="323" id="323"/>
+                <ref-entry baseId="324" id="324"/>
+                <ref-entry baseId="325" id="325"/>
+                <ref-entry baseId="326" id="326"/>
+                <ref-entry baseId="328" name="NewText" id="328"/>
+                <ref-entry baseId="327" id="327"/>
+                <ref-entry baseId="329" name="NewGrid1" id="329"/>
+                <ref-entry baseId="330" id="330"/>
+                <ref-entry baseId="331" id="331"/>
+                <ref-entry baseId="332" id="332"/>
+                <ref-entry baseId="333" id="333"/>
+                <ref-entry baseId="334" id="334"/>
+                <ref-entry baseId="335" name="NewAutoText" id="335"/>
+                <ref-entry baseId="336" id="336"/>
+                <ref-entry baseId="337" name="NewText1" id="337"/>
+                <ref-entry baseId="338" id="338"/>
+                <ref-entry baseId="339" name="NewAutoText1" id="339"/>
+            </overridden-values>
+        </simple-master-page>
+    </page-setup>
+    <body>
+        <grid id="8437">
+            <property name="fontSize">large</property>
+            <property name="fontWeight">bold</property>
+            <property name="textAlign">center</property>
+            <property name="width">100%</property>
+            <list-property name="boundDataColumns">
+                <structure>
+                    <property name="name">dates</property>
+                    <expression name="expression">var finishStr= new String(params["fin"].value);
+var startStr= new String(params["par"].value);
+var date1 = new Date(   2000+ Number( startStr.substr(6,2) ), Number( startStr.substr(3,2) ) - 1 , startStr.substr(0,2) ) ;
+var date_pos = new Number ( finishStr.indexOf('.',0) );
+var month_pos = new Number( finishStr.indexOf('.', (date_pos+1) ) );
+
+var date2 = new Date(   2000+ Number( finishStr.substr( (month_pos+1) ,2 ) ),  Number(  finishStr.substr( (date_pos+1) , (month_pos -  (date_pos+1)  )  ) ) - 1 , finishStr.substr( 0,date_pos ) ) ;
+'с '+BirtDateTime.day(date1)+' '+BirtDateTime.month(date1, 2)+' '+BirtDateTime.year(date1)+' г.' + ' по ' + BirtDateTime.day(date2)+' '+BirtDateTime.month(date2, 2)+' '+BirtDateTime.year(date2)+' г.'</expression>
+                    <property name="dataType">string</property>
+                </structure>
+            </list-property>
+            <column id="8438"/>
+            <row id="8439">
+                <cell id="8440">
+                    <data id="8752">
+                        <property name="dataSet">location</property>
+                        <list-property name="boundDataColumns">
+                            <structure>
+                                <property name="name">description</property>
+                                <property name="displayName">description</property>
+                                <expression name="expression">'23. Наиболее критичные участки по предприятию '+dataSetRow["description"]</expression>
+                                <property name="dataType">string</property>
+                            </structure>
+                        </list-property>
+                        <property name="resultSetColumn">description</property>
+                    </data>
+                </cell>
+            </row>
+            <row id="8806">
+                <cell id="8807">
+                    <label id="8755">
+                        <text-property name="text">( принцип Парето )</text-property>
+                    </label>
+                </cell>
+            </row>
+            <row id="8441">
+                <cell id="8442">
+                    <data id="7886">
+                        <property name="fontSize">large</property>
+                        <property name="fontWeight">bold</property>
+                        <property name="textAlign">center</property>
+                        <property name="dataSet">site</property>
+                        <list-property name="boundDataColumns">
+                            <structure>
+                                <property name="name">description</property>
+                                <property name="displayName">description</property>
+                                <expression name="expression">dataSetRow["description"] + ' железная дорога'</expression>
+                                <property name="dataType">string</property>
+                            </structure>
+                        </list-property>
+                        <property name="resultSetColumn">description</property>
+                    </data>
+                </cell>
+            </row>
+            <row id="8859">
+                <cell id="8860">
+                    <data id="11390">
+                        <property name="dataSet">dates</property>
+                        <list-property name="boundDataColumns">
+                            <structure>
+                                <property name="name">DAT1</property>
+                                <property name="displayName">DAT1</property>
+                                <expression name="expression">'c ' + dataSetRow["DAT1"] + ' по ' + dataSetRow["DAT2"]</expression>
+                                <property name="dataType">string</property>
+                            </structure>
+                        </list-property>
+                        <property name="resultSetColumn">DAT1</property>
+                    </data>
+                </cell>
+            </row>
+            <row id="8491">
+                <property name="verticalAlign">middle</property>
+                <cell id="8492"/>
+            </row>
+            <row id="8452">
+                <property name="verticalAlign">middle</property>
+                <cell id="8453">
+                    <table id="8851">
+                        <property name="fontSize">9pt</property>
+                        <property name="fontWeight">normal</property>
+                        <property name="marginTop">0pt</property>
+                        <property name="marginLeft">0pt</property>
+                        <property name="marginRight">0pt</property>
+                        <property name="height">1.78125in</property>
+                        <property name="width">650px</property>
+                        <property name="dataSet">Workreport</property>
+                        <list-property name="visibility">
+                            <structure>
+                                <property name="format">postscript</property>
+                                <expression name="valueExpr">true</expression>
+                            </structure>
+                            <structure>
+                                <property name="format">doc</property>
+                                <expression name="valueExpr">true</expression>
+                            </structure>
+                            <structure>
+                                <property name="format">html</property>
+                                <expression name="valueExpr">true</expression>
+                            </structure>
+                            <structure>
+                                <property name="format">ppt</property>
+                                <expression name="valueExpr">true</expression>
+                            </structure>
+                        </list-property>
+                        <list-property name="boundDataColumns">
+                            <structure>
+                                <property name="name">mesto</property>
+                                <property name="displayName">mesto</property>
+                                <expression name="expression">dataSetRow["mesto"]</expression>
+                                <property name="dataType">string</property>
+                            </structure>
+                            <structure>
+                                <property name="name">loc</property>
+                                <property name="displayName">loc</property>
+                                <expression name="expression">dataSetRow["loc"]</expression>
+                                <property name="dataType">string</property>
+                            </structure>
+                            <structure>
+                                <property name="name">inc_count</property>
+                                <property name="displayName">inc_count</property>
+                                <expression name="expression">dataSetRow["inc_count"]</expression>
+                                <property name="dataType">integer</property>
+                            </structure>
+                            <structure>
+                                <property name="name">sum_inc</property>
+                                <property name="dataType">integer</property>
+                                <property name="aggregateFunction">SUM</property>
+                                <list-property name="arguments">
+                                    <structure>
+                                        <property name="name">Expression</property>
+                                        <expression name="value">row["inc_count"]</expression>
+                                    </structure>
+                                </list-property>
+                            </structure>
+                            <structure>
+                                <property name="name">Aggregation</property>
+                                <property name="displayName">inc_persent</property>
+                                <property name="dataType">float</property>
+                                <property name="aggregateFunction">PERCENTSUM</property>
+                                <list-property name="arguments">
+                                    <structure>
+                                        <property name="name">Expression</property>
+                                        <expression name="value">row["inc_count"]</expression>
+                                    </structure>
+                                </list-property>
+                            </structure>
+                            <structure>
+                                <property name="name">persent_sum</property>
+                                <property name="dataType">float</property>
+                                <property name="aggregateFunction">SUM</property>
+                                <list-property name="arguments">
+                                    <structure>
+                                        <property name="name">Expression</property>
+                                        <expression name="value">row["Aggregation"]</expression>
+                                    </structure>
+                                </list-property>
+                            </structure>
+                            <structure>
+                                <property name="name">run_persent_sum</property>
+                                <property name="dataType">float</property>
+                                <property name="aggregateFunction">RUNNINGSUM</property>
+                                <list-property name="arguments">
+                                    <structure>
+                                        <property name="name">Expression</property>
+                                        <expression name="value">row["persent_sum"]</expression>
+                                    </structure>
+                                </list-property>
+                            </structure>
+                            <structure>
+                                <property name="name">group_count</property>
+                                <property name="dataType">integer</property>
+                                <property name="aggregateFunction">RUNNINGCOUNT</property>
+                                <list-property name="arguments">
+                                    <structure>
+                                        <property name="name">Expression</property>
+                                        <expression name="value">row["persent_sum"]</expression>
+                                    </structure>
+                                </list-property>
+                            </structure>
+                        </list-property>
+                        <property name="repeatHeader">false</property>
+                        <property name="pageBreakInterval">1000000</property>
+                        <list-property name="sort">
+                            <structure>
+                                <expression name="key">row["inc_count"]</expression>
+                                <property name="direction">desc</property>
+                            </structure>
+                        </list-property>
+                        <column id="8857">
+                            <property name="width">500px</property>
+                            <property name="suppressDuplicates">true</property>
+                            <property name="textAlign">left</property>
+                            <property name="canShrink">true</property>
+                        </column>
+                        <column id="8858">
+                            <property name="suppressDuplicates">true</property>
+                            <property name="textAlign">left</property>
+                        </column>
+                        <header>
+                            <row id="8852">
+                                <property name="height">8mm</property>
+                                <property name="backgroundColor">#8BCBF5</property>
+                                <property name="fontSize">10pt</property>
+                                <property name="fontWeight">bold</property>
+                                <property name="textLineThrough">none</property>
+                                <property name="verticalAlign">middle</property>
+                                <property name="canShrink">true</property>
+                                <cell id="8853">
+                                    <property name="fontSize">9pt</property>
+                                    <property name="borderBottomColor">#000000</property>
+                                    <property name="borderBottomStyle">solid</property>
+                                    <property name="borderBottomWidth">thin</property>
+                                    <property name="borderLeftColor">#000000</property>
+                                    <property name="borderLeftStyle">solid</property>
+                                    <property name="borderLeftWidth">thin</property>
+                                    <property name="borderRightColor">#000000</property>
+                                    <property name="borderRightStyle">solid</property>
+                                    <property name="borderRightWidth">thin</property>
+                                    <property name="borderTopColor">#000000</property>
+                                    <property name="borderTopStyle">solid</property>
+                                    <property name="borderTopWidth">thin</property>
+                                    <property name="textAlign">center</property>
+                                    <label id="8854">
+                                        <property name="fontSize">small</property>
+                                        <text-property name="text">Местонахождение</text-property>
+                                    </label>
+                                </cell>
+                                <cell id="8855">
+                                    <property name="borderBottomColor">#000000</property>
+                                    <property name="borderBottomStyle">solid</property>
+                                    <property name="borderBottomWidth">thin</property>
+                                    <property name="borderLeftColor">#000000</property>
+                                    <property name="borderLeftStyle">solid</property>
+                                    <property name="borderLeftWidth">thin</property>
+                                    <property name="borderRightColor">#000000</property>
+                                    <property name="borderRightStyle">solid</property>
+                                    <property name="borderRightWidth">thin</property>
+                                    <property name="borderTopColor">#000000</property>
+                                    <property name="borderTopStyle">solid</property>
+                                    <property name="borderTopWidth">thin</property>
+                                    <property name="textAlign">center</property>
+                                    <label id="8856">
+                                        <property name="fontSize">small</property>
+                                        <property name="textAlign">center</property>
+                                        <text-property name="text">Количество инцидентов</text-property>
+                                    </label>
+                                </cell>
+                            </row>
+                        </header>
+                    </table>
+                    <table id="8834">
+                        <property name="fontSize">9pt</property>
+                        <property name="fontWeight">normal</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">1px</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">1px</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">1px</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">1px</property>
+                        <property name="marginTop">0pt</property>
+                        <property name="marginLeft">0pt</property>
+                        <property name="marginBottom">0pt</property>
+                        <property name="marginRight">0pt</property>
+                        <property name="height">1.78125in</property>
+                        <property name="width">650px</property>
+                        <property name="dataSet">Workreport</property>
+                        <list-property name="visibility">
+                            <structure>
+                                <property name="format">postscript</property>
+                                <expression name="valueExpr">true</expression>
+                            </structure>
+                            <structure>
+                                <property name="format">doc</property>
+                                <expression name="valueExpr">true</expression>
+                            </structure>
+                            <structure>
+                                <property name="format">html</property>
+                                <expression name="valueExpr">true</expression>
+                            </structure>
+                            <structure>
+                                <property name="format">ppt</property>
+                                <expression name="valueExpr">true</expression>
+                            </structure>
+                        </list-property>
+                        <list-property name="boundDataColumns">
+                            <structure>
+                                <property name="name">mesto</property>
+                                <property name="displayName">mesto</property>
+                                <expression name="expression">dataSetRow["mesto"]</expression>
+                                <property name="dataType">string</property>
+                            </structure>
+                            <structure>
+                                <property name="name">loc</property>
+                                <property name="displayName">loc</property>
+                                <expression name="expression">dataSetRow["loc"]</expression>
+                                <property name="dataType">string</property>
+                            </structure>
+                            <structure>
+                                <property name="name">inc_count</property>
+                                <property name="displayName">inc_count</property>
+                                <expression name="expression">dataSetRow["inc_count"]</expression>
+                                <property name="dataType">integer</property>
+                            </structure>
+                            <structure>
+                                <property name="name">sum_inc</property>
+                                <property name="dataType">integer</property>
+                                <simple-property-list name="aggregateOn">
+                                    <value>NewTableGroup1</value>
+                                </simple-property-list>
+                                <property name="aggregateFunction">SUM</property>
+                                <list-property name="arguments">
+                                    <structure>
+                                        <property name="name">Expression</property>
+                                        <expression name="value">row["inc_count"]</expression>
+                                    </structure>
+                                </list-property>
+                            </structure>
+                            <structure>
+                                <property name="name">Aggregation</property>
+                                <property name="displayName">inc_persent</property>
+                                <property name="dataType">float</property>
+                                <property name="aggregateFunction">PERCENTSUM</property>
+                                <list-property name="arguments">
+                                    <structure>
+                                        <property name="name">Expression</property>
+                                        <expression name="value">row["inc_count"]</expression>
+                                    </structure>
+                                </list-property>
+                            </structure>
+                            <structure>
+                                <property name="name">persent_sum</property>
+                                <property name="dataType">float</property>
+                                <simple-property-list name="aggregateOn">
+                                    <value>NewTableGroup1</value>
+                                </simple-property-list>
+                                <property name="aggregateFunction">SUM</property>
+                                <list-property name="arguments">
+                                    <structure>
+                                        <property name="name">Expression</property>
+                                        <expression name="value">row["Aggregation"]</expression>
+                                    </structure>
+                                </list-property>
+                            </structure>
+                            <structure>
+                                <property name="name">run_persent_sum</property>
+                                <property name="dataType">float</property>
+                                <property name="aggregateFunction">RUNNINGSUM</property>
+                                <list-property name="arguments">
+                                    <structure>
+                                        <property name="name">Expression</property>
+                                        <expression name="value">row["persent_sum"]</expression>
+                                    </structure>
+                                </list-property>
+                            </structure>
+                            <structure>
+                                <property name="name">group_count</property>
+                                <property name="dataType">integer</property>
+                                <property name="aggregateFunction">RUNNINGCOUNT</property>
+                                <list-property name="arguments">
+                                    <structure>
+                                        <property name="name">Expression</property>
+                                        <expression name="value">row["persent_sum"]</expression>
+                                    </structure>
+                                </list-property>
+                            </structure>
+                        </list-property>
+                        <expression name="bookmark">"scroll"</expression>
+                        <property name="repeatHeader">false</property>
+                        <property name="pageBreakInterval">1000000</property>
+                        <list-property name="sort">
+                            <structure>
+                                <expression name="key">row["inc_count"]</expression>
+                                <property name="direction">desc</property>
+                            </structure>
+                        </list-property>
+                        <column id="8849">
+                            <property name="width">500px</property>
+                            <property name="suppressDuplicates">true</property>
+                            <property name="textAlign">left</property>
+                            <property name="canShrink">true</property>
+                        </column>
+                        <column id="8850">
+                            <property name="suppressDuplicates">true</property>
+                            <property name="textAlign">left</property>
+                        </column>
+                        <group id="8835">
+                            <property name="groupName">NewTableGroup1</property>
+                            <property name="interval">none</property>
+                            <property name="sortDirection">desc</property>
+                            <expression name="keyExpr">row["loc"]</expression>
+                            <structure name="toc">
+                                <expression name="expressionValue">row["loc"]</expression>
+                            </structure>
+                            <property name="repeatHeader">true</property>
+                            <property name="hideDetail">false</property>
+                            <property name="pageBreakAfter">auto</property>
+                            <property name="pageBreakBefore">auto</property>
+                            <property name="pageBreakInside">auto</property>
+                            <list-property name="sort">
+                                <structure>
+                                    <expression name="key">row["persent_sum"]</expression>
+                                    <property name="direction">desc</property>
+                                </structure>
+                            </list-property>
+                        </group>
+                        <detail>
+                            <row id="8842">
+                                <property name="height">0in</property>
+                                <property name="suppressDuplicates">false</property>
+                                <property name="fontSize">9pt</property>
+                                <list-property name="visibility">
+                                    <structure>
+                                        <property name="format">all</property>
+                                        <expression name="valueExpr">(BirtComp.greaterThan(row["run_persent_sum"],0.8)&amp;&amp;BirtComp.greaterThan(row["group_count"],1))||(params["count"].value!=''&amp;&amp;BirtComp.greaterThan(row["group_count"],params["count"].value))</expression>
+                                    </structure>
+                                </list-property>
+                                <cell id="8843">
+                                    <property name="borderLeftColor">#000000</property>
+                                    <property name="borderLeftStyle">solid</property>
+                                    <property name="borderLeftWidth">1px</property>
+                                    <property name="borderRightColor">#000000</property>
+                                    <property name="borderRightStyle">solid</property>
+                                    <property name="borderRightWidth">1px</property>
+                                    <property name="borderTopColor">#000000</property>
+                                    <property name="borderTopStyle">solid</property>
+                                    <property name="borderTopWidth">1px</property>
+                                    <property name="paddingTop">1pt</property>
+                                    <property name="paddingLeft">1pt</property>
+                                    <property name="paddingBottom">1pt</property>
+                                    <property name="verticalAlign">middle</property>
+                                    <property name="display">block</property>
+                                    <property name="pageBreakAfter">auto</property>
+                                    <property name="showIfBlank">false</property>
+                                    <data id="8844">
+                                        <property name="resultSetColumn">mesto</property>
+                                        <structure name="action">
+                                            <property name="linkType">drill-through</property>
+                                            <property name="reportName">location_pred_asset.rptdesign</property>
+                                            <property name="targetWindow">_blank</property>
+                                            <property name="targetFileType">report-design</property>
+                                            <list-property name="paramBindings">
+                                                <structure>
+                                                    <property name="paramName">where</property>
+                                                    <expression name="expression">"1"</expression>
+                                                </structure>
+                                                <structure>
+                                                    <property name="paramName">appname</property>
+                                                    <expression name="expression">params["appname"].value</expression>
+                                                </structure>
+                                                <structure>
+                                                    <property name="paramName">paramdelimiter</property>
+                                                    <expression name="expression">params["paramdelimiter"].value</expression>
+                                                </structure>
+                                                <structure>
+                                                    <property name="paramName">paramstring</property>
+                                                    <expression name="expression">params["paramstring"].value</expression>
+                                                </structure>
+
+                                                <structure>
+                                                    <property name="paramName">par</property>
+                                                    <expression name="expression">params["par"].value</expression>
+                                                </structure>
+                                                <structure>
+                                                    <property name="paramName">fin</property>
+                                                    <expression name="expression">finishStr</expression>
+                                                </structure>
+                                                <structure>
+                                                    <property name="paramName">locationId</property>
+                                                    <expression name="expression">params["locationId"].value</expression>
+                                                </structure>
+                                                <structure>
+                                                    <property name="paramName">count</property>
+                                                    <expression name="expression">params["count"].value</expression>
+                                                </structure>
+                                                <structure>
+                                                    <property name="paramName">mesto</property>
+                                                    <expression name="expression">row["loc"]</expression>
+                                                </structure>
+                                            </list-property>
+                                        </structure>
+                                    </data>
+                                    <data id="8845">
+                                        <list-property name="visibility">
+                                            <structure>
+                                                <property name="format">all</property>
+                                                <expression name="valueExpr">true</expression>
+                                            </structure>
+                                        </list-property>
+                                        <property name="resultSetColumn">loc</property>
+                                    </data>
+                                </cell>
+                                <cell id="8846">
+                                    <property name="borderLeftColor">#000000</property>
+                                    <property name="borderLeftStyle">solid</property>
+                                    <property name="borderLeftWidth">1px</property>
+                                    <property name="borderRightColor">#000000</property>
+                                    <property name="borderRightStyle">solid</property>
+                                    <property name="borderRightWidth">1px</property>
+                                    <property name="borderTopColor">#000000</property>
+                                    <property name="borderTopStyle">solid</property>
+                                    <property name="borderTopWidth">1px</property>
+                                    <property name="paddingTop">1pt</property>
+                                    <property name="paddingLeft">1pt</property>
+                                    <property name="paddingBottom">1pt</property>
+                                    <property name="verticalAlign">middle</property>
+                                    <data id="8847">
+                                        <property name="textAlign">left</property>
+                                        <property name="resultSetColumn">sum_inc</property>
+                                        <structure name="action">
+                                            <property name="linkType">drill-through</property>
+                                            <property name="reportName">inc_location-nn.rptdesign</property>
+                                            <property name="targetWindow">_blank</property>
+                                            <property name="targetFileType">report-design</property>
+                                            <list-property name="paramBindings">
+                                                <structure>
+                                                    <property name="paramName">where</property>
+                                                    <expression name="expression">1</expression>
+                                                </structure>
+                                                <structure>
+                                                    <property name="paramName">appname</property>
+                                                    <expression name="expression">params["appname"].value</expression>
+                                                </structure>
+                                                <structure>
+                                                    <property name="paramName">paramstring</property>
+                                                    <expression name="expression">params["paramstring"].value</expression>
+                                                </structure>
+                                                <structure>
+                                                    <property name="paramName">paramdelimiter</property>
+                                                    <expression name="expression">params["paramdelimiter"].value</expression>
+                                                </structure>
+
+                                                <structure>
+                                                    <property name="paramName">par</property>
+                                                    <expression name="expression">params["par"].value</expression>
+                                                </structure>
+                                                <structure>
+                                                    <property name="paramName">fin</property>
+                                                    <expression name="expression">finishStr</expression>
+                                                </structure>
+                                                <structure>
+                                                    <property name="paramName">locationId</property>
+                                                    <expression name="expression">params["locationId"].value</expression>
+                                                </structure>
+                                                <structure>
+                                                    <property name="paramName">mesto</property>
+                                                    <expression name="expression">row["loc"]</expression>
+                                                </structure>
+                                                <structure>
+                                                    <property name="paramName">asset</property>
+                                                    <expression name="expression">''</expression>
+                                                </structure>
+                                                <structure>
+                                                    <property name="paramName">numvalue</property>
+                                                    <expression name="expression">''</expression>
+                                                </structure>
+                                                <structure>
+                                                    <property name="paramName">podrId</property>
+                                                    <expression name="expression">''</expression>
+                                                </structure>
+                                            </list-property>
+                                        </structure>
+                                    </data>
+                                    <data id="8848">
+                                        <list-property name="visibility">
+                                            <structure>
+                                                <property name="format">all</property>
+                                                <expression name="valueExpr">true</expression>
+                                            </structure>
+                                        </list-property>
+                                        <property name="resultSetColumn">Aggregation</property>
+                                    </data>
+                                    <data id="8839">
+                                        <list-property name="visibility">
+                                            <structure>
+                                                <property name="format">all</property>
+                                                <expression name="valueExpr">true</expression>
+                                            </structure>
+                                        </list-property>
+                                        <property name="resultSetColumn">persent_sum</property>
+                                    </data>
+                                    <data id="8840">
+                                        <list-property name="visibility">
+                                            <structure>
+                                                <property name="format">all</property>
+                                                <expression name="valueExpr">true</expression>
+                                            </structure>
+                                        </list-property>
+                                        <property name="resultSetColumn">run_persent_sum</property>
+                                    </data>
+                                    <data id="8841">
+                                        <list-property name="visibility">
+                                            <structure>
+                                                <property name="format">all</property>
+                                                <expression name="valueExpr">true</expression>
+                                            </structure>
+                                        </list-property>
+                                        <property name="resultSetColumn">group_count</property>
+                                    </data>
+                                </cell>
+                            </row>
+                        </detail>
+                    </table>
+                    <grid id="8808">
+                        <property name="width">650px</property>
+                        <list-property name="visibility">
+                            <structure>
+                                <property name="format">xls</property>
+                                <expression name="valueExpr">true</expression>
+                            </structure>
+                            <structure>
+                                <property name="format">pdf</property>
+                                <expression name="valueExpr">true</expression>
+                            </structure>
+                        </list-property>
+                        <column id="8809"/>
+                        <row id="8810">
+                            <cell id="8811">
+                                <property name="textAlign">left</property>
+                                <table id="8784">
+                                    <property name="fontSize">9pt</property>
+                                    <property name="fontWeight">normal</property>
+                                    <property name="marginTop">20pt</property>
+                                    <property name="marginLeft">0pt</property>
+                                    <property name="marginRight">0pt</property>
+                                    <property name="height">1.78125in</property>
+                                    <property name="width">650px</property>
+                                    <property name="dataSet">Workreport</property>
+                                    <list-property name="boundDataColumns">
+                                        <structure>
+                                            <property name="name">mesto</property>
+                                            <property name="displayName">mesto</property>
+                                            <expression name="expression">dataSetRow["mesto"]</expression>
+                                            <property name="dataType">string</property>
+                                        </structure>
+                                        <structure>
+                                            <property name="name">loc</property>
+                                            <property name="displayName">loc</property>
+                                            <expression name="expression">dataSetRow["loc"]</expression>
+                                            <property name="dataType">string</property>
+                                        </structure>
+                                        <structure>
+                                            <property name="name">inc_count</property>
+                                            <property name="displayName">inc_count</property>
+                                            <expression name="expression">dataSetRow["inc_count"]</expression>
+                                            <property name="dataType">integer</property>
+                                        </structure>
+                                        <structure>
+                                            <property name="name">sum_inc</property>
+                                            <property name="dataType">integer</property>
+                                            <property name="aggregateFunction">SUM</property>
+                                            <list-property name="arguments">
+                                                <structure>
+                                                    <property name="name">Expression</property>
+                                                    <expression name="value">row["inc_count"]</expression>
+                                                </structure>
+                                            </list-property>
+                                        </structure>
+                                        <structure>
+                                            <property name="name">Aggregation</property>
+                                            <property name="displayName">inc_persent</property>
+                                            <property name="dataType">float</property>
+                                            <property name="aggregateFunction">PERCENTSUM</property>
+                                            <list-property name="arguments">
+                                                <structure>
+                                                    <property name="name">Expression</property>
+                                                    <expression name="value">row["inc_count"]</expression>
+                                                </structure>
+                                            </list-property>
+                                        </structure>
+                                        <structure>
+                                            <property name="name">persent_sum</property>
+                                            <property name="dataType">float</property>
+                                            <property name="aggregateFunction">SUM</property>
+                                            <list-property name="arguments">
+                                                <structure>
+                                                    <property name="name">Expression</property>
+                                                    <expression name="value">row["Aggregation"]</expression>
+                                                </structure>
+                                            </list-property>
+                                        </structure>
+                                        <structure>
+                                            <property name="name">run_persent_sum</property>
+                                            <property name="dataType">float</property>
+                                            <property name="aggregateFunction">RUNNINGSUM</property>
+                                            <list-property name="arguments">
+                                                <structure>
+                                                    <property name="name">Expression</property>
+                                                    <expression name="value">row["persent_sum"]</expression>
+                                                </structure>
+                                            </list-property>
+                                        </structure>
+                                        <structure>
+                                            <property name="name">group_count</property>
+                                            <property name="dataType">integer</property>
+                                            <property name="aggregateFunction">RUNNINGCOUNT</property>
+                                            <list-property name="arguments">
+                                                <structure>
+                                                    <property name="name">Expression</property>
+                                                    <expression name="value">row["persent_sum"]</expression>
+                                                </structure>
+                                            </list-property>
+                                        </structure>
+                                    </list-property>
+                                    <property name="repeatHeader">false</property>
+                                    <property name="pageBreakInterval">1000000</property>
+                                    <list-property name="sort">
+                                        <structure>
+                                            <expression name="key">row["inc_count"]</expression>
+                                            <property name="direction">desc</property>
+                                        </structure>
+                                    </list-property>
+                                    <column id="8804">
+                                        <property name="width">500px</property>
+                                        <property name="suppressDuplicates">true</property>
+                                        <property name="textAlign">left</property>
+                                        <property name="canShrink">true</property>
+                                    </column>
+                                    <column id="8805">
+                                        <property name="suppressDuplicates">true</property>
+                                        <property name="textAlign">left</property>
+                                    </column>
+                                    <header>
+                                        <row id="8785">
+                                            <property name="height">8mm</property>
+                                            <property name="backgroundColor">#8BCBF5</property>
+                                            <property name="fontSize">10pt</property>
+                                            <property name="fontWeight">bold</property>
+                                            <property name="textLineThrough">none</property>
+                                            <property name="verticalAlign">middle</property>
+                                            <property name="canShrink">true</property>
+                                            <cell id="8786">
+                                                <property name="fontSize">9pt</property>
+                                                <property name="borderBottomColor">#000000</property>
+                                                <property name="borderBottomStyle">solid</property>
+                                                <property name="borderBottomWidth">thin</property>
+                                                <property name="borderLeftColor">#000000</property>
+                                                <property name="borderLeftStyle">solid</property>
+                                                <property name="borderLeftWidth">thin</property>
+                                                <property name="borderRightColor">#000000</property>
+                                                <property name="borderRightStyle">solid</property>
+                                                <property name="borderRightWidth">thin</property>
+                                                <property name="borderTopColor">#000000</property>
+                                                <property name="borderTopStyle">solid</property>
+                                                <property name="borderTopWidth">thin</property>
+                                                <property name="textAlign">center</property>
+                                                <label id="8787">
+                                                    <property name="fontSize">x-small</property>
+                                                    <text-property name="text">Местонахождение</text-property>
+                                                </label>
+                                            </cell>
+                                            <cell id="8788">
+                                                <property name="borderBottomColor">#000000</property>
+                                                <property name="borderBottomStyle">solid</property>
+                                                <property name="borderBottomWidth">thin</property>
+                                                <property name="borderLeftColor">#000000</property>
+                                                <property name="borderLeftStyle">solid</property>
+                                                <property name="borderLeftWidth">thin</property>
+                                                <property name="borderRightColor">#000000</property>
+                                                <property name="borderRightStyle">solid</property>
+                                                <property name="borderRightWidth">thin</property>
+                                                <property name="borderTopColor">#000000</property>
+                                                <property name="borderTopStyle">solid</property>
+                                                <property name="borderTopWidth">thin</property>
+                                                <property name="textAlign">center</property>
+                                                <label id="8789">
+                                                    <property name="fontSize">x-small</property>
+                                                    <property name="textAlign">center</property>
+                                                    <text-property name="text">Количество инцидентов</text-property>
+                                                </label>
+                                            </cell>
+                                        </row>
+                                    </header>
+                                </table>
+                                <table id="8812">
+                                    <property name="fontSize">9pt</property>
+                                    <property name="fontWeight">normal</property>
+                                    <property name="marginTop">-1pt</property>
+                                    <property name="marginLeft">0pt</property>
+                                    <property name="marginBottom">5pt</property>
+                                    <property name="marginRight">0pt</property>
+                                    <property name="height">1.78125in</property>
+                                    <property name="width">650px</property>
+                                    <property name="dataSet">Workreport</property>
+                                    <list-property name="boundDataColumns">
+                                        <structure>
+                                            <property name="name">mesto</property>
+                                            <property name="displayName">mesto</property>
+                                            <expression name="expression">dataSetRow["mesto"]</expression>
+                                            <property name="dataType">string</property>
+                                        </structure>
+                                        <structure>
+                                            <property name="name">loc</property>
+                                            <property name="displayName">loc</property>
+                                            <expression name="expression">dataSetRow["loc"]</expression>
+                                            <property name="dataType">string</property>
+                                        </structure>
+                                        <structure>
+                                            <property name="name">inc_count</property>
+                                            <property name="displayName">inc_count</property>
+                                            <expression name="expression">dataSetRow["inc_count"]</expression>
+                                            <property name="dataType">integer</property>
+                                        </structure>
+                                        <structure>
+                                            <property name="name">sum_inc</property>
+                                            <property name="dataType">integer</property>
+                                            <simple-property-list name="aggregateOn">
+                                                <value>NewTableGroup1</value>
+                                            </simple-property-list>
+                                            <property name="aggregateFunction">SUM</property>
+                                            <list-property name="arguments">
+                                                <structure>
+                                                    <property name="name">Expression</property>
+                                                    <expression name="value">row["inc_count"]</expression>
+                                                </structure>
+                                            </list-property>
+                                        </structure>
+                                        <structure>
+                                            <property name="name">Aggregation</property>
+                                            <property name="displayName">inc_persent</property>
+                                            <property name="dataType">float</property>
+                                            <property name="aggregateFunction">PERCENTSUM</property>
+                                            <list-property name="arguments">
+                                                <structure>
+                                                    <property name="name">Expression</property>
+                                                    <expression name="value">row["inc_count"]</expression>
+                                                </structure>
+                                            </list-property>
+                                        </structure>
+                                        <structure>
+                                            <property name="name">persent_sum</property>
+                                            <property name="dataType">float</property>
+                                            <simple-property-list name="aggregateOn">
+                                                <value>NewTableGroup1</value>
+                                            </simple-property-list>
+                                            <property name="aggregateFunction">SUM</property>
+                                            <list-property name="arguments">
+                                                <structure>
+                                                    <property name="name">Expression</property>
+                                                    <expression name="value">row["Aggregation"]</expression>
+                                                </structure>
+                                            </list-property>
+                                        </structure>
+                                        <structure>
+                                            <property name="name">run_persent_sum</property>
+                                            <property name="dataType">float</property>
+                                            <property name="aggregateFunction">RUNNINGSUM</property>
+                                            <list-property name="arguments">
+                                                <structure>
+                                                    <property name="name">Expression</property>
+                                                    <expression name="value">row["persent_sum"]</expression>
+                                                </structure>
+                                            </list-property>
+                                        </structure>
+                                        <structure>
+                                            <property name="name">group_count</property>
+                                            <property name="dataType">integer</property>
+                                            <property name="aggregateFunction">RUNNINGCOUNT</property>
+                                            <list-property name="arguments">
+                                                <structure>
+                                                    <property name="name">Expression</property>
+                                                    <expression name="value">row["persent_sum"]</expression>
+                                                </structure>
+                                            </list-property>
+                                        </structure>
+                                    </list-property>
+                                    <expression name="bookmark">"scroll"</expression>
+                                    <property name="repeatHeader">false</property>
+                                    <property name="pageBreakInterval">1000000</property>
+                                    <list-property name="sort">
+                                        <structure>
+                                            <expression name="key">row["inc_count"]</expression>
+                                            <property name="direction">desc</property>
+                                        </structure>
+                                    </list-property>
+                                    <column id="8832">
+                                        <property name="width">500px</property>
+                                        <property name="suppressDuplicates">true</property>
+                                        <property name="textAlign">left</property>
+                                        <property name="canShrink">true</property>
+                                    </column>
+                                    <column id="8833">
+                                        <property name="suppressDuplicates">true</property>
+                                        <property name="textAlign">left</property>
+                                    </column>
+                                    <group id="8818">
+                                        <property name="groupName">NewTableGroup1</property>
+                                        <property name="interval">none</property>
+                                        <property name="sortDirection">desc</property>
+                                        <expression name="keyExpr">row["loc"]</expression>
+                                        <structure name="toc">
+                                            <expression name="expressionValue">row["loc"]</expression>
+                                        </structure>
+                                        <property name="repeatHeader">true</property>
+                                        <property name="hideDetail">false</property>
+                                        <property name="pageBreakAfter">auto</property>
+                                        <property name="pageBreakBefore">auto</property>
+                                        <property name="pageBreakInside">auto</property>
+                                        <list-property name="sort">
+                                            <structure>
+                                                <expression name="key">row["persent_sum"]</expression>
+                                                <property name="direction">desc</property>
+                                            </structure>
+                                        </list-property>
+                                        <footer>
+                                            <row id="8819">
+                                                <property name="height">0in</property>
+                                                <property name="borderLeftColor">#000000</property>
+                                                <property name="borderLeftStyle">solid</property>
+                                                <property name="borderLeftWidth">1px</property>
+                                                <property name="borderRightColor">#000000</property>
+                                                <property name="borderRightStyle">solid</property>
+                                                <property name="borderRightWidth">1px</property>
+                                                <list-property name="visibility">
+                                                    <structure>
+                                                        <property name="format">all</property>
+                                                        <expression name="valueExpr">(BirtComp.greaterThan(row["run_persent_sum"],0.8)&amp;&amp;BirtComp.greaterThan(row["group_count"],1))||(params["count"].value!=''&amp;&amp;BirtComp.greaterThan(row["group_count"],params["count"].value))</expression>
+                                                    </structure>
+                                                </list-property>
+                                                <cell id="8820">
+                                                    <property name="borderBottomColor">#000000</property>
+                                                    <property name="borderBottomStyle">solid</property>
+                                                    <property name="borderBottomWidth">thin</property>
+                                                    <property name="borderLeftColor">#000000</property>
+                                                    <property name="borderLeftStyle">solid</property>
+                                                    <property name="borderLeftWidth">thin</property>
+                                                    <property name="borderRightColor">#000000</property>
+                                                    <property name="borderRightStyle">solid</property>
+                                                    <property name="borderRightWidth">thin</property>
+                                                    <property name="paddingTop">1pt</property>
+                                                    <property name="paddingBottom">1pt</property>
+                                                    <property name="paddingRight">1pt</property>
+                                                </cell>
+                                                <cell id="8821">
+                                                    <property name="borderBottomColor">#000000</property>
+                                                    <property name="borderBottomStyle">solid</property>
+                                                    <property name="borderBottomWidth">thin</property>
+                                                    <property name="borderLeftColor">#000000</property>
+                                                    <property name="borderLeftStyle">solid</property>
+                                                    <property name="borderLeftWidth">thin</property>
+                                                    <property name="borderRightColor">#000000</property>
+                                                    <property name="borderRightStyle">solid</property>
+                                                    <property name="borderRightWidth">thin</property>
+                                                    <property name="paddingRight">1pt</property>
+                                                    <property name="textAlign">right</property>
+                                                    <data id="8822">
+                                                        <property name="fontSize">x-small</property>
+                                                        <property name="marginTop">0pt</property>
+                                                        <list-property name="visibility">
+                                                            <structure>
+                                                                <property name="format">all</property>
+                                                                <expression name="valueExpr">true</expression>
+                                                            </structure>
+                                                        </list-property>
+                                                        <property name="resultSetColumn">persent_sum</property>
+                                                    </data>
+                                                    <data id="8823">
+                                                        <property name="fontSize">x-small</property>
+                                                        <list-property name="visibility">
+                                                            <structure>
+                                                                <property name="format">all</property>
+                                                                <expression name="valueExpr">true</expression>
+                                                            </structure>
+                                                        </list-property>
+                                                        <property name="resultSetColumn">run_persent_sum</property>
+                                                    </data>
+                                                    <data id="8824">
+                                                        <property name="fontSize">x-small</property>
+                                                        <list-property name="visibility">
+                                                            <structure>
+                                                                <property name="format">all</property>
+                                                                <expression name="valueExpr">true</expression>
+                                                            </structure>
+                                                        </list-property>
+                                                        <property name="resultSetColumn">group_count</property>
+                                                    </data>
+                                                </cell>
+                                            </row>
+                                        </footer>
+                                    </group>
+                                    <detail>
+                                        <row id="8825">
+                                            <property name="height">0in</property>
+                                            <property name="suppressDuplicates">false</property>
+                                            <property name="fontSize">9pt</property>
+                                            <list-property name="visibility">
+                                                <structure>
+                                                    <property name="format">all</property>
+                                                    <expression name="valueExpr">(BirtComp.greaterThan(row["run_persent_sum"],0.8)&amp;&amp;BirtComp.greaterThan(row["group_count"],1))||(params["count"].value!=''&amp;&amp;BirtComp.greaterThan(row["group_count"],params["count"].value))</expression>
+                                                </structure>
+                                            </list-property>
+                                            <cell id="8826">
+                                                <property name="borderLeftColor">#000000</property>
+                                                <property name="borderLeftStyle">solid</property>
+                                                <property name="borderLeftWidth">1px</property>
+                                                <property name="borderRightColor">#000000</property>
+                                                <property name="borderRightStyle">solid</property>
+                                                <property name="borderRightWidth">1px</property>
+                                                <property name="borderTopColor">#000000</property>
+                                                <property name="borderTopStyle">solid</property>
+                                                <property name="borderTopWidth">1px</property>
+                                                <property name="paddingTop">1pt</property>
+                                                <property name="paddingLeft">1pt</property>
+                                                <property name="paddingBottom">1pt</property>
+                                                <property name="verticalAlign">middle</property>
+                                                <property name="display">block</property>
+                                                <property name="pageBreakAfter">auto</property>
+                                                <property name="showIfBlank">false</property>
+                                                <data id="8827">
+                                                    <property name="fontSize">x-small</property>
+                                                    <property name="resultSetColumn">mesto</property>
+                                                    <structure name="action">
+                                                        <property name="linkType">drill-through</property>
+                                                        <property name="reportName">location_pred_asset.rptdesign</property>
+                                                        <property name="targetWindow">_blank</property>
+                                                        <property name="targetFileType">report-design</property>
+                                                        <list-property name="paramBindings">
+                                                            <structure>
+                                                                <property name="paramName">where</property>
+                                                                <expression name="expression">"1"</expression>
+                                                            </structure>
+                                                            <structure>
+                                                                <property name="paramName">appname</property>
+                                                                <expression name="expression">params["appname"].value</expression>
+                                                            </structure>
+                                                            <structure>
+                                                                <property name="paramName">paramdelimiter</property>
+                                                                <expression name="expression">params["paramdelimiter"].value</expression>
+                                                            </structure>
+                                                            <structure>
+                                                                <property name="paramName">paramstring</property>
+                                                                <expression name="expression">params["paramstring"].value</expression>
+                                                            </structure>
+
+                                                            <structure>
+                                                                <property name="paramName">par</property>
+                                                                <expression name="expression">params["par"].value</expression>
+                                                            </structure>
+                                                            <structure>
+                                                                <property name="paramName">fin</property>
+                                                                <expression name="expression">finishStr</expression>
+                                                            </structure>
+                                                            <structure>
+                                                                <property name="paramName">locationId</property>
+                                                                <expression name="expression">params["locationId"].value</expression>
+                                                            </structure>
+                                                            <structure>
+                                                                <property name="paramName">count</property>
+                                                                <expression name="expression">params["count"].value</expression>
+                                                            </structure>
+                                                            <structure>
+                                                                <property name="paramName">mesto</property>
+                                                                <expression name="expression">row["loc"]</expression>
+                                                            </structure>
+                                                        </list-property>
+                                                    </structure>
+                                                </data>
+                                                <data id="8828">
+                                                    <property name="fontSize">x-small</property>
+                                                    <list-property name="visibility">
+                                                        <structure>
+                                                            <property name="format">all</property>
+                                                            <expression name="valueExpr">true</expression>
+                                                        </structure>
+                                                    </list-property>
+                                                    <property name="resultSetColumn">loc</property>
+                                                </data>
+                                            </cell>
+                                            <cell id="8829">
+                                                <property name="borderLeftColor">#000000</property>
+                                                <property name="borderLeftStyle">solid</property>
+                                                <property name="borderLeftWidth">1px</property>
+                                                <property name="borderRightColor">#000000</property>
+                                                <property name="borderRightStyle">solid</property>
+                                                <property name="borderRightWidth">1px</property>
+                                                <property name="borderTopColor">#000000</property>
+                                                <property name="borderTopStyle">solid</property>
+                                                <property name="borderTopWidth">1px</property>
+                                                <property name="paddingTop">1pt</property>
+                                                <property name="paddingLeft">1pt</property>
+                                                <property name="paddingBottom">1pt</property>
+                                                <property name="verticalAlign">middle</property>
+                                                <data id="8830">
+                                                    <property name="fontSize">x-small</property>
+                                                    <property name="textAlign">left</property>
+                                                    <property name="resultSetColumn">sum_inc</property>
+                                                    <structure name="action">
+                                                        <property name="linkType">drill-through</property>
+                                                        <property name="reportName">inc_location-nn.rptdesign</property>
+                                                        <property name="targetWindow">_blank</property>
+                                                        <property name="targetFileType">report-design</property>
+                                                        <list-property name="paramBindings">
+                                                            <structure>
+                                                                <property name="paramName">where</property>
+                                                                <expression name="expression">1</expression>
+                                                            </structure>
+                                                            <structure>
+                                                                <property name="paramName">appname</property>
+                                                                <expression name="expression">params["appname"].value</expression>
+                                                            </structure>
+                                                            <structure>
+                                                                <property name="paramName">paramstring</property>
+                                                                <expression name="expression">params["paramstring"].value</expression>
+                                                            </structure>
+                                                            <structure>
+                                                                <property name="paramName">paramdelimiter</property>
+                                                                <expression name="expression">params["paramdelimiter"].value</expression>
+                                                            </structure>
+
+                                                            <structure>
+                                                                <property name="paramName">par</property>
+                                                                <expression name="expression">params["par"].value</expression>
+                                                            </structure>
+                                                            <structure>
+                                                                <property name="paramName">fin</property>
+                                                                <expression name="expression">finishStr</expression>
+                                                            </structure>
+                                                            <structure>
+                                                                <property name="paramName">locationId</property>
+                                                                <expression name="expression">params["locationId"].value</expression>
+                                                            </structure>
+                                                            <structure>
+                                                                <property name="paramName">mesto</property>
+                                                                <expression name="expression">row["loc"]</expression>
+                                                            </structure>
+                                                            <structure>
+                                                                <property name="paramName">asset</property>
+                                                                <expression name="expression">''</expression>
+                                                            </structure>
+                                                            <structure>
+                                                                <property name="paramName">numvalue</property>
+                                                                <expression name="expression">''</expression>
+                                                            </structure>
+                                                            <structure>
+                                                                <property name="paramName">podrId</property>
+                                                                <expression name="expression">''</expression>
+                                                            </structure>
+                                                        </list-property>
+                                                    </structure>
+                                                </data>
+                                                <data id="8831">
+                                                    <property name="fontSize">x-small</property>
+                                                    <list-property name="visibility">
+                                                        <structure>
+                                                            <property name="format">all</property>
+                                                            <expression name="valueExpr">true</expression>
+                                                        </structure>
+                                                    </list-property>
+                                                    <property name="resultSetColumn">Aggregation</property>
+                                                </data>
+                                            </cell>
+                                        </row>
+                                    </detail>
+                                </table>
+                                <text id="158">
+                                    <property name="contentType">html</property>
+                                    <text-property name="content"><![CDATA[<script type="text/javascript">
+
+
+function ScrollableTable (tableEl, tableHeight, tableWidth) {
+
+   
+
+    this.tableEl = tableEl;
+
+   
+
+    var tscroll = document.getElementById('scroll');
+
+    
+
+     
+
+    var tbody = this.tableEl.getElementsByTagName('tbody');
+
+    this.tbody = (tbody[0]) ? tbody[0] : null;
+
+ // окончание получения необходимых элементов страницы
+
+ 
+
+  // сохранение оригинальных величин
+
+    this.originalHeight = this.tableEl.clientHeight;
+
+    this.originalWidth = this.tableEl.clientWidth;
+
+ 
+
+    this.newHeight = parseInt(tableHeight);
+
+    this.newWidth = tableWidth ? parseInt(tableWidth) : this.originalWidth;
+
+ 
+
+    this.tableEl.style.height = 'auto';
+
+    this.tableEl.removeAttribute('height');
+
+ 
+
+    this.containerEl = this.tableEl.parentNode.insertBefore(document.createElement('div'), this.tableEl);
+
+    this.containerEl.appendChild(this.tableEl);
+
+    this.containerEl.style.height = this.newHeight + 'px';
+
+    this.containerEl.style.width = this.newWidth+25 + 'px';
+
+  
+
+ 
+
+    
+
+    if (!this.tbody) return;
+
+   // Форматирование хидера и тела таблицы
+
+ 
+
+        // окончание форматирования
+
+         
+
+        this.containerEl.style.overflowY = 'auto';
+
+        if (this.tableEl.parentElement.clientHeight - this.tableEl.offsetHeight < 0) {
+
+            this.tableEl.style.width = this.newWidth +'px';
+
+            
+
+        } else {
+
+            this.containerEl.style.overflowY = 'hidden';
+
+            this.tableEl.style.width = this.newWidth +'px';
+
+           }
+
+   
+
+        
+
+}
+
+</script>
+]]></text-property>
+                                </text>
+                                <text id="157">
+                                    <property name="marginTop">auto</property>
+                                    <property name="paddingTop">1pt</property>
+                                    <property name="contentType">html</property>
+                                    <text-property name="content"><![CDATA[<script type="text/javascript">
+	var t = new ScrollableTable(document.getElementById('scroll'), 400);
+</script>]]></text-property>
+                                </text>
+                            </cell>
+                        </row>
+                    </grid>
+                </cell>
+            </row>
+        </grid>
+    </body>
+</report>
