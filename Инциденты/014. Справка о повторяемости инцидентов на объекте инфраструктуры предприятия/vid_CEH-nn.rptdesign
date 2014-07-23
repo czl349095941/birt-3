@@ -45,11 +45,9 @@ else
         <scalar-parameter name="where" id="25">
             <property name="valueType">static</property>
             <property name="dataType">string</property>
-            <property name="paramType">simple</property>
-            <property name="isRequired">true</property>
+            <property name="isRequired">false</property>
             <property name="controlType">text-box</property>
             <property name="defaultValue">1=1</property>
-            <property name="distinct">true</property>
             <structure name="format">
                 <property name="category">Unformatted</property>
             </structure>
@@ -101,7 +99,6 @@ else
             <property name="paramType">simple</property>
             <property name="isRequired">true</property>
             <property name="controlType">text-box</property>
-            <property name="defaultValue">10.10.10</property>
             <property name="distinct">true</property>
             <structure name="format">
                 <property name="category">Unformatted</property>
@@ -113,19 +110,6 @@ else
             <property name="paramType">simple</property>
             <property name="isRequired">true</property>
             <property name="controlType">text-box</property>
-            <property name="defaultValue">10.10.11</property>
-            <property name="distinct">true</property>
-            <structure name="format">
-                <property name="category">Unformatted</property>
-            </structure>
-        </scalar-parameter>
-        <scalar-parameter name="predId" id="8359">
-            <property name="valueType">static</property>
-            <property name="dataType">string</property>
-            <property name="paramType">simple</property>
-            <property name="isRequired">true</property>
-            <property name="controlType">text-box</property>
-            <property name="defaultValue">PRED_1369</property>
             <property name="distinct">true</property>
             <structure name="format">
                 <property name="category">Unformatted</property>
@@ -142,6 +126,20 @@ else
                 <property name="category">Unformatted</property>
             </structure>
         </scalar-parameter>
+        <scalar-parameter name="numvalue" id="8674">
+            <property name="hidden">false</property>
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="paramType">simple</property>
+            <property name="concealValue">false</property>
+            <property name="isRequired">false</property>
+            <property name="controlType">text-box</property>
+            <property name="defaultValue">3</property>
+            <property name="distinct">true</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
     </parameters>
     <data-sources>
         <script-data-source name="maximoDataSource" id="64" extends="MaximoSystemLibrary.maximoDataSource"/>
@@ -151,8 +149,8 @@ else
             <list-property name="resultSetHints">
                 <structure>
                     <property name="position">1</property>
-                    <property name="name">VID</property>
-                    <property name="dataType">string</property>
+                    <property name="name">inc_count</property>
+                    <property name="dataType">integer</property>
                 </structure>
                 <structure>
                     <property name="position">2</property>
@@ -171,8 +169,8 @@ else
                 </structure>
                 <structure>
                     <property name="position">5</property>
-                    <property name="name">inc_count</property>
-                    <property name="dataType">integer</property>
+                    <property name="name">VID</property>
+                    <property name="dataType">string</property>
                 </structure>
             </list-property>
             <list-property name="columnHints">
@@ -202,8 +200,8 @@ else
                 <list-property name="resultSet">
                     <structure>
                         <property name="position">1</property>
-                        <property name="name">VID</property>
-                        <property name="dataType">string</property>
+                        <property name="name">inc_count</property>
+                        <property name="dataType">integer</property>
                     </structure>
                     <structure>
                         <property name="position">2</property>
@@ -222,8 +220,8 @@ else
                     </structure>
                     <structure>
                         <property name="position">5</property>
-                        <property name="name">inc_count</property>
-                        <property name="dataType">integer</property>
+                        <property name="name">VID</property>
+                        <property name="dataType">string</property>
                     </structure>
                 </list-property>
             </structure>
@@ -233,13 +231,6 @@ else
 	var sqlText = new String();
 
 
-
-
-var predId = new String(params["predId"]);
-
-if(params["predId"]!='')
-{predId = (params["predId"]).replace("=","")}
-
 var start = new String(params["par"]);
 
 start = "to_date ('"+params["par"]+"','DD.MM.YY')"
@@ -248,19 +239,35 @@ var finish = new String(finishStr);
 finish = "to_date ('"+finishStr+"','DD.MM.YY HH24:MI:SS')"
 
 
+var numvalue = new String(params["numvalue"]);
+numvalue =(params["numvalue"]).replace("=","")
 
-
-sqlText = " WITH T AS "
+sqlText = " WITH pred AS "
+ +"   (SELECT lo.location, "
+ +"     spc2.alnvalue "
+ +"     ||', ' "
+ +"     ||spc3.alnvalue description "
+ +"   FROM maximo.LOCATIONSPEC spc "
+ +"   JOIN MAXIMO.locations lo "
+ +"   ON lo.location = spc.location "
+ +"   AND spc.siteid = lo.siteid "
+ +"   LEFT JOIN maximo.LOCATIONSPEC spc2 "
+ +"   ON lo.location       = spc2.location "
+ +"   AND spc2.siteid      = lo.siteid "
+ +"   AND spc2.ASSETATTRID = 'SNAME' "
+ +"   LEFT JOIN maximo.LOCATIONSPEC spc3 "
+ +"   ON lo.location       = spc3.location "
+ +"   AND spc3.siteid      = lo.siteid "
+ +"   AND spc3.ASSETATTRID = 'SNAME2' "
+ +"   WHERE lo.siteid      = '"+params["mroSite"]+"'"
+ +"   AND lo.status        = 'РАБОТАЕТ' "
+ +"   AND lo.location LIKE 'PRED%' "
+ +"   AND spc.ASSETATTRID = 'TIP_PREDPR' "
+ +"   AND spc.NUMVALUE  in ("+numvalue+") "
+ +"   ), "
+ +"   T AS "
  +"   (SELECT i.ticketid , "
- +"     l.description "
- +"     || "
- +"     CASE "
- +"       WHEN spc.assetattrid = 'TIP_RAZMST' "
- +"       THEN ' (станция)' "
- +"       WHEN spc.assetattrid = 'TIP_RAZM_MSP' "
- +"       THEN ' (перегон)' "
- +"     END mesto , "
- +"     i.location                                              AS loc , "
+ +"     i.pred , "
  +"     NVL(i.classidmain,NVL(i.classid_group,classid_element)) AS vidnum , "
  +"     ( "
  +"     CASE "
@@ -272,14 +279,6 @@ sqlText = " WITH T AS "
  +"         ||cl_1.description "
  +"     END) AS description "
  +"   FROM maximo.tk_rep2 i "
- +"   JOIN maximo.LOCATIONSPEC spc "
- +"   ON (i.location       = spc.location "
- +"   AND i.siteid         = spc.siteid "
- +"   AND spc.assetattrid IN ('TIP_RAZMST','TIP_RAZM_MSP') "
- +"   AND spc.numvalue     =1) "
- +"   JOIN maximo.locations l "
- +"   ON spc.location=l.location "
- +"   AND spc.siteid =l.siteid "
  +"   LEFT JOIN MAXIMO.classstructure cl_1 "
  +"   ON (cl_1.classstructureid =i.classidmain) "
  +"   LEFT JOIN MAXIMO.classstructure cl_2 "
@@ -296,22 +295,24 @@ sqlText = " WITH T AS "
  +"       THEN 1 "
  +"       ELSE 0 "
  +"     END ) "
- +"   AND to_date ( TO_CHAR (i.reportdate,'DD.MM.YY HH24:MI:SS') ,'DD.MM.YY HH24:MI:SS') BETWEEN "+start+" AND "+finish+" "
+ +"   AND to_date ( TO_CHAR (i.reportdate,'DD.MM.YY HH24:MI:SS') ,'DD.MM.YY HH24:MI:SS') BETWEEN " + start + " and  " + finish + " "
  +"   AND i.status NOT IN ('ОБЪЕДИНЕН','ЛОЖНЫЙ', 'УДАЛЕНО') "
  +"   AND i.siteid      = '"+params["mroSite"]+"'"
- +"   AND i.pred        = '"+predId+"' "
  +"   ) "
  +" SELECT COUNT(DISTINCT T.ticketid) inc_count , "
- +"   T.mesto , "
- +"   T.loc , "
+ +"   pred.description AS mesto , "
  +"   T.vidnum , "
- +"   T.description AS vid "
+ +"   T.description AS vid , "
+ +"   pred.location AS loc "
  +" FROM T "
+ +" JOIN pred "
+ +" ON T.pred       =pred.location "
  +" WHERE T.vidnum IS NOT NULL "
- +" GROUP BY T.mesto , "
- +"   T.loc , "
+ +" GROUP BY pred.location , "
+ +"   pred.description , "
  +"   T.vidnum , "
  +"   T.description "
+ +"  "
      
 
 
@@ -321,11 +322,10 @@ maximoDataSet.setQuery(sqlText);]]></method>
      return (false);
 
 row["inc_count"] = maximoDataSet.getInteger("inc_count");
-row["VID"] = maximoDataSet.getString("VID");
 row["mesto"] = maximoDataSet.getString("mesto");
 row["loc"] = maximoDataSet.getString("loc");
 row["vidnum"] = maximoDataSet.getString("vidnum");
-  
+row["VID"] = maximoDataSet.getString("VID");  
 return (true);]]></method>
         </script-data-set>
         <script-data-set name="site" id="7885">
@@ -355,7 +355,6 @@ return (true);]]></method>
 	maximoDataSet.open();
 	
 
-
 	var sqlText = new String();
 
 	sqlText = " select description "
@@ -371,7 +370,7 @@ return (true);]]></method>
 	row["description"] = maximoDataSet.getString("description");
 	return (true);]]></method>
         </script-data-set>
-        <script-data-set name="pred" id="8455">
+        <script-data-set name="sluzhba" id="8676">
             <list-property name="resultSetHints">
                 <structure>
                     <property name="position">1</property>
@@ -396,29 +395,17 @@ return (true);]]></method>
             <property name="dataSource">maximoDataSource</property>
             <method name="open"><![CDATA[maximoDataSet = MXReportDataSetProvider.create(this.getDataSource().getName(), this.getName());
 	maximoDataSet.open();
-	
 
-var predId = new String(params["predId"]);
-
-if(params["predId"]!='')
-{predId = "'" + (params["predId"]).replace("=","") + "'"}
+var numvalue = new String(params["numvalue"]);
+numvalue =(params["numvalue"]).replace("=","")
 
 
-var sqlText = new String();
+	var sqlText = new String();
 
-sqlText = 
-" select "
-+"  spec.alnvalue || ', ' || spec2.alnvalue as description "
-+"	from maximo.locationspec spec "
-+"  	join maximo.locationspec spec2 on (spec.location = spec2.location) "
-+"where " 
-+"  spec.location = "+predId
-+"  and "
-+"  spec.siteid = '"+params["mroSite"]+"'"
-+"  and "
-+" 			spec.assetattrid = 'SNAME' and spec2.assetattrid = 'SNAME2'";
-
-maximoDataSet.setQuery(sqlText);]]></method>
+	sqlText = " select decode("+numvalue+", 3, 'П', 4, 'Э', 5, 'Ш') description "
+ + "  from dual "
+ ;
+	maximoDataSet.setQuery(sqlText);]]></method>
             <method name="fetch"><![CDATA[if (!maximoDataSet.fetch())
 	   return (false);
 	// Add a line for each output column
@@ -583,19 +570,28 @@ maximoDataSet.setQuery(sqlText);]]></method>
             <column id="8438"/>
             <row id="8439">
                 <cell id="8440">
-                    <label id="8447">
-                        <text-property name="text">17. Наиболее распространенные виды неисправностей</text-property>
-                    </label>
+                    <data id="8677">
+                        <property name="dataSet">sluzhba</property>
+                        <list-property name="boundDataColumns">
+                            <structure>
+                                <property name="name">description</property>
+                                <property name="displayName">description</property>
+                                <expression name="expression">'16. Наиболее распространенные виды неисправностей по службе '+dataSetRow["description"]</expression>
+                                <property name="dataType">string</property>
+                            </structure>
+                        </list-property>
+                        <property name="resultSetColumn">description</property>
+                    </data>
                 </cell>
             </row>
-            <row id="8550">
-                <cell id="8551">
+            <row id="8684">
+                <cell id="8685">
                     <label id="8755">
                         <text-property name="text">( принцип Парето )</text-property>
                     </label>
                 </cell>
             </row>
-            <row id="8441">
+            <row id="8443">
                 <list-property name="visibility">
                     <structure>
                         <property name="format">xls</property>
@@ -606,19 +602,52 @@ maximoDataSet.setQuery(sqlText);]]></method>
                         <expression name="valueExpr">true</expression>
                     </structure>
                 </list-property>
-                <cell id="8442">
-                    <data id="8456">
-                        <property name="dataSet">pred</property>
+                <cell id="8444">
+                    <data id="7886">
+                        <property name="fontSize">large</property>
+                        <property name="fontWeight">bold</property>
+                        <property name="textAlign">center</property>
+                        <property name="dataSet">site</property>
                         <list-property name="boundDataColumns">
                             <structure>
                                 <property name="name">description</property>
                                 <property name="displayName">description</property>
-                                <expression name="expression">dataSetRow["description"]</expression>
+                                <expression name="expression">dataSetRow["description"] + ' железная дорога'</expression>
                                 <property name="dataType">string</property>
                             </structure>
                         </list-property>
                         <property name="resultSetColumn">description</property>
                     </data>
+                </cell>
+            </row>
+            <row id="8862">
+                <cell id="8863">
+                    <data id="11390">
+                        <property name="dataSet">dates</property>
+                        <list-property name="boundDataColumns">
+                            <structure>
+                                <property name="name">DAT1</property>
+                                <property name="displayName">DAT1</property>
+                                <expression name="expression">'c ' + dataSetRow["DAT1"] + ' по ' + dataSetRow["DAT2"]</expression>
+                                <property name="dataType">string</property>
+                            </structure>
+                        </list-property>
+                        <property name="resultSetColumn">DAT1</property>
+                    </data>
+                </cell>
+            </row>
+            <row id="8445">
+                <list-property name="visibility">
+                    <structure>
+                        <property name="format">xls</property>
+                        <expression name="valueExpr">true</expression>
+                    </structure>
+                    <structure>
+                        <property name="format">pdf</property>
+                        <expression name="valueExpr">true</expression>
+                    </structure>
+                </list-property>
+                <cell id="8446">
                     <text id="158">
                         <property name="contentType">html</property>
                         <text-property name="content"><![CDATA[<script type="text/javascript">
@@ -670,59 +699,11 @@ function ScrollableTable (tableEl, tableHeight, tableWidth) {
                     </text>
                 </cell>
             </row>
-            <row id="8443">
-                <list-property name="visibility">
-                    <structure>
-                        <property name="format">xls</property>
-                        <expression name="valueExpr">true</expression>
-                    </structure>
-                    <structure>
-                        <property name="format">pdf</property>
-                        <expression name="valueExpr">true</expression>
-                    </structure>
-                </list-property>
-                <cell id="8444">
-                    <data id="7886">
-                        <property name="fontSize">large</property>
-                        <property name="fontWeight">bold</property>
-                        <property name="textAlign">center</property>
-                        <property name="dataSet">site</property>
-                        <list-property name="boundDataColumns">
-                            <structure>
-                                <property name="name">description</property>
-                                <property name="displayName">description</property>
-                                <expression name="expression">dataSetRow["description"] + ' железная дорога'</expression>
-                                <property name="dataType">string</property>
-                            </structure>
-                        </list-property>
-                        <property name="resultSetColumn">description</property>
-                    </data>
-                </cell>
-            </row>
-            <row id="8445">
-                <cell id="8446">
-                    <data id="11390">
-                        <property name="dataSet">dates</property>
-                        <list-property name="boundDataColumns">
-                            <structure>
-                                <property name="name">DAT1</property>
-                                <property name="displayName">DAT1</property>
-                                <expression name="expression">'c ' + dataSetRow["DAT1"] + ' по ' + dataSetRow["DAT2"]</expression>
-                                <property name="dataType">string</property>
-                            </structure>
-                        </list-property>
-                        <property name="resultSetColumn">DAT1</property>
-                    </data>
-                </cell>
-            </row>
             <row id="8452">
-                <property name="textAlign">center</property>
                 <property name="verticalAlign">middle</property>
                 <cell id="8453">
-                    <property name="textAlign">center</property>
-                    <grid id="8799">
-                        <property name="textAlign">left</property>
-                        <property name="width">1200px</property>
+                    <grid id="8756">
+                        <property name="width">80%</property>
                         <list-property name="visibility">
                             <structure>
                                 <property name="format">xls</property>
@@ -733,32 +714,18 @@ function ScrollableTable (tableEl, tableHeight, tableWidth) {
                                 <expression name="valueExpr">true</expression>
                             </structure>
                         </list-property>
-                        <column id="8800"/>
-                        <row id="8801">
-                            <cell id="8802">
+                        <column id="8757"/>
+                        <row id="8758">
+                            <cell id="8759">
                                 <property name="textAlign">left</property>
-                                <table id="8382">
+                                <table id="8760">
                                     <property name="fontSize">9pt</property>
                                     <property name="fontWeight">normal</property>
-                                    <property name="borderBottomColor">#000000</property>
-                                    <property name="borderBottomStyle">solid</property>
-                                    <property name="borderBottomWidth">2px</property>
-                                    <property name="borderLeftColor">#000000</property>
-                                    <property name="borderLeftStyle">solid</property>
-                                    <property name="borderLeftWidth">2px</property>
-                                    <property name="borderRightColor">#000000</property>
-                                    <property name="borderRightStyle">solid</property>
-                                    <property name="borderRightWidth">2px</property>
-                                    <property name="borderTopColor">#000000</property>
-                                    <property name="borderTopStyle">solid</property>
-                                    <property name="borderTopWidth">2px</property>
                                     <property name="marginTop">0pt</property>
                                     <property name="marginLeft">0pt</property>
                                     <property name="marginBottom">0pt</property>
                                     <property name="marginRight">0pt</property>
-                                    <property name="textAlign">left</property>
-                                    <property name="pageBreakAfter">auto</property>
-                                    <property name="width">1200px</property>
+                                    <property name="width">1000px</property>
                                     <property name="dataSet">Workreport</property>
                                     <list-property name="boundDataColumns">
                                         <structure>
@@ -854,30 +821,30 @@ function ScrollableTable (tableEl, tableHeight, tableWidth) {
                                         </structure>
                                     </list-property>
                                     <property name="repeatHeader">false</property>
-                                    <property name="pageBreakInterval">1105788928</property>
+                                    <property name="pageBreakInterval">969572352</property>
                                     <list-property name="sort">
                                         <structure>
                                             <expression name="key">row["inc_count"]</expression>
                                             <property name="direction">desc</property>
                                         </structure>
                                     </list-property>
-                                    <column id="8460">
-                                        <property name="width">400px</property>
+                                    <column id="8788">
+                                        <property name="width">300px</property>
                                         <property name="suppressDuplicates">true</property>
                                         <property name="textAlign">left</property>
                                         <property name="canShrink">true</property>
                                     </column>
-                                    <column id="8403">
+                                    <column id="8789">
                                         <property name="width">250px</property>
                                         <property name="suppressDuplicates">false</property>
                                         <property name="textAlign">left</property>
                                     </column>
-                                    <column id="8549">
+                                    <column id="8790">
                                         <property name="suppressDuplicates">false</property>
                                         <property name="textAlign">left</property>
                                     </column>
                                     <header>
-                                        <row id="8383">
+                                        <row id="8761">
                                             <property name="height">8mm</property>
                                             <property name="backgroundColor">#8BCBF5</property>
                                             <property name="fontSize">10pt</property>
@@ -885,7 +852,7 @@ function ScrollableTable (tableEl, tableHeight, tableWidth) {
                                             <property name="textLineThrough">none</property>
                                             <property name="verticalAlign">middle</property>
                                             <property name="canShrink">true</property>
-                                            <cell id="8457">
+                                            <cell id="8762">
                                                 <property name="fontSize">9pt</property>
                                                 <property name="borderBottomColor">#000000</property>
                                                 <property name="borderBottomStyle">solid</property>
@@ -900,13 +867,13 @@ function ScrollableTable (tableEl, tableHeight, tableWidth) {
                                                 <property name="borderTopStyle">solid</property>
                                                 <property name="borderTopWidth">2px</property>
                                                 <property name="textAlign">center</property>
-                                                <label id="8387">
+                                                <label id="8763">
                                                     <property name="fontSize">x-small</property>
                                                     <property name="fontWeight">bold</property>
                                                     <text-property name="text">Вид неисправности</text-property>
                                                 </label>
                                             </cell>
-                                            <cell id="8388">
+                                            <cell id="8764">
                                                 <property name="borderBottomColor">#000000</property>
                                                 <property name="borderBottomStyle">solid</property>
                                                 <property name="borderBottomWidth">2px</property>
@@ -920,14 +887,14 @@ function ScrollableTable (tableEl, tableHeight, tableWidth) {
                                                 <property name="borderTopStyle">solid</property>
                                                 <property name="borderTopWidth">2px</property>
                                                 <property name="textAlign">center</property>
-                                                <label id="8389">
+                                                <label id="8765">
                                                     <property name="fontSize">x-small</property>
                                                     <property name="fontWeight">bold</property>
                                                     <property name="textAlign">center</property>
                                                     <text-property name="text">Количество неисправностей</text-property>
                                                 </label>
                                             </cell>
-                                            <cell id="8546">
+                                            <cell id="8766">
                                                 <property name="borderBottomColor">#000000</property>
                                                 <property name="borderBottomStyle">solid</property>
                                                 <property name="borderBottomWidth">2px</property>
@@ -941,18 +908,18 @@ function ScrollableTable (tableEl, tableHeight, tableWidth) {
                                                 <property name="borderTopStyle">solid</property>
                                                 <property name="borderTopWidth">2px</property>
                                                 <property name="textAlign">center</property>
-                                                <label id="8461">
+                                                <label id="8767">
                                                     <property name="fontSize">x-small</property>
                                                     <property name="fontWeight">bold</property>
-                                                    <text-property name="text">Местонахождение</text-property>
+                                                    <text-property name="text">Предприятие</text-property>
                                                 </label>
                                             </cell>
                                         </row>
                                     </header>
-                                    <group id="8509">
+                                    <group id="8768">
                                         <property name="groupName">NewTableGroup1</property>
                                         <property name="interval">none</property>
-                                        <property name="sortDirection">desc</property>
+                                        <property name="sortDirection">asc</property>
                                         <expression name="keyExpr">row["vidnum"]</expression>
                                         <structure name="toc">
                                             <expression name="expressionValue">row["vidnum"]</expression>
@@ -970,27 +937,14 @@ function ScrollableTable (tableEl, tableHeight, tableWidth) {
                                         </list-property>
                                     </group>
                                 </table>
-                                <table id="8756">
+                                <table id="8791">
                                     <property name="fontSize">9pt</property>
                                     <property name="fontWeight">normal</property>
-                                    <property name="borderBottomColor">#000000</property>
-                                    <property name="borderBottomStyle">solid</property>
-                                    <property name="borderBottomWidth">2px</property>
-                                    <property name="borderLeftColor">#000000</property>
-                                    <property name="borderLeftStyle">solid</property>
-                                    <property name="borderLeftWidth">2px</property>
-                                    <property name="borderRightColor">#000000</property>
-                                    <property name="borderRightStyle">solid</property>
-                                    <property name="borderRightWidth">2px</property>
-                                    <property name="borderTopColor">#000000</property>
-                                    <property name="borderTopStyle">solid</property>
-                                    <property name="borderTopWidth">2px</property>
                                     <property name="marginTop">0pt</property>
                                     <property name="marginLeft">0pt</property>
                                     <property name="marginBottom">0pt</property>
                                     <property name="marginRight">0pt</property>
-                                    <property name="textAlign">left</property>
-                                    <property name="width">1204px</property>
+                                    <property name="width">1000px</property>
                                     <property name="dataSet">Workreport</property>
                                     <list-property name="boundDataColumns">
                                         <structure>
@@ -1087,32 +1041,32 @@ function ScrollableTable (tableEl, tableHeight, tableWidth) {
                                     </list-property>
                                     <expression name="bookmark">"scroll"</expression>
                                     <property name="repeatHeader">false</property>
-                                    <property name="pageBreakInterval">1385447424</property>
+                                    <property name="pageBreakInterval">-1090256896</property>
                                     <list-property name="sort">
                                         <structure>
                                             <expression name="key">row["inc_count"]</expression>
                                             <property name="direction">desc</property>
                                         </structure>
                                     </list-property>
-                                    <column id="8784">
-                                        <property name="width">400px</property>
+                                    <column id="8819">
+                                        <property name="width">300px</property>
                                         <property name="suppressDuplicates">true</property>
                                         <property name="textAlign">left</property>
                                         <property name="canShrink">true</property>
                                     </column>
-                                    <column id="8785">
+                                    <column id="8820">
                                         <property name="width">250px</property>
                                         <property name="suppressDuplicates">false</property>
                                         <property name="textAlign">left</property>
                                     </column>
-                                    <column id="8786">
+                                    <column id="8821">
                                         <property name="suppressDuplicates">false</property>
                                         <property name="textAlign">left</property>
                                     </column>
-                                    <group id="8764">
+                                    <group id="8799">
                                         <property name="groupName">NewTableGroup1</property>
                                         <property name="interval">none</property>
-                                        <property name="sortDirection">desc</property>
+                                        <property name="sortDirection">asc</property>
                                         <expression name="keyExpr">row["vidnum"]</expression>
                                         <structure name="toc">
                                             <expression name="expressionValue">row["vidnum"]</expression>
@@ -1133,17 +1087,23 @@ function ScrollableTable (tableEl, tableHeight, tableWidth) {
                                             </structure>
                                         </list-property>
                                         <footer>
-                                            <row id="8765">
+                                            <row id="8800">
                                                 <list-property name="visibility">
                                                     <structure>
                                                         <property name="format">all</property>
-                                                        <expression name="valueExpr">( BirtComp.greaterThan(row["Aggregation_1"],0.8) &amp;&amp; BirtComp.greaterThan(row["Aggregation_3"],1) )||(params["count"].value!=''&amp;&amp;BirtComp.greaterThan((row["Aggregation_3"]),params["count"].value))</expression>
+                                                        <expression name="valueExpr">( BirtComp.greaterThan(row["Aggregation_1"],0.8) &amp;&amp; BirtComp.greaterThan(row["Aggregation_3"],1) ) ||(params["count"].value!=''&amp;&amp;BirtComp.greaterThan((row["Aggregation_3"]),params["count"].value))</expression>
                                                     </structure>
                                                 </list-property>
-                                                <cell id="8766">
+                                                <cell id="8801">
                                                     <property name="borderBottomColor">#000000</property>
                                                     <property name="borderBottomStyle">solid</property>
                                                     <property name="borderBottomWidth">2px</property>
+                                                    <property name="borderLeftColor">#000000</property>
+                                                    <property name="borderLeftStyle">solid</property>
+                                                    <property name="borderLeftWidth">2px</property>
+                                                    <property name="borderRightColor">#000000</property>
+                                                    <property name="borderRightStyle">solid</property>
+                                                    <property name="borderRightWidth">2px</property>
                                                     <property name="borderTopColor">#000000</property>
                                                     <property name="borderTopStyle">solid</property>
                                                     <property name="borderTopWidth">2px</property>
@@ -1151,17 +1111,20 @@ function ScrollableTable (tableEl, tableHeight, tableWidth) {
                                                     <property name="paddingLeft">1pt</property>
                                                     <property name="paddingBottom">1pt</property>
                                                     <property name="paddingRight">1pt</property>
-                                                    <label id="8767">
+                                                    <label id="8802">
                                                         <property name="fontSize">x-small</property>
                                                         <property name="fontWeight">bold</property>
                                                         <property name="textAlign">right</property>
                                                         <text-property name="text">Всего:</text-property>
                                                     </label>
                                                 </cell>
-                                                <cell id="8768">
+                                                <cell id="8803">
                                                     <property name="borderBottomColor">#000000</property>
                                                     <property name="borderBottomStyle">solid</property>
                                                     <property name="borderBottomWidth">2px</property>
+                                                    <property name="borderRightColor">#000000</property>
+                                                    <property name="borderRightStyle">solid</property>
+                                                    <property name="borderRightWidth">2px</property>
                                                     <property name="borderTopColor">#000000</property>
                                                     <property name="borderTopStyle">solid</property>
                                                     <property name="borderTopWidth">2px</property>
@@ -1169,12 +1132,15 @@ function ScrollableTable (tableEl, tableHeight, tableWidth) {
                                                     <property name="paddingLeft">1pt</property>
                                                     <property name="paddingBottom">1pt</property>
                                                     <property name="paddingRight">1pt</property>
-                                                    <data id="8769">
+                                                    <data id="8804">
                                                         <property name="fontSize">x-small</property>
                                                         <property name="fontWeight">bold</property>
                                                         <property name="resultSetColumn">Aggregation_2</property>
+                                                        <structure name="action">
+                                                            <property name="linkType">none</property>
+                                                        </structure>
                                                     </data>
-                                                    <data id="8770">
+                                                    <data id="8805">
                                                         <property name="fontSize">x-small</property>
                                                         <property name="fontWeight">bold</property>
                                                         <list-property name="visibility">
@@ -1185,7 +1151,7 @@ function ScrollableTable (tableEl, tableHeight, tableWidth) {
                                                         </list-property>
                                                         <property name="resultSetColumn">Aggregation</property>
                                                     </data>
-                                                    <data id="8771">
+                                                    <data id="8806">
                                                         <property name="fontSize">x-small</property>
                                                         <property name="fontWeight">bold</property>
                                                         <list-property name="visibility">
@@ -1196,7 +1162,7 @@ function ScrollableTable (tableEl, tableHeight, tableWidth) {
                                                         </list-property>
                                                         <property name="resultSetColumn">Aggregation_1</property>
                                                     </data>
-                                                    <data id="8772">
+                                                    <data id="8807">
                                                         <property name="fontSize">x-small</property>
                                                         <property name="fontWeight">bold</property>
                                                         <list-property name="visibility">
@@ -1208,10 +1174,16 @@ function ScrollableTable (tableEl, tableHeight, tableWidth) {
                                                         <property name="resultSetColumn">Aggregation_3</property>
                                                     </data>
                                                 </cell>
-                                                <cell id="8773">
+                                                <cell id="8808">
                                                     <property name="borderBottomColor">#000000</property>
                                                     <property name="borderBottomStyle">solid</property>
                                                     <property name="borderBottomWidth">2px</property>
+                                                    <property name="borderLeftColor">#000000</property>
+                                                    <property name="borderLeftStyle">solid</property>
+                                                    <property name="borderLeftWidth">2px</property>
+                                                    <property name="borderRightColor">#000000</property>
+                                                    <property name="borderRightStyle">solid</property>
+                                                    <property name="borderRightWidth">2px</property>
                                                     <property name="borderTopColor">#000000</property>
                                                     <property name="borderTopStyle">solid</property>
                                                     <property name="borderTopWidth">2px</property>
@@ -1224,16 +1196,16 @@ function ScrollableTable (tableEl, tableHeight, tableWidth) {
                                         </footer>
                                     </group>
                                     <detail>
-                                        <row id="8774">
+                                        <row id="8809">
                                             <property name="suppressDuplicates">false</property>
                                             <property name="fontSize">9pt</property>
                                             <list-property name="visibility">
                                                 <structure>
                                                     <property name="format">all</property>
-                                                    <expression name="valueExpr">( BirtComp.greaterThan(row["Aggregation_1"],0.8) &amp;&amp; BirtComp.greaterThan(row["Aggregation_3"],1) )||(params["count"].value!=''&amp;&amp;BirtComp.greaterThan((row["Aggregation_3"]),params["count"].value))</expression>
+                                                    <expression name="valueExpr">( BirtComp.greaterThan(row["Aggregation_1"],0.8) &amp;&amp; BirtComp.greaterThan(row["Aggregation_3"],1) ) ||(params["count"].value!=''&amp;&amp;BirtComp.greaterThan((row["Aggregation_3"]),params["count"].value))</expression>
                                                 </structure>
                                             </list-property>
-                                            <cell id="8775">
+                                            <cell id="8810">
                                                 <property name="borderLeftColor">#000000</property>
                                                 <property name="borderLeftStyle">solid</property>
                                                 <property name="borderLeftWidth">2px</property>
@@ -1247,7 +1219,7 @@ function ScrollableTable (tableEl, tableHeight, tableWidth) {
                                                 <property name="display">block</property>
                                                 <property name="pageBreakAfter">auto</property>
                                                 <property name="showIfBlank">false</property>
-                                                <data id="8776">
+                                                <data id="8811">
                                                     <property name="fontSize">x-small</property>
                                                     <property name="fontWeight">normal</property>
                                                     <list-property name="visibility">
@@ -1258,32 +1230,30 @@ function ScrollableTable (tableEl, tableHeight, tableWidth) {
                                                     </list-property>
                                                     <property name="resultSetColumn">vidnum</property>
                                                 </data>
-                                                <data id="8777">
+                                                <data id="8812">
                                                     <property name="fontSize">x-small</property>
                                                     <property name="fontWeight">normal</property>
                                                     <property name="resultSetColumn">VID</property>
                                                 </data>
                                             </cell>
-                                            <cell id="8778">
+                                            <cell id="8813">
                                                 <property name="borderBottomColor">#000000</property>
                                                 <property name="borderBottomStyle">solid</property>
-                                                <property name="borderBottomWidth">1px</property>
+                                                <property name="borderBottomWidth">2px</property>
                                                 <property name="borderLeftColor">#000000</property>
                                                 <property name="borderLeftStyle">solid</property>
-                                                <property name="borderLeftWidth">1px</property>
+                                                <property name="borderLeftWidth">2px</property>
                                                 <property name="borderRightColor">#000000</property>
                                                 <property name="borderRightStyle">solid</property>
-                                                <property name="borderRightWidth">1px</property>
-                                                <property name="borderTopColor">#000000</property>
-                                                <property name="borderTopStyle">solid</property>
-                                                <property name="borderTopWidth">1px</property>
+                                                <property name="borderRightWidth">2px</property>
                                                 <property name="paddingTop">1pt</property>
                                                 <property name="paddingLeft">1pt</property>
                                                 <property name="paddingBottom">1pt</property>
                                                 <property name="verticalAlign">middle</property>
-                                                <data id="8779">
+                                                <data id="8814">
                                                     <property name="fontSize">x-small</property>
                                                     <property name="fontWeight">normal</property>
+                                                    <property name="textAlign">center</property>
                                                     <list-property name="visibility">
                                                         <structure>
                                                             <property name="format">all</property>
@@ -1292,9 +1262,10 @@ function ScrollableTable (tableEl, tableHeight, tableWidth) {
                                                     </list-property>
                                                     <property name="resultSetColumn">Aggregation_4</property>
                                                 </data>
-                                                <data id="8780">
+                                                <data id="8815">
                                                     <property name="fontSize">x-small</property>
                                                     <property name="fontWeight">normal</property>
+                                                    <property name="textAlign">center</property>
                                                     <property name="resultSetColumn">inc_count</property>
                                                     <structure name="action">
                                                         <property name="linkType">drill-through</property>
@@ -1328,11 +1299,11 @@ function ScrollableTable (tableEl, tableHeight, tableWidth) {
                                                             </structure>
                                                             <structure>
                                                                 <property name="paramName">locationId</property>
-                                                                <expression name="expression">params["predId"].value</expression>
+                                                                <expression name="expression">row["loc"]</expression>
                                                             </structure>
                                                             <structure>
                                                                 <property name="paramName">mesto</property>
-                                                                <expression name="expression">row["loc"]</expression>
+                                                                <expression name="expression">''</expression>
                                                             </structure>
                                                             <structure>
                                                                 <property name="paramName">asset</property>
@@ -1350,24 +1321,21 @@ function ScrollableTable (tableEl, tableHeight, tableWidth) {
                                                     </structure>
                                                 </data>
                                             </cell>
-                                            <cell id="8781">
+                                            <cell id="8816">
                                                 <property name="borderBottomColor">#000000</property>
                                                 <property name="borderBottomStyle">solid</property>
-                                                <property name="borderBottomWidth">1px</property>
+                                                <property name="borderBottomWidth">2px</property>
                                                 <property name="borderLeftColor">#000000</property>
                                                 <property name="borderLeftStyle">solid</property>
-                                                <property name="borderLeftWidth">1px</property>
+                                                <property name="borderLeftWidth">2px</property>
                                                 <property name="borderRightColor">#000000</property>
                                                 <property name="borderRightStyle">solid</property>
-                                                <property name="borderRightWidth">1px</property>
-                                                <property name="borderTopColor">#000000</property>
-                                                <property name="borderTopStyle">solid</property>
-                                                <property name="borderTopWidth">1px</property>
+                                                <property name="borderRightWidth">2px</property>
                                                 <property name="paddingTop">1pt</property>
                                                 <property name="paddingLeft">1pt</property>
                                                 <property name="paddingBottom">1pt</property>
                                                 <property name="verticalAlign">middle</property>
-                                                <data id="8782">
+                                                <data id="8817">
                                                     <property name="fontSize">x-small</property>
                                                     <property name="fontWeight">normal</property>
                                                     <list-property name="visibility">
@@ -1378,13 +1346,13 @@ function ScrollableTable (tableEl, tableHeight, tableWidth) {
                                                     </list-property>
                                                     <property name="resultSetColumn">loc</property>
                                                 </data>
-                                                <data id="8783">
+                                                <data id="8818">
                                                     <property name="fontSize">x-small</property>
                                                     <property name="fontWeight">normal</property>
                                                     <property name="resultSetColumn">mesto</property>
                                                     <structure name="action">
                                                         <property name="linkType">drill-through</property>
-                                                        <property name="reportName">../018. Наиболее распространенные виды неисправностей/vid_location-nn.rptdesign</property>
+                                                        <property name="reportName">vid_pred-nn.rptdesign</property>
                                                         <property name="targetWindow">_blank</property>
                                                         <property name="targetFileType">report-design</property>
                                                         <list-property name="paramBindings">
@@ -1418,15 +1386,11 @@ function ScrollableTable (tableEl, tableHeight, tableWidth) {
                                                             </structure>
                                                             <structure>
                                                                 <property name="paramName">predId</property>
-                                                                <expression name="expression">params["predId"].value</expression>
+                                                                <expression name="expression">row["loc"]</expression>
                                                             </structure>
                                                             <structure>
                                                                 <property name="paramName">count</property>
                                                                 <expression name="expression">params["count"].value</expression>
-                                                            </structure>
-                                                            <structure>
-                                                                <property name="paramName">mesto</property>
-                                                                <expression name="expression">row["loc"]</expression>
                                                             </structure>
                                                         </list-property>
                                                     </structure>
@@ -1438,719 +1402,701 @@ function ScrollableTable (tableEl, tableHeight, tableWidth) {
                             </cell>
                         </row>
                     </grid>
-                </cell>
-            </row>
-        </grid>
-        <grid id="8803">
-            <property name="textAlign">left</property>
-            <list-property name="visibility">
-                <structure>
-                    <property name="format">html</property>
-                    <expression name="valueExpr">true</expression>
-                </structure>
-            </list-property>
-            <column id="8804"/>
-            <row id="8805">
-                <cell id="8806">
-                    <property name="textAlign">left</property>
-                    <table id="8807">
-                        <property name="fontSize">9pt</property>
-                        <property name="fontWeight">normal</property>
-                        <property name="borderBottomColor">#000000</property>
-                        <property name="borderBottomStyle">solid</property>
-                        <property name="borderBottomWidth">2px</property>
-                        <property name="borderLeftColor">#000000</property>
-                        <property name="borderLeftStyle">solid</property>
-                        <property name="borderLeftWidth">2px</property>
-                        <property name="borderRightColor">#000000</property>
-                        <property name="borderRightStyle">solid</property>
-                        <property name="borderRightWidth">2px</property>
-                        <property name="borderTopColor">#000000</property>
-                        <property name="borderTopStyle">solid</property>
-                        <property name="borderTopWidth">2px</property>
-                        <property name="marginTop">0pt</property>
-                        <property name="marginLeft">0pt</property>
-                        <property name="marginBottom">0pt</property>
-                        <property name="marginRight">0pt</property>
-                        <property name="textAlign">left</property>
-                        <property name="pageBreakAfter">auto</property>
-                        <property name="width">222mm</property>
-                        <property name="dataSet">Workreport</property>
-                        <list-property name="boundDataColumns">
+                    <grid id="8822">
+                        <list-property name="visibility">
                             <structure>
-                                <property name="name">VID</property>
-                                <property name="displayName">VID</property>
-                                <expression name="expression">dataSetRow["VID"]</expression>
-                                <property name="dataType">string</property>
-                            </structure>
-                            <structure>
-                                <property name="name">mesto</property>
-                                <property name="displayName">mesto</property>
-                                <expression name="expression">dataSetRow["mesto"]</expression>
-                                <property name="dataType">string</property>
-                            </structure>
-                            <structure>
-                                <property name="name">loc</property>
-                                <property name="displayName">loc</property>
-                                <expression name="expression">dataSetRow["loc"]</expression>
-                                <property name="dataType">string</property>
-                            </structure>
-                            <structure>
-                                <property name="name">vidnum</property>
-                                <property name="displayName">vidnum</property>
-                                <expression name="expression">dataSetRow["vidnum"]</expression>
-                                <property name="dataType">string</property>
-                            </structure>
-                            <structure>
-                                <property name="name">inc_count</property>
-                                <property name="displayName">inc_count</property>
-                                <expression name="expression">dataSetRow["inc_count"]</expression>
-                                <property name="dataType">integer</property>
-                            </structure>
-                            <structure>
-                                <property name="name">Aggregation</property>
-                                <property name="dataType">float</property>
-                                <simple-property-list name="aggregateOn">
-                                    <value>NewTableGroup1</value>
-                                </simple-property-list>
-                                <property name="aggregateFunction">SUM</property>
-                                <list-property name="arguments">
-                                    <structure>
-                                        <property name="name">Expression</property>
-                                        <expression name="value">row["Aggregation_4"]</expression>
-                                    </structure>
-                                </list-property>
-                            </structure>
-                            <structure>
-                                <property name="name">Aggregation_1</property>
-                                <property name="dataType">float</property>
-                                <property name="aggregateFunction">RUNNINGSUM</property>
-                                <list-property name="arguments">
-                                    <structure>
-                                        <property name="name">Expression</property>
-                                        <expression name="value">row["Aggregation"]</expression>
-                                    </structure>
-                                </list-property>
-                            </structure>
-                            <structure>
-                                <property name="name">Aggregation_4</property>
-                                <property name="dataType">float</property>
-                                <property name="aggregateFunction">PERCENTSUM</property>
-                                <list-property name="arguments">
-                                    <structure>
-                                        <property name="name">Expression</property>
-                                        <expression name="value">row["inc_count"]</expression>
-                                    </structure>
-                                </list-property>
-                            </structure>
-                            <structure>
-                                <property name="name">Aggregation_2</property>
-                                <property name="dataType">integer</property>
-                                <simple-property-list name="aggregateOn">
-                                    <value>NewTableGroup1</value>
-                                </simple-property-list>
-                                <property name="aggregateFunction">SUM</property>
-                                <list-property name="arguments">
-                                    <structure>
-                                        <property name="name">Expression</property>
-                                        <expression name="value">row["inc_count"]</expression>
-                                    </structure>
-                                </list-property>
-                            </structure>
-                            <structure>
-                                <property name="name">Aggregation_3</property>
-                                <property name="dataType">integer</property>
-                                <property name="aggregateFunction">RUNNINGCOUNT</property>
-                                <list-property name="arguments">
-                                    <structure>
-                                        <property name="name">Expression</property>
-                                        <expression name="value">row["Aggregation"]</expression>
-                                    </structure>
-                                </list-property>
+                                <property name="format">html</property>
+                                <expression name="valueExpr">true</expression>
                             </structure>
                         </list-property>
-                        <property name="repeatHeader">false</property>
-                        <property name="pageBreakInterval">1105788928</property>
-                        <list-property name="sort">
-                            <structure>
-                                <expression name="key">row["inc_count"]</expression>
-                                <property name="direction">desc</property>
-                            </structure>
-                        </list-property>
-                        <column id="8816">
-                            <property name="suppressDuplicates">true</property>
-                            <property name="textAlign">left</property>
-                            <property name="canShrink">true</property>
-                        </column>
-                        <column id="8817">
-                            <property name="suppressDuplicates">false</property>
-                            <property name="textAlign">left</property>
-                        </column>
-                        <column id="8818">
-                            <property name="suppressDuplicates">false</property>
-                            <property name="textAlign">left</property>
-                        </column>
-                        <header>
-                            <row id="8808">
-                                <property name="height">8mm</property>
-                                <property name="backgroundColor">#8BCBF5</property>
-                                <property name="fontSize">10pt</property>
-                                <property name="fontWeight">bold</property>
-                                <property name="textLineThrough">none</property>
-                                <property name="verticalAlign">middle</property>
-                                <property name="canShrink">true</property>
-                                <cell id="8809">
+                        <column id="8823"/>
+                        <row id="8824">
+                            <cell id="8825">
+                                <property name="textAlign">left</property>
+                                <table id="8826">
                                     <property name="fontSize">9pt</property>
-                                    <property name="borderBottomColor">#000000</property>
-                                    <property name="borderBottomStyle">solid</property>
-                                    <property name="borderBottomWidth">2px</property>
-                                    <property name="borderLeftColor">#000000</property>
-                                    <property name="borderLeftStyle">solid</property>
-                                    <property name="borderLeftWidth">2px</property>
-                                    <property name="borderRightColor">#000000</property>
-                                    <property name="borderRightStyle">solid</property>
-                                    <property name="borderRightWidth">2px</property>
-                                    <property name="borderTopColor">#000000</property>
-                                    <property name="borderTopStyle">solid</property>
-                                    <property name="borderTopWidth">2px</property>
-                                    <property name="textAlign">center</property>
-                                    <label id="8810">
-                                        <property name="fontFamily">sans-serif</property>
-                                        <property name="fontSize">12pt</property>
-                                        <text-property name="text">Вид неисправности</text-property>
-                                    </label>
-                                </cell>
-                                <cell id="8811">
-                                    <property name="borderBottomColor">#000000</property>
-                                    <property name="borderBottomStyle">solid</property>
-                                    <property name="borderBottomWidth">2px</property>
-                                    <property name="borderLeftColor">#000000</property>
-                                    <property name="borderLeftStyle">solid</property>
-                                    <property name="borderLeftWidth">2px</property>
-                                    <property name="borderRightColor">#000000</property>
-                                    <property name="borderRightStyle">solid</property>
-                                    <property name="borderRightWidth">2px</property>
-                                    <property name="borderTopColor">#000000</property>
-                                    <property name="borderTopStyle">solid</property>
-                                    <property name="borderTopWidth">2px</property>
-                                    <property name="textAlign">center</property>
-                                    <label id="8812">
-                                        <property name="fontSize">12pt</property>
-                                        <property name="textAlign">center</property>
-                                        <text-property name="text">Количество неисправностей</text-property>
-                                    </label>
-                                </cell>
-                                <cell id="8813">
-                                    <property name="borderBottomColor">#000000</property>
-                                    <property name="borderBottomStyle">solid</property>
-                                    <property name="borderBottomWidth">2px</property>
-                                    <property name="borderLeftColor">#000000</property>
-                                    <property name="borderLeftStyle">solid</property>
-                                    <property name="borderLeftWidth">2px</property>
-                                    <property name="borderRightColor">#000000</property>
-                                    <property name="borderRightStyle">solid</property>
-                                    <property name="borderRightWidth">2px</property>
-                                    <property name="borderTopColor">#000000</property>
-                                    <property name="borderTopStyle">solid</property>
-                                    <property name="borderTopWidth">2px</property>
-                                    <property name="textAlign">center</property>
-                                    <label id="8814">
-                                        <property name="fontSize">12pt</property>
-                                        <text-property name="text">Местонахождение</text-property>
-                                    </label>
-                                </cell>
-                            </row>
-                        </header>
-                        <group id="8815">
-                            <property name="groupName">NewTableGroup1</property>
-                            <property name="interval">none</property>
-                            <property name="sortDirection">desc</property>
-                            <expression name="keyExpr">row["vidnum"]</expression>
-                            <structure name="toc">
-                                <expression name="expressionValue">row["vidnum"]</expression>
-                            </structure>
-                            <property name="repeatHeader">true</property>
-                            <property name="hideDetail">false</property>
-                            <property name="pageBreakAfter">auto</property>
-                            <property name="pageBreakBefore">auto</property>
-                            <property name="pageBreakInside">auto</property>
-                            <list-property name="sort">
-                                <structure>
-                                    <expression name="key">row["Aggregation"]</expression>
-                                    <property name="direction">desc</property>
-                                </structure>
-                            </list-property>
-                        </group>
-                    </table>
-                    <table id="8819">
-                        <property name="fontSize">9pt</property>
-                        <property name="fontWeight">normal</property>
-                        <property name="borderBottomColor">#000000</property>
-                        <property name="borderBottomStyle">solid</property>
-                        <property name="borderBottomWidth">2px</property>
-                        <property name="borderLeftColor">#000000</property>
-                        <property name="borderLeftStyle">solid</property>
-                        <property name="borderLeftWidth">2px</property>
-                        <property name="borderRightColor">#000000</property>
-                        <property name="borderRightStyle">solid</property>
-                        <property name="borderRightWidth">2px</property>
-                        <property name="borderTopColor">#000000</property>
-                        <property name="borderTopStyle">solid</property>
-                        <property name="borderTopWidth">2px</property>
-                        <property name="marginTop">0pt</property>
-                        <property name="marginLeft">0pt</property>
-                        <property name="marginBottom">0pt</property>
-                        <property name="marginRight">0pt</property>
-                        <property name="textAlign">left</property>
-                        <property name="width">222mm</property>
-                        <property name="dataSet">Workreport</property>
-                        <list-property name="boundDataColumns">
-                            <structure>
-                                <property name="name">VID</property>
-                                <property name="displayName">VID</property>
-                                <expression name="expression">dataSetRow["VID"]</expression>
-                                <property name="dataType">string</property>
-                            </structure>
-                            <structure>
-                                <property name="name">mesto</property>
-                                <property name="displayName">mesto</property>
-                                <expression name="expression">dataSetRow["mesto"]</expression>
-                                <property name="dataType">string</property>
-                            </structure>
-                            <structure>
-                                <property name="name">loc</property>
-                                <property name="displayName">loc</property>
-                                <expression name="expression">dataSetRow["loc"]</expression>
-                                <property name="dataType">string</property>
-                            </structure>
-                            <structure>
-                                <property name="name">vidnum</property>
-                                <property name="displayName">vidnum</property>
-                                <expression name="expression">dataSetRow["vidnum"]</expression>
-                                <property name="dataType">string</property>
-                            </structure>
-                            <structure>
-                                <property name="name">inc_count</property>
-                                <property name="displayName">inc_count</property>
-                                <expression name="expression">dataSetRow["inc_count"]</expression>
-                                <property name="dataType">integer</property>
-                            </structure>
-                            <structure>
-                                <property name="name">Aggregation</property>
-                                <property name="dataType">float</property>
-                                <simple-property-list name="aggregateOn">
-                                    <value>NewTableGroup1</value>
-                                </simple-property-list>
-                                <property name="aggregateFunction">SUM</property>
-                                <list-property name="arguments">
-                                    <structure>
-                                        <property name="name">Expression</property>
-                                        <expression name="value">row["Aggregation_4"]</expression>
-                                    </structure>
-                                </list-property>
-                            </structure>
-                            <structure>
-                                <property name="name">Aggregation_1</property>
-                                <property name="dataType">float</property>
-                                <property name="aggregateFunction">RUNNINGSUM</property>
-                                <list-property name="arguments">
-                                    <structure>
-                                        <property name="name">Expression</property>
-                                        <expression name="value">row["Aggregation"]</expression>
-                                    </structure>
-                                </list-property>
-                            </structure>
-                            <structure>
-                                <property name="name">Aggregation_4</property>
-                                <property name="dataType">float</property>
-                                <property name="aggregateFunction">PERCENTSUM</property>
-                                <list-property name="arguments">
-                                    <structure>
-                                        <property name="name">Expression</property>
-                                        <expression name="value">row["inc_count"]</expression>
-                                    </structure>
-                                </list-property>
-                            </structure>
-                            <structure>
-                                <property name="name">Aggregation_2</property>
-                                <property name="dataType">integer</property>
-                                <simple-property-list name="aggregateOn">
-                                    <value>NewTableGroup1</value>
-                                </simple-property-list>
-                                <property name="aggregateFunction">SUM</property>
-                                <list-property name="arguments">
-                                    <structure>
-                                        <property name="name">Expression</property>
-                                        <expression name="value">row["inc_count"]</expression>
-                                    </structure>
-                                </list-property>
-                            </structure>
-                            <structure>
-                                <property name="name">Aggregation_3</property>
-                                <property name="dataType">integer</property>
-                                <property name="aggregateFunction">RUNNINGCOUNT</property>
-                                <list-property name="arguments">
-                                    <structure>
-                                        <property name="name">Expression</property>
-                                        <expression name="value">row["Aggregation"]</expression>
-                                    </structure>
-                                </list-property>
-                            </structure>
-                        </list-property>
-                        <expression name="bookmark">"scroll"</expression>
-                        <property name="repeatHeader">false</property>
-                        <property name="pageBreakInterval">1385447424</property>
-                        <list-property name="sort">
-                            <structure>
-                                <expression name="key">row["inc_count"]</expression>
-                                <property name="direction">desc</property>
-                            </structure>
-                        </list-property>
-                        <column id="8840">
-                            <property name="suppressDuplicates">true</property>
-                            <property name="textAlign">left</property>
-                            <property name="canShrink">true</property>
-                        </column>
-                        <column id="8841">
-                            <property name="suppressDuplicates">false</property>
-                            <property name="textAlign">left</property>
-                        </column>
-                        <column id="8842">
-                            <property name="suppressDuplicates">false</property>
-                            <property name="textAlign">left</property>
-                        </column>
-                        <group id="8820">
-                            <property name="groupName">NewTableGroup1</property>
-                            <property name="interval">none</property>
-                            <property name="sortDirection">desc</property>
-                            <expression name="keyExpr">row["vidnum"]</expression>
-                            <structure name="toc">
-                                <expression name="expressionValue">row["vidnum"]</expression>
-                            </structure>
-                            <property name="repeatHeader">true</property>
-                            <property name="hideDetail">false</property>
-                            <property name="pageBreakAfter">auto</property>
-                            <property name="pageBreakBefore">auto</property>
-                            <property name="pageBreakInside">auto</property>
-                            <list-property name="sort">
-                                <structure>
-                                    <expression name="key">row["Aggregation"]</expression>
-                                    <property name="direction">desc</property>
-                                </structure>
-                                <structure>
-                                    <expression name="key">row["VID"]</expression>
-                                    <property name="direction">asc</property>
-                                </structure>
-                            </list-property>
-                            <footer>
-                                <row id="8821">
-                                    <list-property name="visibility">
+                                    <property name="fontWeight">normal</property>
+                                    <property name="marginTop">0pt</property>
+                                    <property name="marginLeft">0pt</property>
+                                    <property name="marginBottom">0pt</property>
+                                    <property name="marginRight">0pt</property>
+                                    <property name="width">222mm</property>
+                                    <property name="dataSet">Workreport</property>
+                                    <list-property name="boundDataColumns">
                                         <structure>
-                                            <property name="format">all</property>
-                                            <expression name="valueExpr">( BirtComp.greaterThan(row["Aggregation_1"],0.8) &amp;&amp; BirtComp.greaterThan(row["Aggregation_3"],1) )||(params["count"].value!=''&amp;&amp;BirtComp.greaterThan((row["Aggregation_3"]),params["count"].value))</expression>
+                                            <property name="name">VID</property>
+                                            <property name="displayName">VID</property>
+                                            <expression name="expression">dataSetRow["VID"]</expression>
+                                            <property name="dataType">string</property>
+                                        </structure>
+                                        <structure>
+                                            <property name="name">mesto</property>
+                                            <property name="displayName">mesto</property>
+                                            <expression name="expression">dataSetRow["mesto"]</expression>
+                                            <property name="dataType">string</property>
+                                        </structure>
+                                        <structure>
+                                            <property name="name">loc</property>
+                                            <property name="displayName">loc</property>
+                                            <expression name="expression">dataSetRow["loc"]</expression>
+                                            <property name="dataType">string</property>
+                                        </structure>
+                                        <structure>
+                                            <property name="name">vidnum</property>
+                                            <property name="displayName">vidnum</property>
+                                            <expression name="expression">dataSetRow["vidnum"]</expression>
+                                            <property name="dataType">string</property>
+                                        </structure>
+                                        <structure>
+                                            <property name="name">inc_count</property>
+                                            <property name="displayName">inc_count</property>
+                                            <expression name="expression">dataSetRow["inc_count"]</expression>
+                                            <property name="dataType">integer</property>
+                                        </structure>
+                                        <structure>
+                                            <property name="name">Aggregation</property>
+                                            <property name="dataType">float</property>
+                                            <simple-property-list name="aggregateOn">
+                                                <value>NewTableGroup1</value>
+                                            </simple-property-list>
+                                            <property name="aggregateFunction">SUM</property>
+                                            <list-property name="arguments">
+                                                <structure>
+                                                    <property name="name">Expression</property>
+                                                    <expression name="value">row["Aggregation_4"]</expression>
+                                                </structure>
+                                            </list-property>
+                                        </structure>
+                                        <structure>
+                                            <property name="name">Aggregation_1</property>
+                                            <property name="dataType">float</property>
+                                            <property name="aggregateFunction">RUNNINGSUM</property>
+                                            <list-property name="arguments">
+                                                <structure>
+                                                    <property name="name">Expression</property>
+                                                    <expression name="value">row["Aggregation"]</expression>
+                                                </structure>
+                                            </list-property>
+                                        </structure>
+                                        <structure>
+                                            <property name="name">Aggregation_4</property>
+                                            <property name="dataType">float</property>
+                                            <property name="aggregateFunction">PERCENTSUM</property>
+                                            <list-property name="arguments">
+                                                <structure>
+                                                    <property name="name">Expression</property>
+                                                    <expression name="value">row["inc_count"]</expression>
+                                                </structure>
+                                            </list-property>
+                                        </structure>
+                                        <structure>
+                                            <property name="name">Aggregation_2</property>
+                                            <property name="dataType">integer</property>
+                                            <simple-property-list name="aggregateOn">
+                                                <value>NewTableGroup1</value>
+                                            </simple-property-list>
+                                            <property name="aggregateFunction">SUM</property>
+                                            <list-property name="arguments">
+                                                <structure>
+                                                    <property name="name">Expression</property>
+                                                    <expression name="value">row["inc_count"]</expression>
+                                                </structure>
+                                            </list-property>
+                                        </structure>
+                                        <structure>
+                                            <property name="name">Aggregation_3</property>
+                                            <property name="dataType">integer</property>
+                                            <property name="aggregateFunction">RUNNINGCOUNT</property>
+                                            <list-property name="arguments">
+                                                <structure>
+                                                    <property name="name">Expression</property>
+                                                    <expression name="value">row["Aggregation"]</expression>
+                                                </structure>
+                                            </list-property>
                                         </structure>
                                     </list-property>
-                                    <cell id="8822">
-                                        <property name="borderBottomColor">#000000</property>
-                                        <property name="borderBottomStyle">solid</property>
-                                        <property name="borderBottomWidth">2px</property>
-                                        <property name="borderTopColor">#000000</property>
-                                        <property name="borderTopStyle">solid</property>
-                                        <property name="borderTopWidth">2px</property>
-                                        <property name="paddingTop">1pt</property>
-                                        <property name="paddingLeft">1pt</property>
-                                        <property name="paddingBottom">1pt</property>
-                                        <property name="paddingRight">1pt</property>
-                                        <label id="8823">
-                                            <property name="fontSize">12pt</property>
-                                            <property name="textAlign">right</property>
-                                            <text-property name="text">Всего:</text-property>
-                                        </label>
-                                    </cell>
-                                    <cell id="8824">
-                                        <property name="borderBottomColor">#000000</property>
-                                        <property name="borderBottomStyle">solid</property>
-                                        <property name="borderBottomWidth">2px</property>
-                                        <property name="borderTopColor">#000000</property>
-                                        <property name="borderTopStyle">solid</property>
-                                        <property name="borderTopWidth">2px</property>
-                                        <property name="paddingTop">1pt</property>
-                                        <property name="paddingLeft">1pt</property>
-                                        <property name="paddingBottom">1pt</property>
-                                        <property name="paddingRight">1pt</property>
-                                        <data id="8825">
-                                            <property name="fontSize">12pt</property>
-                                            <property name="resultSetColumn">Aggregation_2</property>
-                                        </data>
-                                        <data id="8826">
-                                            <property name="fontSize">12pt</property>
-                                            <list-property name="visibility">
-                                                <structure>
-                                                    <property name="format">all</property>
-                                                    <expression name="valueExpr">true</expression>
-                                                </structure>
-                                            </list-property>
-                                            <property name="resultSetColumn">Aggregation</property>
-                                        </data>
-                                        <data id="8827">
-                                            <property name="fontSize">12pt</property>
-                                            <list-property name="visibility">
-                                                <structure>
-                                                    <property name="format">all</property>
-                                                    <expression name="valueExpr">true</expression>
-                                                </structure>
-                                            </list-property>
-                                            <property name="resultSetColumn">Aggregation_1</property>
-                                        </data>
-                                        <data id="8828">
-                                            <property name="fontSize">12pt</property>
-                                            <list-property name="visibility">
-                                                <structure>
-                                                    <property name="format">all</property>
-                                                    <expression name="valueExpr">true</expression>
-                                                </structure>
-                                            </list-property>
-                                            <property name="resultSetColumn">Aggregation_3</property>
-                                        </data>
-                                    </cell>
-                                    <cell id="8829">
-                                        <property name="borderBottomColor">#000000</property>
-                                        <property name="borderBottomStyle">solid</property>
-                                        <property name="borderBottomWidth">2px</property>
-                                        <property name="borderTopColor">#000000</property>
-                                        <property name="borderTopStyle">solid</property>
-                                        <property name="borderTopWidth">2px</property>
-                                        <property name="paddingTop">1pt</property>
-                                        <property name="paddingLeft">1pt</property>
-                                        <property name="paddingBottom">1pt</property>
-                                        <property name="paddingRight">1pt</property>
-                                    </cell>
-                                </row>
-                            </footer>
-                        </group>
-                        <detail>
-                            <row id="8830">
-                                <property name="suppressDuplicates">false</property>
-                                <property name="fontSize">9pt</property>
-                                <list-property name="visibility">
-                                    <structure>
-                                        <property name="format">all</property>
-                                        <expression name="valueExpr">( BirtComp.greaterThan(row["Aggregation_1"],0.8) &amp;&amp; BirtComp.greaterThan(row["Aggregation_3"],1) )||(params["count"].value!=''&amp;&amp;BirtComp.greaterThan((row["Aggregation_3"]),params["count"].value))</expression>
-                                    </structure>
-                                </list-property>
-                                <cell id="8831">
-                                    <property name="borderLeftColor">#000000</property>
-                                    <property name="borderLeftStyle">solid</property>
-                                    <property name="borderLeftWidth">2px</property>
-                                    <property name="borderRightColor">#000000</property>
-                                    <property name="borderRightStyle">solid</property>
-                                    <property name="borderRightWidth">2px</property>
-                                    <property name="paddingTop">1pt</property>
-                                    <property name="paddingLeft">1pt</property>
-                                    <property name="paddingBottom">1pt</property>
-                                    <property name="verticalAlign">middle</property>
-                                    <property name="display">block</property>
-                                    <property name="pageBreakAfter">auto</property>
-                                    <property name="showIfBlank">false</property>
-                                    <data id="8832">
-                                        <property name="fontSize">12pt</property>
-                                        <list-property name="visibility">
+                                    <property name="repeatHeader">false</property>
+                                    <property name="pageBreakInterval">969572352</property>
+                                    <list-property name="sort">
+                                        <structure>
+                                            <expression name="key">row["inc_count"]</expression>
+                                            <property name="direction">desc</property>
+                                        </structure>
+                                    </list-property>
+                                    <column id="8835">
+                                        <property name="suppressDuplicates">true</property>
+                                        <property name="textAlign">left</property>
+                                        <property name="canShrink">true</property>
+                                    </column>
+                                    <column id="8836">
+                                        <property name="suppressDuplicates">false</property>
+                                        <property name="textAlign">left</property>
+                                    </column>
+                                    <column id="8837">
+                                        <property name="suppressDuplicates">false</property>
+                                        <property name="textAlign">left</property>
+                                    </column>
+                                    <header>
+                                        <row id="8827">
+                                            <property name="height">8mm</property>
+                                            <property name="backgroundColor">#8BCBF5</property>
+                                            <property name="fontSize">10pt</property>
+                                            <property name="fontWeight">bold</property>
+                                            <property name="textLineThrough">none</property>
+                                            <property name="verticalAlign">middle</property>
+                                            <property name="canShrink">true</property>
+                                            <cell id="8828">
+                                                <property name="fontSize">9pt</property>
+                                                <property name="borderBottomColor">#000000</property>
+                                                <property name="borderBottomStyle">solid</property>
+                                                <property name="borderBottomWidth">2px</property>
+                                                <property name="borderLeftColor">#000000</property>
+                                                <property name="borderLeftStyle">solid</property>
+                                                <property name="borderLeftWidth">2px</property>
+                                                <property name="borderRightColor">#000000</property>
+                                                <property name="borderRightStyle">solid</property>
+                                                <property name="borderRightWidth">2px</property>
+                                                <property name="borderTopColor">#000000</property>
+                                                <property name="borderTopStyle">solid</property>
+                                                <property name="borderTopWidth">2px</property>
+                                                <property name="textAlign">center</property>
+                                                <label id="8829">
+                                                    <property name="fontFamily">sans-serif</property>
+                                                    <property name="fontSize">12pt</property>
+                                                    <text-property name="text">Вид неисправности</text-property>
+                                                </label>
+                                            </cell>
+                                            <cell id="8830">
+                                                <property name="borderBottomColor">#000000</property>
+                                                <property name="borderBottomStyle">solid</property>
+                                                <property name="borderBottomWidth">2px</property>
+                                                <property name="borderLeftColor">#000000</property>
+                                                <property name="borderLeftStyle">solid</property>
+                                                <property name="borderLeftWidth">2px</property>
+                                                <property name="borderRightColor">#000000</property>
+                                                <property name="borderRightStyle">solid</property>
+                                                <property name="borderRightWidth">2px</property>
+                                                <property name="borderTopColor">#000000</property>
+                                                <property name="borderTopStyle">solid</property>
+                                                <property name="borderTopWidth">2px</property>
+                                                <property name="textAlign">center</property>
+                                                <label id="8831">
+                                                    <property name="fontSize">12pt</property>
+                                                    <property name="textAlign">center</property>
+                                                    <text-property name="text">Количество неисправностей</text-property>
+                                                </label>
+                                            </cell>
+                                            <cell id="8832">
+                                                <property name="borderBottomColor">#000000</property>
+                                                <property name="borderBottomStyle">solid</property>
+                                                <property name="borderBottomWidth">2px</property>
+                                                <property name="borderLeftColor">#000000</property>
+                                                <property name="borderLeftStyle">solid</property>
+                                                <property name="borderLeftWidth">2px</property>
+                                                <property name="borderRightColor">#000000</property>
+                                                <property name="borderRightStyle">solid</property>
+                                                <property name="borderRightWidth">2px</property>
+                                                <property name="borderTopColor">#000000</property>
+                                                <property name="borderTopStyle">solid</property>
+                                                <property name="borderTopWidth">2px</property>
+                                                <property name="textAlign">center</property>
+                                                <label id="8833">
+                                                    <property name="fontSize">12pt</property>
+                                                    <text-property name="text">Предприятие</text-property>
+                                                </label>
+                                            </cell>
+                                        </row>
+                                    </header>
+                                    <group id="8834">
+                                        <property name="groupName">NewTableGroup1</property>
+                                        <property name="interval">none</property>
+                                        <property name="sortDirection">asc</property>
+                                        <expression name="keyExpr">row["vidnum"]</expression>
+                                        <structure name="toc">
+                                            <expression name="expressionValue">row["vidnum"]</expression>
+                                        </structure>
+                                        <property name="repeatHeader">true</property>
+                                        <property name="hideDetail">false</property>
+                                        <property name="pageBreakAfter">auto</property>
+                                        <property name="pageBreakBefore">auto</property>
+                                        <property name="pageBreakInside">auto</property>
+                                        <list-property name="sort">
                                             <structure>
-                                                <property name="format">all</property>
-                                                <expression name="valueExpr">true</expression>
+                                                <expression name="key">row["Aggregation"]</expression>
+                                                <property name="direction">desc</property>
                                             </structure>
                                         </list-property>
-                                        <property name="resultSetColumn">vidnum</property>
-                                    </data>
-                                    <data id="8833">
-                                        <property name="fontSize">12pt</property>
-                                        <property name="resultSetColumn">VID</property>
-                                    </data>
-                                </cell>
-                                <cell id="8834">
-                                    <property name="borderBottomColor">#000000</property>
-                                    <property name="borderBottomStyle">solid</property>
-                                    <property name="borderBottomWidth">1px</property>
-                                    <property name="borderLeftColor">#000000</property>
-                                    <property name="borderLeftStyle">solid</property>
-                                    <property name="borderLeftWidth">1px</property>
-                                    <property name="borderRightColor">#000000</property>
-                                    <property name="borderRightStyle">solid</property>
-                                    <property name="borderRightWidth">1px</property>
-                                    <property name="borderTopColor">#000000</property>
-                                    <property name="borderTopStyle">solid</property>
-                                    <property name="borderTopWidth">1px</property>
-                                    <property name="paddingTop">1pt</property>
-                                    <property name="paddingLeft">1pt</property>
-                                    <property name="paddingBottom">1pt</property>
-                                    <property name="verticalAlign">middle</property>
-                                    <data id="8835">
-                                        <property name="fontSize">12pt</property>
-                                        <list-property name="visibility">
-                                            <structure>
-                                                <property name="format">all</property>
-                                                <expression name="valueExpr">true</expression>
-                                            </structure>
-                                        </list-property>
-                                        <property name="resultSetColumn">Aggregation_4</property>
-                                    </data>
-                                    <data id="8836">
-                                        <property name="fontSize">12pt</property>
-                                        <property name="resultSetColumn">inc_count</property>
-                                        <structure name="action">
-                                            <property name="linkType">drill-through</property>
-                                            <property name="reportName">inc_vid-nn.rptdesign</property>
-                                            <property name="targetWindow">_blank</property>
-                                            <property name="targetFileType">report-design</property>
-                                            <list-property name="paramBindings">
+                                    </group>
+                                </table>
+                                <table id="8838">
+                                    <property name="fontSize">9pt</property>
+                                    <property name="fontWeight">normal</property>
+                                    <property name="marginTop">0pt</property>
+                                    <property name="marginLeft">0pt</property>
+                                    <property name="marginBottom">0pt</property>
+                                    <property name="marginRight">0pt</property>
+                                    <property name="width">222mm</property>
+                                    <property name="dataSet">Workreport</property>
+                                    <list-property name="boundDataColumns">
+                                        <structure>
+                                            <property name="name">VID</property>
+                                            <property name="displayName">VID</property>
+                                            <expression name="expression">dataSetRow["VID"]</expression>
+                                            <property name="dataType">string</property>
+                                        </structure>
+                                        <structure>
+                                            <property name="name">mesto</property>
+                                            <property name="displayName">mesto</property>
+                                            <expression name="expression">dataSetRow["mesto"]</expression>
+                                            <property name="dataType">string</property>
+                                        </structure>
+                                        <structure>
+                                            <property name="name">loc</property>
+                                            <property name="displayName">loc</property>
+                                            <expression name="expression">dataSetRow["loc"]</expression>
+                                            <property name="dataType">string</property>
+                                        </structure>
+                                        <structure>
+                                            <property name="name">vidnum</property>
+                                            <property name="displayName">vidnum</property>
+                                            <expression name="expression">dataSetRow["vidnum"]</expression>
+                                            <property name="dataType">string</property>
+                                        </structure>
+                                        <structure>
+                                            <property name="name">inc_count</property>
+                                            <property name="displayName">inc_count</property>
+                                            <expression name="expression">dataSetRow["inc_count"]</expression>
+                                            <property name="dataType">integer</property>
+                                        </structure>
+                                        <structure>
+                                            <property name="name">Aggregation</property>
+                                            <property name="dataType">float</property>
+                                            <simple-property-list name="aggregateOn">
+                                                <value>NewTableGroup1</value>
+                                            </simple-property-list>
+                                            <property name="aggregateFunction">SUM</property>
+                                            <list-property name="arguments">
                                                 <structure>
-                                                    <property name="paramName">where</property>
-                                                    <expression name="expression">1</expression>
-                                                </structure>
-                                                <structure>
-                                                    <property name="paramName">appname</property>
-                                                    <expression name="expression">params["appname"].value</expression>
-                                                </structure>
-                                                <structure>
-                                                    <property name="paramName">paramdelimiter</property>
-                                                    <expression name="expression">params["paramdelimiter"].value</expression>
-                                                </structure>
-                                                <structure>
-                                                    <property name="paramName">paramstring</property>
-                                                    <expression name="expression">params["paramstring"].value</expression>
-                                                </structure>
-                                                <structure>
-                                                    <property name="paramName">par</property>
-                                                    <expression name="expression">params["par"].value</expression>
-                                                </structure>
-                                                <structure>
-                                                    <property name="paramName">fin</property>
-                                                    <expression name="expression">finishStr</expression>
-                                                </structure>
-                                                <structure>
-                                                    <property name="paramName">locationId</property>
-                                                    <expression name="expression">params["predId"].value</expression>
-                                                </structure>
-                                                <structure>
-                                                    <property name="paramName">mesto</property>
-                                                    <expression name="expression">row["loc"]</expression>
-                                                </structure>
-                                                <structure>
-                                                    <property name="paramName">asset</property>
-                                                    <expression name="expression">''</expression>
-                                                </structure>
-                                                <structure>
-                                                    <property name="paramName">numvalue</property>
-                                                    <expression name="expression">''</expression>
-                                                </structure>
-                                                <structure>
-                                                    <property name="paramName">vid</property>
-                                                    <expression name="expression">row["vidnum"]</expression>
+                                                    <property name="name">Expression</property>
+                                                    <expression name="value">row["Aggregation_4"]</expression>
                                                 </structure>
                                             </list-property>
                                         </structure>
-                                    </data>
-                                </cell>
-                                <cell id="8837">
-                                    <property name="borderBottomColor">#000000</property>
-                                    <property name="borderBottomStyle">solid</property>
-                                    <property name="borderBottomWidth">1px</property>
-                                    <property name="borderLeftColor">#000000</property>
-                                    <property name="borderLeftStyle">solid</property>
-                                    <property name="borderLeftWidth">1px</property>
-                                    <property name="borderRightColor">#000000</property>
-                                    <property name="borderRightStyle">solid</property>
-                                    <property name="borderRightWidth">1px</property>
-                                    <property name="borderTopColor">#000000</property>
-                                    <property name="borderTopStyle">solid</property>
-                                    <property name="borderTopWidth">1px</property>
-                                    <property name="paddingTop">1pt</property>
-                                    <property name="paddingLeft">1pt</property>
-                                    <property name="paddingBottom">1pt</property>
-                                    <property name="verticalAlign">middle</property>
-                                    <data id="8838">
-                                        <property name="fontSize">12pt</property>
-                                        <list-property name="visibility">
-                                            <structure>
-                                                <property name="format">all</property>
-                                                <expression name="valueExpr">true</expression>
-                                            </structure>
-                                        </list-property>
-                                        <property name="resultSetColumn">loc</property>
-                                    </data>
-                                    <data id="8839">
-                                        <property name="fontSize">12pt</property>
-                                        <property name="resultSetColumn">mesto</property>
-                                        <structure name="action">
-                                            <property name="linkType">drill-through</property>
-                                            <property name="reportName">vid_location-nn.rptdesign</property>
-                                            <property name="targetWindow">_blank</property>
-                                            <property name="targetFileType">report-design</property>
-                                            <list-property name="paramBindings">
+                                        <structure>
+                                            <property name="name">Aggregation_1</property>
+                                            <property name="dataType">float</property>
+                                            <property name="aggregateFunction">RUNNINGSUM</property>
+                                            <list-property name="arguments">
                                                 <structure>
-                                                    <property name="paramName">where</property>
-                                                    <expression name="expression">"1"</expression>
-                                                </structure>
-                                                <structure>
-                                                    <property name="paramName">appname</property>
-                                                    <expression name="expression">params["appname"].value</expression>
-                                                </structure>
-                                                <structure>
-                                                    <property name="paramName">paramdelimiter</property>
-                                                    <expression name="expression">params["paramdelimiter"].value</expression>
-                                                </structure>
-                                                <structure>
-                                                    <property name="paramName">paramstring</property>
-                                                    <expression name="expression">params["paramstring"].value</expression>
-                                                </structure>
-                                                <structure>
-                                                    <property name="paramName">par</property>
-                                                    <expression name="expression">params["par"].value</expression>
-                                                </structure>
-                                                <structure>
-                                                    <property name="paramName">fin</property>
-                                                    <expression name="expression">finishStr</expression>
-                                                </structure>
-                                                <structure>
-                                                    <property name="paramName">predId</property>
-                                                    <expression name="expression">params["predId"].value</expression>
-                                                </structure>
-                                                <structure>
-                                                    <property name="paramName">count</property>
-                                                    <expression name="expression">params["count"].value</expression>
-                                                </structure>
-                                                <structure>
-                                                    <property name="paramName">mesto</property>
-                                                    <expression name="expression">row["loc"]</expression>
+                                                    <property name="name">Expression</property>
+                                                    <expression name="value">row["Aggregation"]</expression>
                                                 </structure>
                                             </list-property>
                                         </structure>
-                                    </data>
-                                </cell>
-                            </row>
-                        </detail>
-                    </table>
+                                        <structure>
+                                            <property name="name">Aggregation_4</property>
+                                            <property name="dataType">float</property>
+                                            <property name="aggregateFunction">PERCENTSUM</property>
+                                            <list-property name="arguments">
+                                                <structure>
+                                                    <property name="name">Expression</property>
+                                                    <expression name="value">row["inc_count"]</expression>
+                                                </structure>
+                                            </list-property>
+                                        </structure>
+                                        <structure>
+                                            <property name="name">Aggregation_2</property>
+                                            <property name="dataType">integer</property>
+                                            <simple-property-list name="aggregateOn">
+                                                <value>NewTableGroup1</value>
+                                            </simple-property-list>
+                                            <property name="aggregateFunction">SUM</property>
+                                            <list-property name="arguments">
+                                                <structure>
+                                                    <property name="name">Expression</property>
+                                                    <expression name="value">row["inc_count"]</expression>
+                                                </structure>
+                                            </list-property>
+                                        </structure>
+                                        <structure>
+                                            <property name="name">Aggregation_3</property>
+                                            <property name="dataType">integer</property>
+                                            <property name="aggregateFunction">RUNNINGCOUNT</property>
+                                            <list-property name="arguments">
+                                                <structure>
+                                                    <property name="name">Expression</property>
+                                                    <expression name="value">row["Aggregation"]</expression>
+                                                </structure>
+                                            </list-property>
+                                        </structure>
+                                    </list-property>
+                                    <expression name="bookmark">"scroll"</expression>
+                                    <property name="repeatHeader">false</property>
+                                    <property name="pageBreakInterval">-1090256896</property>
+                                    <list-property name="sort">
+                                        <structure>
+                                            <expression name="key">row["inc_count"]</expression>
+                                            <property name="direction">desc</property>
+                                        </structure>
+                                    </list-property>
+                                    <column id="8859">
+                                        <property name="suppressDuplicates">true</property>
+                                        <property name="textAlign">left</property>
+                                        <property name="canShrink">true</property>
+                                    </column>
+                                    <column id="8860">
+                                        <property name="suppressDuplicates">false</property>
+                                        <property name="textAlign">left</property>
+                                    </column>
+                                    <column id="8861">
+                                        <property name="suppressDuplicates">false</property>
+                                        <property name="textAlign">left</property>
+                                    </column>
+                                    <group id="8839">
+                                        <property name="groupName">NewTableGroup1</property>
+                                        <property name="interval">none</property>
+                                        <property name="sortDirection">asc</property>
+                                        <expression name="keyExpr">row["vidnum"]</expression>
+                                        <structure name="toc">
+                                            <expression name="expressionValue">row["vidnum"]</expression>
+                                        </structure>
+                                        <property name="repeatHeader">true</property>
+                                        <property name="hideDetail">false</property>
+                                        <property name="pageBreakAfter">auto</property>
+                                        <property name="pageBreakBefore">auto</property>
+                                        <property name="pageBreakInside">auto</property>
+                                        <list-property name="sort">
+                                            <structure>
+                                                <expression name="key">row["Aggregation"]</expression>
+                                                <property name="direction">desc</property>
+                                            </structure>
+                                            <structure>
+                                                <expression name="key">row["VID"]</expression>
+                                                <property name="direction">asc</property>
+                                            </structure>
+                                        </list-property>
+                                        <footer>
+                                            <row id="8840">
+                                                <list-property name="visibility">
+                                                    <structure>
+                                                        <property name="format">all</property>
+                                                        <expression name="valueExpr">( BirtComp.greaterThan(row["Aggregation_1"],0.8) &amp;&amp; BirtComp.greaterThan(row["Aggregation_3"],1) ) ||(params["count"].value!=''&amp;&amp;BirtComp.greaterThan((row["Aggregation_3"]),params["count"].value))</expression>
+                                                    </structure>
+                                                </list-property>
+                                                <cell id="8841">
+                                                    <property name="borderBottomColor">#000000</property>
+                                                    <property name="borderBottomStyle">solid</property>
+                                                    <property name="borderBottomWidth">2px</property>
+                                                    <property name="borderLeftColor">#000000</property>
+                                                    <property name="borderLeftStyle">solid</property>
+                                                    <property name="borderLeftWidth">2px</property>
+                                                    <property name="borderRightColor">#000000</property>
+                                                    <property name="borderRightStyle">solid</property>
+                                                    <property name="borderRightWidth">2px</property>
+                                                    <property name="borderTopColor">#000000</property>
+                                                    <property name="borderTopStyle">solid</property>
+                                                    <property name="borderTopWidth">2px</property>
+                                                    <property name="paddingTop">1pt</property>
+                                                    <property name="paddingLeft">1pt</property>
+                                                    <property name="paddingBottom">1pt</property>
+                                                    <property name="paddingRight">1pt</property>
+                                                    <label id="8842">
+                                                        <property name="fontSize">12pt</property>
+                                                        <property name="textAlign">right</property>
+                                                        <text-property name="text">Всего:</text-property>
+                                                    </label>
+                                                </cell>
+                                                <cell id="8843">
+                                                    <property name="borderBottomColor">#000000</property>
+                                                    <property name="borderBottomStyle">solid</property>
+                                                    <property name="borderBottomWidth">2px</property>
+                                                    <property name="borderRightColor">#000000</property>
+                                                    <property name="borderRightStyle">solid</property>
+                                                    <property name="borderRightWidth">2px</property>
+                                                    <property name="borderTopColor">#000000</property>
+                                                    <property name="borderTopStyle">solid</property>
+                                                    <property name="borderTopWidth">2px</property>
+                                                    <property name="paddingTop">1pt</property>
+                                                    <property name="paddingLeft">1pt</property>
+                                                    <property name="paddingBottom">1pt</property>
+                                                    <property name="paddingRight">1pt</property>
+                                                    <data id="8844">
+                                                        <property name="fontSize">12pt</property>
+                                                        <property name="resultSetColumn">Aggregation_2</property>
+                                                        <structure name="action">
+                                                            <property name="linkType">none</property>
+                                                        </structure>
+                                                    </data>
+                                                    <data id="8845">
+                                                        <property name="fontSize">12pt</property>
+                                                        <list-property name="visibility">
+                                                            <structure>
+                                                                <property name="format">all</property>
+                                                                <expression name="valueExpr">true</expression>
+                                                            </structure>
+                                                        </list-property>
+                                                        <property name="resultSetColumn">Aggregation</property>
+                                                    </data>
+                                                    <data id="8846">
+                                                        <property name="fontSize">12pt</property>
+                                                        <list-property name="visibility">
+                                                            <structure>
+                                                                <property name="format">all</property>
+                                                                <expression name="valueExpr">true</expression>
+                                                            </structure>
+                                                        </list-property>
+                                                        <property name="resultSetColumn">Aggregation_1</property>
+                                                    </data>
+                                                    <data id="8847">
+                                                        <property name="fontSize">12pt</property>
+                                                        <list-property name="visibility">
+                                                            <structure>
+                                                                <property name="format">all</property>
+                                                                <expression name="valueExpr">true</expression>
+                                                            </structure>
+                                                        </list-property>
+                                                        <property name="resultSetColumn">Aggregation_3</property>
+                                                    </data>
+                                                </cell>
+                                                <cell id="8848">
+                                                    <property name="borderBottomColor">#000000</property>
+                                                    <property name="borderBottomStyle">solid</property>
+                                                    <property name="borderBottomWidth">2px</property>
+                                                    <property name="borderLeftColor">#000000</property>
+                                                    <property name="borderLeftStyle">solid</property>
+                                                    <property name="borderLeftWidth">2px</property>
+                                                    <property name="borderRightColor">#000000</property>
+                                                    <property name="borderRightStyle">solid</property>
+                                                    <property name="borderRightWidth">2px</property>
+                                                    <property name="borderTopColor">#000000</property>
+                                                    <property name="borderTopStyle">solid</property>
+                                                    <property name="borderTopWidth">2px</property>
+                                                    <property name="paddingTop">1pt</property>
+                                                    <property name="paddingLeft">1pt</property>
+                                                    <property name="paddingBottom">1pt</property>
+                                                    <property name="paddingRight">1pt</property>
+                                                </cell>
+                                            </row>
+                                        </footer>
+                                    </group>
+                                    <detail>
+                                        <row id="8849">
+                                            <property name="suppressDuplicates">false</property>
+                                            <property name="fontSize">9pt</property>
+                                            <list-property name="visibility">
+                                                <structure>
+                                                    <property name="format">all</property>
+                                                    <expression name="valueExpr">( BirtComp.greaterThan(row["Aggregation_1"],0.8) &amp;&amp; BirtComp.greaterThan(row["Aggregation_3"],1) ) ||(params["count"].value!=''&amp;&amp;BirtComp.greaterThan((row["Aggregation_3"]),params["count"].value))</expression>
+                                                </structure>
+                                            </list-property>
+                                            <cell id="8850">
+                                                <property name="borderLeftColor">#000000</property>
+                                                <property name="borderLeftStyle">solid</property>
+                                                <property name="borderLeftWidth">2px</property>
+                                                <property name="borderRightColor">#000000</property>
+                                                <property name="borderRightStyle">solid</property>
+                                                <property name="borderRightWidth">2px</property>
+                                                <property name="paddingTop">1pt</property>
+                                                <property name="paddingLeft">1pt</property>
+                                                <property name="paddingBottom">1pt</property>
+                                                <property name="verticalAlign">middle</property>
+                                                <property name="display">block</property>
+                                                <property name="pageBreakAfter">auto</property>
+                                                <property name="showIfBlank">false</property>
+                                                <data id="8851">
+                                                    <property name="fontSize">12pt</property>
+                                                    <list-property name="visibility">
+                                                        <structure>
+                                                            <property name="format">all</property>
+                                                            <expression name="valueExpr">true</expression>
+                                                        </structure>
+                                                    </list-property>
+                                                    <property name="resultSetColumn">vidnum</property>
+                                                </data>
+                                                <data id="8852">
+                                                    <property name="fontSize">12pt</property>
+                                                    <property name="resultSetColumn">VID</property>
+                                                </data>
+                                            </cell>
+                                            <cell id="8853">
+                                                <property name="borderBottomColor">#000000</property>
+                                                <property name="borderBottomStyle">solid</property>
+                                                <property name="borderBottomWidth">2px</property>
+                                                <property name="borderLeftColor">#000000</property>
+                                                <property name="borderLeftStyle">solid</property>
+                                                <property name="borderLeftWidth">2px</property>
+                                                <property name="borderRightColor">#000000</property>
+                                                <property name="borderRightStyle">solid</property>
+                                                <property name="borderRightWidth">2px</property>
+                                                <property name="paddingTop">1pt</property>
+                                                <property name="paddingLeft">1pt</property>
+                                                <property name="paddingBottom">1pt</property>
+                                                <property name="verticalAlign">middle</property>
+                                                <data id="8854">
+                                                    <property name="fontSize">12pt</property>
+                                                    <property name="textAlign">center</property>
+                                                    <list-property name="visibility">
+                                                        <structure>
+                                                            <property name="format">all</property>
+                                                            <expression name="valueExpr">true</expression>
+                                                        </structure>
+                                                    </list-property>
+                                                    <property name="resultSetColumn">Aggregation_4</property>
+                                                </data>
+                                                <data id="8855">
+                                                    <property name="fontSize">12pt</property>
+                                                    <property name="textAlign">center</property>
+                                                    <property name="resultSetColumn">inc_count</property>
+                                                    <structure name="action">
+                                                        <property name="linkType">drill-through</property>
+                                                        <property name="reportName">inc_vid-nn.rptdesign</property>
+                                                        <property name="targetWindow">_blank</property>
+                                                        <property name="targetFileType">report-design</property>
+                                                        <list-property name="paramBindings">
+                                                            <structure>
+                                                                <property name="paramName">where</property>
+                                                                <expression name="expression">1</expression>
+                                                            </structure>
+                                                            <structure>
+                                                                <property name="paramName">appname</property>
+                                                                <expression name="expression">params["appname"].value</expression>
+                                                            </structure>
+                                                            <structure>
+                                                                <property name="paramName">paramdelimiter</property>
+                                                                <expression name="expression">params["paramdelimiter"].value</expression>
+                                                            </structure>
+                                                            <structure>
+                                                                <property name="paramName">paramstring</property>
+                                                                <expression name="expression">params["paramstring"].value</expression>
+                                                            </structure>
+                                                            <structure>
+                                                                <property name="paramName">par</property>
+                                                                <expression name="expression">params["par"].value</expression>
+                                                            </structure>
+                                                            <structure>
+                                                                <property name="paramName">fin</property>
+                                                                <expression name="expression">finishStr</expression>
+                                                            </structure>
+                                                            <structure>
+                                                                <property name="paramName">locationId</property>
+                                                                <expression name="expression">row["loc"]</expression>
+                                                            </structure>
+                                                            <structure>
+                                                                <property name="paramName">mesto</property>
+                                                                <expression name="expression">''</expression>
+                                                            </structure>
+                                                            <structure>
+                                                                <property name="paramName">asset</property>
+                                                                <expression name="expression">''</expression>
+                                                            </structure>
+                                                            <structure>
+                                                                <property name="paramName">numvalue</property>
+                                                                <expression name="expression">''</expression>
+                                                            </structure>
+                                                            <structure>
+                                                                <property name="paramName">vid</property>
+                                                                <expression name="expression">row["vidnum"]</expression>
+                                                            </structure>
+                                                        </list-property>
+                                                    </structure>
+                                                </data>
+                                            </cell>
+                                            <cell id="8856">
+                                                <property name="borderBottomColor">#000000</property>
+                                                <property name="borderBottomStyle">solid</property>
+                                                <property name="borderBottomWidth">2px</property>
+                                                <property name="borderLeftColor">#000000</property>
+                                                <property name="borderLeftStyle">solid</property>
+                                                <property name="borderLeftWidth">2px</property>
+                                                <property name="borderRightColor">#000000</property>
+                                                <property name="borderRightStyle">solid</property>
+                                                <property name="borderRightWidth">2px</property>
+                                                <property name="paddingTop">1pt</property>
+                                                <property name="paddingLeft">1pt</property>
+                                                <property name="paddingBottom">1pt</property>
+                                                <property name="verticalAlign">middle</property>
+                                                <data id="8857">
+                                                    <property name="fontSize">12pt</property>
+                                                    <list-property name="visibility">
+                                                        <structure>
+                                                            <property name="format">all</property>
+                                                            <expression name="valueExpr">true</expression>
+                                                        </structure>
+                                                    </list-property>
+                                                    <property name="resultSetColumn">loc</property>
+                                                </data>
+                                                <data id="8858">
+                                                    <property name="fontSize">12pt</property>
+                                                    <property name="resultSetColumn">mesto</property>
+                                                    <structure name="action">
+                                                        <property name="linkType">drill-through</property>
+                                                        <property name="reportName">vid_pred-nn.rptdesign</property>
+                                                        <property name="targetWindow">_blank</property>
+                                                        <property name="targetFileType">report-design</property>
+                                                        <list-property name="paramBindings">
+                                                            <structure>
+                                                                <property name="paramName">where</property>
+                                                                <expression name="expression">"1"</expression>
+                                                            </structure>
+                                                            <structure>
+                                                                <property name="paramName">appname</property>
+                                                                <expression name="expression">params["appname"].value</expression>
+                                                            </structure>
+                                                            <structure>
+                                                                <property name="paramName">paramdelimiter</property>
+                                                                <expression name="expression">params["paramdelimiter"].value</expression>
+                                                            </structure>
+                                                            <structure>
+                                                                <property name="paramName">paramstring</property>
+                                                                <expression name="expression">params["paramstring"].value</expression>
+                                                            </structure>
+                                                            <structure>
+                                                                <property name="paramName">par</property>
+                                                                <expression name="expression">params["par"].value</expression>
+                                                            </structure>
+                                                            <structure>
+                                                                <property name="paramName">fin</property>
+                                                                <expression name="expression">finishStr</expression>
+                                                            </structure>
+                                                            <structure>
+                                                                <property name="paramName">predId</property>
+                                                                <expression name="expression">row["loc"]</expression>
+                                                            </structure>
+                                                            <structure>
+                                                                <property name="paramName">count</property>
+                                                                <expression name="expression">params["count"].value</expression>
+                                                            </structure>
+                                                        </list-property>
+                                                    </structure>
+                                                </data>
+                                            </cell>
+                                        </row>
+                                    </detail>
+                                </table>
+                            </cell>
+                        </row>
+                    </grid>
+                    <text id="157">
+                        <property name="paddingTop">1pt</property>
+                        <list-property name="visibility">
+                            <structure>
+                                <property name="format">xls</property>
+                                <expression name="valueExpr">true</expression>
+                            </structure>
+                            <structure>
+                                <property name="format">pdf</property>
+                                <expression name="valueExpr">true</expression>
+                            </structure>
+                        </list-property>
+                        <property name="contentType">html</property>
+                        <text-property name="content"><![CDATA[<script type="text/javascript">
+
+	var t = new ScrollableTable(document.getElementById('scroll'), 400);
+	
+</script>]]></text-property>
+                    </text>
                 </cell>
             </row>
         </grid>
-        <text id="157">
-            <property name="paddingTop">1pt</property>
-            <list-property name="visibility">
-                <structure>
-                    <property name="format">xls</property>
-                    <expression name="valueExpr">true</expression>
-                </structure>
-                <structure>
-                    <property name="format">pdf</property>
-                    <expression name="valueExpr">true</expression>
-                </structure>
-            </list-property>
-            <property name="contentType">html</property>
-            <text-property name="content"><![CDATA[<script type="text/javascript">
-
-	var t = new ScrollableTable(document.getElementById('scroll'),400);
-	
-</script>]]></text-property>
-        </text>
     </body>
 </report>
