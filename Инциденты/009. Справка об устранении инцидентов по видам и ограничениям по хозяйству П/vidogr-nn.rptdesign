@@ -89,12 +89,12 @@ mxReportScriptContext.setDefaultLogFile("c:/temp/tetttt.txt");]]></method>
                 <property name="category">Unformatted</property>
             </structure>
         </scalar-parameter>
-        <scalar-parameter name="userName" id="7480">
+        <scalar-parameter name="mroSite" id="7480">
             <property name="hidden">false</property>
             <property name="valueType">static</property>
             <property name="dataType">string</property>
             <property name="paramType">simple</property>
-            <property name="isRequired">false</property>
+            <property name="isRequired">true</property>
             <property name="controlType">text-box</property>
             <property name="distinct">true</property>
             <structure name="format">
@@ -649,9 +649,6 @@ mxReportScriptContext.setDefaultLogFile("c:/temp/tetttt.txt");]]></method>
 	maximoDataSet.open();
 	var sqlText = new String();
 
-var siteid = new String(params["userName"]);
-siteid = " ( select distinct defsite from maximo.maxuser where loginid = '" + params["userName"] + "' )";
-//siteid = "83"
 
 var finish = new String(finishStr);
 finish = "to_date ('"+finishStr+"','DD.MM.YY HH24:MI:SS')"
@@ -661,977 +658,933 @@ var start = new String(params["par"]);
 start = " to_date ('"+params["par"]+"','DD.MM.YY') "
 
 
-	sqlText =   "    with  "
-+" loc as     (         select lo.location,  spc2.alnvalue || ' ' || spc3.alnvalue as description, spc1.NUMVALUE nom, 'P-'||reg.region as R "
- +"  from MAXIMO.locations lo	"
-   +"   left join  ( select lo.parent, lo.siteid, lo.location, spc.numvalue region  from MAXIMO.lochierarchy lo "
-  +"   					join maximo.LOCATIONSPEC spc3 on lo.parent = spc3.location and spc3.siteid = lo.siteid and spc3.ASSETATTRID = 'TIP_PREDPR' "
-  +"   					join maximo.LOCATIONSPEC spc on lo.parent = spc.location and spc.siteid = lo.siteid and spc.ASSETATTRID = 'NOM' "  
-  +"				 where  lo.systemid='ОС' and spc3.numvalue=2)reg on lo.location = reg.location and reg.siteid = lo.siteid "
- +"	  join maximo.LOCATIONSPEC spc on (lo.location = spc.location and spc.siteid = lo.siteid )  "
- +"	  join maximo.LOCATIONSPEC spc1 on (lo.location = spc1.location and spc1.siteid = lo.siteid)	" 
- +"	  join MAXIMO.locationspec spc2 on (lo.location = spc2.location and lo.siteid = spc2.siteid)	"
- +"	  join MAXIMO.locationspec spc3 on (lo.location = spc3.location and lo.siteid = spc3.siteid)	"
- +"		where  lo.siteid in ("+siteid+")"
- +"  and lo.status = 'РАБОТАЕТ' and spc.ASSETATTRID = 'TIP_PREDPR'  "
- +"		and  spc.NUMVALUE = 3  and spc1.ASSETATTRID = 'NOM'  and spc2.assetattrid = 'SNAME'  and "
-  +"	spc3.assetattrid = 'SNAME2' and lo.location like 'PRED_%'	"
- +"		order by spc1.NUMVALUE   " 
- +"  		),   "
- +"   stat as "
- +"  ( "
- +"   select 1 nom, 'Выявлено' stat from dual "
- +"   union "
- +"   select 2 nom, 'Устранено' stat from dual "
- +"   union "
- +"   select 3 nom, 'в т.ч. устранено с нарушением срока' stat from dual "
- +"   union "
- +"   select 4 nom, 'Назначено РЗ' stat from dual "
- +"   union "
- +"   select 5 nom, 'в т.ч. просрочено' stat from dual "
- +"   union "
- +"   select 6 nom, 'Закрыто' stat from dual "
- +"   ), "
- 
- +" inc as (select count(distinct i.ticketid) cnt,  (case when i.extsystemid is not null then nvl( ma.pred, i.pred) else ma.pred end ) pred, i.classidmain clas, nvl(i.speed, sp_speed.speed) speed from MAXIMO.incident i"
-
-+"        left 	 join (select RECORDKEY, RECORDCLASS, PODR, ISPRIMARY, SITEID, pred from  MAXIMO.multiassetlocci "
-+"                    ) ma on i.ticketid = ma.recordkey and i.siteid = ma.siteid and ma.RECORDCLASS= 'ИНЦИДЕНТ' and ma.ISPRIMARY= 0 "
-+"        left join maximo.rzd_incspec sp_speed on i.classidmain = sp_speed.classstructureid and i.norm between sp_speed.min and sp_speed.max "
-+"               where   i.reportdate between " + start + " and  " + finish + " "
-  +" 					and  i.h ='090004000002' "
- +"   					and i.status != 'УДАЛЕНО' "
- +"	  					and i.siteid in ("+siteid+")"
-+"               group by  (case when i.extsystemid is not null then nvl( ma.pred, i.pred) else ma.pred end ) , i.classidmain,  nvl(i.speed, sp_speed.speed)"
-+"             ),"
-+" inc_ne_ustr as (select count(distinct i.ticketid) cnt,  (case when i.extsystemid is not null then nvl( ma.pred, i.pred) else ma.pred end ) pred, i.classidmain clas, nvl(i.speed, sp_speed.speed) speed from MAXIMO.incident i"
-
-+"        left 	 join (select RECORDKEY, RECORDCLASS, PODR, ISPRIMARY, SITEID, pred from  MAXIMO.multiassetlocci "
-+"                    ) ma on i.ticketid = ma.recordkey and i.siteid = ma.siteid and ma.RECORDCLASS= 'ИНЦИДЕНТ' and ma.ISPRIMARY= 0 "
-+"        left join maximo.rzd_incspec sp_speed on i.classidmain = sp_speed.classstructureid and i.norm between sp_speed.min and sp_speed.max " 
-+"   			 where  i.h ='090004000002'"
- +"   					and i.status != 'УДАЛЕНО' "
-  +"	  					and i.siteid in ("+siteid+")"
- +"        				and "
-  +"	 				exists ( select status from maximo.tkstatus s where i.ticketid=s.ticketid and i.siteid=s.siteid and s.status='НАПР_В_ГР' "
- +"																		and s.changedate between "+start+" and "+finish+ ") "
-+"   			 group by  (case when i.extsystemid is not null then nvl( ma.pred, i.pred) else ma.pred end ) , i.classidmain,  nvl(i.speed, sp_speed.speed)"
-+"             ),  "
-+" inc_ustr as(select count(distinct i.ticketid) cnt,  (case when i.extsystemid is not null then nvl( ma.pred, i.pred) else ma.pred end )  pred, i.classidmain clas, nvl(i.speed, sp_speed.speed) speed from MAXIMO.incident i"
-
-+"         left	 join (select RECORDKEY, RECORDCLASS, PODR, ISPRIMARY, SITEID, pred from  MAXIMO.multiassetlocci "
-+"                    ) ma on i.ticketid = ma.recordkey and i.siteid = ma.siteid and ma.RECORDCLASS= 'ИНЦИДЕНТ' and ma.ISPRIMARY= 0 "
- 
-  
-+"               left join  ( select ticketid, min(changedate) as changedate  from maximo.tkstatus  where class='ИНЦИДЕНТ' and status in ('УСТРАНЕН','ЗАВ_ДИСП') "
-+"                            group by ticketid "
-+"                          )  s_ustr on s_ustr.ticketid=i.ticketid "
-                          
-+"               left join 	(select origrecordid, origrecordclass, MAX(ACTFINISH) as ACTFINISH  from maximo.workorder "
-+"                          group by origrecordid, origrecordclass) w_ustr_st  on w_ustr_st.origrecordid= i.ticketid  and w_ustr_st.origrecordclass='ИНЦИДЕНТ' "
-+"        left join maximo.rzd_incspec sp_speed on i.classidmain = sp_speed.classstructureid and i.norm between sp_speed.min and sp_speed.max " 
-
-+"                where   i.h ='090004000002' "
-
- +"	  					and i.siteid in ("+siteid+")"
-+"	  					and "
-+"						nvl(w_ustr_st.ACTFINISH, s_ustr.changedate) between " + start + " and " + finish + " "
-+"	  					and "
-+"	  					i.status in ('ЗАВ_ДИСП','УСТРАНЕН','ЗАКРЫТО') "
-
-+"                group by  (case when i.extsystemid is not null then nvl( ma.pred, i.pred) else ma.pred end )  , i.classidmain, nvl(i.speed, sp_speed.speed)"
-+"             ), "
-+" inc_ustr_sr as (select count(distinct i.ticketid) cnt,  (case when i.extsystemid is not null then nvl( ma.pred, i.pred) else ma.pred end )  pred, i.classidmain clas, nvl(i.speed, sp_speed.speed) speed from MAXIMO.incident i"
-
-+"        left 	 join (select RECORDKEY, RECORDCLASS, PODR, ISPRIMARY, SITEID, pred from  MAXIMO.multiassetlocci "
-+"                    ) ma on i.ticketid = ma.recordkey and i.siteid = ma.siteid and ma.RECORDCLASS= 'ИНЦИДЕНТ' and ma.ISPRIMARY= 0 "
- 
-  
-+"               left join  ( select ticketid, min(changedate) as changedate  from maximo.tkstatus  where class='ИНЦИДЕНТ' and status in ('УСТРАНЕН','ЗАВ_ДИСП') "
-+"                            group by ticketid "
-+"                          )  s_ustr on s_ustr.ticketid=i.ticketid "
-                          
-+"               left join 	(select origrecordid, origrecordclass, MAX(ACTFINISH) as ACTFINISH  from maximo.workorder "
-+"                          group by origrecordid, origrecordclass) w_ustr_st  on w_ustr_st.origrecordid= i.ticketid  and w_ustr_st.origrecordclass='ИНЦИДЕНТ' "
-+"        left join maximo.rzd_incspec sp_speed on i.classidmain = sp_speed.classstructureid and i.norm between sp_speed.min and sp_speed.max "
- 
-+"                where i.h ='090004000002'"
-
- +"	  					and i.siteid in ("+siteid+")"
-+"	  					and "
-+"						nvl(w_ustr_st.ACTFINISH, s_ustr.changedate) between " + start + " and " + finish + " "
-+"	  					and "
-+"	  					i.status in ('ЗАВ_ДИСП','УСТРАНЕН','ЗАКРЫТО') and  nvl(w_ustr_st.ACTFINISH, s_ustr.changedate)  >  i.TARGETFINISH "
-
-+"                group by  (case when i.extsystemid is not null then nvl( ma.pred, i.pred) else ma.pred end ) , i.classidmain,  nvl(i.speed, sp_speed.speed)"
-+"             ),    "
-+" inc_pr as (select count(distinct i.ticketid) cnt,  (case when i.extsystemid is not null then nvl( ma.pred, i.pred) else ma.pred end ) pred, i.classidmain clas, nvl(i.speed, sp_speed.speed) speed from MAXIMO.incident i"
-
-+"        left 	 join (select RECORDKEY, RECORDCLASS, PODR, ISPRIMARY, SITEID, pred from  MAXIMO.multiassetlocci "
-+"                    ) ma on i.ticketid = ma.recordkey and i.siteid = ma.siteid and ma.RECORDCLASS= 'ИНЦИДЕНТ' and ma.ISPRIMARY= 0 "
-
-+"        left join maximo.rzd_incspec sp_speed on i.classidmain = sp_speed.classstructureid and i.norm between sp_speed.min and sp_speed.max " 
-
-+"                where i.h ='090004000002'  "
-+"						and i.status not in ('ОБЪЕДИНЕН','ЛОЖНЫЙ','ЗАВ_ДИСП','УСТРАНЕН','ЗАКРЫТО','УДАЛЕНО') "
- +"	  					and i.siteid in ("+siteid+")"
- +"	  					and  i.targetfinish  < "+finish+" "
-+"                group by  (case when i.extsystemid is not null then nvl( ma.pred, i.pred) else ma.pred end ) , i.classidmain, nvl(i.speed, sp_speed.speed)"
-+"             ), "
-+" inc_cl as (select count(distinct i.ticketid) cnt,  (case when i.extsystemid is not null then nvl( ma.pred, i.pred) else ma.pred end ) pred, i.classidmain clas, nvl(i.speed, sp_speed.speed) speed from MAXIMO.incident i"
-
-+"        left 	 join (select RECORDKEY, RECORDCLASS, PODR, ISPRIMARY, SITEID, pred from  MAXIMO.multiassetlocci "
-+"                    ) ma on i.ticketid = ma.recordkey and i.siteid = ma.siteid and ma.RECORDCLASS= 'ИНЦИДЕНТ' and ma.ISPRIMARY= 0 "
-
-+"        left join maximo.rzd_incspec sp_speed on i.classidmain = sp_speed.classstructureid and i.norm between sp_speed.min and sp_speed.max "
- 
-+"               where  i.h ='090004000002'  "
-
-+"	  				and i.status = 'ЗАКРЫТО' "
- +"	  					and i.siteid in ("+siteid+")"
-+"	 				and "
-+"	 				 i.statusdate  between " + start + " and " + finish + ""
-
-+"				group by  (case when i.extsystemid is not null then nvl( ma.pred, i.pred) else ma.pred end ) , i.classidmain, nvl(i.speed, sp_speed.speed)"
-+"             ), "
- 
- 
-
- +"   clasrel as "
+	sqlText =   "     with   "
+ +" loc as     (         select lo.location,  spc2.alnvalue || ' ' || spc3.alnvalue as description, spc1.NUMVALUE nom, 'P-'||reg.region as R  "
+ +"   from MAXIMO.locations lo	 "
+ +"      left join  ( select lo.parent, lo.siteid, lo.location, spc.numvalue region  from MAXIMO.lochierarchy lo  "
+ +"     					join maximo.LOCATIONSPEC spc3 on lo.parent = spc3.location and spc3.siteid = lo.siteid and spc3.ASSETATTRID = 'TIP_PREDPR'  "
+ +"     					join maximo.LOCATIONSPEC spc on lo.parent = spc.location and spc.siteid = lo.siteid and spc.ASSETATTRID = 'NOM'    "
+ +"  				 where  lo.systemid='ОС' and spc3.numvalue=2)reg on lo.location = reg.location and reg.siteid = lo.siteid  "
+ +" 	  join maximo.LOCATIONSPEC spc on (lo.location = spc.location and spc.siteid = lo.siteid )   "
+ +" 	  join maximo.LOCATIONSPEC spc1 on (lo.location = spc1.location and spc1.siteid = lo.siteid)	  "
+ +" 	  join MAXIMO.locationspec spc2 on (lo.location = spc2.location and lo.siteid = spc2.siteid)	 "
+ +" 	  join MAXIMO.locationspec spc3 on (lo.location = spc3.location and lo.siteid = spc3.siteid)	 "
+ +" 		where  lo.siteid='"+params["mroSite"]+"' "
+ +"   and lo.status = 'РАБОТАЕТ' and spc.ASSETATTRID = 'TIP_PREDPR'   "
+ +" 		and  spc.NUMVALUE = 3  and spc1.ASSETATTRID = 'NOM'  and spc2.assetattrid = 'SNAME'  and  "
+ +"  	spc3.assetattrid = 'SNAME2' and lo.location like 'PRED_%'	 "
+ +" 		order by spc1.NUMVALUE     "
+ +"   		),    "
+ +"    stat as  "
+ +"   (  "
+ +"    select 1 nom, 'Выявлено' stat from dual  "
+ +"    union  "
+ +"    select 2 nom, 'Устранено' stat from dual  "
+ +"    union  "
+ +"    select 3 nom, 'в т.ч. устранено с нарушением срока' stat from dual  "
+ +"    union  "
+ +"    select 4 nom, 'Назначено РЗ' stat from dual  "
+ +"    union  "
+ +"    select 5 nom, 'в т.ч. просрочено' stat from dual  "
+ +"    union  "
+ +"    select 6 nom, 'Закрыто' stat from dual  "
+ +"    ),  "
+ +"   "
+ +"  inc AS ( "
+ +" SELECT COUNT (DISTINCT "
+ +"   CASE "
+ +"     WHEN i.status != 'УДАЛЕНО' "
+ +"     AND i.reportdate BETWEEN " + start + " and " + finish + " "
+ +"     THEN i.ticketid "
+ +"   END) AS inc, "
+ +"   COUNT (DISTINCT "
+ +"   CASE "
+ +"     WHEN i.status != 'УДАЛЕНО' "
+ +"     AND i.status   ='НАПР_В_ГР' "
+ +"     THEN i.ticketid "
+ +"   END) AS inc_ne_ustr, "
+ +"   COUNT (DISTINCT "
+ +"   CASE "
+ +"     WHEN i.status IN ('ЗАВ_ДИСП','УСТРАНЕН','ЗАКРЫТО') "
+ +"     AND i.reportdate BETWEEN " + start + " and " + finish + " "
+ +"     THEN i.ticketid "
+ +"   END) AS inc_ustr, "
+ +"   COUNT (DISTINCT "
+ +"   CASE "
+ +"     WHEN i.status IN ('ЗАВ_ДИСП','УСТРАНЕН','ЗАКРЫТО') "
+ +"     AND i.reportdate BETWEEN " + start + " and " + finish + " "
+ +"     THEN i.ticketid "
+ +"   END) AS inc_ustr_sr, "
+ +"   COUNT (DISTINCT "
+ +"   CASE "
+ +"     WHEN i.status NOT IN ('ОБЪЕДИНЕН','ЛОЖНЫЙ','ЗАВ_ДИСП','УСТРАНЕН','ЗАКРЫТО','УДАЛЕНО') "
+ +"     AND i.targetfinish < '01.07.2014' "
+ +"     THEN i.ticketid "
+ +"   END) AS inc_pr, "
+ +"   COUNT (DISTINCT "
+ +"   CASE "
+ +"     WHEN i.status = 'ЗАКРЫТО' "
+ +"     AND i.statusdate BETWEEN " + start + " and " + finish + " "
+ +"     THEN i.ticketid "
+ +"   END) AS inc_cl, "
  +"   ( "
- +"   select anc.ancestor anc, anc.classstructureid clas, cl.parent par, anc.hierarchylevels lvl "
- +"   from MAXIMO.classancestor anc "
- +"   join MAXIMO.classstructure cl on anc.classstructureid = cl.classstructureid "
- +"   ) "
- +"  "
- +"    "
- +"   select loc.location, loc.R, loc.nom, "
- +"   loc.description,  "
- +"          stat.stat, stat.nom stnom,"
- +"           "
- +"           "
- +"   nvl ( case when stat.nom = 1 then  "
- +"     (select sum (inc.cnt) from inc where stat.nom = 1 and inc.pred = loc.location ) "
- +"      when stat.nom = 2 then  "
- +"    (select sum (inc_ustr.cnt) from inc_ustr where stat.nom = 2 and inc_ustr.pred = loc.location ) "
- +"      when stat.nom = 3 then  "
- +"    (select sum (inc_ustr_sr.cnt) from inc_ustr_sr where stat.nom = 3 and inc_ustr_sr.pred = loc.location  ) "
- +"      when stat.nom = 4 then  "
- +"    (select sum (inc_ne_ustr.cnt) from inc_ne_ustr where stat.nom = 4 and inc_ne_ustr.pred = loc.location ) "
- +"      when stat.nom = 5 then  "
- +"    (select sum (inc_pr.cnt) from inc_pr where stat.nom = 5 and inc_pr.pred = loc.location )"
- +"      when stat.nom = 6 then  "
- +"    (select sum (inc_cl.cnt) from inc_cl where stat.nom = 6 and inc_cl.pred = loc.location "
- +"    ) end, 0) vsego, "
+ +"   CASE "
+ +"     WHEN i.extsystemid IS NOT NULL "
+ +"     THEN i.pred "
+ +"   END ) pred, "
+ +"   i.classidmain clas, "
+ +"   i.speed speed "
+ +" FROM MAXIMO.tk_rep2 i "
+ +" WHERE i.h     ='090004000002' "
+ +" AND i.siteid='"+params["mroSite"]+"' "
+ +" GROUP BY ( "
+ +"   CASE "
+ +"     WHEN i.extsystemid IS NOT NULL "
+ +"     THEN i.pred "
+ +"   END ), "
+ +"   i.classidmain, "
+ +"   i.speed "
+ +"              ), "
+ +"               "
+ +"      clasrel as  "
+ +"     (  "
+ +"     select anc.ancestor anc, anc.classstructureid clas, cl.parent par, anc.hierarchylevels lvl  "
+ +"     from MAXIMO.classancestor anc  "
+ +"     join MAXIMO.classstructure cl on anc.classstructureid = cl.classstructureid  "
+ +"     )  "
  +"     "
+ +"       "
+ +"     SELECT loc.LOCATION,  "
+ +"     loc.R,  "
+ +"     loc.nom,  "
+ +"     loc.description,   "
+ +"            stat.stat,  "
+ +"            stat.nom stnom, "
+ +"              "
+ +"              "
+ +"     nvl ( case when stat.nom = 1 then   "
+ +"       (select sum (inc.inc) from inc where stat.nom = 1 and inc.pred = loc.location )  "
+ +"        WHEN stat.nom = 2 THEN   "
+ +"      (select sum (inc.inc_ustr) from inc where stat.nom = 2 and inc.pred = loc.location )  "
+ +"        when stat.nom = 3 then   "
+ +"      (select sum (inc.inc_ustr_sr) from inc where stat.nom = 3 and inc.pred = loc.location  )  "
+ +"        WHEN stat.nom = 4 THEN   "
+ +"      (select sum (inc.inc_ne_ustr) from inc where stat.nom = 4 and inc.pred = loc.location )  "
+ +"        when stat.nom = 5 then   "
+ +"      (select sum (inc.inc_pr) from inc where stat.nom = 5 and inc.pred = loc.location ) "
+ +"        when stat.nom = 6 then   "
+ +"      (select sum (inc.inc_cl) from inc where stat.nom = 6 and inc.pred = loc.location  "
+ +"      ) end, 0) vsego,  "
+ +"        "
+ +"        "
+ +"       nvl(  case when stat.nom = 1 then   "
+ +"       (select sum (inc.inc) from inc where stat.nom = 1 and inc.pred = loc.location  "
+ +"       and inc.clas in (select clas from clasrel where anc = '090004000014')  "
+ +"       )  "
+ +"        when stat.nom = 2 then   "
+ +"      (select sum (inc.inc_ustr) from inc where stat.nom = 2 and inc.pred = loc.location   "
+ +"      and inc.clas in (select clas from clasrel where anc = '090004000014')  "
+ +"      )  "
+ +"        when stat.nom = 3 then   "
+ +"      (select sum (inc.inc_ustr_sr) from inc where stat.nom = 3 and inc.pred = loc.location  "
+ +"      and inc.clas in (select clas from clasrel where anc = '090004000014')  "
+ +"      )  "
+ +"        when stat.nom = 4 then   "
+ +"      (select sum (inc.inc_ne_ustr) from inc where stat.nom = 4 and inc.pred = loc.location   "
+ +"      and inc.clas in (select clas from clasrel where anc = '090004000014')  "
+ +"      )  "
+ +"        when stat.nom = 5 then   "
+ +"      (select sum (inc.inc_pr) from inc where stat.nom = 5 and inc.pred = loc.location   "
+ +"      and inc.clas in (select clas from clasrel where anc = '090004000014')  "
+ +"      ) "
+ +"        when stat.nom = 6 then   "
+ +"      (select sum (inc.inc_cl) from inc where stat.nom = 6 and inc.pred = loc.location  "
+ +"      and inc.clas in (select clas from clasrel where anc = '090004000014')  "
+ +"      ) end, 0) vsegorel,  "
+ +"        "
+ +"        "
+ +"       nvl(     case when stat.nom = 1 then   "
+ +"       (select sum (inc.inc) from inc where stat.nom = 1 and inc.pred = loc.location  "
+ +"       and inc.clas in (select clas from clasrel where par = '090004000053')  "
+ +"       )  "
+ +"        when stat.nom = 2 then   "
+ +"      (select sum (inc.inc_ustr) from inc where stat.nom = 2 and inc.pred = loc.location   "
+ +"      and inc.clas in (select clas from clasrel where par = '090004000053')  "
+ +"      )  "
+ +"        when stat.nom = 3 then   "
+ +"      (select sum (inc.inc_ustr_sr) from inc where stat.nom = 3 and inc.pred = loc.location  "
+ +"      and inc.clas in (select clas from clasrel where par = '090004000053')  "
+ +"      )  "
+ +"        when stat.nom = 4 then   "
+ +"      (select sum (inc.inc_ne_ustr) from inc where stat.nom = 4 and inc.pred = loc.location   "
+ +"      and inc.clas in (select clas from clasrel where par = '090004000053')  "
+ +"      )  "
+ +"        when stat.nom = 5 then   "
+ +"      (select sum (inc.inc_pr) from inc where stat.nom = 5 and inc.pred = loc.location   "
+ +"      and inc.clas in (select clas from clasrel where par = '090004000053')  "
+ +"      ) "
+ +"        when stat.nom = 6 then   "
+ +"      (select sum (inc.inc_cl) from inc where stat.nom = 6 and inc.pred = loc.location  "
+ +"      and inc.clas in (select clas from clasrel where par = '090004000053')  "
+ +"      ) end, 0) otvodi,  "
+ +"        "
+ +"       nvl (        case when stat.nom = 1 then   "
+ +"       (select sum (inc.inc) from inc where stat.nom = 1 and inc.pred = loc.location  "
+ +"       and inc.clas in (select clas from clasrel where par = '090004000054')  "
+ +"       )  "
+ +"        when stat.nom = 2 then   "
+ +"      (select sum (inc.inc_ustr) from inc where stat.nom = 2 and inc.pred = loc.location   "
+ +"      and inc.clas in (select clas from clasrel where par = '090004000054')  "
+ +"      )  "
+ +"        when stat.nom = 3 then   "
+ +"      (select sum (inc.inc_ustr_sr) from inc where stat.nom = 3 and inc.pred = loc.location  "
+ +"      and inc.clas in (select clas from clasrel where par = '090004000054')  "
+ +"      )  "
+ +"        when stat.nom = 4 then   "
+ +"      (select sum (inc.inc_ne_ustr) from inc where stat.nom = 4 and inc.pred = loc.location   "
+ +"      and inc.clas in (select clas from clasrel where par = '090004000054')  "
+ +"      )  "
+ +"        when stat.nom = 5 then   "
+ +"      (select sum (inc.inc_pr) from inc where stat.nom = 5 and inc.pred = loc.location   "
+ +"      and inc.clas in (select clas from clasrel where par = '090004000054')  "
+ +"      ) "
+ +"        when stat.nom = 6 then   "
+ +"      (select sum (inc.inc_cl) from inc where stat.nom = 6 and inc.pred = loc.location  "
+ +"      and inc.clas in (select clas from clasrel where par = '090004000054')  "
+ +"      ) end, 0) planlin,  "
+ +"        "
+ +"          nvl (        case when stat.nom = 1 then   "
+ +"       (select sum (inc.inc) from inc where stat.nom = 1 and inc.pred = loc.location  "
+ +"       and inc.clas in (select clas from clasrel where par = '090004000055')  "
+ +"       )  "
+ +"        when stat.nom = 2 then   "
+ +"      (select sum (inc.inc_ustr) from inc where stat.nom = 2 and inc.pred = loc.location   "
+ +"      and inc.clas in (select clas from clasrel where par = '090004000055')  "
+ +"      )  "
+ +"        when stat.nom = 3 then   "
+ +"      (select sum (inc.inc_ustr_sr) from inc where stat.nom = 3 and inc.pred = loc.location  "
+ +"      and inc.clas in (select clas from clasrel where par = '090004000055')  "
+ +"      )  "
+ +"        when stat.nom = 4 then   "
+ +"      (select sum (inc.inc_ne_ustr) from inc where stat.nom = 4 and inc.pred = loc.location   "
+ +"      and inc.clas in (select clas from clasrel where par = '090004000055')  "
+ +"      )  "
+ +"        when stat.nom = 5 then   "
+ +"      (select sum (inc.inc_pr) from inc where stat.nom = 5 and inc.pred = loc.location   "
+ +"      and inc.clas in (select clas from clasrel where par = '090004000055')  "
+ +"      ) "
+ +"        when stat.nom = 6 then   "
+ +"      (select sum (inc.inc_cl) from inc where stat.nom = 6 and inc.pred = loc.location  "
+ +"      and inc.clas in (select clas from clasrel where par = '090004000055')  "
+ +"      ) end, 0) polput,  "
+ +"        "
+ +"          nvl (        case when stat.nom = 1 then   "
+ +"       (select sum (inc.inc) from inc where stat.nom = 1 and inc.pred = loc.location  "
+ +"       and inc.clas in (select clas from clasrel where par = '090004000056')  "
+ +"       )  "
+ +"        when stat.nom = 2 then   "
+ +"      (select sum (inc.inc_ustr) from inc where stat.nom = 2 and inc.pred = loc.location   "
+ +"      and inc.clas in (select clas from clasrel where par = '090004000056')  "
+ +"      )  "
+ +"        when stat.nom = 3 then   "
+ +"      (select sum (inc.inc_ustr_sr) from inc where stat.nom = 3 and inc.pred = loc.location  "
+ +"      and inc.clas in (select clas from clasrel where par = '090004000056')  "
+ +"      )  "
+ +"        when stat.nom = 4 then   "
+ +"      (select sum (inc.inc_ne_ustr) from inc where stat.nom = 4 and inc.pred = loc.location   "
+ +"      and inc.clas in (select clas from clasrel where par = '090004000056')  "
+ +"      )  "
+ +"        when stat.nom = 5 then   "
+ +"      (select sum (inc.inc_pr) from inc where stat.nom = 5 and inc.pred = loc.location   "
+ +"      and inc.clas in (select clas from clasrel where par = '090004000056')  "
+ +"      ) "
+ +"        when stat.nom = 6 then   "
+ +"      (select sum (inc.inc_cl) from inc where stat.nom = 6 and inc.pred = loc.location  "
+ +"      and inc.clas in (select clas from clasrel where par = '090004000056')  "
+ +"      ) end, 0) polrelnit,  "
+ +"        "
+ +"          nvl (        case when stat.nom = 1 then   "
+ +"       (select sum (inc.inc) from inc where stat.nom = 1 and inc.pred = loc.location  "
+ +"       and inc.clas in (select clas from clasrel where par = '090004000057')  "
+ +"       )  "
+ +"        when stat.nom = 2 then   "
+ +"      (select sum (inc.inc_ustr) from inc where stat.nom = 2 and inc.pred = loc.location   "
+ +"      and inc.clas in (select clas from clasrel where par = '090004000057')  "
+ +"      )  "
+ +"        when stat.nom = 3 then   "
+ +"      (select sum (inc.inc_ustr_sr) from inc where stat.nom = 3 and inc.pred = loc.location  "
+ +"      and inc.clas in (select clas from clasrel where par = '090004000057')  "
+ +"      )  "
+ +"        when stat.nom = 4 then   "
+ +"      (select sum (inc.inc_ne_ustr) from inc where stat.nom = 4 and inc.pred = loc.location   "
+ +"      and inc.clas in (select clas from clasrel where par = '090004000057')  "
+ +"      )  "
+ +"        when stat.nom = 5 then   "
+ +"      (select sum (inc.inc_pr) from inc where stat.nom = 5 and inc.pred = loc.location   "
+ +"      and inc.clas in (select clas from clasrel where par = '090004000057')  "
+ +"      ) "
+ +"        when stat.nom = 6 then   "
+ +"      (select sum (inc.inc_cl) from inc where stat.nom = 6 and inc.pred = loc.location  "
+ +"      and inc.clas in (select clas from clasrel where par = '090004000057')  "
+ +"      ) end, 0) prosad,  "
+ +"        "
+ +"          nvl (        case when stat.nom = 1 then   "
+ +"       (select sum (inc.inc) from inc where stat.nom = 1 and inc.pred = loc.location  "
+ +"       and inc.clas in (select clas from clasrel where par = '090004000058')  "
+ +"       )  "
+ +"        when stat.nom = 2 then   "
+ +"      (select sum (inc.inc_ustr) from inc where stat.nom = 2 and inc.pred = loc.location   "
+ +"      and inc.clas in (select clas from clasrel where par = '090004000058')  "
+ +"      )  "
+ +"        when stat.nom = 3 then   "
+ +"      (select sum (inc.inc_ustr_sr) from inc where stat.nom = 3 and inc.pred = loc.location  "
+ +"      and inc.clas in (select clas from clasrel where par = '090004000058')  "
+ +"      )  "
+ +"        when stat.nom = 4 then   "
+ +"      (select sum (inc.inc_ne_ustr) from inc where stat.nom = 4 and inc.pred = loc.location   "
+ +"      and inc.clas in (select clas from clasrel where par = '090004000058')  "
+ +"      )  "
+ +"        when stat.nom = 5 then   "
+ +"      (select sum (inc.inc_pr) from inc where stat.nom = 5 and inc.pred = loc.location   "
+ +"      and inc.clas in (select clas from clasrel where par = '090004000058')  "
+ +"      ) "
+ +"        when stat.nom = 6 then   "
+ +"      (select sum (inc.inc_cl) from inc where stat.nom = 6 and inc.pred = loc.location  "
+ +"      and inc.clas in (select clas from clasrel where par = '090004000058')  "
+ +"      ) end, 0) shirkol,  "
+ +"        "
+ +"          nvl (        case when stat.nom = 1 then   "
+ +"       (select sum (inc.inc) from inc where stat.nom = 1 and inc.pred = loc.location  "
+ +"       and inc.clas in (select clas from clasrel where par = '090004000059')  "
+ +"       )  "
+ +"        when stat.nom = 2 then   "
+ +"      (select sum (inc.inc_ustr) from inc where stat.nom = 2 and inc.pred = loc.location   "
+ +"      and inc.clas in (select clas from clasrel where par = '090004000059')  "
+ +"      )  "
+ +"        when stat.nom = 3 then   "
+ +"      (select sum (inc.inc_ustr_sr) from inc where stat.nom = 3 and inc.pred = loc.location  "
+ +"      and inc.clas in (select clas from clasrel where par = '090004000059')  "
+ +"      )  "
+ +"        when stat.nom = 4 then   "
+ +"      (select sum (inc.inc_ne_ustr) from inc where stat.nom = 4 and inc.pred = loc.location   "
+ +"      and inc.clas in (select clas from clasrel where par = '090004000059')  "
+ +"      )  "
+ +"        when stat.nom = 5 then   "
+ +"      (select sum (inc.inc_pr) from inc where stat.nom = 5 and inc.pred = loc.location   "
+ +"      and inc.clas in (select clas from clasrel where par = '090004000059')  "
+ +"      ) "
+ +"        when stat.nom = 6 then   "
+ +"      (select sum (inc.inc_cl) from inc where stat.nom = 6 and inc.pred = loc.location  "
+ +"      and inc.clas in (select clas from clasrel where par = '090004000059')  "
+ +"      ) end, 0) sochots,  "
+ +"        "
+ +"       nvl (        case when stat.nom = 1 then   "
+ +"       (select sum (inc.inc) from inc where stat.nom = 1 and inc.pred = loc.location  "
+ +"       and inc.clas in (select clas from clasrel where par = '090004000060')  "
+ +"       )  "
+ +"        when stat.nom = 2 then   "
+ +"      (select sum (inc.inc_ustr) from inc where stat.nom = 2 and inc.pred = loc.location   "
+ +"      and inc.clas in (select clas from clasrel where par = '090004000060')  "
+ +"      )  "
+ +"        when stat.nom = 3 then   "
+ +"      (select sum (inc.inc_ustr_sr) from inc where stat.nom = 3 and inc.pred = loc.location  "
+ +"      and inc.clas in (select clas from clasrel where par = '090004000060')  "
+ +"      )  "
+ +"        when stat.nom = 4 then   "
+ +"      (select sum (inc.inc_ne_ustr) from inc where stat.nom = 4 and inc.pred = loc.location   "
+ +"      and inc.clas in (select clas from clasrel where par = '090004000060')  "
+ +"      )  "
+ +"        when stat.nom = 5 then   "
+ +"      (select sum (inc.inc_pr) from inc where stat.nom = 5 and inc.pred = loc.location   "
+ +"      and inc.clas in (select clas from clasrel where par = '090004000060')  "
+ +"      ) "
+ +"        when stat.nom = 6 then   "
+ +"      (select sum (inc.inc_cl) from inc where stat.nom = 6 and inc.pred = loc.location  "
+ +"      and inc.clas in (select clas from clasrel where par = '090004000060')  "
+ +"      ) end, 0) otsop,  "
+ +"        "
+ +"       nvl (        case when stat.nom = 1 then   "
+ +"       (select sum (inc.inc) from inc where stat.nom = 1 and inc.pred = loc.location  "
+ +"       and inc.clas in (select clas from clasrel where par = '090004000061')  "
+ +"       )  "
+ +"        when stat.nom = 2 then   "
+ +"      (select sum (inc.inc_ustr) from inc where stat.nom = 2 and inc.pred = loc.location   "
+ +"      and inc.clas in (select clas from clasrel where par = '090004000061')  "
+ +"      )  "
+ +"        when stat.nom = 3 then   "
+ +"      (select sum (inc.inc_ustr_sr) from inc where stat.nom = 3 and inc.pred = loc.location  "
+ +"      and inc.clas in (select clas from clasrel where par = '090004000061')  "
+ +"      )  "
+ +"        when stat.nom = 4 then   "
+ +"      (select sum (inc.inc_ne_ustr) from inc where stat.nom = 4 and inc.pred = loc.location   "
+ +"      and inc.clas in (select clas from clasrel where par = '090004000061')  "
+ +"      )  "
+ +"        when stat.nom = 5 then   "
+ +"      (select sum (inc.inc_pr) from inc where stat.nom = 5 and inc.pred = loc.location   "
+ +"      and inc.clas in (select clas from clasrel where par = '090004000061')  "
+ +"      ) "
+ +"        when stat.nom = 6 then   "
+ +"      (select sum (inc.inc_cl) from inc where stat.nom = 6 and inc.pred = loc.location  "
+ +"      and inc.clas in (select clas from clasrel where par = '090004000061')  "
+ +"      ) end, 0) narnorm,  "
+ +"        "
+ +"       nvl (        case when stat.nom = 1 then   "
+ +"       (select sum (inc.inc) from inc where stat.nom = 1 and inc.pred = loc.location  "
+ +"       and inc.clas in (select clas from clasrel where par = '090004000062')  "
+ +"       )  "
+ +"        when stat.nom = 2 then   "
+ +"      (select sum (inc.inc_ustr) from inc where stat.nom = 2 and inc.pred = loc.location   "
+ +"      and inc.clas in (select clas from clasrel where par = '090004000062')  "
+ +"      )  "
+ +"        when stat.nom = 3 then   "
+ +"      (select sum (inc.inc_ustr_sr) from inc where stat.nom = 3 and inc.pred = loc.location  "
+ +"      and inc.clas in (select clas from clasrel where par = '090004000062')  "
+ +"      )  "
+ +"        when stat.nom = 4 then   "
+ +"      (select sum (inc.inc_ne_ustr) from inc where stat.nom = 4 and inc.pred = loc.location   "
+ +"      and inc.clas in (select clas from clasrel where par = '090004000062')  "
+ +"      )  "
+ +"        when stat.nom = 5 then   "
+ +"      (select sum (inc.inc_pr) from inc where stat.nom = 5 and inc.pred = loc.location   "
+ +"      and inc.clas in (select clas from clasrel where par = '090004000062')  "
+ +"      ) "
+ +"        when stat.nom = 6 then   "
+ +"      (select sum (inc.inc_cl) from inc where stat.nom = 6 and inc.pred = loc.location  "
+ +"      and inc.clas in (select clas from clasrel where par = '090004000062')  "
+ +"      ) end, 0) nesovp,  "
+ +"        "
+ +"        "
+ +"         nvl(  case when stat.nom = 1 then   "
+ +"       (select sum (inc.inc) from inc where stat.nom = 1 and inc.pred = loc.location  "
+ +"      and inc.clas in (select clas from clasrel where anc in ('090004000012','090004000011','090004000104','090004000010','090004000024','090004000016','090004000017','090004000025','090004000050'))  "
+ +"       )  "
+ +"        when stat.nom = 2 then   "
+ +"      (select sum (inc.inc_ustr) from inc where stat.nom = 2 and inc.pred = loc.location   "
+ +"      and inc.clas in (select clas from clasrel where anc in ('090004000012','090004000011','090004000104','090004000010','090004000024','090004000016','090004000017','090004000025','090004000050'))  "
+ +"      )  "
+ +"        when stat.nom = 3 then   "
+ +"      (select sum (inc.inc_ustr_sr) from inc where stat.nom = 3 and inc.pred = loc.location  "
+ +"      and inc.clas in (select clas from clasrel where anc in ('090004000012','090004000011','090004000104','090004000010','090004000024','090004000016','090004000017','090004000025','090004000050'))  "
+ +"      )  "
+ +"        when stat.nom = 4 then   "
+ +"      (select sum (inc.inc_ne_ustr) from inc where stat.nom = 4 and inc.pred = loc.location   "
+ +"      and inc.clas in (select clas from clasrel where anc in ('090004000012','090004000011','090004000104','090004000010','090004000024','090004000016','090004000017','090004000025','090004000050'))  "
+ +"      )  "
+ +"        when stat.nom = 5 then   "
+ +"      (select sum (inc.inc_pr) from inc where stat.nom = 5 and inc.pred = loc.location   "
+ +"      and inc.clas in (select clas from clasrel where anc in ('090004000012','090004000011','090004000104','090004000010','090004000024','090004000016','090004000017','090004000025','090004000050'))  "
+ +"      ) "
+ +"        when stat.nom = 6 then   "
+ +"      (select sum (inc.inc_cl) from inc where stat.nom = 6 and inc.pred = loc.location  "
+ +"      and inc.clas in (select clas from clasrel where anc in ('090004000012','090004000011','090004000104','090004000010','090004000024','090004000016','090004000017','090004000025','090004000050'))  "
+ +"      ) end, 0) vsegodef,  "
+ +"        "
+ +"        "
+ +"       nvl(  case when stat.nom = 1 then   "
+ +"       (select sum (inc.inc) from inc where stat.nom = 1 and inc.pred = loc.location  "
+ +"       and inc.clas in (select clas from clasrel where anc = '090004000050')  "
+ +"       )  "
+ +"        when stat.nom = 2 then   "
+ +"      (select sum (inc.inc_ustr) from inc where stat.nom = 2 and inc.pred = loc.location   "
+ +"      and inc.clas in (select clas from clasrel where anc = '090004000050')  "
+ +"      )  "
+ +"        when stat.nom = 3 then   "
+ +"      (select sum (inc.inc_ustr_sr) from inc where stat.nom = 3 and inc.pred = loc.location  "
+ +"      and inc.clas in (select clas from clasrel where anc = '090004000050')  "
+ +"      )  "
+ +"        when stat.nom = 4 then   "
+ +"      (select sum (inc.inc_ne_ustr) from inc where stat.nom = 4 and inc.pred = loc.location   "
+ +"      and inc.clas in (select clas from clasrel where anc = '090004000050')  "
+ +"      )  "
+ +"        when stat.nom = 5 then   "
+ +"      (select sum (inc.inc_pr) from inc where stat.nom = 5 and inc.pred = loc.location   "
+ +"      and inc.clas in (select clas from clasrel where anc = '090004000050')  "
+ +"      ) "
+ +"        when stat.nom = 6 then   "
+ +"      (select sum (inc.inc_cl) from inc where stat.nom = 6 and inc.pred = loc.location  "
+ +"      and inc.clas in (select clas from clasrel where anc = '090004000050')  "
+ +"      ) end, 0) relsov,  "
+ +"        "
+ +"        "
+ +"       nvl(     case when stat.nom = 1 then   "
+ +"       (select sum (inc.inc) from inc where stat.nom = 1 and inc.pred = loc.location  "
+ +"       and inc.clas in (select clas from clasrel where anc in ('090004000017','090004000025' ))  "
+ +"       )  "
+ +"        when stat.nom = 2 then   "
+ +"      (select sum (inc.inc_ustr) from inc where stat.nom = 2 and inc.pred = loc.location   "
+ +"      and inc.clas in (select clas from clasrel where anc in ('090004000017','090004000025' ))  "
+ +"      )  "
+ +"        when stat.nom = 3 then   "
+ +"      (select sum (inc.inc_ustr_sr) from inc where stat.nom = 3 and inc.pred = loc.location  "
+ +"      and inc.clas in (select clas from clasrel where anc in ('090004000017','090004000025' ))  "
+ +"      )  "
+ +"        when stat.nom = 4 then   "
+ +"      (select sum (inc.inc_ne_ustr) from inc where stat.nom = 4 and inc.pred = loc.location   "
+ +"      and inc.clas in (select clas from clasrel where anc in ('090004000017','090004000025' ))  "
+ +"      )  "
+ +"        when stat.nom = 5 then   "
+ +"      (select sum (inc.inc_pr) from inc where stat.nom = 5 and inc.pred = loc.location   "
+ +"      and inc.clas in (select clas from clasrel where anc in ('090004000017','090004000025' ))  "
+ +"      ) "
+ +"        when stat.nom = 6 then   "
+ +"      (select sum (inc.inc_cl) from inc where stat.nom = 6 and inc.pred = loc.location  "
+ +"      and inc.clas in (select clas from clasrel where anc in ('090004000017','090004000025' ))  "
+ +"      ) end, 0) skrepleniy,  "
+ +"        "
+ +"       nvl (        case when stat.nom = 1 then   "
+ +"       (select sum (inc.inc) from inc where stat.nom = 1 and inc.pred = loc.location  "
+ +"       and inc.clas in (select clas from clasrel where anc = '090004000016')  "
+ +"       )  "
+ +"        when stat.nom = 2 then   "
+ +"      (select sum (inc.inc_ustr) from inc where stat.nom = 2 and inc.pred = loc.location   "
+ +"      and inc.clas in (select clas from clasrel where anc = '090004000016')  "
+ +"      )  "
+ +"        when stat.nom = 3 then   "
+ +"      (select sum (inc.inc_ustr_sr) from inc where stat.nom = 3 and inc.pred = loc.location  "
+ +"      and inc.clas in (select clas from clasrel where anc = '090004000016')  "
+ +"      )  "
+ +"        when stat.nom = 4 then   "
+ +"      (select sum (inc.inc_ne_ustr) from inc where stat.nom = 4 and inc.pred = loc.location   "
+ +"      and inc.clas in (select clas from clasrel where anc = '090004000016')  "
+ +"      )  "
+ +"        when stat.nom = 5 then   "
+ +"      (select sum (inc.inc_pr) from inc where stat.nom = 5 and inc.pred = loc.location   "
+ +"      and inc.clas in (select clas from clasrel where anc = '090004000016')  "
+ +"      ) "
+ +"        when stat.nom = 6 then   "
+ +"      (select sum (inc.inc_cl) from inc where stat.nom = 6 and inc.pred = loc.location  "
+ +"      and inc.clas in (select clas from clasrel where anc = '090004000016')  "
+ +"      ) end, 0) shpal,  "
+ +"        "
+ +"          nvl (        case when stat.nom = 1 then   "
+ +"       (select sum (inc.inc) from inc where stat.nom = 1 and inc.pred = loc.location  "
+ +"       and inc.clas in (select clas from clasrel where anc = '090004000024')  "
+ +"       )  "
+ +"        when stat.nom = 2 then   "
+ +"      (select sum (inc.inc_ustr) from inc where stat.nom = 2 and inc.pred = loc.location   "
+ +"      and inc.clas in (select clas from clasrel where anc = '090004000024')  "
+ +"      )  "
+ +"        when stat.nom = 3 then   "
+ +"      (select sum (inc.inc_ustr_sr) from inc where stat.nom = 3 and inc.pred = loc.location  "
+ +"      and inc.clas in (select clas from clasrel where anc = '090004000024')  "
+ +"      )  "
+ +"        when stat.nom = 4 then   "
+ +"      (select sum (inc.inc_ne_ustr) from inc where stat.nom = 4 and inc.pred = loc.location   "
+ +"      and inc.clas in (select clas from clasrel where anc = '090004000024')  "
+ +"      )  "
+ +"        when stat.nom = 5 then   "
+ +"      (select sum (inc.inc_pr) from inc where stat.nom = 5 and inc.pred = loc.location   "
+ +"      and inc.clas in (select clas from clasrel where anc = '090004000024')  "
+ +"      ) "
+ +"        when stat.nom = 6 then   "
+ +"      (select sum (inc.inc_cl) from inc where stat.nom = 6 and inc.pred = loc.location  "
+ +"      and inc.clas in (select clas from clasrel where anc = '090004000024')  "
+ +"      ) end, 0) per_brus,  "
+ +"        "
+ +"          nvl (        case when stat.nom = 1 then   "
+ +"       (select sum (inc.inc) from inc where stat.nom = 1 and inc.pred = loc.location  "
+ +"       and inc.clas in (select clas from clasrel where anc = '090004000010')  "
+ +"       )  "
+ +"        when stat.nom = 2 then   "
+ +"      (select sum (inc.inc_ustr) from inc where stat.nom = 2 and inc.pred = loc.location   "
+ +"      and inc.clas in (select clas from clasrel where anc = '090004000010')  "
+ +"      )  "
+ +"        when stat.nom = 3 then   "
+ +"      (select sum (inc.inc_ustr_sr) from inc where stat.nom = 3 and inc.pred = loc.location  "
+ +"      and inc.clas in (select clas from clasrel where anc = '090004000010')  "
+ +"      )  "
+ +"        when stat.nom = 4 then   "
+ +"      (select sum (inc.inc_ne_ustr) from inc where stat.nom = 4 and inc.pred = loc.location   "
+ +"      and inc.clas in (select clas from clasrel where anc = '090004000010')  "
+ +"      )  "
+ +"        when stat.nom = 5 then   "
+ +"      (select sum (inc.inc_pr) from inc where stat.nom = 5 and inc.pred = loc.location   "
+ +"      and inc.clas in (select clas from clasrel where anc = '090004000010')  "
+ +"      ) "
+ +"        when stat.nom = 6 then   "
+ +"      (select sum (inc.inc_cl) from inc where stat.nom = 6 and inc.pred = loc.location  "
+ +"      and inc.clas in (select clas from clasrel where anc = '090004000010')  "
+ +"      ) end, 0) stp,  "
+ +"        "
+ +"          nvl (        case when stat.nom = 1 then   "
+ +"       (select sum (inc.inc) from inc where stat.nom = 1 and inc.pred = loc.location  "
+ +"       and inc.clas in (select clas from clasrel where anc = '090004000104')  "
+ +"       )  "
+ +"        when stat.nom = 2 then   "
+ +"      (select sum (inc.inc_ustr) from inc where stat.nom = 2 and inc.pred = loc.location   "
+ +"      and inc.clas in (select clas from clasrel where anc = '090004000104')  "
+ +"      )  "
+ +"        when stat.nom = 3 then   "
+ +"      (select sum (inc.inc_ustr_sr) from inc where stat.nom = 3 and inc.pred = loc.location  "
+ +"      and inc.clas in (select clas from clasrel where anc = '090004000104')  "
+ +"      )  "
+ +"        when stat.nom = 4 then   "
+ +"      (select sum (inc.inc_ne_ustr) from inc where stat.nom = 4 and inc.pred = loc.location   "
+ +"      and inc.clas in (select clas from clasrel where anc = '090004000104')  "
+ +"      )  "
+ +"        when stat.nom = 5 then   "
+ +"      (select sum (inc.inc_pr) from inc where stat.nom = 5 and inc.pred = loc.location   "
+ +"      and inc.clas in (select clas from clasrel where anc = '090004000104')  "
+ +"      ) "
+ +"        when stat.nom = 6 then   "
+ +"      (select sum (inc.inc_cl) from inc where stat.nom = 6 and inc.pred = loc.location  "
+ +"      and inc.clas in (select clas from clasrel where anc = '090004000104')  "
+ +"      ) end, 0) krestovin,  "
+ +"        "
+ +"          nvl (        case when stat.nom = 1 then   "
+ +"       (select sum (inc.inc) from inc where stat.nom = 1 and inc.pred = loc.location  "
+ +"       and inc.clas in (select clas from clasrel where anc = '090004000011')  "
+ +"       )  "
+ +"        when stat.nom = 2 then   "
+ +"      (select sum (inc.inc_ustr) from inc where stat.nom = 2 and inc.pred = loc.location   "
+ +"      and inc.clas in (select clas from clasrel where anc = '090004000011')  "
+ +"      )  "
+ +"        when stat.nom = 3 then   "
+ +"      (select sum (inc.inc_ustr_sr) from inc where stat.nom = 3 and inc.pred = loc.location  "
+ +"      and inc.clas in (select clas from clasrel where anc = '090004000011')  "
+ +"      )  "
+ +"        when stat.nom = 4 then   "
+ +"      (select sum (inc.inc_ne_ustr) from inc where stat.nom = 4 and inc.pred = loc.location   "
+ +"      and inc.clas in (select clas from clasrel where anc = '090004000011')  "
+ +"      )  "
+ +"        when stat.nom = 5 then   "
+ +"      (select sum (inc.inc_pr) from inc where stat.nom = 5 and inc.pred = loc.location   "
+ +"      and inc.clas in (select clas from clasrel where anc = '090004000011')  "
+ +"      ) "
+ +"        when stat.nom = 6 then   "
+ +"      (select sum (inc.inc_cl) from inc where stat.nom = 6 and inc.pred = loc.location  "
+ +"      and inc.clas in (select clas from clasrel where anc = '090004000011')  "
+ +"      ) end, 0) isk_soor,  "
+ +"        "
+ +"          nvl (        case when stat.nom = 1 then   "
+ +"       (select sum (inc.inc) from inc where stat.nom = 1 and inc.pred = loc.location  "
+ +"       and inc.clas in (select clas from clasrel where anc = '090004000012')  "
+ +"       )  "
+ +"        when stat.nom = 2 then   "
+ +"      (select sum (inc.inc_ustr) from inc where stat.nom = 2 and inc.pred = loc.location   "
+ +"      and inc.clas in (select clas from clasrel where anc = '090004000012')  "
+ +"      )  "
+ +"        when stat.nom = 3 then   "
+ +"      (select sum (inc.inc_ustr_sr) from inc where stat.nom = 3 and inc.pred = loc.location  "
+ +"      and inc.clas in (select clas from clasrel where anc = '090004000012')  "
+ +"      )  "
+ +"        when stat.nom = 4 then   "
+ +"      (select sum (inc.inc_ne_ustr) from inc where stat.nom = 4 and inc.pred = loc.location   "
+ +"      and inc.clas in (select clas from clasrel where anc = '090004000012')  "
+ +"      )  "
+ +"        when stat.nom = 5 then   "
+ +"      (select sum (inc.inc_pr) from inc where stat.nom = 5 and inc.pred = loc.location   "
+ +"      and inc.clas in (select clas from clasrel where anc = '090004000012')  "
+ +"      ) "
+ +"        when stat.nom = 6 then   "
+ +"      (select sum (inc.inc_cl) from inc where stat.nom = 6 and inc.pred = loc.location  "
+ +"      and inc.clas in (select clas from clasrel where anc = '090004000012')  "
+ +"      ) end, 0) zem_polotna,  "
+ +"        "
+ +"       nvl (        case when stat.nom = 1 then   "
+ +"       (select sum (inc.inc) from inc where stat.nom = 1 and inc.pred = loc.location  "
+ +"   	and   inc.speed in ('0','15','25','40','50','60','60 ПРЖ','70','80','90','100'  )  "
+ +"       )  "
+ +"        when stat.nom = 2 then   "
+ +"      (select sum (inc.inc_ustr) from inc where stat.nom = 2 and inc.pred = loc.location   "
+ +"      and inc.speed in ('0','15','25','40','50','60','60 ПРЖ','70','80','90','100'  )  "
+ +"      )  "
+ +"        when stat.nom = 3 then   "
+ +"      (select sum (inc.inc_ustr_sr) from inc where stat.nom = 3 and inc.pred = loc.location  "
+ +"      and inc.speed in ('0','15','25','40','50','60','60 ПРЖ','70','80','90','100'  )  "
+ +"      )  "
+ +"        when stat.nom = 4 then   "
+ +"      (select sum (inc.inc_ne_ustr) from inc where stat.nom = 4 and inc.pred = loc.location   "
+ +"      and inc.speed in ('0','15','25','40','50','60','60 ПРЖ','70','80','90','100'  )  "
+ +"      )  "
+ +"        when stat.nom = 5 then   "
+ +"      (select sum (inc.inc_pr) from inc where stat.nom = 5 and inc.pred = loc.location   "
+ +"      and inc.speed in ('0','15','25','40','50','60','60 ПРЖ','70','80','90','100'  )  "
+ +"      ) "
+ +"        when stat.nom = 6 then   "
+ +"      (select sum (inc.inc_cl) from inc where stat.nom = 6 and inc.pred = loc.location  "
+ +"      and inc.speed in ('0','15','25','40','50','60','60 ПРЖ','70','80','90','100'  )   "
+ +"      ) end, 0) vsegosp,  "
+ +"   "
+ +"        "
+ +"       nvl (        case when stat.nom = 1 then   "
+ +"       (select sum (inc.inc) from inc where stat.nom = 1 and inc.pred = loc.location  "
+ +"      and inc.speed = '0'   "
+ +"       )  "
+ +"        when stat.nom = 2 then   "
+ +"      (select sum (inc.inc_ustr) from inc where stat.nom = 2 and inc.pred = loc.location   "
+ +"      and inc.speed = '0'   "
+ +"      )  "
+ +"        when stat.nom = 3 then   "
+ +"      (select sum (inc.inc_ustr_sr) from inc where stat.nom = 3 and inc.pred = loc.location  "
+ +"      and inc.speed = '0'   "
+ +"      )  "
+ +"        when stat.nom = 4 then   "
+ +"      (select sum (inc.inc_ne_ustr) from inc where stat.nom = 4 and inc.pred = loc.location   "
+ +"      and inc.speed = '0'  "
+ +"      )  "
+ +"        when stat.nom = 5 then   "
+ +"      (select sum (inc.inc_pr) from inc where stat.nom = 5 and inc.pred = loc.location   "
+ +"      and inc.speed = '0'    "
+ +"      ) "
+ +"        when stat.nom = 6 then   "
+ +"      (select sum (inc.inc_cl) from inc where stat.nom = 6 and inc.pred = loc.location  "
+ +"      and inc.speed = '0'   "
+ +"      ) end, 0) zakr,  "
+ +"        "
+ +"          nvl (        case when stat.nom = 1 then   "
+ +"       (select sum (inc.inc) from inc where stat.nom = 1 and inc.pred = loc.location  "
+ +"      and inc.speed = '15'  "
+ +"       )  "
+ +"        when stat.nom = 2 then   "
+ +"      (select sum (inc.inc_ustr) from inc where stat.nom = 2 and inc.pred = loc.location   "
+ +"      and inc.speed = '15'  "
+ +"      )  "
+ +"        when stat.nom = 3 then   "
+ +"      (select sum (inc.inc_ustr_sr) from inc where stat.nom = 3 and inc.pred = loc.location  "
+ +"      and inc.speed = '15'  "
+ +"      )  "
+ +"        when stat.nom = 4 then   "
+ +"      (select sum (inc.inc_ne_ustr) from inc where stat.nom = 4 and inc.pred = loc.location   "
+ +"      and inc.speed = '15'   "
+ +"      )  "
+ +"        when stat.nom = 5 then   "
+ +"      (select sum (inc.inc_pr) from inc where stat.nom = 5 and inc.pred = loc.location   "
+ +"      and inc.speed = '15'  "
+ +"      ) "
+ +"        when stat.nom = 6 then   "
+ +"      (select sum (inc.inc_cl) from inc where stat.nom = 6 and inc.pred = loc.location  "
+ +"      and inc.speed = '15'   "
+ +"      ) end, 0) sp15,  "
+ +"        "
+ +"             nvl (        case when stat.nom = 1 then   "
+ +"       (select sum (inc.inc) from inc where stat.nom = 1 and inc.pred = loc.location  "
+ +"      and inc.speed = '25'   "
+ +"       )  "
+ +"        when stat.nom = 2 then   "
+ +"      (select sum (inc.inc_ustr) from inc where stat.nom = 2 and inc.pred = loc.location   "
+ +"      and inc.speed = '25'   "
+ +"      )  "
+ +"        when stat.nom = 3 then   "
+ +"      (select sum (inc.inc_ustr_sr) from inc where stat.nom = 3 and inc.pred = loc.location  "
+ +"      and inc.speed = '25'   "
+ +"      )  "
+ +"        when stat.nom = 4 then   "
+ +"      (select sum (inc.inc_ne_ustr) from inc where stat.nom = 4 and inc.pred = loc.location   "
+ +"      and inc.speed = '25'   "
+ +"      )  "
+ +"        when stat.nom = 5 then   "
+ +"      (select sum (inc.inc_pr) from inc where stat.nom = 5 and inc.pred = loc.location   "
+ +"      and inc.speed = '25'   "
+ +"      ) "
+ +"        when stat.nom = 6 then   "
+ +"      (select sum (inc.inc_cl) from inc where stat.nom = 6 and inc.pred = loc.location  "
+ +"      and inc.speed = '25'   "
+ +"      ) end, 0) sp25,  "
+ +"        "
+ +"             nvl (        case when stat.nom = 1 then   "
+ +"       (select sum (inc.inc) from inc where stat.nom = 1 and inc.pred = loc.location  "
+ +"      and inc.speed = '40'   "
+ +"       )  "
+ +"        when stat.nom = 2 then   "
+ +"      (select sum (inc.inc_ustr) from inc where stat.nom = 2 and inc.pred = loc.location   "
+ +"      and inc.speed = '40'   "
+ +"      )  "
+ +"        when stat.nom = 3 then   "
+ +"      (select sum (inc.inc_ustr_sr) from inc where stat.nom = 3 and inc.pred = loc.location  "
+ +"      and inc.speed = '40'   "
+ +"      )  "
+ +"        when stat.nom = 4 then   "
+ +"      (select sum (inc.inc_ne_ustr) from inc where stat.nom = 4 and inc.pred = loc.location   "
+ +"      and inc.speed = '40'  "
+ +"      )  "
+ +"        when stat.nom = 5 then   "
+ +"      (select sum (inc.inc_pr) from inc where stat.nom = 5 and inc.pred = loc.location   "
+ +"      and inc.speed = '40'   "
+ +"      ) "
+ +"        when stat.nom = 6 then   "
+ +"      (select sum (inc.inc_cl) from inc where stat.nom = 6 and inc.pred = loc.location  "
+ +"      and inc.speed = '40'   "
+ +"      ) end, 0) sp40,  "
+ +"        "
+ +"               nvl (        case when stat.nom = 1 then   "
+ +"       (select sum (inc.inc) from inc where stat.nom = 1 and inc.pred = loc.location  "
+ +"      and inc.speed = '50'   "
+ +"       )  "
+ +"        when stat.nom = 2 then   "
+ +"      (select sum (inc.inc_ustr) from inc where stat.nom = 2 and inc.pred = loc.location   "
+ +"      and inc.speed = '50'   "
+ +"      )  "
+ +"        when stat.nom = 3 then   "
+ +"      (select sum (inc.inc_ustr_sr) from inc where stat.nom = 3 and inc.pred = loc.location  "
+ +"      and inc.speed = '50'   "
+ +"      )  "
+ +"        when stat.nom = 4 then   "
+ +"      (select sum (inc.inc_ne_ustr) from inc where stat.nom = 4 and inc.pred = loc.location   "
+ +"      and inc.speed = '50'  "
+ +"      )  "
+ +"        when stat.nom = 5 then   "
+ +"      (select sum (inc.inc_pr) from inc where stat.nom = 5 and inc.pred = loc.location   "
+ +"      and inc.speed = '50'   "
+ +"      ) "
+ +"        when stat.nom = 6 then   "
+ +"      (select sum (inc.inc_cl) from inc where stat.nom = 6 and inc.pred = loc.location  "
+ +"      and inc.speed = '50'  "
+ +"      ) end, 0) sp50,   "
+ +"        "
+ +"                nvl (        case when stat.nom = 1 then   "
+ +"       (select sum (inc.inc) from inc where stat.nom = 1 and inc.pred = loc.location  "
+ +"      and inc.speed = '60'   "
+ +"       )  "
+ +"        when stat.nom = 2 then   "
+ +"      (select sum (inc.inc_ustr) from inc where stat.nom = 2 and inc.pred = loc.location   "
+ +"      and inc.speed = '60'   "
+ +"      )  "
+ +"        when stat.nom = 3 then   "
+ +"      (select sum (inc.inc_ustr_sr) from inc where stat.nom = 3 and inc.pred = loc.location  "
+ +"      and inc.speed = '60'   "
+ +"      )  "
+ +"        when stat.nom = 4 then   "
+ +"      (select sum (inc.inc_ne_ustr) from inc where stat.nom = 4 and inc.pred = loc.location   "
+ +"      and inc.speed = '60'   "
+ +"      )  "
+ +"        when stat.nom = 5 then   "
+ +"      (select sum (inc.inc_pr) from inc where stat.nom = 5 and inc.pred = loc.location   "
+ +"      and inc.speed = '60'   "
+ +"      ) "
+ +"        when stat.nom = 6 then   "
+ +"      (select sum (inc.inc_cl) from inc where stat.nom = 6 and inc.pred = loc.location  "
+ +"      and inc.speed = '60'   "
+ +"      ) end, 0) sp60,  "
+ +"        "
+ +"                nvl (        case when stat.nom = 1 then   "
+ +"       (select sum (inc.inc) from inc where stat.nom = 1 and inc.pred = loc.location  "
+ +"      and inc.speed = '60 ПРЖ'   "
+ +"       )  "
+ +"        when stat.nom = 2 then   "
+ +"      (select sum (inc.inc_ustr) from inc where stat.nom = 2 and inc.pred = loc.location   "
+ +"      and inc.speed = '60 ПРЖ'  "
+ +"      )  "
+ +"        when stat.nom = 3 then   "
+ +"      (select sum (inc.inc_ustr_sr) from inc where stat.nom = 3 and inc.pred = loc.location  "
+ +"      and inc.speed = '60 ПРЖ'   "
+ +"      )  "
+ +"        when stat.nom = 4 then   "
+ +"      (select sum (inc.inc_ne_ustr) from inc where stat.nom = 4 and inc.pred = loc.location   "
+ +"      and inc.speed = '60 ПРЖ'  "
+ +"      )  "
+ +"        when stat.nom = 5 then   "
+ +"      (select sum (inc.inc_pr) from inc where stat.nom = 5 and inc.pred = loc.location   "
+ +"      and inc.speed = '60 ПРЖ'   "
+ +"      ) "
+ +"        when stat.nom = 6 then   "
+ +"      (select sum (inc.inc_cl) from inc where stat.nom = 6 and inc.pred = loc.location  "
+ +"      and inc.speed = '60 ПРЖ'   "
+ +"      ) end, 0) sp60prz,  "
+ +"        "
+ +"                   nvl (        case when stat.nom = 1 then   "
+ +"       (select sum (inc.inc) from inc where stat.nom = 1 and inc.pred = loc.location  "
+ +"      and inc.speed = '70'   "
+ +"       )  "
+ +"        when stat.nom = 2 then   "
+ +"      (select sum (inc.inc_ustr) from inc where stat.nom = 2 and inc.pred = loc.location   "
+ +"      and inc.speed = '70'   "
+ +"      )  "
+ +"        when stat.nom = 3 then   "
+ +"      (select sum (inc.inc_ustr_sr) from inc where stat.nom = 3 and inc.pred = loc.location  "
+ +"      and inc.speed = '70'   "
+ +"      )  "
+ +"        when stat.nom = 4 then   "
+ +"      (select sum (inc.inc_ne_ustr) from inc where stat.nom = 4 and inc.pred = loc.location   "
+ +"      and inc.speed = '70'   "
+ +"      )  "
+ +"        when stat.nom = 5 then   "
+ +"      (select sum (inc.inc_pr) from inc where stat.nom = 5 and inc.pred = loc.location   "
+ +"      and inc.speed = '70'   "
+ +"      ) "
+ +"        when stat.nom = 6 then   "
+ +"      (select sum (inc.inc_cl) from inc where stat.nom = 6 and inc.pred = loc.location  "
+ +"      and inc.speed = '70'   "
+ +"      ) end, 0) sp70,  "
+ +"        "
+ +"                   nvl (        case when stat.nom = 1 then   "
+ +"       (select sum (inc.inc) from inc where stat.nom = 1 and inc.pred = loc.location  "
+ +"      and inc.speed = '80'   "
+ +"       )  "
+ +"        when stat.nom = 2 then   "
+ +"      (select sum (inc.inc_ustr) from inc where stat.nom = 2 and inc.pred = loc.location   "
+ +"      and inc.speed = '80'   "
+ +"      )  "
+ +"        when stat.nom = 3 then   "
+ +"      (select sum (inc.inc_ustr_sr) from inc where stat.nom = 3 and inc.pred = loc.location  "
+ +"      and inc.speed = '80'   "
+ +"      )  "
+ +"        when stat.nom = 4 then   "
+ +"      (select sum (inc.inc_ne_ustr) from inc where stat.nom = 4 and inc.pred = loc.location   "
+ +"      and inc.speed = '80'  "
+ +"      )  "
+ +"        when stat.nom = 5 then   "
+ +"      (select sum (inc.inc_pr) from inc where stat.nom = 5 and inc.pred = loc.location   "
+ +"      and inc.speed = '80'   "
+ +"      ) "
+ +"        when stat.nom = 6 then   "
+ +"      (select sum (inc.inc_cl) from inc where stat.nom = 6 and inc.pred = loc.location  "
+ +"      and inc.speed = '80'   "
+ +"      ) end, 0) sp80,  "
+ +"        "
+ +"                   nvl (        case when stat.nom = 1 then   "
+ +"       (select sum (inc.inc) from inc where stat.nom = 1 and inc.pred = loc.location  "
+ +"      and inc.speed = '90'   "
+ +"       )  "
+ +"        when stat.nom = 2 then   "
+ +"      (select sum (inc.inc_ustr) from inc where stat.nom = 2 and inc.pred = loc.location   "
+ +"      and inc.speed = '90'   "
+ +"      )  "
+ +"        when stat.nom = 3 then   "
+ +"      (select sum (inc.inc_ustr_sr) from inc where stat.nom = 3 and inc.pred = loc.location  "
+ +"      and inc.speed = '90'   "
+ +"      )  "
+ +"        when stat.nom = 4 then   "
+ +"      (select sum (inc.inc_ne_ustr) from inc where stat.nom = 4 and inc.pred = loc.location   "
+ +"      and inc.speed = '90'   "
+ +"      )  "
+ +"        when stat.nom = 5 then   "
+ +"      (select sum (inc.inc_pr) from inc where stat.nom = 5 and inc.pred = loc.location   "
+ +"      and inc.speed = '90'   "
+ +"      ) "
+ +"        when stat.nom = 6 then   "
+ +"      (select sum (inc.inc_cl) from inc where stat.nom = 6 and inc.pred = loc.location  "
+ +"      and inc.speed = '90'   "
+ +"      ) end, 0) sp90,  "
+ +"        "
+ +"                   nvl (        case when stat.nom = 1 then   "
+ +"       (select sum (inc.inc) from inc where stat.nom = 1 and inc.pred = loc.location  "
+ +"      and inc.speed = '100'  "
+ +"       )  "
+ +"        when stat.nom = 2 then   "
+ +"      (select sum (inc.inc_ustr) from inc where stat.nom = 2 and inc.pred = loc.location   "
+ +"      and inc.speed = '100'  "
+ +"      )  "
+ +"        when stat.nom = 3 then   "
+ +"      (select sum (inc.inc_ustr_sr) from inc where stat.nom = 3 and inc.pred = loc.location  "
+ +"      and inc.speed = '100'   "
+ +"      )  "
+ +"        when stat.nom = 4 then   "
+ +"      (select sum (inc.inc_ne_ustr) from inc where stat.nom = 4 and inc.pred = loc.location   "
+ +"      and inc.speed = '100'  "
+ +"      )  "
+ +"        when stat.nom = 5 then   "
+ +"      (select sum (inc.inc_pr) from inc where stat.nom = 5 and inc.pred = loc.location   "
+ +"      and inc.speed = '100'  "
+ +"      ) "
+ +"        when stat.nom = 6 then   "
+ +"      (select sum (inc.inc_cl) from inc where stat.nom = 6 and inc.pred = loc.location  "
+ +"      and inc.speed = '100'  "
+ +"      ) end, 0) sp100  "
+ +"        "
+ +"        from loc join stat on 1=1   "
  +"     "
- +"     nvl(  case when stat.nom = 1 then  "
- +"     (select sum (inc.cnt) from inc where stat.nom = 1 and inc.pred = loc.location "
- +"     and inc.clas in (select clas from clasrel where anc = '090004000014') "
- +"     ) "
- +"      when stat.nom = 2 then  "
- +"    (select sum (inc_ustr.cnt) from inc_ustr where stat.nom = 2 and inc_ustr.pred = loc.location  "
- +"    and inc_ustr.clas in (select clas from clasrel where anc = '090004000014') "
- +"    ) "
- +"      when stat.nom = 3 then  "
- +"    (select sum (inc_ustr_sr.cnt) from inc_ustr_sr where stat.nom = 3 and inc_ustr_sr.pred = loc.location "
- +"    and inc_ustr_sr.clas in (select clas from clasrel where anc = '090004000014') "
- +"    ) "
- +"      when stat.nom = 4 then  "
- +"    (select sum (inc_ne_ustr.cnt) from inc_ne_ustr where stat.nom = 4 and inc_ne_ustr.pred = loc.location  "
- +"    and inc_ne_ustr.clas in (select clas from clasrel where anc = '090004000014') "
- +"    ) "
- +"      when stat.nom = 5 then  "
- +"    (select sum (inc_pr.cnt) from inc_pr where stat.nom = 5 and inc_pr.pred = loc.location  "
- +"    and inc_pr.clas in (select clas from clasrel where anc = '090004000014') "
- +"    )"
- +"      when stat.nom = 6 then  "
- +"    (select sum (inc_cl.cnt) from inc_cl where stat.nom = 6 and inc_cl.pred = loc.location "
- +"    and inc_cl.clas in (select clas from clasrel where anc = '090004000014') "
- +"    ) end, 0) vsegorel, "
- +"     "
- +"     "
- +"     nvl(     case when stat.nom = 1 then  "
- +"     (select sum (inc.cnt) from inc where stat.nom = 1 and inc.pred = loc.location "
- +"     and inc.clas in (select clas from clasrel where par = '090004000053') "
- +"     ) "
- +"      when stat.nom = 2 then  "
- +"    (select sum (inc_ustr.cnt) from inc_ustr where stat.nom = 2 and inc_ustr.pred = loc.location  "
- +"    and inc_ustr.clas in (select clas from clasrel where par = '090004000053') "
- +"    ) "
- +"      when stat.nom = 3 then  "
- +"    (select sum (inc_ustr_sr.cnt) from inc_ustr_sr where stat.nom = 3 and inc_ustr_sr.pred = loc.location "
- +"    and inc_ustr_sr.clas in (select clas from clasrel where par = '090004000053') "
- +"    ) "
- +"      when stat.nom = 4 then  "
- +"    (select sum (inc_ne_ustr.cnt) from inc_ne_ustr where stat.nom = 4 and inc_ne_ustr.pred = loc.location  "
- +"    and inc_ne_ustr.clas in (select clas from clasrel where par = '090004000053') "
- +"    ) "
- +"      when stat.nom = 5 then  "
- +"    (select sum (inc_pr.cnt) from inc_pr where stat.nom = 5 and inc_pr.pred = loc.location  "
- +"    and inc_pr.clas in (select clas from clasrel where par = '090004000053') "
- +"    )"
- +"      when stat.nom = 6 then  "
- +"    (select sum (inc_cl.cnt) from inc_cl where stat.nom = 6 and inc_cl.pred = loc.location "
- +"    and inc_cl.clas in (select clas from clasrel where par = '090004000053') "
- +"    ) end, 0) otvodi, "
- +"     "
- +"     nvl (        case when stat.nom = 1 then  "
- +"     (select sum (inc.cnt) from inc where stat.nom = 1 and inc.pred = loc.location "
- +"     and inc.clas in (select clas from clasrel where par = '090004000054') "
- +"     ) "
- +"      when stat.nom = 2 then  "
- +"    (select sum (inc_ustr.cnt) from inc_ustr where stat.nom = 2 and inc_ustr.pred = loc.location  "
- +"    and inc_ustr.clas in (select clas from clasrel where par = '090004000054') "
- +"    ) "
- +"      when stat.nom = 3 then  "
- +"    (select sum (inc_ustr_sr.cnt) from inc_ustr_sr where stat.nom = 3 and inc_ustr_sr.pred = loc.location "
- +"    and inc_ustr_sr.clas in (select clas from clasrel where par = '090004000054') "
- +"    ) "
- +"      when stat.nom = 4 then  "
- +"    (select sum (inc_ne_ustr.cnt) from inc_ne_ustr where stat.nom = 4 and inc_ne_ustr.pred = loc.location  "
- +"    and inc_ne_ustr.clas in (select clas from clasrel where par = '090004000054') "
- +"    ) "
- +"      when stat.nom = 5 then  "
- +"    (select sum (inc_pr.cnt) from inc_pr where stat.nom = 5 and inc_pr.pred = loc.location  "
- +"    and inc_pr.clas in (select clas from clasrel where par = '090004000054') "
- +"    )"
- +"      when stat.nom = 6 then  "
- +"    (select sum (inc_cl.cnt) from inc_cl where stat.nom = 6 and inc_cl.pred = loc.location "
- +"    and inc_cl.clas in (select clas from clasrel where par = '090004000054') "
- +"    ) end, 0) planlin, "
- +"     "
- +"        nvl (        case when stat.nom = 1 then  "
- +"     (select sum (inc.cnt) from inc where stat.nom = 1 and inc.pred = loc.location "
- +"     and inc.clas in (select clas from clasrel where par = '090004000055') "
- +"     ) "
- +"      when stat.nom = 2 then  "
- +"    (select sum (inc_ustr.cnt) from inc_ustr where stat.nom = 2 and inc_ustr.pred = loc.location  "
- +"    and inc_ustr.clas in (select clas from clasrel where par = '090004000055') "
- +"    ) "
- +"      when stat.nom = 3 then  "
- +"    (select sum (inc_ustr_sr.cnt) from inc_ustr_sr where stat.nom = 3 and inc_ustr_sr.pred = loc.location "
- +"    and inc_ustr_sr.clas in (select clas from clasrel where par = '090004000055') "
- +"    ) "
- +"      when stat.nom = 4 then  "
- +"    (select sum (inc_ne_ustr.cnt) from inc_ne_ustr where stat.nom = 4 and inc_ne_ustr.pred = loc.location  "
- +"    and inc_ne_ustr.clas in (select clas from clasrel where par = '090004000055') "
- +"    ) "
- +"      when stat.nom = 5 then  "
- +"    (select sum (inc_pr.cnt) from inc_pr where stat.nom = 5 and inc_pr.pred = loc.location  "
- +"    and inc_pr.clas in (select clas from clasrel where par = '090004000055') "
- +"    )"
- +"      when stat.nom = 6 then  "
- +"    (select sum (inc_cl.cnt) from inc_cl where stat.nom = 6 and inc_cl.pred = loc.location "
- +"    and inc_cl.clas in (select clas from clasrel where par = '090004000055') "
- +"    ) end, 0) polput, "
- +"     "
- +"        nvl (        case when stat.nom = 1 then  "
- +"     (select sum (inc.cnt) from inc where stat.nom = 1 and inc.pred = loc.location "
- +"     and inc.clas in (select clas from clasrel where par = '090004000056') "
- +"     ) "
- +"      when stat.nom = 2 then  "
- +"    (select sum (inc_ustr.cnt) from inc_ustr where stat.nom = 2 and inc_ustr.pred = loc.location  "
- +"    and inc_ustr.clas in (select clas from clasrel where par = '090004000056') "
- +"    ) "
- +"      when stat.nom = 3 then  "
- +"    (select sum (inc_ustr_sr.cnt) from inc_ustr_sr where stat.nom = 3 and inc_ustr_sr.pred = loc.location "
- +"    and inc_ustr_sr.clas in (select clas from clasrel where par = '090004000056') "
- +"    ) "
- +"      when stat.nom = 4 then  "
- +"    (select sum (inc_ne_ustr.cnt) from inc_ne_ustr where stat.nom = 4 and inc_ne_ustr.pred = loc.location  "
- +"    and inc_ne_ustr.clas in (select clas from clasrel where par = '090004000056') "
- +"    ) "
- +"      when stat.nom = 5 then  "
- +"    (select sum (inc_pr.cnt) from inc_pr where stat.nom = 5 and inc_pr.pred = loc.location  "
- +"    and inc_pr.clas in (select clas from clasrel where par = '090004000056') "
- +"    )"
- +"      when stat.nom = 6 then  "
- +"    (select sum (inc_cl.cnt) from inc_cl where stat.nom = 6 and inc_cl.pred = loc.location "
- +"    and inc_cl.clas in (select clas from clasrel where par = '090004000056') "
- +"    ) end, 0) polrelnit, "
- +"     "
- +"        nvl (        case when stat.nom = 1 then  "
- +"     (select sum (inc.cnt) from inc where stat.nom = 1 and inc.pred = loc.location "
- +"     and inc.clas in (select clas from clasrel where par = '090004000057') "
- +"     ) "
- +"      when stat.nom = 2 then  "
- +"    (select sum (inc_ustr.cnt) from inc_ustr where stat.nom = 2 and inc_ustr.pred = loc.location  "
- +"    and inc_ustr.clas in (select clas from clasrel where par = '090004000057') "
- +"    ) "
- +"      when stat.nom = 3 then  "
- +"    (select sum (inc_ustr_sr.cnt) from inc_ustr_sr where stat.nom = 3 and inc_ustr_sr.pred = loc.location "
- +"    and inc_ustr_sr.clas in (select clas from clasrel where par = '090004000057') "
- +"    ) "
- +"      when stat.nom = 4 then  "
- +"    (select sum (inc_ne_ustr.cnt) from inc_ne_ustr where stat.nom = 4 and inc_ne_ustr.pred = loc.location  "
- +"    and inc_ne_ustr.clas in (select clas from clasrel where par = '090004000057') "
- +"    ) "
- +"      when stat.nom = 5 then  "
- +"    (select sum (inc_pr.cnt) from inc_pr where stat.nom = 5 and inc_pr.pred = loc.location  "
- +"    and inc_pr.clas in (select clas from clasrel where par = '090004000057') "
- +"    )"
- +"      when stat.nom = 6 then  "
- +"    (select sum (inc_cl.cnt) from inc_cl where stat.nom = 6 and inc_cl.pred = loc.location "
- +"    and inc_cl.clas in (select clas from clasrel where par = '090004000057') "
- +"    ) end, 0) prosad, "
- +"     "
- +"        nvl (        case when stat.nom = 1 then  "
- +"     (select sum (inc.cnt) from inc where stat.nom = 1 and inc.pred = loc.location "
- +"     and inc.clas in (select clas from clasrel where par = '090004000058') "
- +"     ) "
- +"      when stat.nom = 2 then  "
- +"    (select sum (inc_ustr.cnt) from inc_ustr where stat.nom = 2 and inc_ustr.pred = loc.location  "
- +"    and inc_ustr.clas in (select clas from clasrel where par = '090004000058') "
- +"    ) "
- +"      when stat.nom = 3 then  "
- +"    (select sum (inc_ustr_sr.cnt) from inc_ustr_sr where stat.nom = 3 and inc_ustr_sr.pred = loc.location "
- +"    and inc_ustr_sr.clas in (select clas from clasrel where par = '090004000058') "
- +"    ) "
- +"      when stat.nom = 4 then  "
- +"    (select sum (inc_ne_ustr.cnt) from inc_ne_ustr where stat.nom = 4 and inc_ne_ustr.pred = loc.location  "
- +"    and inc_ne_ustr.clas in (select clas from clasrel where par = '090004000058') "
- +"    ) "
- +"      when stat.nom = 5 then  "
- +"    (select sum (inc_pr.cnt) from inc_pr where stat.nom = 5 and inc_pr.pred = loc.location  "
- +"    and inc_pr.clas in (select clas from clasrel where par = '090004000058') "
- +"    )"
- +"      when stat.nom = 6 then  "
- +"    (select sum (inc_cl.cnt) from inc_cl where stat.nom = 6 and inc_cl.pred = loc.location "
- +"    and inc_cl.clas in (select clas from clasrel where par = '090004000058') "
- +"    ) end, 0) shirkol, "
- +"     "
- +"        nvl (        case when stat.nom = 1 then  "
- +"     (select sum (inc.cnt) from inc where stat.nom = 1 and inc.pred = loc.location "
- +"     and inc.clas in (select clas from clasrel where par = '090004000059') "
- +"     ) "
- +"      when stat.nom = 2 then  "
- +"    (select sum (inc_ustr.cnt) from inc_ustr where stat.nom = 2 and inc_ustr.pred = loc.location  "
- +"    and inc_ustr.clas in (select clas from clasrel where par = '090004000059') "
- +"    ) "
- +"      when stat.nom = 3 then  "
- +"    (select sum (inc_ustr_sr.cnt) from inc_ustr_sr where stat.nom = 3 and inc_ustr_sr.pred = loc.location "
- +"    and inc_ustr_sr.clas in (select clas from clasrel where par = '090004000059') "
- +"    ) "
- +"      when stat.nom = 4 then  "
- +"    (select sum (inc_ne_ustr.cnt) from inc_ne_ustr where stat.nom = 4 and inc_ne_ustr.pred = loc.location  "
- +"    and inc_ne_ustr.clas in (select clas from clasrel where par = '090004000059') "
- +"    ) "
- +"      when stat.nom = 5 then  "
- +"    (select sum (inc_pr.cnt) from inc_pr where stat.nom = 5 and inc_pr.pred = loc.location  "
- +"    and inc_pr.clas in (select clas from clasrel where par = '090004000059') "
- +"    )"
- +"      when stat.nom = 6 then  "
- +"    (select sum (inc_cl.cnt) from inc_cl where stat.nom = 6 and inc_cl.pred = loc.location "
- +"    and inc_cl.clas in (select clas from clasrel where par = '090004000059') "
- +"    ) end, 0) sochots, "
- +"     "
- +"     nvl (        case when stat.nom = 1 then  "
- +"     (select sum (inc.cnt) from inc where stat.nom = 1 and inc.pred = loc.location "
- +"     and inc.clas in (select clas from clasrel where par = '090004000060') "
- +"     ) "
- +"      when stat.nom = 2 then  "
- +"    (select sum (inc_ustr.cnt) from inc_ustr where stat.nom = 2 and inc_ustr.pred = loc.location  "
- +"    and inc_ustr.clas in (select clas from clasrel where par = '090004000060') "
- +"    ) "
- +"      when stat.nom = 3 then  "
- +"    (select sum (inc_ustr_sr.cnt) from inc_ustr_sr where stat.nom = 3 and inc_ustr_sr.pred = loc.location "
- +"    and inc_ustr_sr.clas in (select clas from clasrel where par = '090004000060') "
- +"    ) "
- +"      when stat.nom = 4 then  "
- +"    (select sum (inc_ne_ustr.cnt) from inc_ne_ustr where stat.nom = 4 and inc_ne_ustr.pred = loc.location  "
- +"    and inc_ne_ustr.clas in (select clas from clasrel where par = '090004000060') "
- +"    ) "
- +"      when stat.nom = 5 then  "
- +"    (select sum (inc_pr.cnt) from inc_pr where stat.nom = 5 and inc_pr.pred = loc.location  "
- +"    and inc_pr.clas in (select clas from clasrel where par = '090004000060') "
- +"    )"
- +"      when stat.nom = 6 then  "
- +"    (select sum (inc_cl.cnt) from inc_cl where stat.nom = 6 and inc_cl.pred = loc.location "
- +"    and inc_cl.clas in (select clas from clasrel where par = '090004000060') "
- +"    ) end, 0) otsop, "
- +"     "
- +"     nvl (        case when stat.nom = 1 then  "
- +"     (select sum (inc.cnt) from inc where stat.nom = 1 and inc.pred = loc.location "
- +"     and inc.clas in (select clas from clasrel where par = '090004000061') "
- +"     ) "
- +"      when stat.nom = 2 then  "
- +"    (select sum (inc_ustr.cnt) from inc_ustr where stat.nom = 2 and inc_ustr.pred = loc.location  "
- +"    and inc_ustr.clas in (select clas from clasrel where par = '090004000061') "
- +"    ) "
- +"      when stat.nom = 3 then  "
- +"    (select sum (inc_ustr_sr.cnt) from inc_ustr_sr where stat.nom = 3 and inc_ustr_sr.pred = loc.location "
- +"    and inc_ustr_sr.clas in (select clas from clasrel where par = '090004000061') "
- +"    ) "
- +"      when stat.nom = 4 then  "
- +"    (select sum (inc_ne_ustr.cnt) from inc_ne_ustr where stat.nom = 4 and inc_ne_ustr.pred = loc.location  "
- +"    and inc_ne_ustr.clas in (select clas from clasrel where par = '090004000061') "
- +"    ) "
- +"      when stat.nom = 5 then  "
- +"    (select sum (inc_pr.cnt) from inc_pr where stat.nom = 5 and inc_pr.pred = loc.location  "
- +"    and inc_pr.clas in (select clas from clasrel where par = '090004000061') "
- +"    )"
- +"      when stat.nom = 6 then  "
- +"    (select sum (inc_cl.cnt) from inc_cl where stat.nom = 6 and inc_cl.pred = loc.location "
- +"    and inc_cl.clas in (select clas from clasrel where par = '090004000061') "
- +"    ) end, 0) narnorm, "
- +"     "
- +"     nvl (        case when stat.nom = 1 then  "
- +"     (select sum (inc.cnt) from inc where stat.nom = 1 and inc.pred = loc.location "
- +"     and inc.clas in (select clas from clasrel where par = '090004000062') "
- +"     ) "
- +"      when stat.nom = 2 then  "
- +"    (select sum (inc_ustr.cnt) from inc_ustr where stat.nom = 2 and inc_ustr.pred = loc.location  "
- +"    and inc_ustr.clas in (select clas from clasrel where par = '090004000062') "
- +"    ) "
- +"      when stat.nom = 3 then  "
- +"    (select sum (inc_ustr_sr.cnt) from inc_ustr_sr where stat.nom = 3 and inc_ustr_sr.pred = loc.location "
- +"    and inc_ustr_sr.clas in (select clas from clasrel where par = '090004000062') "
- +"    ) "
- +"      when stat.nom = 4 then  "
- +"    (select sum (inc_ne_ustr.cnt) from inc_ne_ustr where stat.nom = 4 and inc_ne_ustr.pred = loc.location  "
- +"    and inc_ne_ustr.clas in (select clas from clasrel where par = '090004000062') "
- +"    ) "
- +"      when stat.nom = 5 then  "
- +"    (select sum (inc_pr.cnt) from inc_pr where stat.nom = 5 and inc_pr.pred = loc.location  "
- +"    and inc_pr.clas in (select clas from clasrel where par = '090004000062') "
- +"    )"
- +"      when stat.nom = 6 then  "
- +"    (select sum (inc_cl.cnt) from inc_cl where stat.nom = 6 and inc_cl.pred = loc.location "
- +"    and inc_cl.clas in (select clas from clasrel where par = '090004000062') "
- +"    ) end, 0) nesovp, "
- +"     "
- +"     "
- +"       nvl(  case when stat.nom = 1 then  "
- +"     (select sum (inc.cnt) from inc where stat.nom = 1 and inc.pred = loc.location "
- +"    and inc.clas in (select clas from clasrel where anc in ('090004000012','090004000011','090004000104','090004000010','090004000024','090004000016','090004000017','090004000025','090004000050')) "
- +"     ) "
- +"      when stat.nom = 2 then  "
- +"    (select sum (inc_ustr.cnt) from inc_ustr where stat.nom = 2 and inc_ustr.pred = loc.location  "
- +"    and inc_ustr.clas in (select clas from clasrel where anc in ('090004000012','090004000011','090004000104','090004000010','090004000024','090004000016','090004000017','090004000025','090004000050')) "
- +"    ) "
- +"      when stat.nom = 3 then  "
- +"    (select sum (inc_ustr_sr.cnt) from inc_ustr_sr where stat.nom = 3 and inc_ustr_sr.pred = loc.location "
- +"    and inc_ustr_sr.clas in (select clas from clasrel where anc in ('090004000012','090004000011','090004000104','090004000010','090004000024','090004000016','090004000017','090004000025','090004000050')) "
- +"    ) "
- +"      when stat.nom = 4 then  "
- +"    (select sum (inc_ne_ustr.cnt) from inc_ne_ustr where stat.nom = 4 and inc_ne_ustr.pred = loc.location  "
- +"    and inc_ne_ustr.clas in (select clas from clasrel where anc in ('090004000012','090004000011','090004000104','090004000010','090004000024','090004000016','090004000017','090004000025','090004000050')) "
- +"    ) "
- +"      when stat.nom = 5 then  "
- +"    (select sum (inc_pr.cnt) from inc_pr where stat.nom = 5 and inc_pr.pred = loc.location  "
- +"    and inc_pr.clas in (select clas from clasrel where anc in ('090004000012','090004000011','090004000104','090004000010','090004000024','090004000016','090004000017','090004000025','090004000050')) "
- +"    )"
- +"      when stat.nom = 6 then  "
- +"    (select sum (inc_cl.cnt) from inc_cl where stat.nom = 6 and inc_cl.pred = loc.location "
- +"    and inc_cl.clas in (select clas from clasrel where anc in ('090004000012','090004000011','090004000104','090004000010','090004000024','090004000016','090004000017','090004000025','090004000050')) "
- +"    ) end, 0) vsegodef, "
- +"     "
- +"     "
- +"     nvl(  case when stat.nom = 1 then  "
- +"     (select sum (inc.cnt) from inc where stat.nom = 1 and inc.pred = loc.location "
- +"     and inc.clas in (select clas from clasrel where anc = '090004000050') "
- +"     ) "
- +"      when stat.nom = 2 then  "
- +"    (select sum (inc_ustr.cnt) from inc_ustr where stat.nom = 2 and inc_ustr.pred = loc.location  "
- +"    and inc_ustr.clas in (select clas from clasrel where anc = '090004000050') "
- +"    ) "
- +"      when stat.nom = 3 then  "
- +"    (select sum (inc_ustr_sr.cnt) from inc_ustr_sr where stat.nom = 3 and inc_ustr_sr.pred = loc.location "
- +"    and inc_ustr_sr.clas in (select clas from clasrel where anc = '090004000050') "
- +"    ) "
- +"      when stat.nom = 4 then  "
- +"    (select sum (inc_ne_ustr.cnt) from inc_ne_ustr where stat.nom = 4 and inc_ne_ustr.pred = loc.location  "
- +"    and inc_ne_ustr.clas in (select clas from clasrel where anc = '090004000050') "
- +"    ) "
- +"      when stat.nom = 5 then  "
- +"    (select sum (inc_pr.cnt) from inc_pr where stat.nom = 5 and inc_pr.pred = loc.location  "
- +"    and inc_pr.clas in (select clas from clasrel where anc = '090004000050') "
- +"    )"
- +"      when stat.nom = 6 then  "
- +"    (select sum (inc_cl.cnt) from inc_cl where stat.nom = 6 and inc_cl.pred = loc.location "
- +"    and inc_cl.clas in (select clas from clasrel where anc = '090004000050') "
- +"    ) end, 0) relsov, "
- +"     "
- +"     "
- +"     nvl(     case when stat.nom = 1 then  "
- +"     (select sum (inc.cnt) from inc where stat.nom = 1 and inc.pred = loc.location "
- +"     and inc.clas in (select clas from clasrel where anc in ('090004000017','090004000025' )) "
- +"     ) "
- +"      when stat.nom = 2 then  "
- +"    (select sum (inc_ustr.cnt) from inc_ustr where stat.nom = 2 and inc_ustr.pred = loc.location  "
- +"    and inc_ustr.clas in (select clas from clasrel where anc in ('090004000017','090004000025' )) "
- +"    ) "
- +"      when stat.nom = 3 then  "
- +"    (select sum (inc_ustr_sr.cnt) from inc_ustr_sr where stat.nom = 3 and inc_ustr_sr.pred = loc.location "
- +"    and inc_ustr_sr.clas in (select clas from clasrel where anc in ('090004000017','090004000025' )) "
- +"    ) "
- +"      when stat.nom = 4 then  "
- +"    (select sum (inc_ne_ustr.cnt) from inc_ne_ustr where stat.nom = 4 and inc_ne_ustr.pred = loc.location  "
- +"    and inc_ne_ustr.clas in (select clas from clasrel where anc in ('090004000017','090004000025' )) "
- +"    ) "
- +"      when stat.nom = 5 then  "
- +"    (select sum (inc_pr.cnt) from inc_pr where stat.nom = 5 and inc_pr.pred = loc.location  "
- +"    and inc_pr.clas in (select clas from clasrel where anc in ('090004000017','090004000025' )) "
- +"    )"
- +"      when stat.nom = 6 then  "
- +"    (select sum (inc_cl.cnt) from inc_cl where stat.nom = 6 and inc_cl.pred = loc.location "
- +"    and inc_cl.clas in (select clas from clasrel where anc in ('090004000017','090004000025' )) "
- +"    ) end, 0) skrepleniy, "
- +"     "
- +"     nvl (        case when stat.nom = 1 then  "
- +"     (select sum (inc.cnt) from inc where stat.nom = 1 and inc.pred = loc.location "
- +"     and inc.clas in (select clas from clasrel where anc = '090004000016') "
- +"     ) "
- +"      when stat.nom = 2 then  "
- +"    (select sum (inc_ustr.cnt) from inc_ustr where stat.nom = 2 and inc_ustr.pred = loc.location  "
- +"    and inc_ustr.clas in (select clas from clasrel where anc = '090004000016') "
- +"    ) "
- +"      when stat.nom = 3 then  "
- +"    (select sum (inc_ustr_sr.cnt) from inc_ustr_sr where stat.nom = 3 and inc_ustr_sr.pred = loc.location "
- +"    and inc_ustr_sr.clas in (select clas from clasrel where anc = '090004000016') "
- +"    ) "
- +"      when stat.nom = 4 then  "
- +"    (select sum (inc_ne_ustr.cnt) from inc_ne_ustr where stat.nom = 4 and inc_ne_ustr.pred = loc.location  "
- +"    and inc_ne_ustr.clas in (select clas from clasrel where anc = '090004000016') "
- +"    ) "
- +"      when stat.nom = 5 then  "
- +"    (select sum (inc_pr.cnt) from inc_pr where stat.nom = 5 and inc_pr.pred = loc.location  "
- +"    and inc_pr.clas in (select clas from clasrel where anc = '090004000016') "
- +"    )"
- +"      when stat.nom = 6 then  "
- +"    (select sum (inc_cl.cnt) from inc_cl where stat.nom = 6 and inc_cl.pred = loc.location "
- +"    and inc_cl.clas in (select clas from clasrel where anc = '090004000016') "
- +"    ) end, 0) shpal, "
- +"     "
- +"        nvl (        case when stat.nom = 1 then  "
- +"     (select sum (inc.cnt) from inc where stat.nom = 1 and inc.pred = loc.location "
- +"     and inc.clas in (select clas from clasrel where anc = '090004000024') "
- +"     ) "
- +"      when stat.nom = 2 then  "
- +"    (select sum (inc_ustr.cnt) from inc_ustr where stat.nom = 2 and inc_ustr.pred = loc.location  "
- +"    and inc_ustr.clas in (select clas from clasrel where anc = '090004000024') "
- +"    ) "
- +"      when stat.nom = 3 then  "
- +"    (select sum (inc_ustr_sr.cnt) from inc_ustr_sr where stat.nom = 3 and inc_ustr_sr.pred = loc.location "
- +"    and inc_ustr_sr.clas in (select clas from clasrel where anc = '090004000024') "
- +"    ) "
- +"      when stat.nom = 4 then  "
- +"    (select sum (inc_ne_ustr.cnt) from inc_ne_ustr where stat.nom = 4 and inc_ne_ustr.pred = loc.location  "
- +"    and inc_ne_ustr.clas in (select clas from clasrel where anc = '090004000024') "
- +"    ) "
- +"      when stat.nom = 5 then  "
- +"    (select sum (inc_pr.cnt) from inc_pr where stat.nom = 5 and inc_pr.pred = loc.location  "
- +"    and inc_pr.clas in (select clas from clasrel where anc = '090004000024') "
- +"    )"
- +"      when stat.nom = 6 then  "
- +"    (select sum (inc_cl.cnt) from inc_cl where stat.nom = 6 and inc_cl.pred = loc.location "
- +"    and inc_cl.clas in (select clas from clasrel where anc = '090004000024') "
- +"    ) end, 0) per_brus, "
- +"     "
- +"        nvl (        case when stat.nom = 1 then  "
- +"     (select sum (inc.cnt) from inc where stat.nom = 1 and inc.pred = loc.location "
- +"     and inc.clas in (select clas from clasrel where anc = '090004000010') "
- +"     ) "
- +"      when stat.nom = 2 then  "
- +"    (select sum (inc_ustr.cnt) from inc_ustr where stat.nom = 2 and inc_ustr.pred = loc.location  "
- +"    and inc_ustr.clas in (select clas from clasrel where anc = '090004000010') "
- +"    ) "
- +"      when stat.nom = 3 then  "
- +"    (select sum (inc_ustr_sr.cnt) from inc_ustr_sr where stat.nom = 3 and inc_ustr_sr.pred = loc.location "
- +"    and inc_ustr_sr.clas in (select clas from clasrel where anc = '090004000010') "
- +"    ) "
- +"      when stat.nom = 4 then  "
- +"    (select sum (inc_ne_ustr.cnt) from inc_ne_ustr where stat.nom = 4 and inc_ne_ustr.pred = loc.location  "
- +"    and inc_ne_ustr.clas in (select clas from clasrel where anc = '090004000010') "
- +"    ) "
- +"      when stat.nom = 5 then  "
- +"    (select sum (inc_pr.cnt) from inc_pr where stat.nom = 5 and inc_pr.pred = loc.location  "
- +"    and inc_pr.clas in (select clas from clasrel where anc = '090004000010') "
- +"    )"
- +"      when stat.nom = 6 then  "
- +"    (select sum (inc_cl.cnt) from inc_cl where stat.nom = 6 and inc_cl.pred = loc.location "
- +"    and inc_cl.clas in (select clas from clasrel where anc = '090004000010') "
- +"    ) end, 0) stp, "
- +"     "
- +"        nvl (        case when stat.nom = 1 then  "
- +"     (select sum (inc.cnt) from inc where stat.nom = 1 and inc.pred = loc.location "
- +"     and inc.clas in (select clas from clasrel where anc = '090004000104') "
- +"     ) "
- +"      when stat.nom = 2 then  "
- +"    (select sum (inc_ustr.cnt) from inc_ustr where stat.nom = 2 and inc_ustr.pred = loc.location  "
- +"    and inc_ustr.clas in (select clas from clasrel where anc = '090004000104') "
- +"    ) "
- +"      when stat.nom = 3 then  "
- +"    (select sum (inc_ustr_sr.cnt) from inc_ustr_sr where stat.nom = 3 and inc_ustr_sr.pred = loc.location "
- +"    and inc_ustr_sr.clas in (select clas from clasrel where anc = '090004000104') "
- +"    ) "
- +"      when stat.nom = 4 then  "
- +"    (select sum (inc_ne_ustr.cnt) from inc_ne_ustr where stat.nom = 4 and inc_ne_ustr.pred = loc.location  "
- +"    and inc_ne_ustr.clas in (select clas from clasrel where anc = '090004000104') "
- +"    ) "
- +"      when stat.nom = 5 then  "
- +"    (select sum (inc_pr.cnt) from inc_pr where stat.nom = 5 and inc_pr.pred = loc.location  "
- +"    and inc_pr.clas in (select clas from clasrel where anc = '090004000104') "
- +"    )"
- +"      when stat.nom = 6 then  "
- +"    (select sum (inc_cl.cnt) from inc_cl where stat.nom = 6 and inc_cl.pred = loc.location "
- +"    and inc_cl.clas in (select clas from clasrel where anc = '090004000104') "
- +"    ) end, 0) krestovin, "
- +"     "
- +"        nvl (        case when stat.nom = 1 then  "
- +"     (select sum (inc.cnt) from inc where stat.nom = 1 and inc.pred = loc.location "
- +"     and inc.clas in (select clas from clasrel where anc = '090004000011') "
- +"     ) "
- +"      when stat.nom = 2 then  "
- +"    (select sum (inc_ustr.cnt) from inc_ustr where stat.nom = 2 and inc_ustr.pred = loc.location  "
- +"    and inc_ustr.clas in (select clas from clasrel where anc = '090004000011') "
- +"    ) "
- +"      when stat.nom = 3 then  "
- +"    (select sum (inc_ustr_sr.cnt) from inc_ustr_sr where stat.nom = 3 and inc_ustr_sr.pred = loc.location "
- +"    and inc_ustr_sr.clas in (select clas from clasrel where anc = '090004000011') "
- +"    ) "
- +"      when stat.nom = 4 then  "
- +"    (select sum (inc_ne_ustr.cnt) from inc_ne_ustr where stat.nom = 4 and inc_ne_ustr.pred = loc.location  "
- +"    and inc_ne_ustr.clas in (select clas from clasrel where anc = '090004000011') "
- +"    ) "
- +"      when stat.nom = 5 then  "
- +"    (select sum (inc_pr.cnt) from inc_pr where stat.nom = 5 and inc_pr.pred = loc.location  "
- +"    and inc_pr.clas in (select clas from clasrel where anc = '090004000011') "
- +"    )"
- +"      when stat.nom = 6 then  "
- +"    (select sum (inc_cl.cnt) from inc_cl where stat.nom = 6 and inc_cl.pred = loc.location "
- +"    and inc_cl.clas in (select clas from clasrel where anc = '090004000011') "
- +"    ) end, 0) isk_soor, "
- +"     "
- +"        nvl (        case when stat.nom = 1 then  "
- +"     (select sum (inc.cnt) from inc where stat.nom = 1 and inc.pred = loc.location "
- +"     and inc.clas in (select clas from clasrel where anc = '090004000012') "
- +"     ) "
- +"      when stat.nom = 2 then  "
- +"    (select sum (inc_ustr.cnt) from inc_ustr where stat.nom = 2 and inc_ustr.pred = loc.location  "
- +"    and inc_ustr.clas in (select clas from clasrel where anc = '090004000012') "
- +"    ) "
- +"      when stat.nom = 3 then  "
- +"    (select sum (inc_ustr_sr.cnt) from inc_ustr_sr where stat.nom = 3 and inc_ustr_sr.pred = loc.location "
- +"    and inc_ustr_sr.clas in (select clas from clasrel where anc = '090004000012') "
- +"    ) "
- +"      when stat.nom = 4 then  "
- +"    (select sum (inc_ne_ustr.cnt) from inc_ne_ustr where stat.nom = 4 and inc_ne_ustr.pred = loc.location  "
- +"    and inc_ne_ustr.clas in (select clas from clasrel where anc = '090004000012') "
- +"    ) "
- +"      when stat.nom = 5 then  "
- +"    (select sum (inc_pr.cnt) from inc_pr where stat.nom = 5 and inc_pr.pred = loc.location  "
- +"    and inc_pr.clas in (select clas from clasrel where anc = '090004000012') "
- +"    )"
- +"      when stat.nom = 6 then  "
- +"    (select sum (inc_cl.cnt) from inc_cl where stat.nom = 6 and inc_cl.pred = loc.location "
- +"    and inc_cl.clas in (select clas from clasrel where anc = '090004000012') "
- +"    ) end, 0) zem_polotna, "
- +"     "
- +"     nvl (        case when stat.nom = 1 then  "
- +"     (select sum (inc.cnt) from inc where stat.nom = 1 and inc.pred = loc.location "
- +" 	and   inc.speed in ('0','15','25','40','50','60','60 ПРЖ','70','80','90','100'  ) "
- +"     ) "
- +"      when stat.nom = 2 then  "
- +"    (select sum (inc_ustr.cnt) from inc_ustr where stat.nom = 2 and inc_ustr.pred = loc.location  "
- +"    and inc_ustr.speed in ('0','15','25','40','50','60','60 ПРЖ','70','80','90','100'  ) "
- +"    ) "
- +"      when stat.nom = 3 then  "
- +"    (select sum (inc_ustr_sr.cnt) from inc_ustr_sr where stat.nom = 3 and inc_ustr_sr.pred = loc.location "
- +"    and inc_ustr_sr.speed in ('0','15','25','40','50','60','60 ПРЖ','70','80','90','100'  ) "
- +"    ) "
- +"      when stat.nom = 4 then  "
- +"    (select sum (inc_ne_ustr.cnt) from inc_ne_ustr where stat.nom = 4 and inc_ne_ustr.pred = loc.location  "
- +"    and inc_ne_ustr.speed in ('0','15','25','40','50','60','60 ПРЖ','70','80','90','100'  ) "
- +"    ) "
- +"      when stat.nom = 5 then  "
- +"    (select sum (inc_pr.cnt) from inc_pr where stat.nom = 5 and inc_pr.pred = loc.location  "
- +"    and inc_pr.speed in ('0','15','25','40','50','60','60 ПРЖ','70','80','90','100'  ) "
- +"    )"
- +"      when stat.nom = 6 then  "
- +"    (select sum (inc_cl.cnt) from inc_cl where stat.nom = 6 and inc_cl.pred = loc.location "
- +"    and inc_cl.speed in ('0','15','25','40','50','60','60 ПРЖ','70','80','90','100'  )  "
- +"    ) end, 0) vsegosp, "
- 
- +"     "
- +"     nvl (        case when stat.nom = 1 then  "
- +"     (select sum (inc.cnt) from inc where stat.nom = 1 and inc.pred = loc.location "
- +"    and inc.speed = '0'  "
- +"     ) "
- +"      when stat.nom = 2 then  "
- +"    (select sum (inc_ustr.cnt) from inc_ustr where stat.nom = 2 and inc_ustr.pred = loc.location  "
- +"    and inc_ustr.speed = '0'  "
- +"    ) "
- +"      when stat.nom = 3 then  "
- +"    (select sum (inc_ustr_sr.cnt) from inc_ustr_sr where stat.nom = 3 and inc_ustr_sr.pred = loc.location "
- +"    and inc_ustr_sr.speed = '0'  "
- +"    ) "
- +"      when stat.nom = 4 then  "
- +"    (select sum (inc_ne_ustr.cnt) from inc_ne_ustr where stat.nom = 4 and inc_ne_ustr.pred = loc.location  "
- +"    and inc_ne_ustr.speed = '0' "
- +"    ) "
- +"      when stat.nom = 5 then  "
- +"    (select sum (inc_pr.cnt) from inc_pr where stat.nom = 5 and inc_pr.pred = loc.location  "
- +"    and inc_pr.speed = '0'   "
- +"    )"
- +"      when stat.nom = 6 then  "
- +"    (select sum (inc_cl.cnt) from inc_cl where stat.nom = 6 and inc_cl.pred = loc.location "
- +"    and inc_cl.speed = '0'  "
- +"    ) end, 0) zakr, "
- +"     "
- +"        nvl (        case when stat.nom = 1 then  "
- +"     (select sum (inc.cnt) from inc where stat.nom = 1 and inc.pred = loc.location "
- +"    and inc.speed = '15' "
- +"     ) "
- +"      when stat.nom = 2 then  "
- +"    (select sum (inc_ustr.cnt) from inc_ustr where stat.nom = 2 and inc_ustr.pred = loc.location  "
- +"    and inc_ustr.speed = '15' "
- +"    ) "
- +"      when stat.nom = 3 then  "
- +"    (select sum (inc_ustr_sr.cnt) from inc_ustr_sr where stat.nom = 3 and inc_ustr_sr.pred = loc.location "
- +"    and inc_ustr_sr.speed = '15' "
- +"    ) "
- +"      when stat.nom = 4 then  "
- +"    (select sum (inc_ne_ustr.cnt) from inc_ne_ustr where stat.nom = 4 and inc_ne_ustr.pred = loc.location  "
- +"    and inc_ne_ustr.speed = '15'  "
- +"    ) "
- +"      when stat.nom = 5 then  "
- +"    (select sum (inc_pr.cnt) from inc_pr where stat.nom = 5 and inc_pr.pred = loc.location  "
- +"    and inc_pr.speed = '15' "
- +"    )"
- +"      when stat.nom = 6 then  "
- +"    (select sum (inc_cl.cnt) from inc_cl where stat.nom = 6 and inc_cl.pred = loc.location "
- +"    and inc_cl.speed = '15'  "
- +"    ) end, 0) sp15, "
- +"     "
- +"           nvl (        case when stat.nom = 1 then  "
- +"     (select sum (inc.cnt) from inc where stat.nom = 1 and inc.pred = loc.location "
- +"    and inc.speed = '25'  "
- +"     ) "
- +"      when stat.nom = 2 then  "
- +"    (select sum (inc_ustr.cnt) from inc_ustr where stat.nom = 2 and inc_ustr.pred = loc.location  "
- +"    and inc_ustr.speed = '25'  "
- +"    ) "
- +"      when stat.nom = 3 then  "
- +"    (select sum (inc_ustr_sr.cnt) from inc_ustr_sr where stat.nom = 3 and inc_ustr_sr.pred = loc.location "
- +"    and inc_ustr_sr.speed = '25'  "
- +"    ) "
- +"      when stat.nom = 4 then  "
- +"    (select sum (inc_ne_ustr.cnt) from inc_ne_ustr where stat.nom = 4 and inc_ne_ustr.pred = loc.location  "
- +"    and inc_ne_ustr.speed = '25'  "
- +"    ) "
- +"      when stat.nom = 5 then  "
- +"    (select sum (inc_pr.cnt) from inc_pr where stat.nom = 5 and inc_pr.pred = loc.location  "
- +"    and inc_pr.speed = '25'  "
- +"    )"
- +"      when stat.nom = 6 then  "
- +"    (select sum (inc_cl.cnt) from inc_cl where stat.nom = 6 and inc_cl.pred = loc.location "
- +"    and inc_cl.speed = '25'  "
- +"    ) end, 0) sp25, "
- +"     "
- +"           nvl (        case when stat.nom = 1 then  "
- +"     (select sum (inc.cnt) from inc where stat.nom = 1 and inc.pred = loc.location "
- +"    and inc.speed = '40'  "
- +"     ) "
- +"      when stat.nom = 2 then  "
- +"    (select sum (inc_ustr.cnt) from inc_ustr where stat.nom = 2 and inc_ustr.pred = loc.location  "
- +"    and inc_ustr.speed = '40'  "
- +"    ) "
- +"      when stat.nom = 3 then  "
- +"    (select sum (inc_ustr_sr.cnt) from inc_ustr_sr where stat.nom = 3 and inc_ustr_sr.pred = loc.location "
- +"    and inc_ustr_sr.speed = '40'  "
- +"    ) "
- +"      when stat.nom = 4 then  "
- +"    (select sum (inc_ne_ustr.cnt) from inc_ne_ustr where stat.nom = 4 and inc_ne_ustr.pred = loc.location  "
- +"    and inc_ne_ustr.speed = '40' "
- +"    ) "
- +"      when stat.nom = 5 then  "
- +"    (select sum (inc_pr.cnt) from inc_pr where stat.nom = 5 and inc_pr.pred = loc.location  "
- +"    and inc_pr.speed = '40'  "
- +"    )"
- +"      when stat.nom = 6 then  "
- +"    (select sum (inc_cl.cnt) from inc_cl where stat.nom = 6 and inc_cl.pred = loc.location "
- +"    and inc_cl.speed = '40'  "
- +"    ) end, 0) sp40, "
- +"     "
- +"             nvl (        case when stat.nom = 1 then  "
- +"     (select sum (inc.cnt) from inc where stat.nom = 1 and inc.pred = loc.location "
- +"    and inc.speed = '50'  "
- +"     ) "
- +"      when stat.nom = 2 then  "
- +"    (select sum (inc_ustr.cnt) from inc_ustr where stat.nom = 2 and inc_ustr.pred = loc.location  "
- +"    and inc_ustr.speed = '50'  "
- +"    ) "
- +"      when stat.nom = 3 then  "
- +"    (select sum (inc_ustr_sr.cnt) from inc_ustr_sr where stat.nom = 3 and inc_ustr_sr.pred = loc.location "
- +"    and inc_ustr_sr.speed = '50'  "
- +"    ) "
- +"      when stat.nom = 4 then  "
- +"    (select sum (inc_ne_ustr.cnt) from inc_ne_ustr where stat.nom = 4 and inc_ne_ustr.pred = loc.location  "
- +"    and inc_ne_ustr.speed = '50' "
- +"    ) "
- +"      when stat.nom = 5 then  "
- +"    (select sum (inc_pr.cnt) from inc_pr where stat.nom = 5 and inc_pr.pred = loc.location  "
- +"    and inc_pr.speed = '50'  "
- +"    )"
- +"      when stat.nom = 6 then  "
- +"    (select sum (inc_cl.cnt) from inc_cl where stat.nom = 6 and inc_cl.pred = loc.location "
- +"    and inc_cl.speed = '50' "
- +"    ) end, 0) sp50,  "
- +"     "
- +"              nvl (        case when stat.nom = 1 then  "
- +"     (select sum (inc.cnt) from inc where stat.nom = 1 and inc.pred = loc.location "
- +"    and inc.speed = '60'  "
- +"     ) "
- +"      when stat.nom = 2 then  "
- +"    (select sum (inc_ustr.cnt) from inc_ustr where stat.nom = 2 and inc_ustr.pred = loc.location  "
- +"    and inc_ustr.speed = '60'  "
- +"    ) "
- +"      when stat.nom = 3 then  "
- +"    (select sum (inc_ustr_sr.cnt) from inc_ustr_sr where stat.nom = 3 and inc_ustr_sr.pred = loc.location "
- +"    and inc_ustr_sr.speed = '60'  "
- +"    ) "
- +"      when stat.nom = 4 then  "
- +"    (select sum (inc_ne_ustr.cnt) from inc_ne_ustr where stat.nom = 4 and inc_ne_ustr.pred = loc.location  "
- +"    and inc_ne_ustr.speed = '60'  "
- +"    ) "
- +"      when stat.nom = 5 then  "
- +"    (select sum (inc_pr.cnt) from inc_pr where stat.nom = 5 and inc_pr.pred = loc.location  "
- +"    and inc_pr.speed = '60'  "
- +"    )"
- +"      when stat.nom = 6 then  "
- +"    (select sum (inc_cl.cnt) from inc_cl where stat.nom = 6 and inc_cl.pred = loc.location "
- +"    and inc_cl.speed = '60'  "
- +"    ) end, 0) sp60, "
- +"     "
- +"              nvl (        case when stat.nom = 1 then  "
- +"     (select sum (inc.cnt) from inc where stat.nom = 1 and inc.pred = loc.location "
- +"    and inc.speed = '60 ПРЖ'  "
- +"     ) "
- +"      when stat.nom = 2 then  "
- +"    (select sum (inc_ustr.cnt) from inc_ustr where stat.nom = 2 and inc_ustr.pred = loc.location  "
- +"    and inc_ustr.speed = '60 ПРЖ' "
- +"    ) "
- +"      when stat.nom = 3 then  "
- +"    (select sum (inc_ustr_sr.cnt) from inc_ustr_sr where stat.nom = 3 and inc_ustr_sr.pred = loc.location "
- +"    and inc_ustr_sr.speed = '60 ПРЖ'  "
- +"    ) "
- +"      when stat.nom = 4 then  "
- +"    (select sum (inc_ne_ustr.cnt) from inc_ne_ustr where stat.nom = 4 and inc_ne_ustr.pred = loc.location  "
- +"    and inc_ne_ustr.speed = '60 ПРЖ' "
- +"    ) "
- +"      when stat.nom = 5 then  "
- +"    (select sum (inc_pr.cnt) from inc_pr where stat.nom = 5 and inc_pr.pred = loc.location  "
- +"    and inc_pr.speed = '60 ПРЖ'  "
- +"    )"
- +"      when stat.nom = 6 then  "
- +"    (select sum (inc_cl.cnt) from inc_cl where stat.nom = 6 and inc_cl.pred = loc.location "
- +"    and inc_cl.speed = '60 ПРЖ'  "
- +"    ) end, 0) sp60prz, "
- +"     "
- +"                 nvl (        case when stat.nom = 1 then  "
- +"     (select sum (inc.cnt) from inc where stat.nom = 1 and inc.pred = loc.location "
- +"    and inc.speed = '70'  "
- +"     ) "
- +"      when stat.nom = 2 then  "
- +"    (select sum (inc_ustr.cnt) from inc_ustr where stat.nom = 2 and inc_ustr.pred = loc.location  "
- +"    and inc_ustr.speed = '70'  "
- +"    ) "
- +"      when stat.nom = 3 then  "
- +"    (select sum (inc_ustr_sr.cnt) from inc_ustr_sr where stat.nom = 3 and inc_ustr_sr.pred = loc.location "
- +"    and inc_ustr_sr.speed = '70'  "
- +"    ) "
- +"      when stat.nom = 4 then  "
- +"    (select sum (inc_ne_ustr.cnt) from inc_ne_ustr where stat.nom = 4 and inc_ne_ustr.pred = loc.location  "
- +"    and inc_ne_ustr.speed = '70'  "
- +"    ) "
- +"      when stat.nom = 5 then  "
- +"    (select sum (inc_pr.cnt) from inc_pr where stat.nom = 5 and inc_pr.pred = loc.location  "
- +"    and inc_pr.speed = '70'  "
- +"    )"
- +"      when stat.nom = 6 then  "
- +"    (select sum (inc_cl.cnt) from inc_cl where stat.nom = 6 and inc_cl.pred = loc.location "
- +"    and inc_cl.speed = '70'  "
- +"    ) end, 0) sp70, "
- +"     "
- +"                 nvl (        case when stat.nom = 1 then  "
- +"     (select sum (inc.cnt) from inc where stat.nom = 1 and inc.pred = loc.location "
- +"    and inc.speed = '80'  "
- +"     ) "
- +"      when stat.nom = 2 then  "
- +"    (select sum (inc_ustr.cnt) from inc_ustr where stat.nom = 2 and inc_ustr.pred = loc.location  "
- +"    and inc_ustr.speed = '80'  "
- +"    ) "
- +"      when stat.nom = 3 then  "
- +"    (select sum (inc_ustr_sr.cnt) from inc_ustr_sr where stat.nom = 3 and inc_ustr_sr.pred = loc.location "
- +"    and inc_ustr_sr.speed = '80'  "
- +"    ) "
- +"      when stat.nom = 4 then  "
- +"    (select sum (inc_ne_ustr.cnt) from inc_ne_ustr where stat.nom = 4 and inc_ne_ustr.pred = loc.location  "
- +"    and inc_ne_ustr.speed = '80' "
- +"    ) "
- +"      when stat.nom = 5 then  "
- +"    (select sum (inc_pr.cnt) from inc_pr where stat.nom = 5 and inc_pr.pred = loc.location  "
- +"    and inc_pr.speed = '80'  "
- +"    )"
- +"      when stat.nom = 6 then  "
- +"    (select sum (inc_cl.cnt) from inc_cl where stat.nom = 6 and inc_cl.pred = loc.location "
- +"    and inc_cl.speed = '80'  "
- +"    ) end, 0) sp80, "
- +"     "
- +"                 nvl (        case when stat.nom = 1 then  "
- +"     (select sum (inc.cnt) from inc where stat.nom = 1 and inc.pred = loc.location "
- +"    and inc.speed = '90'  "
- +"     ) "
- +"      when stat.nom = 2 then  "
- +"    (select sum (inc_ustr.cnt) from inc_ustr where stat.nom = 2 and inc_ustr.pred = loc.location  "
- +"    and inc_ustr.speed = '90'  "
- +"    ) "
- +"      when stat.nom = 3 then  "
- +"    (select sum (inc_ustr_sr.cnt) from inc_ustr_sr where stat.nom = 3 and inc_ustr_sr.pred = loc.location "
- +"    and inc_ustr_sr.speed = '90'  "
- +"    ) "
- +"      when stat.nom = 4 then  "
- +"    (select sum (inc_ne_ustr.cnt) from inc_ne_ustr where stat.nom = 4 and inc_ne_ustr.pred = loc.location  "
- +"    and inc_ne_ustr.speed = '90'  "
- +"    ) "
- +"      when stat.nom = 5 then  "
- +"    (select sum (inc_pr.cnt) from inc_pr where stat.nom = 5 and inc_pr.pred = loc.location  "
- +"    and inc_pr.speed = '90'  "
- +"    )"
- +"      when stat.nom = 6 then  "
- +"    (select sum (inc_cl.cnt) from inc_cl where stat.nom = 6 and inc_cl.pred = loc.location "
- +"    and inc_cl.speed = '90'  "
- +"    ) end, 0) sp90, "
- +"     "
- +"                 nvl (        case when stat.nom = 1 then  "
- +"     (select sum (inc.cnt) from inc where stat.nom = 1 and inc.pred = loc.location "
- +"    and inc.speed = '100' "
- +"     ) "
- +"      when stat.nom = 2 then  "
- +"    (select sum (inc_ustr.cnt) from inc_ustr where stat.nom = 2 and inc_ustr.pred = loc.location  "
- +"    and inc_ustr.speed = '100' "
- +"    ) "
- +"      when stat.nom = 3 then  "
- +"    (select sum (inc_ustr_sr.cnt) from inc_ustr_sr where stat.nom = 3 and inc_ustr_sr.pred = loc.location "
- +"    and inc_ustr_sr.speed = '100'  "
- +"    ) "
- +"      when stat.nom = 4 then  "
- +"    (select sum (inc_ne_ustr.cnt) from inc_ne_ustr where stat.nom = 4 and inc_ne_ustr.pred = loc.location  "
- +"    and inc_ne_ustr.speed = '100' "
- +"    ) "
- +"      when stat.nom = 5 then  "
- +"    (select sum (inc_pr.cnt) from inc_pr where stat.nom = 5 and inc_pr.pred = loc.location  "
- +"    and inc_pr.speed = '100' "
- +"    )"
- +"      when stat.nom = 6 then  "
- +"    (select sum (inc_cl.cnt) from inc_cl where stat.nom = 6 and inc_cl.pred = loc.location "
- +"    and inc_cl.speed = '100' "
- +"    ) end, 0) sp100 "
- +"     "
- +"      from loc join stat on 1=1  "
- +"  "
+
 ;
 
 
@@ -1709,9 +1662,7 @@ return (true);]]></method>
             <method name="open"><![CDATA[maximoDataSet = MXReportDataSetProvider.create(this.getDataSource().getName(), this.getName());
 	maximoDataSet.open();
 
-var siteid = new String(params["userName"]);
 
-siteid = " ( select distinct defsite from maximo.maxuser where loginid = '" + params["userName"] + "' )";
 
 
 
@@ -1719,13 +1670,98 @@ siteid = " ( select distinct defsite from maximo.maxuser where loginid = '" + pa
 
 	sqlText = " select description "
  + "  from maximo.site "
- + "  where siteid = " + siteid
+ + "  where siteid = '"+params["mroSite"]+"' "
  ;
 	maximoDataSet.setQuery(sqlText);]]></method>
             <method name="fetch"><![CDATA[if (!maximoDataSet.fetch())
 	   return (false);
 	// Add a line for each output column
 	row["description"] = maximoDataSet.getString("description");
+	return (true);]]></method>
+        </script-data-set>
+        <script-data-set name="dates" id="12039">
+            <list-property name="resultSetHints">
+                <structure>
+                    <property name="position">1</property>
+                    <property name="name">DAT1</property>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="position">2</property>
+                    <property name="name">DAT2</property>
+                    <property name="dataType">string</property>
+                </structure>
+            </list-property>
+            <list-property name="columnHints">
+                <structure>
+                    <property name="columnName">DAT1</property>
+                </structure>
+                <structure>
+                    <property name="columnName">DAT2</property>
+                </structure>
+            </list-property>
+            <structure name="cachedMetaData">
+                <list-property name="resultSet">
+                    <structure>
+                        <property name="position">1</property>
+                        <property name="name">DAT1</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">2</property>
+                        <property name="name">DAT2</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                </list-property>
+            </structure>
+            <property name="dataSource">maximoDataSource</property>
+            <method name="open"><![CDATA[maximoDataSet = MXReportDataSetProvider.create(this.getDataSource().getName(), this.getName());
+	maximoDataSet.open();
+
+
+
+
+	var sqlText = new String();
+
+	sqlText = " SELECT  "
+ +" CASE  "
+ +" WHEN EXTRACT (MONTH FROM TO_DATE('" + params["par"] + " ')) = 1 THEN EXTRACT (DAY FROM TO_DATE('" + params["par"] + " '))||' января '||EXTRACT (YEAR FROM TO_DATE('" + params["par"] + " '))||' г.'  "
+ +" WHEN EXTRACT (MONTH FROM TO_DATE('" + params["par"] + " ')) = 2 THEN EXTRACT (DAY FROM TO_DATE('" + params["par"] + " '))||' февраля '||EXTRACT (YEAR FROM TO_DATE('" + params["par"] + " '))||' г.'  "
+ +" WHEN EXTRACT (MONTH FROM TO_DATE('" + params["par"] + " ')) = 3 THEN EXTRACT (DAY FROM TO_DATE('" + params["par"] + " '))||' марта '||EXTRACT (YEAR FROM TO_DATE('" + params["par"] + " '))||' г.'  "
+ +" WHEN EXTRACT (MONTH FROM TO_DATE('" + params["par"] + " ')) = 4 THEN EXTRACT (DAY FROM TO_DATE('" + params["par"] + " '))||' апреля '||EXTRACT (YEAR FROM TO_DATE('" + params["par"] + " '))||' г.'  "
+ +" WHEN EXTRACT (MONTH FROM TO_DATE('" + params["par"] + " ')) = 5 THEN EXTRACT (DAY FROM TO_DATE('" + params["par"] + " '))||' мая '||EXTRACT (YEAR FROM TO_DATE('" + params["par"] + " '))||' г.'  "
+ +" WHEN EXTRACT (MONTH FROM TO_DATE('" + params["par"] + " ')) = 6 THEN EXTRACT (DAY FROM TO_DATE('" + params["par"] + " '))||' июня '||EXTRACT (YEAR FROM TO_DATE('" + params["par"] + " '))||' г.'  "
+ +" WHEN EXTRACT (MONTH FROM TO_DATE('" + params["par"] + " ')) = 7 THEN EXTRACT (DAY FROM TO_DATE('" + params["par"] + " '))||' июля '||EXTRACT (YEAR FROM TO_DATE('" + params["par"] + " '))||' г.'  "
+ +" WHEN EXTRACT (MONTH FROM TO_DATE('" + params["par"] + " ')) = 8 THEN EXTRACT (DAY FROM TO_DATE('" + params["par"] + " '))||' августа '||EXTRACT (YEAR FROM TO_DATE('" + params["par"] + " '))||' г.'  "
+ +" WHEN EXTRACT (MONTH FROM TO_DATE('" + params["par"] + " ')) = 9 THEN EXTRACT (DAY FROM TO_DATE('" + params["par"] + " '))||' сентября '||EXTRACT (YEAR FROM TO_DATE('" + params["par"] + " '))||' г.'  "
+ +" WHEN EXTRACT (MONTH FROM TO_DATE('" + params["par"] + " ')) = 10 THEN EXTRACT (DAY FROM TO_DATE('" + params["par"] + " '))||' октября '||EXTRACT (YEAR FROM TO_DATE('" + params["par"] + " '))||' г.'  "
+ +" WHEN EXTRACT (MONTH FROM TO_DATE('" + params["par"] + " ')) = 11 THEN EXTRACT (DAY FROM TO_DATE('" + params["par"] + " '))||' ноября '||EXTRACT (YEAR FROM TO_DATE('" + params["par"] + " '))||' г.'  "
+ +" WHEN EXTRACT (MONTH FROM TO_DATE('" + params["par"] + " ')) = 12 THEN EXTRACT (DAY FROM TO_DATE('" + params["par"] + " '))||' декабря '||EXTRACT (YEAR FROM TO_DATE('" + params["par"] + " '))||' г.'  "
+ +" end DAT1, "
+ +" CASE  "
+ +" WHEN EXTRACT (MONTH FROM TO_DATE('" + params["finish"] + " ')) = 1 THEN EXTRACT (DAY FROM TO_DATE('" + params["finish"] + " '))||' января '||EXTRACT (YEAR FROM TO_DATE('" + params["finish"] + " '))||' г.'  "
+ +" WHEN EXTRACT (MONTH FROM TO_DATE('" + params["finish"] + " ')) = 2 THEN EXTRACT (DAY FROM TO_DATE('" + params["finish"] + " '))||' февраля '||EXTRACT (YEAR FROM TO_DATE('" + params["finish"] + " '))||' г.'  "
+ +" WHEN EXTRACT (MONTH FROM TO_DATE('" + params["finish"] + " ')) = 3 THEN EXTRACT (DAY FROM TO_DATE('" + params["finish"] + " '))||' марта '||EXTRACT (YEAR FROM TO_DATE('" + params["finish"] + " '))||' г.'  "
+ +" WHEN EXTRACT (MONTH FROM TO_DATE('" + params["finish"] + " ')) = 4 THEN EXTRACT (DAY FROM TO_DATE('" + params["finish"] + " '))||' апреля '||EXTRACT (YEAR FROM TO_DATE('" + params["finish"] + " '))||' г.'  "
+ +" WHEN EXTRACT (MONTH FROM TO_DATE('" + params["finish"] + " ')) = 5 THEN EXTRACT (DAY FROM TO_DATE('" + params["finish"] + " '))||' мая '||EXTRACT (YEAR FROM TO_DATE('" + params["finish"] + " '))||' г.'  "
+ +" WHEN EXTRACT (MONTH FROM TO_DATE('" + params["finish"] + " ')) = 6 THEN EXTRACT (DAY FROM TO_DATE('" + params["finish"] + " '))||' июня '||EXTRACT (YEAR FROM TO_DATE('" + params["finish"] + " '))||' г.'  "
+ +" WHEN EXTRACT (MONTH FROM TO_DATE('" + params["finish"] + " ')) = 7 THEN EXTRACT (DAY FROM TO_DATE('" + params["finish"] + " '))||' июля '||EXTRACT (YEAR FROM TO_DATE('" + params["finish"] + " '))||' г.'  "
+ +" WHEN EXTRACT (MONTH FROM TO_DATE('" + params["finish"] + " ')) = 8 THEN EXTRACT (DAY FROM TO_DATE('" + params["finish"] + " '))||' августа '||EXTRACT (YEAR FROM TO_DATE('" + params["finish"] + " '))||' г.'  "
+ +" WHEN EXTRACT (MONTH FROM TO_DATE('" + params["finish"] + " ')) = 9 THEN EXTRACT (DAY FROM TO_DATE('" + params["finish"] + " '))||' сентября '||EXTRACT (YEAR FROM TO_DATE('" + params["finish"] + " '))||' г.'  "
+ +" WHEN EXTRACT (MONTH FROM TO_DATE('" + params["finish"] + " ')) = 10 THEN EXTRACT (DAY FROM TO_DATE('" + params["finish"] + " '))||' октября '||EXTRACT (YEAR FROM TO_DATE('" + params["finish"] + " '))||' г.'  "
+ +" WHEN EXTRACT (MONTH FROM TO_DATE('" + params["finish"] + " ')) = 11 THEN EXTRACT (DAY FROM TO_DATE('" + params["finish"] + " '))||' ноября '||EXTRACT (YEAR FROM TO_DATE('" + params["finish"] + " '))||' г.'  "
+ +" WHEN EXTRACT (MONTH FROM TO_DATE('" + params["finish"] + " ')) = 12 THEN EXTRACT (DAY FROM TO_DATE('" + params["finish"] + " '))||' декабря '||EXTRACT (YEAR FROM TO_DATE('" + params["finish"] + " '))||' г.'  "
+ +" END DAT2 "
+ +" from dual ";
+
+ 
+	maximoDataSet.setQuery(sqlText);]]></method>
+            <method name="fetch"><![CDATA[if (!maximoDataSet.fetch())
+	   return (false);
+	// Add a line for each output column
+	row["DAT1"] = maximoDataSet.getString("DAT1");
+	row["DAT2"] = maximoDataSet.getString("DAT2");
+	
 	return (true);]]></method>
         </script-data-set>
     </data-sets>
@@ -1823,26 +1859,19 @@ siteid = " ( select distinct defsite from maximo.maxuser where loginid = '" + pa
             </row>
             <row id="12035">
                 <cell id="12036">
-                    <data id="10599">
+                    <data id="12040">
                         <property name="fontSize">large</property>
                         <property name="fontWeight">bold</property>
-                        <property name="textAlign">center</property>
+                        <property name="dataSet">dates</property>
                         <list-property name="boundDataColumns">
                             <structure>
-                                <property name="name">dates</property>
-                                <expression name="expression">var finishStr= new String(params["finish"].value);
-var startStr= new String(params["par"].value);
-
-var date1 = new Date(   2000+ Number( startStr.substr(6,2) ), Number( startStr.substr(3,2) ) - 1 , startStr.substr(0,2) ) ;
-var date_pos = new Number ( finishStr.indexOf('.',0) );
-var month_pos = new Number( finishStr.indexOf('.', (date_pos+1) ) );
-
-var date2 = new Date(   2000+ Number( finishStr.substr( (month_pos+1) ,2 ) ),  Number(  finishStr.substr( (date_pos+1) , (month_pos -  (date_pos+1)  )  ) ) - 1 , finishStr.substr( 0,date_pos ) ) ;
-'с '+BirtDateTime.day(date1)+' '+BirtDateTime.month(date1, 2)+' '+BirtDateTime.year(date1)+' г.' + ' по ' + BirtDateTime.day(date2)+' '+BirtDateTime.month(date2, 2)+' '+BirtDateTime.year(date2)+' г.'</expression>
+                                <property name="name">DAT1</property>
+                                <property name="displayName">DAT1</property>
+                                <expression name="expression">'c ' + dataSetRow["DAT1"] + ' по ' + dataSetRow["DAT2"]</expression>
                                 <property name="dataType">string</property>
                             </structure>
                         </list-property>
-                        <property name="resultSetColumn">dates</property>
+                        <property name="resultSetColumn">DAT1</property>
                     </data>
                 </cell>
             </row>
@@ -1899,10 +1928,6 @@ var date2 = new Date(   2000+ Number( finishStr.substr( (month_pos+1) ,2 ) ),  N
                     <structure>
                         <property name="paramName">paramstring</property>
                         <expression name="expression">params["paramstring"].value</expression>
-                    </structure>
-                    <structure>
-                        <property name="paramName">userName</property>
-                        <expression name="expression">params["userName"].value</expression>
                     </structure>
                     <structure>
                         <property name="paramName">par</property>
@@ -5589,10 +5614,6 @@ var date2 = new Date(   2000+ Number( finishStr.substr( (month_pos+1) ,2 ) ),  N
                                                                     <expression name="expression">"1"</expression>
                                                                 </structure>
                                                                 <structure>
-                                                                    <property name="paramName">userName</property>
-                                                                    <expression name="expression">params["userName"].value</expression>
-                                                                </structure>
-                                                                <structure>
                                                                     <property name="paramName">par</property>
                                                                     <expression name="expression">params["par"].value</expression>
                                                                 </structure>
@@ -5823,10 +5844,6 @@ var date2 = new Date(   2000+ Number( finishStr.substr( (month_pos+1) ,2 ) ),  N
                                                                 <expression name="expression">params["paramstring"].value</expression>
                                                             </structure>
                                                             <structure>
-                                                                <property name="paramName">userName</property>
-                                                                <expression name="expression">params["userName"].value</expression>
-                                                            </structure>
-                                                            <structure>
                                                                 <property name="paramName">par</property>
                                                                 <expression name="expression">params["par"].value</expression>
                                                             </structure>
@@ -5883,10 +5900,6 @@ var date2 = new Date(   2000+ Number( finishStr.substr( (month_pos+1) ,2 ) ),  N
                                                             <structure>
                                                                 <property name="paramName">paramstring</property>
                                                                 <expression name="expression">params["paramstring"].value</expression>
-                                                            </structure>
-                                                            <structure>
-                                                                <property name="paramName">userName</property>
-                                                                <expression name="expression">params["userName"].value</expression>
                                                             </structure>
                                                             <structure>
                                                                 <property name="paramName">par</property>
@@ -5947,10 +5960,6 @@ var date2 = new Date(   2000+ Number( finishStr.substr( (month_pos+1) ,2 ) ),  N
                                                                 <expression name="expression">params["paramstring"].value</expression>
                                                             </structure>
                                                             <structure>
-                                                                <property name="paramName">userName</property>
-                                                                <expression name="expression">params["userName"].value</expression>
-                                                            </structure>
-                                                            <structure>
                                                                 <property name="paramName">par</property>
                                                                 <expression name="expression">params["par"].value</expression>
                                                             </structure>
@@ -6007,10 +6016,6 @@ var date2 = new Date(   2000+ Number( finishStr.substr( (month_pos+1) ,2 ) ),  N
                                                             <structure>
                                                                 <property name="paramName">paramstring</property>
                                                                 <expression name="expression">params["paramstring"].value</expression>
-                                                            </structure>
-                                                            <structure>
-                                                                <property name="paramName">userName</property>
-                                                                <expression name="expression">params["userName"].value</expression>
                                                             </structure>
                                                             <structure>
                                                                 <property name="paramName">par</property>
@@ -6071,10 +6076,6 @@ var date2 = new Date(   2000+ Number( finishStr.substr( (month_pos+1) ,2 ) ),  N
                                                                 <expression name="expression">params["paramstring"].value</expression>
                                                             </structure>
                                                             <structure>
-                                                                <property name="paramName">userName</property>
-                                                                <expression name="expression">params["userName"].value</expression>
-                                                            </structure>
-                                                            <structure>
                                                                 <property name="paramName">par</property>
                                                                 <expression name="expression">params["par"].value</expression>
                                                             </structure>
@@ -6131,10 +6132,6 @@ var date2 = new Date(   2000+ Number( finishStr.substr( (month_pos+1) ,2 ) ),  N
                                                             <structure>
                                                                 <property name="paramName">paramstring</property>
                                                                 <expression name="expression">params["paramstring"].value</expression>
-                                                            </structure>
-                                                            <structure>
-                                                                <property name="paramName">userName</property>
-                                                                <expression name="expression">params["userName"].value</expression>
                                                             </structure>
                                                             <structure>
                                                                 <property name="paramName">par</property>
@@ -6195,10 +6192,6 @@ var date2 = new Date(   2000+ Number( finishStr.substr( (month_pos+1) ,2 ) ),  N
                                                                 <expression name="expression">params["paramstring"].value</expression>
                                                             </structure>
                                                             <structure>
-                                                                <property name="paramName">userName</property>
-                                                                <expression name="expression">params["userName"].value</expression>
-                                                            </structure>
-                                                            <structure>
                                                                 <property name="paramName">par</property>
                                                                 <expression name="expression">params["par"].value</expression>
                                                             </structure>
@@ -6255,10 +6248,6 @@ var date2 = new Date(   2000+ Number( finishStr.substr( (month_pos+1) ,2 ) ),  N
                                                             <structure>
                                                                 <property name="paramName">paramstring</property>
                                                                 <expression name="expression">params["paramstring"].value</expression>
-                                                            </structure>
-                                                            <structure>
-                                                                <property name="paramName">userName</property>
-                                                                <expression name="expression">params["userName"].value</expression>
                                                             </structure>
                                                             <structure>
                                                                 <property name="paramName">par</property>
@@ -6319,10 +6308,6 @@ var date2 = new Date(   2000+ Number( finishStr.substr( (month_pos+1) ,2 ) ),  N
                                                                 <expression name="expression">params["paramstring"].value</expression>
                                                             </structure>
                                                             <structure>
-                                                                <property name="paramName">userName</property>
-                                                                <expression name="expression">params["userName"].value</expression>
-                                                            </structure>
-                                                            <structure>
                                                                 <property name="paramName">par</property>
                                                                 <expression name="expression">params["par"].value</expression>
                                                             </structure>
@@ -6379,10 +6364,6 @@ var date2 = new Date(   2000+ Number( finishStr.substr( (month_pos+1) ,2 ) ),  N
                                                             <structure>
                                                                 <property name="paramName">paramstring</property>
                                                                 <expression name="expression">params["paramstring"].value</expression>
-                                                            </structure>
-                                                            <structure>
-                                                                <property name="paramName">userName</property>
-                                                                <expression name="expression">params["userName"].value</expression>
                                                             </structure>
                                                             <structure>
                                                                 <property name="paramName">par</property>
@@ -6443,10 +6424,6 @@ var date2 = new Date(   2000+ Number( finishStr.substr( (month_pos+1) ,2 ) ),  N
                                                                 <expression name="expression">params["paramstring"].value</expression>
                                                             </structure>
                                                             <structure>
-                                                                <property name="paramName">userName</property>
-                                                                <expression name="expression">params["userName"].value</expression>
-                                                            </structure>
-                                                            <structure>
                                                                 <property name="paramName">par</property>
                                                                 <expression name="expression">params["par"].value</expression>
                                                             </structure>
@@ -6503,10 +6480,6 @@ var date2 = new Date(   2000+ Number( finishStr.substr( (month_pos+1) ,2 ) ),  N
                                                             <structure>
                                                                 <property name="paramName">paramstring</property>
                                                                 <expression name="expression">params["paramstring"].value</expression>
-                                                            </structure>
-                                                            <structure>
-                                                                <property name="paramName">userName</property>
-                                                                <expression name="expression">params["userName"].value</expression>
                                                             </structure>
                                                             <structure>
                                                                 <property name="paramName">par</property>
@@ -8214,10 +8187,6 @@ var date2 = new Date(   2000+ Number( finishStr.substr( (month_pos+1) ,2 ) ),  N
                                             <structure>
                                                 <property name="paramName">paramstring</property>
                                                 <expression name="expression">params["paramstring"].value</expression>
-                                            </structure>
-                                            <structure>
-                                                <property name="paramName">userName</property>
-                                                <expression name="expression">params["userName"].value</expression>
                                             </structure>
                                             <structure>
                                                 <property name="paramName">par</property>
@@ -11649,10 +11618,6 @@ var date2 = new Date(   2000+ Number( finishStr.substr( (month_pos+1) ,2 ) ),  N
                                                                     <expression name="expression">params["appname"].value</expression>
                                                                 </structure>
                                                                 <structure>
-                                                                    <property name="paramName">userName</property>
-                                                                    <expression name="expression">params["userName"].value</expression>
-                                                                </structure>
-                                                                <structure>
                                                                     <property name="paramName">par</property>
                                                                     <expression name="expression">params["par"].value</expression>
                                                                 </structure>
@@ -11865,10 +11830,6 @@ var date2 = new Date(   2000+ Number( finishStr.substr( (month_pos+1) ,2 ) ),  N
                                                                 <expression name="expression">params["paramstring"].value</expression>
                                                             </structure>
                                                             <structure>
-                                                                <property name="paramName">userName</property>
-                                                                <expression name="expression">params["userName"].value</expression>
-                                                            </structure>
-                                                            <structure>
                                                                 <property name="paramName">par</property>
                                                                 <expression name="expression">params["par"].value</expression>
                                                             </structure>
@@ -11925,10 +11886,6 @@ var date2 = new Date(   2000+ Number( finishStr.substr( (month_pos+1) ,2 ) ),  N
                                                             <structure>
                                                                 <property name="paramName">paramstring</property>
                                                                 <expression name="expression">params["paramstring"].value</expression>
-                                                            </structure>
-                                                            <structure>
-                                                                <property name="paramName">userName</property>
-                                                                <expression name="expression">params["userName"].value</expression>
                                                             </structure>
                                                             <structure>
                                                                 <property name="paramName">par</property>
@@ -11989,10 +11946,6 @@ var date2 = new Date(   2000+ Number( finishStr.substr( (month_pos+1) ,2 ) ),  N
                                                                 <expression name="expression">params["paramstring"].value</expression>
                                                             </structure>
                                                             <structure>
-                                                                <property name="paramName">userName</property>
-                                                                <expression name="expression">params["userName"].value</expression>
-                                                            </structure>
-                                                            <structure>
                                                                 <property name="paramName">par</property>
                                                                 <expression name="expression">params["par"].value</expression>
                                                             </structure>
@@ -12049,10 +12002,6 @@ var date2 = new Date(   2000+ Number( finishStr.substr( (month_pos+1) ,2 ) ),  N
                                                             <structure>
                                                                 <property name="paramName">paramstring</property>
                                                                 <expression name="expression">params["paramstring"].value</expression>
-                                                            </structure>
-                                                            <structure>
-                                                                <property name="paramName">userName</property>
-                                                                <expression name="expression">params["userName"].value</expression>
                                                             </structure>
                                                             <structure>
                                                                 <property name="paramName">par</property>
@@ -12113,10 +12062,6 @@ var date2 = new Date(   2000+ Number( finishStr.substr( (month_pos+1) ,2 ) ),  N
                                                                 <expression name="expression">params["paramstring"].value</expression>
                                                             </structure>
                                                             <structure>
-                                                                <property name="paramName">userName</property>
-                                                                <expression name="expression">params["userName"].value</expression>
-                                                            </structure>
-                                                            <structure>
                                                                 <property name="paramName">par</property>
                                                                 <expression name="expression">params["par"].value</expression>
                                                             </structure>
@@ -12173,10 +12118,6 @@ var date2 = new Date(   2000+ Number( finishStr.substr( (month_pos+1) ,2 ) ),  N
                                                             <structure>
                                                                 <property name="paramName">paramstring</property>
                                                                 <expression name="expression">params["paramstring"].value</expression>
-                                                            </structure>
-                                                            <structure>
-                                                                <property name="paramName">userName</property>
-                                                                <expression name="expression">params["userName"].value</expression>
                                                             </structure>
                                                             <structure>
                                                                 <property name="paramName">par</property>
@@ -12237,10 +12178,6 @@ var date2 = new Date(   2000+ Number( finishStr.substr( (month_pos+1) ,2 ) ),  N
                                                                 <expression name="expression">params["paramstring"].value</expression>
                                                             </structure>
                                                             <structure>
-                                                                <property name="paramName">userName</property>
-                                                                <expression name="expression">params["userName"].value</expression>
-                                                            </structure>
-                                                            <structure>
                                                                 <property name="paramName">par</property>
                                                                 <expression name="expression">params["par"].value</expression>
                                                             </structure>
@@ -12297,10 +12234,6 @@ var date2 = new Date(   2000+ Number( finishStr.substr( (month_pos+1) ,2 ) ),  N
                                                             <structure>
                                                                 <property name="paramName">paramstring</property>
                                                                 <expression name="expression">params["paramstring"].value</expression>
-                                                            </structure>
-                                                            <structure>
-                                                                <property name="paramName">userName</property>
-                                                                <expression name="expression">params["userName"].value</expression>
                                                             </structure>
                                                             <structure>
                                                                 <property name="paramName">par</property>
@@ -12361,10 +12294,6 @@ var date2 = new Date(   2000+ Number( finishStr.substr( (month_pos+1) ,2 ) ),  N
                                                                 <expression name="expression">params["paramstring"].value</expression>
                                                             </structure>
                                                             <structure>
-                                                                <property name="paramName">userName</property>
-                                                                <expression name="expression">params["userName"].value</expression>
-                                                            </structure>
-                                                            <structure>
                                                                 <property name="paramName">par</property>
                                                                 <expression name="expression">params["par"].value</expression>
                                                             </structure>
@@ -12421,10 +12350,6 @@ var date2 = new Date(   2000+ Number( finishStr.substr( (month_pos+1) ,2 ) ),  N
                                                             <structure>
                                                                 <property name="paramName">paramstring</property>
                                                                 <expression name="expression">params["paramstring"].value</expression>
-                                                            </structure>
-                                                            <structure>
-                                                                <property name="paramName">userName</property>
-                                                                <expression name="expression">params["userName"].value</expression>
                                                             </structure>
                                                             <structure>
                                                                 <property name="paramName">par</property>
@@ -13927,10 +13852,6 @@ var date2 = new Date(   2000+ Number( finishStr.substr( (month_pos+1) ,2 ) ),  N
                                             <structure>
                                                 <property name="paramName">paramstring</property>
                                                 <expression name="expression">params["paramstring"].value</expression>
-                                            </structure>
-                                            <structure>
-                                                <property name="paramName">userName</property>
-                                                <expression name="expression">params["userName"].value</expression>
                                             </structure>
                                             <structure>
                                                 <property name="paramName">par</property>
@@ -18029,10 +17950,6 @@ var date2 = new Date(   2000+ Number( finishStr.substr( (month_pos+1) ,2 ) ),  N
                                                                     <expression name="expression">params["appname"].value</expression>
                                                                 </structure>
                                                                 <structure>
-                                                                    <property name="paramName">userName</property>
-                                                                    <expression name="expression">params["userName"].value</expression>
-                                                                </structure>
-                                                                <structure>
                                                                     <property name="paramName">par</property>
                                                                     <expression name="expression">params["par"].value</expression>
                                                                 </structure>
@@ -18268,10 +18185,6 @@ var date2 = new Date(   2000+ Number( finishStr.substr( (month_pos+1) ,2 ) ),  N
                                                                 <expression name="expression">params["paramstring"].value</expression>
                                                             </structure>
                                                             <structure>
-                                                                <property name="paramName">userName</property>
-                                                                <expression name="expression">params["userName"].value</expression>
-                                                            </structure>
-                                                            <structure>
                                                                 <property name="paramName">par</property>
                                                                 <expression name="expression">params["par"].value</expression>
                                                             </structure>
@@ -18328,10 +18241,6 @@ var date2 = new Date(   2000+ Number( finishStr.substr( (month_pos+1) ,2 ) ),  N
                                                             <structure>
                                                                 <property name="paramName">paramstring</property>
                                                                 <expression name="expression">params["paramstring"].value</expression>
-                                                            </structure>
-                                                            <structure>
-                                                                <property name="paramName">userName</property>
-                                                                <expression name="expression">params["userName"].value</expression>
                                                             </structure>
                                                             <structure>
                                                                 <property name="paramName">par</property>
@@ -18392,10 +18301,6 @@ var date2 = new Date(   2000+ Number( finishStr.substr( (month_pos+1) ,2 ) ),  N
                                                                 <expression name="expression">params["paramstring"].value</expression>
                                                             </structure>
                                                             <structure>
-                                                                <property name="paramName">userName</property>
-                                                                <expression name="expression">params["userName"].value</expression>
-                                                            </structure>
-                                                            <structure>
                                                                 <property name="paramName">par</property>
                                                                 <expression name="expression">params["par"].value</expression>
                                                             </structure>
@@ -18452,10 +18357,6 @@ var date2 = new Date(   2000+ Number( finishStr.substr( (month_pos+1) ,2 ) ),  N
                                                             <structure>
                                                                 <property name="paramName">paramstring</property>
                                                                 <expression name="expression">params["paramstring"].value</expression>
-                                                            </structure>
-                                                            <structure>
-                                                                <property name="paramName">userName</property>
-                                                                <expression name="expression">params["userName"].value</expression>
                                                             </structure>
                                                             <structure>
                                                                 <property name="paramName">par</property>
@@ -18516,10 +18417,6 @@ var date2 = new Date(   2000+ Number( finishStr.substr( (month_pos+1) ,2 ) ),  N
                                                                 <expression name="expression">params["paramstring"].value</expression>
                                                             </structure>
                                                             <structure>
-                                                                <property name="paramName">userName</property>
-                                                                <expression name="expression">params["userName"].value</expression>
-                                                            </structure>
-                                                            <structure>
                                                                 <property name="paramName">par</property>
                                                                 <expression name="expression">params["par"].value</expression>
                                                             </structure>
@@ -18576,10 +18473,6 @@ var date2 = new Date(   2000+ Number( finishStr.substr( (month_pos+1) ,2 ) ),  N
                                                             <structure>
                                                                 <property name="paramName">paramstring</property>
                                                                 <expression name="expression">params["paramstring"].value</expression>
-                                                            </structure>
-                                                            <structure>
-                                                                <property name="paramName">userName</property>
-                                                                <expression name="expression">params["userName"].value</expression>
                                                             </structure>
                                                             <structure>
                                                                 <property name="paramName">par</property>
@@ -18640,10 +18533,6 @@ var date2 = new Date(   2000+ Number( finishStr.substr( (month_pos+1) ,2 ) ),  N
                                                                 <expression name="expression">params["paramstring"].value</expression>
                                                             </structure>
                                                             <structure>
-                                                                <property name="paramName">userName</property>
-                                                                <expression name="expression">params["userName"].value</expression>
-                                                            </structure>
-                                                            <structure>
                                                                 <property name="paramName">par</property>
                                                                 <expression name="expression">params["par"].value</expression>
                                                             </structure>
@@ -18700,10 +18589,6 @@ var date2 = new Date(   2000+ Number( finishStr.substr( (month_pos+1) ,2 ) ),  N
                                                             <structure>
                                                                 <property name="paramName">paramstring</property>
                                                                 <expression name="expression">params["paramstring"].value</expression>
-                                                            </structure>
-                                                            <structure>
-                                                                <property name="paramName">userName</property>
-                                                                <expression name="expression">params["userName"].value</expression>
                                                             </structure>
                                                             <structure>
                                                                 <property name="paramName">par</property>
@@ -18764,10 +18649,6 @@ var date2 = new Date(   2000+ Number( finishStr.substr( (month_pos+1) ,2 ) ),  N
                                                                 <expression name="expression">params["paramstring"].value</expression>
                                                             </structure>
                                                             <structure>
-                                                                <property name="paramName">userName</property>
-                                                                <expression name="expression">params["userName"].value</expression>
-                                                            </structure>
-                                                            <structure>
                                                                 <property name="paramName">par</property>
                                                                 <expression name="expression">params["par"].value</expression>
                                                             </structure>
@@ -18824,10 +18705,6 @@ var date2 = new Date(   2000+ Number( finishStr.substr( (month_pos+1) ,2 ) ),  N
                                                             <structure>
                                                                 <property name="paramName">paramstring</property>
                                                                 <expression name="expression">params["paramstring"].value</expression>
-                                                            </structure>
-                                                            <structure>
-                                                                <property name="paramName">userName</property>
-                                                                <expression name="expression">params["userName"].value</expression>
                                                             </structure>
                                                             <structure>
                                                                 <property name="paramName">par</property>
@@ -18888,10 +18765,6 @@ var date2 = new Date(   2000+ Number( finishStr.substr( (month_pos+1) ,2 ) ),  N
                                                                 <expression name="expression">params["paramstring"].value</expression>
                                                             </structure>
                                                             <structure>
-                                                                <property name="paramName">userName</property>
-                                                                <expression name="expression">params["userName"].value</expression>
-                                                            </structure>
-                                                            <structure>
                                                                 <property name="paramName">par</property>
                                                                 <expression name="expression">params["par"].value</expression>
                                                             </structure>
@@ -18950,10 +18823,6 @@ var date2 = new Date(   2000+ Number( finishStr.substr( (month_pos+1) ,2 ) ),  N
                                                                 <expression name="expression">params["paramstring"].value</expression>
                                                             </structure>
                                                             <structure>
-                                                                <property name="paramName">userName</property>
-                                                                <expression name="expression">params["userName"].value</expression>
-                                                            </structure>
-                                                            <structure>
                                                                 <property name="paramName">par</property>
                                                                 <expression name="expression">params["par"].value</expression>
                                                             </structure>
@@ -19010,10 +18879,6 @@ var date2 = new Date(   2000+ Number( finishStr.substr( (month_pos+1) ,2 ) ),  N
                                                             <structure>
                                                                 <property name="paramName">paramstring</property>
                                                                 <expression name="expression">params["paramstring"].value</expression>
-                                                            </structure>
-                                                            <structure>
-                                                                <property name="paramName">userName</property>
-                                                                <expression name="expression">params["userName"].value</expression>
                                                             </structure>
                                                             <structure>
                                                                 <property name="paramName">par</property>

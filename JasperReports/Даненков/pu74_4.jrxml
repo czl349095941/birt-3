@@ -16,7 +16,7 @@
 		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
 	</parameter>
 	<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
-		<defaultValueExpression><![CDATA["C:\\Users\\Mihail.Danenkov\\Dropbox\\Работа\\Скрипты\\birt\\JasperReports\\Даненков\\"]]></defaultValueExpression>
+		<defaultValueExpression><![CDATA["/reports/P/"]]></defaultValueExpression>
 	</parameter>
 	<queryString>
 		<![CDATA[WITH WORKO AS
@@ -57,10 +57,10 @@
                 FROM    WORKO
                 )
         )
-SELECT  SYS_XMLAGG(xmlelement(COL, PERSON.DISPLAYNAME
+SELECT  to_char(SYS_XMLAGG(xmlelement(COL, PERSON.DISPLAYNAME
                 || ' ('
                 ||PERSON.TPPERSON
-                || '), ')).EXTRACT('/ROWSET/COL/text()').getclobval() FIO ,
+                || '), ')).EXTRACT('/ROWSET/COL/text()').getclobval()) FIO ,
         TO_CHAR (SUBSTR((regexp_REPLACE(ast.description, '"', '')
                 || ' (от '
                 || mult.STARTMEASUREKM
@@ -124,7 +124,7 @@ GROUP BY TO_CHAR (SUBSTR((regexp_REPLACE(ast.description, '"', '')
         WORKO.FAKT_WO ,
         MULT.ASSESSMENT]]>
 	</queryString>
-	<field name="FIO" class="oracle.sql.CLOB"/>
+	<field name="FIO" class="java.lang.String"/>
 	<field name="MESTO" class="java.lang.String"/>
 	<field name="DESCRIPTION" class="java.lang.String"/>
 	<field name="REPORTDATE" class="java.lang.String"/>
@@ -431,7 +431,7 @@ GROUP BY TO_CHAR (SUBSTR((regexp_REPLACE(ast.description, '"', '')
 				</subreportParameter>
 				<subreportParameter name="SUBREPORT_DIR"/>
 				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
-				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "pu74_5_1.jasper"]]></subreportExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "pu74_5_1.jrxml"]]></subreportExpression>
 			</subreport>
 			<break>
 				<reportElement x="0" y="0" width="100" height="1" uuid="9e35c437-9517-4c94-a42d-c95fed2cd37c"/>

@@ -1,4 +1,4 @@
-﻿﻿<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <report xmlns="http://www.eclipse.org/birt/2005/design" version="3.2.17" id="1">
     <property name="createdBy">Eclipse BIRT Designer Version 2.3.2.r232_20090202 Build &lt;2.3.2.v20090218-0730></property>
     <property name="units">in</property>
@@ -83,12 +83,12 @@ else
                 <property name="category">Unformatted</property>
             </structure>
         </scalar-parameter>
-        <scalar-parameter name="userName" id="7480">
-            <property name="hidden">true</property>
+        <scalar-parameter name="mroSite" id="7480">
+            <property name="hidden">false</property>
             <property name="valueType">static</property>
             <property name="dataType">string</property>
             <property name="paramType">simple</property>
-            <property name="isRequired">false</property>
+            <property name="isRequired">true</property>
             <property name="controlType">text-box</property>
             <property name="distinct">true</property>
             <structure name="format">
@@ -249,10 +249,6 @@ else
 	maximoDataSet.open();
 	var sqlText = new String();
 
-var siteid = new String(params["userName"]);
-
-siteid = " ( select distinct defsite from maximo.maxuser where loginid = '" + params["userName"] + "' )";
-//siteid = "24"
 
 var start = new String(params["par"]);
 
@@ -284,35 +280,70 @@ else
 
 
 
-sqlText = "select count(distinct inc.ticketid) inc_count, spc.location locationId, spc2.NUMVALUE, spc1.alnvalue||', '||spc3.alnvalue description, inc.cl_sys inc_sys, inc.cl_vid inc_vid, inc.vidnum vidnum, inc.clasnum clasnum " 
-+"       from  maximo.LOCATIONSPEC spc    "
-+"        left join maximo.LOCATIONSPEC spc1 on spc1.location=spc.location and spc1.siteid = spc.siteid and spc1.ASSETATTRID = 'SNAME'   "
-+"          left join maximo.LOCATIONSPEC spc2 on spc2.location=spc.location and spc2.siteid = spc.siteid and spc2.ASSETATTRID = 'NOM'   "
-+"           left join maximo.LOCATIONSPEC spc3 on spc3.location=spc.location and spc3.siteid = spc.siteid and spc3.ASSETATTRID = 'SNAME2'  " 
-+"     left join (select i.ticketid ticketid, (case when i.extsystemid is not null then nvl( ma.pred, i.pred) else ma.pred end ) pred, i.siteid siteid, cl_sys.description cl_sys, cl_vid.description cl_vid, nvl(i.classidmain,nvl(i.classid_group,i.classid_element)) vidnum, i.classid_object clasnum from MAXIMO.incident i  "
- 
-
-+"         	 join (select RECORDKEY, RECORDCLASS, PODR, ISPRIMARY, SITEID, pred from  MAXIMO.multiassetlocci "
-+"                    ) ma on i.ticketid = ma.recordkey and i.siteid = ma.siteid and ma.RECORDCLASS= 'ИНЦИДЕНТ' and ma.ISPRIMARY= 0 "
-
-  
- 
-+"                   join MAXIMO.classstructure cl_sys on i.classid_object=cl_sys.classstructureid  "
-+"                   join MAXIMO.classstructure cl_vid on cl_vid.classstructureid=nvl(i.classidmain,nvl(i.classid_group,i.classid_element))  "
-+"                where i.status != 'УДАЛЕНО'  "
-+"                       and  nvl(i.extsystemid,1) != 703    and i.h in ('090004000004')  "
- +"		and  i.reportdate  between " + start + " and  " + finish + " "
- 
- +"		 AND 1 = case when " +status+ " = '0' then 1 "
- +"				 when " +status+ " != '0'  and  i.status not in  ('ОБЪЕДИНЕН', 'ЛОЖНЫЙ','ЗАВ_ДИСП', 'УСТРАНЕН', 'ЗАКРЫТО') then 1 end " 
- 
-+"               )inc on inc.pred=spc.location and inc.siteid = spc.siteid   "
-+"  where  spc.siteid =  " +siteid+ " and spc.ASSETATTRID = 'TIP_PREDPR' and spc.NUMVALUE in (5)   "
-+"  			and 1=( case when ("+allLocation+" = 0 and spc.location in ("+locationId+")) then 1  "
-+"							 when ("+allLocation+" = 1)  then 1 "
-+" 						else 0 end )  "
-+" 	group by spc.location, spc2.NUMVALUE, spc1.alnvalue||', '||spc3.alnvalue, inc.cl_sys, inc.cl_vid, inc.vidnum, inc.clasnum     "
-+"     order by spc2.NUMVALUE, inc.cl_sys, inc.cl_vid   " ;
+sqlText = " SELECT COUNT(DISTINCT inc.ticketid) inc_count, "
+ +"   spc.location locationId, "
+ +"   spc2.NUMVALUE, "
+ +"   spc1.alnvalue "
+ +"   ||', ' "
+ +"   ||spc3.alnvalue description, "
+ +"   inc.cl_sys inc_sys, "
+ +"   inc.cl_vid inc_vid, "
+ +"   inc.vidnum vidnum, "
+ +"   inc.clasnum clasnum "
+ +" FROM maximo.LOCATIONSPEC spc "
+ +" LEFT JOIN maximo.LOCATIONSPEC spc1 "
+ +" ON spc1.location     =spc.location "
+ +" AND spc1.siteid      = spc.siteid "
+ +" AND spc1.ASSETATTRID = 'SNAME' "
+ +" LEFT JOIN maximo.LOCATIONSPEC spc2 "
+ +" ON spc2.location     =spc.location "
+ +" AND spc2.siteid      = spc.siteid "
+ +" AND spc2.ASSETATTRID = 'NOM' "
+ +" LEFT JOIN maximo.LOCATIONSPEC spc3 "
+ +" ON spc3.location     =spc.location "
+ +" AND spc3.siteid      = spc.siteid "
+ +" AND spc3.ASSETATTRID = 'SNAME2' "
+ +" LEFT JOIN "
+ +"   (SELECT i.ticketid ticketid, "
+ +"     ( "
+ +"     CASE "
+ +"       WHEN i.extsystemid IS NOT NULL "
+ +"       THEN  i.pred "
+ +"     END ) pred, "
+ +"     i.siteid siteid, "
+ +"     cl_sys.description cl_sys, "
+ +"     cl_vid.description cl_vid, "
+ +"     NVL(i.classidmain,NVL(i.classid_group,i.classid_element)) vidnum, "
+ +"     i.classid_object clasnum "
+ +"   FROM MAXIMO.tk_rep2 i "
+ +"  "
+ +"   JOIN MAXIMO.classstructure cl_sys "
+ +"   ON i.classid_object=cl_sys.classstructureid "
+ +"   JOIN MAXIMO.classstructure cl_vid "
+ +"   ON cl_vid.classstructureid=NVL(i.classidmain,NVL(i.classid_group,i.classid_element)) "
+ +"   WHERE i.status           != 'УДАЛЕНО' "
+ +"   AND NVL(i.extsystemid,1) != 703 "
+ +"   AND i.h                  IN ('090004000004') "
+ +"   AND i.reportdate BETWEEN " + start + " and  " + finish + " "
+ +"   AND 1 = "
+ +"     CASE "
+ +"       WHEN "+status+" = '0' "
+ +"       THEN 1 "
+ +"       WHEN "+status+"     != '0' "
+ +"       AND i.status NOT IN ('ОБЪЕДИНЕН', 'ЛОЖНЫЙ','ЗАВ_ДИСП', 'УСТРАНЕН', 'ЗАКРЫТО') "
+ +"       THEN 1 "
+ +"     END "
+ +"   )inc ON inc.pred  =spc.location "
+ +" AND inc.siteid      = spc.siteid "
+ +" WHERE spc.siteid    = '"+params["mroSite"]+"' "
+ +" AND spc.ASSETATTRID = 'TIP_PREDPR' "
+ +" AND spc.NUMVALUE   IN (5) "
+ +"  AND spc.location ="+locationId+" "
+ +"     GROUP BY spc.location, spc2.NUMVALUE, spc1.alnvalue "
+ +"       ||', ' "
+ +"       ||spc3.alnvalue, inc.cl_sys, inc.cl_vid, inc.vidnum, inc.clasnum "
+ +"     ORDER BY spc2.NUMVALUE, inc.cl_sys, inc.cl_vid  "
+ ;
 
 
 
@@ -356,9 +387,6 @@ return (true);]]></method>
             <method name="open"><![CDATA[maximoDataSet = MXReportDataSetProvider.create(this.getDataSource().getName(), this.getName());
 	maximoDataSet.open();
 
-var siteid = new String(params["userName"]);
-
-siteid = " ( select distinct defsite from maximo.maxuser where loginid = '" + params["userName"] + "' )";
 
 
 
@@ -366,13 +394,98 @@ siteid = " ( select distinct defsite from maximo.maxuser where loginid = '" + pa
 
 	sqlText = " select description "
  + "  from maximo.site "
- + "  where siteid = " + siteid
+ + "  where siteid ='"+params["mroSite"]+"'"
  ;
 	maximoDataSet.setQuery(sqlText);]]></method>
             <method name="fetch"><![CDATA[if (!maximoDataSet.fetch())
 	   return (false);
 	// Add a line for each output column
 	row["description"] = maximoDataSet.getString("description");
+	return (true);]]></method>
+        </script-data-set>
+        <script-data-set name="dates" id="11389">
+            <list-property name="resultSetHints">
+                <structure>
+                    <property name="position">1</property>
+                    <property name="name">DAT1</property>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="position">2</property>
+                    <property name="name">DAT2</property>
+                    <property name="dataType">string</property>
+                </structure>
+            </list-property>
+            <list-property name="columnHints">
+                <structure>
+                    <property name="columnName">DAT1</property>
+                </structure>
+                <structure>
+                    <property name="columnName">DAT2</property>
+                </structure>
+            </list-property>
+            <structure name="cachedMetaData">
+                <list-property name="resultSet">
+                    <structure>
+                        <property name="position">1</property>
+                        <property name="name">DAT1</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">2</property>
+                        <property name="name">DAT2</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                </list-property>
+            </structure>
+            <property name="dataSource">maximoDataSource</property>
+            <method name="open"><![CDATA[maximoDataSet = MXReportDataSetProvider.create(this.getDataSource().getName(), this.getName());
+	maximoDataSet.open();
+
+
+
+
+	var sqlText = new String();
+
+	sqlText = " SELECT  "
+ +" CASE  "
+ +" WHEN EXTRACT (MONTH FROM TO_DATE('" + params["par"] + " ')) = 1 THEN EXTRACT (DAY FROM TO_DATE('" + params["par"] + " '))||' января '||EXTRACT (YEAR FROM TO_DATE('" + params["par"] + " '))||' г.'  "
+ +" WHEN EXTRACT (MONTH FROM TO_DATE('" + params["par"] + " ')) = 2 THEN EXTRACT (DAY FROM TO_DATE('" + params["par"] + " '))||' февраля '||EXTRACT (YEAR FROM TO_DATE('" + params["par"] + " '))||' г.'  "
+ +" WHEN EXTRACT (MONTH FROM TO_DATE('" + params["par"] + " ')) = 3 THEN EXTRACT (DAY FROM TO_DATE('" + params["par"] + " '))||' марта '||EXTRACT (YEAR FROM TO_DATE('" + params["par"] + " '))||' г.'  "
+ +" WHEN EXTRACT (MONTH FROM TO_DATE('" + params["par"] + " ')) = 4 THEN EXTRACT (DAY FROM TO_DATE('" + params["par"] + " '))||' апреля '||EXTRACT (YEAR FROM TO_DATE('" + params["par"] + " '))||' г.'  "
+ +" WHEN EXTRACT (MONTH FROM TO_DATE('" + params["par"] + " ')) = 5 THEN EXTRACT (DAY FROM TO_DATE('" + params["par"] + " '))||' мая '||EXTRACT (YEAR FROM TO_DATE('" + params["par"] + " '))||' г.'  "
+ +" WHEN EXTRACT (MONTH FROM TO_DATE('" + params["par"] + " ')) = 6 THEN EXTRACT (DAY FROM TO_DATE('" + params["par"] + " '))||' июня '||EXTRACT (YEAR FROM TO_DATE('" + params["par"] + " '))||' г.'  "
+ +" WHEN EXTRACT (MONTH FROM TO_DATE('" + params["par"] + " ')) = 7 THEN EXTRACT (DAY FROM TO_DATE('" + params["par"] + " '))||' июля '||EXTRACT (YEAR FROM TO_DATE('" + params["par"] + " '))||' г.'  "
+ +" WHEN EXTRACT (MONTH FROM TO_DATE('" + params["par"] + " ')) = 8 THEN EXTRACT (DAY FROM TO_DATE('" + params["par"] + " '))||' августа '||EXTRACT (YEAR FROM TO_DATE('" + params["par"] + " '))||' г.'  "
+ +" WHEN EXTRACT (MONTH FROM TO_DATE('" + params["par"] + " ')) = 9 THEN EXTRACT (DAY FROM TO_DATE('" + params["par"] + " '))||' сентября '||EXTRACT (YEAR FROM TO_DATE('" + params["par"] + " '))||' г.'  "
+ +" WHEN EXTRACT (MONTH FROM TO_DATE('" + params["par"] + " ')) = 10 THEN EXTRACT (DAY FROM TO_DATE('" + params["par"] + " '))||' октября '||EXTRACT (YEAR FROM TO_DATE('" + params["par"] + " '))||' г.'  "
+ +" WHEN EXTRACT (MONTH FROM TO_DATE('" + params["par"] + " ')) = 11 THEN EXTRACT (DAY FROM TO_DATE('" + params["par"] + " '))||' ноября '||EXTRACT (YEAR FROM TO_DATE('" + params["par"] + " '))||' г.'  "
+ +" WHEN EXTRACT (MONTH FROM TO_DATE('" + params["par"] + " ')) = 12 THEN EXTRACT (DAY FROM TO_DATE('" + params["par"] + " '))||' декабря '||EXTRACT (YEAR FROM TO_DATE('" + params["par"] + " '))||' г.'  "
+ +" end DAT1, "
+ +" CASE  "
+ +" WHEN EXTRACT (MONTH FROM TO_DATE('" + params["fin"] + " ')) = 1 THEN EXTRACT (DAY FROM TO_DATE('" + params["fin"] + " '))||' января '||EXTRACT (YEAR FROM TO_DATE('" + params["fin"] + " '))||' г.'  "
+ +" WHEN EXTRACT (MONTH FROM TO_DATE('" + params["fin"] + " ')) = 2 THEN EXTRACT (DAY FROM TO_DATE('" + params["fin"] + " '))||' февраля '||EXTRACT (YEAR FROM TO_DATE('" + params["fin"] + " '))||' г.'  "
+ +" WHEN EXTRACT (MONTH FROM TO_DATE('" + params["fin"] + " ')) = 3 THEN EXTRACT (DAY FROM TO_DATE('" + params["fin"] + " '))||' марта '||EXTRACT (YEAR FROM TO_DATE('" + params["fin"] + " '))||' г.'  "
+ +" WHEN EXTRACT (MONTH FROM TO_DATE('" + params["fin"] + " ')) = 4 THEN EXTRACT (DAY FROM TO_DATE('" + params["fin"] + " '))||' апреля '||EXTRACT (YEAR FROM TO_DATE('" + params["fin"] + " '))||' г.'  "
+ +" WHEN EXTRACT (MONTH FROM TO_DATE('" + params["fin"] + " ')) = 5 THEN EXTRACT (DAY FROM TO_DATE('" + params["fin"] + " '))||' мая '||EXTRACT (YEAR FROM TO_DATE('" + params["fin"] + " '))||' г.'  "
+ +" WHEN EXTRACT (MONTH FROM TO_DATE('" + params["fin"] + " ')) = 6 THEN EXTRACT (DAY FROM TO_DATE('" + params["fin"] + " '))||' июня '||EXTRACT (YEAR FROM TO_DATE('" + params["fin"] + " '))||' г.'  "
+ +" WHEN EXTRACT (MONTH FROM TO_DATE('" + params["fin"] + " ')) = 7 THEN EXTRACT (DAY FROM TO_DATE('" + params["fin"] + " '))||' июля '||EXTRACT (YEAR FROM TO_DATE('" + params["fin"] + " '))||' г.'  "
+ +" WHEN EXTRACT (MONTH FROM TO_DATE('" + params["fin"] + " ')) = 8 THEN EXTRACT (DAY FROM TO_DATE('" + params["fin"] + " '))||' августа '||EXTRACT (YEAR FROM TO_DATE('" + params["fin"] + " '))||' г.'  "
+ +" WHEN EXTRACT (MONTH FROM TO_DATE('" + params["fin"] + " ')) = 9 THEN EXTRACT (DAY FROM TO_DATE('" + params["fin"] + " '))||' сентября '||EXTRACT (YEAR FROM TO_DATE('" + params["fin"] + " '))||' г.'  "
+ +" WHEN EXTRACT (MONTH FROM TO_DATE('" + params["fin"] + " ')) = 10 THEN EXTRACT (DAY FROM TO_DATE('" + params["fin"] + " '))||' октября '||EXTRACT (YEAR FROM TO_DATE('" + params["fin"] + " '))||' г.'  "
+ +" WHEN EXTRACT (MONTH FROM TO_DATE('" + params["fin"] + " ')) = 11 THEN EXTRACT (DAY FROM TO_DATE('" + params["fin"] + " '))||' ноября '||EXTRACT (YEAR FROM TO_DATE('" + params["fin"] + " '))||' г.'  "
+ +" WHEN EXTRACT (MONTH FROM TO_DATE('" + params["fin"] + " ')) = 12 THEN EXTRACT (DAY FROM TO_DATE('" + params["fin"] + " '))||' декабря '||EXTRACT (YEAR FROM TO_DATE('" + params["fin"] + " '))||' г.'  "
+ +" END DAT2 "
+ +" from dual ";
+
+ 
+	maximoDataSet.setQuery(sqlText);]]></method>
+            <method name="fetch"><![CDATA[if (!maximoDataSet.fetch())
+	   return (false);
+	// Add a line for each output column
+	row["DAT1"] = maximoDataSet.getString("DAT1");
+	row["DAT2"] = maximoDataSet.getString("DAT2");
+	
 	return (true);]]></method>
         </script-data-set>
     </data-sets>
@@ -516,25 +629,20 @@ siteid = " ( select distinct defsite from maximo.maxuser where loginid = '" + pa
             <property name="textAlign">center</property>
             <text-property name="text">13. Справка об устранении инцидентов по группам устройств и систем по хозяйству Ш</text-property>
         </label>
-        <data id="10599">
+        <data id="11390">
             <property name="fontSize">large</property>
             <property name="fontWeight">bold</property>
             <property name="textAlign">center</property>
+            <property name="dataSet">dates</property>
             <list-property name="boundDataColumns">
                 <structure>
-                    <property name="name">dates</property>
-                    <expression name="expression">var finishStr= new String(params["fin"].value);
-var startStr= new String(params["par"].value);
-var date1 = new Date(   2000+ Number( startStr.substr(6,2) ), Number( startStr.substr(3,2) ) - 1 , startStr.substr(0,2) ) ;
-var date_pos = new Number ( finishStr.indexOf('.',0) );
-var month_pos = new Number( finishStr.indexOf('.', (date_pos+1) ) );
-
-var date2 = new Date(   2000+ Number( finishStr.substr( (month_pos+1) ,2 ) ),  Number(  finishStr.substr( (date_pos+1) , (month_pos -  (date_pos+1)  )  ) ) - 1 , finishStr.substr( 0,date_pos ) ) ;
-'с '+BirtDateTime.day(date1)+' '+BirtDateTime.month(date1, 2)+' '+BirtDateTime.year(date1)+' г.' + ' по ' + BirtDateTime.day(date2)+' '+BirtDateTime.month(date2, 2)+' '+BirtDateTime.year(date2)+' г.'</expression>
+                    <property name="name">DAT1</property>
+                    <property name="displayName">DAT1</property>
+                    <expression name="expression">'c ' + dataSetRow["DAT1"] + ' по ' + dataSetRow["DAT2"]</expression>
                     <property name="dataType">string</property>
                 </structure>
             </list-property>
-            <property name="resultSetColumn">dates</property>
+            <property name="resultSetColumn">DAT1</property>
         </data>
         <data id="7886">
             <property name="fontSize">large</property>
@@ -598,10 +706,6 @@ var date2 = new Date(   2000+ Number( finishStr.substr( (month_pos+1) ,2 ) ),  N
                                             <structure>
                                                 <property name="paramName">paramstring</property>
                                                 <expression name="expression">params["paramstring"].value</expression>
-                                            </structure>
-                                            <structure>
-                                                <property name="paramName">userName</property>
-                                                <expression name="expression">params["userName"].value</expression>
                                             </structure>
                                             <structure>
                                                 <property name="paramName">par</property>
