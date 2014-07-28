@@ -389,11 +389,11 @@ GROUP BY TO_CHAR (SUBSTR (a1.mesto,1,2000)) ,
                 AND TO_CHAR(wo.Actfinish, 'YYYY') = $P{year}
         )
  SELECT   'invis' mesto                                                               ,
-           a1.Ед_Изм                                                                              ,
-           nvl(a1.OTHERWORK, 'Прочие работы') Наименов                                                                            ,
+           '' Ед_Изм                                                                              ,
+            nvl(case when TYPEWORKORDER IN ('Путевые обходчики') then 'Осмотр пути' else NVL(a1.OTHERWORK, cls.description) end, 'Прочие работы') Наименов                                                                            ,
            'я' Тех_Карта                                                                        ,
-           a1.JPDURATION Норма_Времени                                                            ,
-           a1.numvalue                                                                            ,
+           to_number('') Норма_Времени                                                            ,
+            to_number('') numvalue                                                                            ,
            SUM (a1.Plan_wo)                                                     PLAN              ,
            ROUND(SUM((a1.Plan_wo / a1.numvalue) * To_number(a1.JPDURATION)), 2) AS Норм_ч_месц_плн,
            sum (case when  Actfinish=16 then fakt_wo end)За_16_Число,
@@ -428,13 +428,8 @@ GROUP BY TO_CHAR (SUBSTR (a1.mesto,1,2000)) ,
           sum (case when  Actfinish=29 then labor_hour end)Ч_Ч_29,
           sum (case when  Actfinish=30 then labor_hour end)Ч_Ч_30,
           sum (case when  Actfinish=31 then labor_hour end)Ч_Ч_31
-  FROM     a1 WHERE TYPEWORKORDER IN ('Прочее')
-  GROUP BY to_char (substr (a1.mesto,1,2000))  ,
-           a1.Ед_Изм     ,
-           a1.Наименов   ,
-           nvl(a1.OTHERWORK, 'Прочие работы')         ,
-           a1.JPDURATION ,
-           a1.numvalue
+  FROM      a1 left join MAXIMO.CLASSSTRUCTURE cls on cls.CLASSSTRUCTUREID = a1.CLASSSTRUCTUREID WHERE TYPEWORKORDER IN ('Прочее', 'Путевые обходчики')
+ GROUP BY nvl(case when TYPEWORKORDER IN ('Путевые обходчики') then 'Осмотр пути' else NVL(a1.OTHERWORK, cls.description) end, 'Прочие работы')
   UNION ALL
   SELECT   'invis' mesto                                                               ,
            '' Ед_Изм                                                                              ,
