@@ -32,10 +32,10 @@
         FROM    MAXIMO.WORKORDER WO
         WHERE   WO.TYPEWORKORDER = 'Путевые обходчики'
                 AND WO.STATUS IN ('НАПР_НА_УТ', 'ЗАВЕРШ', 'ОТКЛ_РГН', 'ОФОРМЛЕН', 'ЗАКРЫТО')
-                AND WO.SITEID                     = $P{mroSite}
-                AND WO.BRIGAD_LOCATION            = $P{podr}
-                AND TO_CHAR(WO.ACTFINISH, 'YYYY') = $P{year}
-                AND TO_CHAR(wo.Actfinish, 'MM')   = $P{month}
+                AND WO.SITEID                     = replace($P{mroSite},'=','')
+                AND WO.BRIGAD_LOCATION            = replace($P{podr},'=','')
+                AND TO_CHAR(WO.ACTFINISH, 'YYYY') = replace($P{year},'=','')
+                AND TO_CHAR(wo.Actfinish, 'MM')   = replace($P{month},'=','')
         )
         ,
         labtr AS
@@ -51,7 +51,7 @@
                         ON      LABORCRAFTRATE.LABORCODE = LABTRANS.LABORCODE
         WHERE   LABTRANS.LABORCODE             IS NOT NULL
                 AND LABORCRAFTRATE.DEFAULTCRAFT          = '1'
-                AND LABTRANS.SITEID                      = '24'
+                AND LABTRANS.SITEID                      = replace($P{mroSite},'=','')
                 AND LABTRANS.REFWO IN
                 (SELECT WONUM
                 FROM    WORKO

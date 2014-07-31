@@ -12,10 +12,10 @@
 		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
 	</parameter>
 	<parameter name="year" class="java.lang.String">
-		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+		<defaultValueExpression><![CDATA[2014]]></defaultValueExpression>
 	</parameter>
 	<parameter name="month" class="java.lang.String">
-		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+		<defaultValueExpression><![CDATA["07".toString()]]></defaultValueExpression>
 	</parameter>
 	<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
 		<defaultValueExpression><![CDATA["/reports/P/"]]></defaultValueExpression>
@@ -31,14 +31,14 @@ FROM    MAXIMO.LABTRANS
 WHERE   LABTRANS.LABORCODE             IS NOT NULL
         AND LABTRANS.labor_hour                  > 0
         AND LABORCRAFTRATE.DEFAULTCRAFT          = '1'
-        AND LABTRANS.SITEID                      = $P{mroSite}
+        AND LABTRANS.SITEID                      = replace($P{mroSite},'=','')
         AND LABTRANS.REFWO IN
         (SELECT wonum
         FROM    Maximo.Workorder Wo
-        WHERE   WO.SITEID                         = $P{mroSite}
-                AND TO_CHAR(wo.Actfinish, 'MM')   = $P{month}
-                AND TO_CHAR(wo.Actfinish, 'YYYY') = $P{year}
-                AND WO.BRIGAD_LOCATION            = $P{podr}
+        WHERE   WO.SITEID                         = replace($P{mroSite},'=','')
+                AND TO_CHAR(wo.Actfinish, 'MM')   = replace($P{month},'=','')
+                AND TO_CHAR(wo.Actfinish, 'YYYY') = replace($P{year},'=','')
+                AND WO.BRIGAD_LOCATION            = replace($P{podr},'=','')
                 AND WO.STATUS     IN ('НАПР_НА_УТ', 'ЗАВЕРШ', 'ОТКЛ_РГН', 'ОФОРМЛЕН', 'ЗАКРЫТО')
                 AND TYPEWORKORDER IN ('Внеплановое', 'Плановое', 'Сопутствующая работа', 'Прочее', 'Путевые обходчики')
         )
@@ -135,8 +135,8 @@ FROM    maximo.locations pd
                 ) NORM
                 ON      pd.location   = norm.l_podr
                         AND pd.siteid = norm.siteid
-WHERE   pd.location                   = $P{podr}
-        AND pd.SITEID                 = $P{mroSite}]]>
+WHERE   pd.location                   = replace($P{podr},'=','')
+        AND pd.SITEID                 = replace($P{mroSite},'=','')]]>
 	</queryString>
 	<field name="PD" class="java.lang.String"/>
 	<field name="PCHU" class="java.lang.String"/>
