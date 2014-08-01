@@ -320,12 +320,8 @@ sqlText = ""
  +"                         NVL (SUM (WO.PLAN_WO), 0)                                                               PLAN_WO, "
  +"                         NVL (SUM (WO.FAKT_WO), 0)                                                               FAKT_WO, "
  +"                         NVL (SUM (WO.LABOR_HOUR), 0)                                                            LABOR_HOUR, "
- +"                         NVL (ROUND (SUM (WO.FAKT_WO/JPS.NUMVALUE*NVL(WO.JPDURATION, WO.NOKOEFDURATION)), 2), 0) NORM_HOUR, "
- +"                         NVL(SUM(LABOR_HOUR/ "
- +"                         (SELECT SUMWO.sumwo "
- +"                         FROM    SUMWO "
- +"                         WHERE   SUMWO.brigad_location = wo.brigad_location "
- +"                         )),0) dolia "
+ +"                         NVL (ROUND (SUM (WO.FAKT_WO/JPS.NUMVALUE*(case when nvl(wo.JPDURATION, 0) = 0 then WO.NOKOEFDURATION else wo.JPDURATION end)), 2), 0) NORM_HOUR, "
+ +"                         NVL(SUM(case when (select SUMWO.SUMWO from    SUMWO where   SUMWO.BRIGAD_LOCATION = WO.BRIGAD_LOCATION ) = 0 then 0 else LABOR_HOUR/(select SUMWO.SUMWO from    SUMWO where   SUMWO.BRIGAD_LOCATION = WO.BRIGAD_LOCATION)end ),0) dolia "
  +"                 FROM    allWO wo "
  +"                         LEFT JOIN MAXIMO.wojprelation wojp "
  +"                                 ON      wo.wonum                = wojp.wonum "
@@ -366,11 +362,7 @@ sqlText = ""
  +"                         CASE WHEN WO.TYPEWORKORDER = 'Путевые обходчики' THEN 'Осмотр пути' ELSE CLASSSTRUCTURE.DESCRIPTION END wo_d, "
  +"                         COUNT (WO.WONUM)                                                                                        CNT_WO, "
  +"                         NVL (SUM (WO.LABOR_HOUR), 0)                                                                            LABOR_HOUR, "
- +"                         NVL(SUM(LABOR_HOUR/ "
- +"                         (SELECT SUMWO.sumwo "
- +"                         FROM    SUMWO "
- +"                         WHERE   SUMWO.brigad_location = wo.brigad_location "
- +"                         )),0) dolia "
+ +"                         NVL(SUM(case when (select SUMWO.SUMWO from    SUMWO where   SUMWO.BRIGAD_LOCATION = WO.BRIGAD_LOCATION ) = 0 then 0 else LABOR_HOUR/(select SUMWO.SUMWO from    SUMWO where   SUMWO.BRIGAD_LOCATION = WO.BRIGAD_LOCATION)end ),0) dolia "
  +"                 FROM    allwo wo "
  +"                         JOIN MAXIMO.CLASSSTRUCTURE "
  +"                                 ON      WO.CLASSSTRUCTUREID = CLASSSTRUCTURE.CLASSSTRUCTUREID "
@@ -500,69 +492,6 @@ row["SITE_D"] = maximoDataSet.getString("SITE_D");
 return (true);]]></method>
         </script-data-set>
     </data-sets>
-    <cubes>
-        <tabular-cube name="Data Cube" id="17529">
-            <property name="dimensions">
-                <tabular-dimension name="Group" id="17530">
-                    <property name="defaultHierarchy">NewTabularHierarchy</property>
-                    <property name="hierarchies">
-                        <tabular-hierarchy name="NewTabularHierarchy" id="17531">
-                            <property name="levels">
-                                <tabular-level name="L_PODR" id="17532">
-                                    <property name="dataType">string</property>
-                                    <property name="columnName">L_PODR</property>
-                                </tabular-level>
-                                <tabular-level name="L_PODR_D" id="17569">
-                                    <property name="dataType">string</property>
-                                    <property name="columnName">L_PODR_D</property>
-                                </tabular-level>
-                            </property>
-                        </tabular-hierarchy>
-                    </property>
-                </tabular-dimension>
-                <tabular-dimension name="Group1" id="17533">
-                    <property name="defaultHierarchy">NewTabularHierarchy1</property>
-                    <property name="hierarchies">
-                        <tabular-hierarchy name="NewTabularHierarchy1" id="17534">
-                            <property name="levels">
-                                <tabular-level name="JPNUM" id="17535">
-                                    <property name="dataType">string</property>
-                                    <property name="columnName">JPNUM</property>
-                                </tabular-level>
-                            </property>
-                        </tabular-hierarchy>
-                    </property>
-                </tabular-dimension>
-            </property>
-            <property name="measureGroups">
-                <tabular-measure-group name="Summary Field" id="17536">
-                    <property name="measures">
-                        <tabular-measure name="ALL_WO" id="17537">
-                            <expression name="measureExpression">dataSetRow["ALL_WO"]</expression>
-                            <property name="dataType">string</property>
-                        </tabular-measure>
-                    </property>
-                </tabular-measure-group>
-                <tabular-measure-group name="Summary Field1" id="17538">
-                    <property name="measures">
-                        <tabular-measure name="ALL_TK" id="17539">
-                            <expression name="measureExpression">dataSetRow["ALL_TK"]</expression>
-                            <property name="dataType">string</property>
-                        </tabular-measure>
-                    </property>
-                </tabular-measure-group>
-                <tabular-measure-group name="Summary Field2" id="17540">
-                    <property name="measures">
-                        <tabular-measure name="YESNO" id="17541">
-                            <expression name="measureExpression">dataSetRow["YESNO"]</expression>
-                            <property name="dataType">string</property>
-                        </tabular-measure>
-                    </property>
-                </tabular-measure-group>
-            </property>
-            <property name="dataSet">11</property>
-        </tabular-cube>
-    </cubes>
     <page-setup>
         <simple-master-page name="maximoLandscape" id="47" extends="MaximoSystemLibrary.maximoLandscape">
             <property name="type">a4</property>
