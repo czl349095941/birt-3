@@ -64,17 +64,16 @@ response.setDateHeader ("Expires", 0); //prevents caching at the proxy server
 	String actionURL="";
 
 	if (year.equalsIgnoreCase("") && month.equalsIgnoreCase(""))
-	{actionURL = birturl + "flow.html?_flowId=viewReportFlow&reportUnit=%2Freports%2FP%2FPU74_0&standAlone=true&ParentFolderUri=/reports/P&mroSite="+ mroSite + "&podr=" + podr + "&j_username=joeuser&j_password=joeuser&output=xls";}
+	{actionURL = birturl + "flow.html?_flowId=viewReportFlow&reportUnit=%2Freports%2FP%2FPU_0&standAlone=true&ParentFolderUri=/reports/P&mroSite="+ mroSite + "&podr=" + podr + "&j_username=joeuser&j_password=joeuser&output=xls";}
 	
 	if (year.equalsIgnoreCase("") && !month.equalsIgnoreCase(""))
-	{actionURL = birturl + "flow.html?_flowId=viewReportFlow&reportUnit=%2Freports%2FP%2FPU74_0&standAlone=true&ParentFolderUri=/reports/P&mroSite="+ mroSite + "&podr=" + podr + "&month="+ month + "&j_username=joeuser&j_password=joeuser&output=xls";}
+	{actionURL = birturl + "flow.html?_flowId=viewReportFlow&reportUnit=%2Freports%2FP%2FPU_0&standAlone=true&ParentFolderUri=/reports/P&mroSite="+ mroSite + "&podr=" + podr + "&month="+ month + "&j_username=joeuser&j_password=joeuser&output=xls";}
 	
 	if (!year.equalsIgnoreCase("") && month.equalsIgnoreCase(""))
-	{actionURL = birturl + "flow.html?_flowId=viewReportFlow&reportUnit=%2Freports%2FP%2FPU74_0&standAlone=true&ParentFolderUri=/reports/P&mroSite="+ mroSite + "&podr=" + podr + "&year=" + year + "&j_username=joeuser&j_password=joeuser&output=xls";}
+	{actionURL = birturl + "flow.html?_flowId=viewReportFlow&reportUnit=%2Freports%2FP%2FPU_0&standAlone=true&ParentFolderUri=/reports/P&mroSite="+ mroSite + "&podr=" + podr + "&year=" + year + "&j_username=joeuser&j_password=joeuser&output=xls";}
 	
 	if (!year.equalsIgnoreCase("") && !month.equalsIgnoreCase(""))
-	{actionURL = birturl + "flow.html?_flowId=viewReportFlow&reportUnit=%2Freports%2FP%2FPU74_0&standAlone=true&ParentFolderUri=/reports/P&mroSite="+ mroSite + "&podr=" + podr + "&year=" +year + "&month="+ month + "&j_username=joeuser&j_password=joeuser&output=xls";}
-		out.print(actionURL);    
+	{actionURL = birturl + "flow.html?_flowId=viewReportFlow&reportUnit=%2Freports%2FP%2FPU_0&standAlone=true&ParentFolderUri=/reports/P&mroSite="+ mroSite + "&podr=" + podr + "&year=" +year + "&month="+ month + "&j_username=joeuser&j_password=joeuser&output=xls";} 
 
 	
 	
