@@ -23,7 +23,28 @@ mxReportScriptContext = MXReportScriptContext.initialize(reportContext);
 mxReportScriptContext = MXReportScriptContext.initialize(reportContext);
 mxReportScriptContext.setDefaultLogLevel("DEBUG");
 mxReportScriptContext.setDefaultLogFile("c:/temp/tetttt.txt");
-]]></method>
+
+
+if (BirtComp.equalTo(params["date1"],null) == true || params["date1"] == '' )
+	{if (BirtComp.equalTo(params["date2"],null) == true || params["date2"] == '')
+		{params["date1"] = "to_date('01."+ BirtDateTime.month(BirtDateTime.now())+"." + BirtDateTime.year(BirtDateTime.now()) + "')";
+		params["date2"] = "to_date(TO_CHAR(LAST_DAY(TO_DATE('1."+ BirtDateTime.month(BirtDateTime.now()) + "."+ BirtDateTime.year(BirtDateTime.now()) +"','dd.mm.yyyy')),'dd') || '."+ BirtDateTime.month(BirtDateTime.now()) + "."+ BirtDateTime.year(BirtDateTime.now())+"')";
+		}
+	else
+		{params["date1"] = "to_date('" +params["date2"]+ "') - to_number(TO_CHAR(LAST_DAY(TO_DATE('1.' || to_char(extract (month from to_date('" +params["date2"]+ "'))-1) || '.'|| extract (year from to_date('" +params["date2"]+ "')),'dd.mm.yyyy')),'dd'))";
+		params["date2"] = "to_date('" +params["date2"]+ "')";
+		}
+	}
+else  
+	{if (BirtComp.equalTo(params["date2"],null) == true || params["date2"] == '')
+		{params["date2"] = "to_date('" +params["date1"]+ "')";
+		params["date1"] = "to_date('" +params["date1"]+ "')";
+		}
+	 else 
+	 	{params["date1"] = "to_date('" +params["date1"]+ "')";
+		params["date2"] = "to_date('" +params["date2"]+ "')";
+		}
+	}]]></method>
     <method name="afterFactory"><![CDATA[MXReportScriptContext.close();]]></method>
     <property name="theme">MaximoSystemLibrary.maximoTheme</property>
     <text-property name="displayName">Tivoli Maximo Grouped Chart Template</text-property>
@@ -82,7 +103,7 @@ mxReportScriptContext.setDefaultLogFile("c:/temp/tetttt.txt");
             <property name="dataType">string</property>
             <property name="paramType">simple</property>
             <text-property name="promptText">Начало периода</text-property>
-            <property name="isRequired">true</property>
+            <property name="isRequired">false</property>
             <property name="controlType">text-box</property>
             <property name="distinct">true</property>
             <structure name="format">
@@ -94,7 +115,7 @@ mxReportScriptContext.setDefaultLogFile("c:/temp/tetttt.txt");
             <property name="dataType">string</property>
             <property name="paramType">simple</property>
             <text-property name="promptText">Конец периода</text-property>
-            <property name="isRequired">true</property>
+            <property name="isRequired">false</property>
             <property name="controlType">text-box</property>
             <property name="distinct">true</property>
             <structure name="format">
@@ -462,7 +483,7 @@ sqlText = ""
  +"                 AND TYPEWORKORDER IN ('Внеплановое', 'Плановое', 'Прочее', 'Путевые обходчики') "
  +"                 AND WO.SITEID = '"+params["mroSite"]+"' "
  +"                 AND wo.l_pred = '"+params["pred"]+"' "
- +"                 AND wo.actfinish BETWEEN '"+params["date1"]+"' AND to_date('"+params["date2"]+"') +1"
+ +"                 AND wo.actfinish BETWEEN "+params["date1"]+" AND "+params["date2"]+" +1"
  +"         ) "	
  +"         , "
  +"         tk AS "
@@ -603,6 +624,16 @@ return (true);]]></method>
                     <property name="name">PODR</property>
                     <property name="dataType">string</property>
                 </structure>
+                <structure>
+                    <property name="position">4</property>
+                    <property name="name">D1</property>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="position">5</property>
+                    <property name="name">D2</property>
+                    <property name="dataType">string</property>
+                </structure>
             </list-property>
             <list-property name="columnHints">
                 <structure>
@@ -641,6 +672,12 @@ return (true);]]></method>
                 <structure>
                     <property name="columnName">PODR</property>
                 </structure>
+                <structure>
+                    <property name="columnName">D1</property>
+                </structure>
+                <structure>
+                    <property name="columnName">D2</property>
+                </structure>
             </list-property>
             <structure name="cachedMetaData">
                 <list-property name="resultSet">
@@ -659,6 +696,16 @@ return (true);]]></method>
                         <property name="name">PODR</property>
                         <property name="dataType">string</property>
                     </structure>
+                    <structure>
+                        <property name="position">4</property>
+                        <property name="name">D1</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">5</property>
+                        <property name="name">D2</property>
+                        <property name="dataType">string</property>
+                    </structure>
                 </list-property>
             </structure>
             <property name="dataSource">maximoDataSource</property>
@@ -671,7 +718,9 @@ var sqlText = new String();
 sqlText = " "     
   +" SELECT LSPC.ALNVALUE PODR   , "
  +"        SITE.DESCRIPTION SITE,"
- +"        '' M "
+ +"        '' M, "
+ +"		   to_char(" + params["date1"] + ", 'DD.MM.YYYY') D1,"
+ +"		   to_char(" + params["date2"] + ", 'DD.MM.YYYY') D2"
  +" FROM   MAXIMO.LOCATIONSpec LSPC "
  +"        JOIN maximo.site "
  +"        ON     LSPC.SITEID = SITE.SITEID "
@@ -689,6 +738,8 @@ maximoDataSet.setQuery(sqlText);]]></method>
 row["M"] = maximoDataSet.getString("M");
 row["PODR"] = maximoDataSet.getString("PODR");
 row["SITE"] = maximoDataSet.getString("SITE");
+row["D1"] = maximoDataSet.getString("D1");
+row["D2"] = maximoDataSet.getString("D2");
 
 return (true);]]></method>
         </script-data-set>
@@ -787,13 +838,21 @@ return (true);]]></method>
             </list-property>
             <property name="resultSetColumn">PODR</property>
         </data>
-        <text-data id="18508">
+        <data id="18550">
             <property name="fontSize">medium</property>
             <property name="fontWeight">bold</property>
             <property name="textAlign">center</property>
-            <expression name="valueExpr">"с " + params["date1"].value + " по " + params["date2"].value</expression>
-            <property name="contentType">html</property>
-        </text-data>
+            <property name="dataSet">label</property>
+            <list-property name="boundDataColumns">
+                <structure>
+                    <property name="name">D1</property>
+                    <property name="displayName">D1</property>
+                    <expression name="expression">"c " + dataSetRow["D1"] + " по " + dataSetRow["D2"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+            </list-property>
+            <property name="resultSetColumn">D1</property>
+        </data>
         <table id="17717">
             <property name="width">100%</property>
             <property name="dataSet">11</property>
