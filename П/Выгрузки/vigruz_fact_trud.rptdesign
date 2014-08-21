@@ -253,6 +253,11 @@ else
                     <property name="name">CW1</property>
                     <property name="dataType">string</property>
                 </structure>
+                <structure>
+                    <property name="position">10</property>
+                    <property name="name">SORT</property>
+                    <property name="dataType">string</property>
+                </structure>
             </list-property>
             <list-property name="columnHints">
                 <structure>
@@ -281,6 +286,9 @@ else
                 </structure>
                 <structure>
                     <property name="columnName">CW1</property>
+                </structure>
+                <structure>
+                    <property name="columnName">SORT</property>
                 </structure>
             </list-property>
             <structure name="cachedMetaData">
@@ -328,6 +336,11 @@ else
                     <structure>
                         <property name="position">9</property>
                         <property name="name">CW1</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">10</property>
+                        <property name="name">SORT</property>
                         <property name="dataType">string</property>
                     </structure>
                 </list-property>
@@ -1125,6 +1138,7 @@ sqlText = ""
  +" GROUP BY l_pred "
  +" ) "
  +" SELECT  loc.DESCRIPTION, "
+ +"			case "+params["type"]+" when 0 then loc.location else loc.description end sort, "
  +"         PLAN.CNT_RAB, "
  +"         NVL (plan.plan3, 0)           plan3, "
  +"         NVL (PLAN.PLAN2, 0)           PLAN2, "
@@ -1138,18 +1152,17 @@ sqlText = ""
  +"                 ON      loc.location = plan.location "
  +"         LEFT JOIN FAKT "
  +"                 ON      loc.LOCATION = FAKT.L_PRED "
- +" WHERE   loc.location   in ("+params["mroSite"]+") "
- +"			and loc.siteid in ("+params["mroSite"]+") "
+ +" WHERE   loc.siteid in ("+params["mroSite"]+") "
  +"			AND 1 = case when 1="+params["type"]
  +"         AND loc.location IN "
  +"         (SELECT location "
  +"         FROM    MAXIMO.LOCATIONSPEC "
  +"         WHERE   ASSETATTRID  = 'TIP_PREDPR' "
  +"                 AND NUMVALUE = 4 "
- +"         ) then 1 when 0="+params["type"]+" then 1 end"
+ +"         ) then 1 when 0="+params["type"]+" and loc.location   in ("+params["mroSite"]+") then 1 end"
  +"         AND loc.STATUS = 'РАБОТАЕТ' "
  //+" and loc.location = 'PRED_1637'"
- +" and loc.location = '24'"
+ //+" and loc.location = '24'"
 
  
 ;
@@ -1160,6 +1173,7 @@ maximoDataSet.setQuery(sqlText);]]></method>
 	return (false);
 
 row["DESCRIPTION"] = maximoDataSet.getString("DESCRIPTION");
+row["SORT"] = maximoDataSet.getString("SORT");
 row["CNT_RAB"] = maximoDataSet.getString("CNT_RAB");
 row["PLAN3"] = maximoDataSet.getString("PLAN3");
 row["PLAN2"] = maximoDataSet.getString("PLAN2");
@@ -1379,13 +1393,15 @@ return (true);]]></method>
     </page-setup>
     <body>
         <label id="17370">
-            <property name="fontSize">medium</property>
+            <property name="fontFamily">"Times New Roman"</property>
+            <property name="fontSize">14pt</property>
             <property name="fontWeight">bold</property>
             <property name="textAlign">center</property>
             <text-property name="text">Выгрузка по трудозатратам</text-property>
         </label>
         <data id="17373">
-            <property name="fontSize">medium</property>
+            <property name="fontFamily">"Times New Roman"</property>
+            <property name="fontSize">14pt</property>
             <property name="fontWeight">bold</property>
             <property name="textAlign">center</property>
             <property name="dataSet">label</property>
@@ -1402,7 +1418,8 @@ else "центральной дирекции инфраструктуры"</exp
             <property name="resultSetColumn">PODR</property>
         </data>
         <data id="18550">
-            <property name="fontSize">medium</property>
+            <property name="fontFamily">"Times New Roman"</property>
+            <property name="fontSize">14pt</property>
             <property name="fontWeight">bold</property>
             <property name="textAlign">center</property>
             <property name="dataSet">label</property>
@@ -1420,6 +1437,8 @@ else "центральной дирекции инфраструктуры"</exp
             <property name="contentType">auto</property>
         </text>
         <table id="18730">
+            <property name="fontFamily">"Times New Roman"</property>
+            <property name="fontSize">12pt</property>
             <property name="width">100%</property>
             <property name="dataSet">11</property>
             <list-property name="boundDataColumns">
@@ -1621,13 +1640,27 @@ else row["tab_fakt2"]/row["tab_cw2"]</expression>
 else row["tab_fakt1"]/row["tab_cw1"]</expression>
                     <property name="dataType">float</property>
                 </structure>
+                <structure>
+                    <property name="name">SORT</property>
+                    <property name="displayName">SORT</property>
+                    <expression name="expression">dataSetRow["SORT"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
             </list-property>
             <list-property name="sort">
                 <structure>
-                    <expression name="key">row["DESCRIPTION"].replace(/^\D*/,"").replace(/\D*$/,"")*1</expression>
+                    <expression name="key">row["SORT"].replace(/^\D*/,"").replace(/\D*$/,"")*1</expression>
                     <property name="direction">asc</property>
                 </structure>
             </list-property>
+            <column id="18861">
+                <list-property name="visibility">
+                    <structure>
+                        <property name="format">all</property>
+                        <expression name="valueExpr">true</expression>
+                    </structure>
+                </list-property>
+            </column>
             <column id="18779"/>
             <column id="18780"/>
             <column id="18781"/>
@@ -1644,6 +1677,21 @@ else row["tab_fakt1"]/row["tab_cw1"]</expression>
             <column id="18823"/>
             <header>
                 <row id="18789">
+                    <cell id="18857">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <property name="verticalAlign">middle</property>
+                    </cell>
                     <cell id="18790">
                         <property name="colSpan">1</property>
                         <property name="rowSpan">2</property>
@@ -1683,6 +1731,7 @@ else "Предприятие"</expression>
                         <property name="borderTopWidth">thin</property>
                         <property name="verticalAlign">middle</property>
                         <label id="18735">
+                            <property name="fontFamily">"Times New Roman"</property>
                             <text-property name="text">Количество работников по ЕК АСУТР</text-property>
                         </label>
                     </cell>
@@ -1783,6 +1832,24 @@ else "Предприятие"</expression>
                     </cell>
                 </row>
                 <row id="18731">
+                    <cell id="18858">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <property name="verticalAlign">middle</property>
+                        <data id="18862">
+                            <property name="resultSetColumn">SORT</property>
+                        </data>
+                    </cell>
                     <cell id="18736">
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
@@ -1992,6 +2059,21 @@ else "Предприятие"</expression>
             <detail>
                 <row id="18750">
                     <property name="textAlign">right</property>
+                    <cell id="18859">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <property name="textAlign">left</property>
+                    </cell>
                     <cell id="18751">
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
@@ -2211,7 +2293,7 @@ else "Предприятие"</expression>
                         <data id="18766">
                             <structure name="numberFormat">
                                 <property name="category">Fixed</property>
-                                <property name="pattern">Fixed</property>
+                                <property name="pattern">###0</property>
                             </structure>
                             <property name="resultSetColumn">CW2</property>
                         </data>
@@ -2232,7 +2314,7 @@ else "Предприятие"</expression>
                         <data id="18768">
                             <structure name="numberFormat">
                                 <property name="category">Fixed</property>
-                                <property name="pattern">Fixed</property>
+                                <property name="pattern">###0</property>
                             </structure>
                             <property name="resultSetColumn">CW1</property>
                         </data>
@@ -2285,6 +2367,20 @@ else "Предприятие"</expression>
                 <row id="18769">
                     <property name="fontWeight">bold</property>
                     <property name="textAlign">right</property>
+                    <cell id="18860">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                    </cell>
                     <cell id="18770">
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
@@ -2503,7 +2599,7 @@ else "Предприятие"</expression>
                         <data id="18850">
                             <structure name="numberFormat">
                                 <property name="category">Fixed</property>
-                                <property name="pattern">Fixed</property>
+                                <property name="pattern">###0</property>
                             </structure>
                             <property name="resultSetColumn">tab_cw2</property>
                         </data>
@@ -2524,7 +2620,7 @@ else "Предприятие"</expression>
                         <data id="18851">
                             <structure name="numberFormat">
                                 <property name="category">Fixed</property>
-                                <property name="pattern">Fixed</property>
+                                <property name="pattern">###0</property>
                             </structure>
                             <property name="resultSetColumn">tab_cw1</property>
                         </data>
