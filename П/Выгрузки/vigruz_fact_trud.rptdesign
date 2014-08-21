@@ -82,6 +82,28 @@ else
                 <property name="category">Unformatted</property>
             </structure>
         </scalar-parameter>
+        <scalar-parameter name="hoz" id="18863">
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="paramType">simple</property>
+            <text-property name="promptText">Хозяйство</text-property>
+            <property name="controlType">radio-button</property>
+            <property name="fixedOrder">true</property>
+            <property name="distinct">true</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+            <list-property name="selectionList">
+                <structure>
+                    <property name="value">800</property>
+                    <property name="label">П</property>
+                </structure>
+                <structure>
+                    <property name="value">1400</property>
+                    <property name="label">Э</property>
+                </structure>
+            </list-property>
+        </scalar-parameter>
         <scalar-parameter name="type" id="18788">
             <property name="valueType">static</property>
             <property name="dataType">string</property>
@@ -1098,19 +1120,21 @@ sqlText = ""
  +"     AND loc.siteid = labor.worksite"
  +"     WHERE labor.status = 'АКТИВНО' "
  +"     AND laborcode     IN "
- +"     (SELECT laborcode "
- +"     FROM MAXIMO.LABORCRAFTRATE "
- +"     where  "
- +"     CRAFT IN ('00000435', '00000816', 'СТЭЛТРМЕХ','00000434','00000451', '00000444', '00000447', '00000440', '00000441', '00002834', '00000446', '00000446', '00000448', '00000815', 'ЭЛТРМЕХ', '00000445') "
- +"     AND DEFAULTCRAFT = 1 "
- +"     ) "
+ +"     	(SELECT laborcode "
+ +"     	FROM MAXIMO.LABORCRAFTRATE "
+ +"     	where 1= case when "+params["hoz"]+"=1400 and CRAFT IN ('00000435', '00000816', 'СТЭЛТРМЕХ','00000434','00000451', '00000444', '00000447', '00000440', '00000441', '00002834', '00000446', '00000446', '00000448', '00000815', 'ЭЛТРМЕХ', '00000445') then 1 "
+ +"				          when "+params["hoz"]+"=800 and CRAFT IN ('00000205', 'МНТР_ПТ', 'СГНЛСТ','00000346','00000226', 'ОБХ_ПТИССО') then 1 "
+ +"						  else 0 "
+ +"					 end "
+ +"     		  AND DEFAULTCRAFT = 1 "
+ +"     	) "
  +"			AND 1 = case when 1="+params["type"]
  +"         AND loc.location IN "
  +"         (SELECT location "
  +"         FROM    MAXIMO.LOCATIONSPEC "
  +"         WHERE   ASSETATTRID  = 'TIP_PREDPR' "
- +"                 AND NUMVALUE = 4 "
- +"         ) then 1 when 0="+params["type"]+" then 1 end"
+ +"                 AND  1= case when "+params["hoz"]+"=1400 and NUMVALUE = 4 then 1 when "+params["hoz"]+"=800 and NUMVALUE = 3 then 1 else 0 end "
+ +"         ) then 1 when 0="+params["type"]+" then 1 end "
  +"     AND labor.worksite in ("+params["mroSite"]+") "
  +"     GROUP BY loc.location "
  +"   ), "
@@ -1130,7 +1154,7 @@ sqlText = ""
  +"         FROM    MAXIMO.WORKORDER "
  +"         WHERE   workorder.actfinish >= to_date ("+date1+") AND workorder.actfinish < to_date ("+date3+")+1 "
  +"                 AND WORKORDER.STATUS IN ('НАПР_НА_УТ', 'ЗАВЕРШ', 'ОТКЛ_РГН', 'ОФОРМЛЕН', 'ЗАКРЫТО') "
- +"                 AND workorder.h      = 1400 "
+ +"                 AND workorder.h      = "+params["hoz"]
  +"                 AND workorder.siteid in ("+params["mroSite"]+") "
  +"         GROUP BY case "+params["type"]+" when 0 then workorder.siteid else WORKORDER.l_pred end, "
  +"                 CASE WHEN WORKORDER.ACTFINISH >= TO_DATE ("+date2+") AND WORKORDER.ACTFINISH < TO_DATE ("+date2+")+1 THEN 1 ELSE 0 END "
@@ -1158,8 +1182,8 @@ sqlText = ""
  +"         (SELECT location "
  +"         FROM    MAXIMO.LOCATIONSPEC "
  +"         WHERE   ASSETATTRID  = 'TIP_PREDPR' "
- +"                 AND NUMVALUE = 4 "
- +"         ) then 1 when 0="+params["type"]+" and loc.location   in ("+params["mroSite"]+") then 1 end"
+ +"                 and 1= case when "+params["hoz"]+" =1400 and NUMVALUE = 4 then 1 when "+params["hoz"]+" = 800 and NUMVALUE = 3 then 1 else 0 end "
+ +"         ) then 1 when 0= "+params["type"]+" and loc.location   in ("+params["mroSite"]+") then 1 end "
  +"         AND loc.STATUS = 'РАБОТАЕТ' "
  //+" and loc.location = 'PRED_1637'"
  //+" and loc.location = '24'"
