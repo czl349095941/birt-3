@@ -29,9 +29,11 @@ var date2 = new String ();
 var date3 = new String ();
 
 if (params["mroSite"] == 0 )
-	{params["mroSite"] = "'1', '10', '17', '24', '28', '51', '58', '61', '63', '76', '80', '83', '88', '92', '94', '96'";}
+	{params["mroSite"] = "'1', '10', '17', '24', '28', '51', '58', '61', '63', '76', '80', '83', '88', '92', '94', '96'"
+	 params["type"] = 0;}
 else 
-	{params["mroSite"] = "'"+params["mroSite"]+"'";}
+	{params["mroSite"] = "'"+params["mroSite"]+"'"
+	 params["type"] = 1;}
 
 
 if (BirtComp.equalTo(params["date"],null) == true || params["date"] == '' )
@@ -105,10 +107,12 @@ else
             </list-property>
         </scalar-parameter>
         <scalar-parameter name="type" id="18788">
+            <property name="hidden">true</property>
             <property name="valueType">static</property>
             <property name="dataType">string</property>
             <property name="paramType">simple</property>
             <text-property name="promptText">Отчет по</text-property>
+            <property name="isRequired">false</property>
             <property name="controlType">radio-button</property>
             <property name="fixedOrder">true</property>
             <property name="distinct">true</property>
@@ -216,7 +220,7 @@ else
             <property name="dataType">string</property>
             <property name="paramType">simple</property>
             <text-property name="promptText">Дата отчета</text-property>
-            <property name="isRequired">false</property>
+            <property name="isRequired">true</property>
             <property name="controlType">text-box</property>
             <property name="distinct">true</property>
             <structure name="format">
@@ -1128,13 +1132,13 @@ sqlText = ""
  +"					 end "
  +"     		  AND DEFAULTCRAFT = 1 "
  +"     	) "
- +"			AND 1 = case when 1="+params["type"]
- +"         AND loc.location IN "
+ +"         AND labor.worklocation IN "
  +"         (SELECT location "
  +"         FROM    MAXIMO.LOCATIONSPEC "
  +"         WHERE   ASSETATTRID  = 'TIP_PREDPR' "
  +"                 AND  1= case when "+params["hoz"]+"=1400 and NUMVALUE = 4 then 1 when "+params["hoz"]+"=800 and NUMVALUE = 3 then 1 else 0 end "
- +"         ) then 1 when 0="+params["type"]+" then 1 end "
+ +"					and LOCATIONSPEC.siteid in ("+params["mroSite"]+") "
+ +"         ) "
  +"     AND labor.worksite in ("+params["mroSite"]+") "
  +"     GROUP BY loc.location "
  +"   ), "
