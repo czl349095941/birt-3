@@ -37,7 +37,7 @@ else
 
 
 if (BirtComp.equalTo(params["date"],null) == true || params["date"] == '' )
-	{date2  = "SYSDATE-1";}
+	{date2  = "to_date(SYSDATE-1, 'DD.MM.YY')";}
 else 
 	{date2 = "'"+params["date"]+"'";}
 
@@ -220,7 +220,7 @@ else
             <property name="dataType">string</property>
             <property name="paramType">simple</property>
             <text-property name="promptText">Дата отчета</text-property>
-            <property name="isRequired">true</property>
+            <property name="isRequired">false</property>
             <property name="controlType">text-box</property>
             <property name="distinct">true</property>
             <structure name="format">
@@ -1420,50 +1420,6 @@ return (true);]]></method>
         </simple-master-page>
     </page-setup>
     <body>
-        <label id="17370">
-            <property name="fontFamily">"Times New Roman"</property>
-            <property name="fontSize">14pt</property>
-            <property name="fontWeight">bold</property>
-            <property name="textAlign">center</property>
-            <text-property name="text">Выгрузка по трудозатратам</text-property>
-        </label>
-        <data id="17373">
-            <property name="fontFamily">"Times New Roman"</property>
-            <property name="fontSize">14pt</property>
-            <property name="fontWeight">bold</property>
-            <property name="textAlign">center</property>
-            <property name="dataSet">label</property>
-            <list-property name="boundDataColumns">
-                <structure>
-                    <property name="name">PODR</property>
-                    <property name="displayName">PODR</property>
-                    <expression name="expression">if (params["type"].value == 1) 
-"по " + dataSetRow["SITE"].replace("ая", "ой") + " дирекции инфраструктуры"
-else "центральной дирекции инфраструктуры"</expression>
-                    <property name="dataType">string</property>
-                </structure>
-            </list-property>
-            <property name="resultSetColumn">PODR</property>
-        </data>
-        <data id="18550">
-            <property name="fontFamily">"Times New Roman"</property>
-            <property name="fontSize">14pt</property>
-            <property name="fontWeight">bold</property>
-            <property name="textAlign">center</property>
-            <property name="dataSet">label</property>
-            <list-property name="boundDataColumns">
-                <structure>
-                    <property name="name">D1</property>
-                    <property name="displayName">D1</property>
-                    <expression name="expression">"за " + dataSetRow["D1"]</expression>
-                    <property name="dataType">string</property>
-                </structure>
-            </list-property>
-            <property name="resultSetColumn">D1</property>
-        </data>
-        <text id="18714">
-            <property name="contentType">auto</property>
-        </text>
         <table id="18730">
             <property name="fontFamily">"Times New Roman"</property>
             <property name="fontSize">12pt</property>
@@ -1473,7 +1429,7 @@ else "центральной дирекции инфраструктуры"</exp
                 <structure>
                     <property name="name">DESCRIPTION</property>
                     <property name="displayName">DESCRIPTION</property>
-                    <expression name="expression">dataSetRow["DESCRIPTION"]</expression>
+                    <expression name="expression">dataSetRow["DESCRIPTION"].replace(" железная дорога", "")</expression>
                     <property name="dataType">string</property>
                 </structure>
                 <structure>
@@ -1704,7 +1660,52 @@ else row["tab_fakt1"]/row["tab_cw1"]</expression>
             <column id="18828"/>
             <column id="18823"/>
             <header>
+                <row id="19018">
+                    <property name="verticalAlign">middle</property>
+                    <cell id="19019">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <property name="verticalAlign">middle</property>
+                    </cell>
+                    <cell id="19020">
+                        <property name="colSpan">14</property>
+                        <property name="rowSpan">1</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="verticalAlign">middle</property>
+                        <data id="17373">
+                            <property name="fontFamily">"Times New Roman"</property>
+                            <property name="fontSize">14pt</property>
+                            <property name="fontWeight">bold</property>
+                            <property name="textAlign">center</property>
+                            <property name="dataSet">label</property>
+                            <list-property name="boundDataColumns">
+                                <structure>
+                                    <property name="name">PODR</property>
+                                    <property name="displayName">PODR</property>
+                                    <expression name="expression">if (params["type"].value == 1) 
+"Фактические трудозатраты по введенным рабочим заданиям по " + dataSetRow["SITE"].replace("ая", "ой") + " дирекции инфраструктуры за " + dataSetRow["D1"]
+else " Фактические трудозатраты по введенным рабочим заданиям по центральной дирекции инфраструктуры за " + dataSetRow["D1"]</expression>
+                                    <property name="dataType">string</property>
+                                </structure>
+                            </list-property>
+                            <property name="resultSetColumn">PODR</property>
+                        </data>
+                    </cell>
+                </row>
                 <row id="18789">
+                    <property name="verticalAlign">middle</property>
                     <cell id="18857">
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
@@ -1722,7 +1723,7 @@ else row["tab_fakt1"]/row["tab_cw1"]</expression>
                     </cell>
                     <cell id="18790">
                         <property name="colSpan">1</property>
-                        <property name="rowSpan">2</property>
+                        <property name="rowSpan">8</property>
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
                         <property name="borderBottomWidth">thin</property>
@@ -1744,10 +1745,7 @@ else "Предприятие"</expression>
                     </cell>
                     <cell id="18791">
                         <property name="colSpan">1</property>
-                        <property name="rowSpan">2</property>
-                        <property name="borderBottomColor">#000000</property>
-                        <property name="borderBottomStyle">solid</property>
-                        <property name="borderBottomWidth">thin</property>
+                        <property name="rowSpan">1</property>
                         <property name="borderLeftColor">#000000</property>
                         <property name="borderLeftStyle">solid</property>
                         <property name="borderLeftWidth">thin</property>
@@ -1758,17 +1756,10 @@ else "Предприятие"</expression>
                         <property name="borderTopStyle">solid</property>
                         <property name="borderTopWidth">thin</property>
                         <property name="verticalAlign">middle</property>
-                        <label id="18735">
-                            <property name="fontFamily">"Times New Roman"</property>
-                            <text-property name="text">Количество работников по ЕК АСУТР</text-property>
-                        </label>
                     </cell>
                     <cell id="18792">
                         <property name="colSpan">3</property>
                         <property name="rowSpan">1</property>
-                        <property name="borderBottomColor">#000000</property>
-                        <property name="borderBottomStyle">solid</property>
-                        <property name="borderBottomWidth">thin</property>
                         <property name="borderLeftColor">#000000</property>
                         <property name="borderLeftStyle">solid</property>
                         <property name="borderLeftWidth">thin</property>
@@ -1779,15 +1770,12 @@ else "Предприятие"</expression>
                         <property name="borderTopStyle">solid</property>
                         <property name="borderTopWidth">thin</property>
                         <label id="18737">
-                            <text-property name="text">Плановый фонд рабочего времени по производственному календарю на 2014 год, ч-час</text-property>
+                            <text-property name="text">Плановый фонд рабочего времени</text-property>
                         </label>
                     </cell>
                     <cell id="18795">
                         <property name="colSpan">2</property>
                         <property name="rowSpan">1</property>
-                        <property name="borderBottomColor">#000000</property>
-                        <property name="borderBottomStyle">solid</property>
-                        <property name="borderBottomWidth">thin</property>
                         <property name="borderLeftColor">#000000</property>
                         <property name="borderLeftStyle">solid</property>
                         <property name="borderLeftWidth">thin</property>
@@ -1798,12 +1786,12 @@ else "Предприятие"</expression>
                         <property name="borderTopStyle">solid</property>
                         <property name="borderTopWidth">thin</property>
                         <label id="18801">
-                            <text-property name="text">Фактический фонд рабочего времени по рабочим заданиям ЕКАСУИ, ч-час</text-property>
+                            <text-property name="text">Фактический фонд</text-property>
                         </label>
                     </cell>
                     <cell id="18814">
                         <property name="colSpan">3</property>
-                        <property name="rowSpan">1</property>
+                        <property name="rowSpan">4</property>
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
                         <property name="borderBottomWidth">thin</property>
@@ -1823,6 +1811,39 @@ else "Предприятие"</expression>
                     <cell id="18797">
                         <property name="colSpan">2</property>
                         <property name="rowSpan">1</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <label id="18802">
+                            <text-property name="text">Кол-во заполненных</text-property>
+                        </label>
+                    </cell>
+                    <cell id="18824">
+                        <property name="colSpan">2</property>
+                        <property name="rowSpan">1</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <label id="18833">
+                            <text-property name="text">Средние трудозатраты</text-property>
+                        </label>
+                    </cell>
+                </row>
+                <row id="18864">
+                    <property name="verticalAlign">middle</property>
+                    <cell id="18865">
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
                         <property name="borderBottomWidth">thin</property>
@@ -1835,11 +1856,202 @@ else "Предприятие"</expression>
                         <property name="borderTopColor">#000000</property>
                         <property name="borderTopStyle">solid</property>
                         <property name="borderTopWidth">thin</property>
-                        <label id="18802">
-                            <text-property name="text">Кол-во заполненных рабочих заданий в ЕКАСУИ, шт</text-property>
+                        <property name="verticalAlign">middle</property>
+                    </cell>
+                    <cell id="18960">
+                        <property name="colSpan">1</property>
+                        <property name="rowSpan">1</property>
+                        <property name="verticalAlign">middle</property>
+                        <label id="18735">
+                            <property name="fontFamily">"Times New Roman"</property>
+                            <text-property name="text">Количе-</text-property>
                         </label>
                     </cell>
-                    <cell id="18824">
+                    <cell id="19023">
+                        <property name="colSpan">3</property>
+                        <property name="rowSpan">1</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="verticalAlign">middle</property>
+                        <label id="19006">
+                            <text-property name="text">по производственному календарю</text-property>
+                        </label>
+                    </cell>
+                    <cell id="18871">
+                        <property name="colSpan">2</property>
+                        <property name="rowSpan">1</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <label id="19009">
+                            <text-property name="text">рабочего времени</text-property>
+                        </label>
+                    </cell>
+                    <cell id="18876">
+                        <property name="colSpan">2</property>
+                        <property name="rowSpan">1</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <label id="19012">
+                            <text-property name="text">рабочих заданий</text-property>
+                        </label>
+                    </cell>
+                    <cell id="18878">
+                        <property name="colSpan">2</property>
+                        <property name="rowSpan">1</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <label id="19015">
+                            <text-property name="text">на рабочее задание</text-property>
+                        </label>
+                    </cell>
+                </row>
+                <row id="18880">
+                    <property name="verticalAlign">middle</property>
+                    <cell id="18881">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <property name="verticalAlign">middle</property>
+                    </cell>
+                    <cell id="18961">
+                        <property name="colSpan">1</property>
+                        <property name="rowSpan">1</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="verticalAlign">middle</property>
+                        <label id="19027">
+                            <property name="fontFamily">"Times New Roman"</property>
+                            <text-property name="text">ство</text-property>
+                        </label>
+                    </cell>
+                    <cell id="19025">
+                        <property name="colSpan">3</property>
+                        <property name="rowSpan">1</property>
+                        <property name="verticalAlign">middle</property>
+                        <label id="19007">
+                            <text-property name="text">на 2014 год,</text-property>
+                        </label>
+                    </cell>
+                    <cell id="18887">
+                        <property name="colSpan">2</property>
+                        <property name="rowSpan">1</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <label id="19010">
+                            <text-property name="text">по рабочим заданиям</text-property>
+                        </label>
+                    </cell>
+                    <cell id="18892">
+                        <property name="colSpan">2</property>
+                        <property name="rowSpan">1</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <label id="19013">
+                            <text-property name="text">в ЕКАСУИ,</text-property>
+                        </label>
+                    </cell>
+                    <cell id="18894">
+                        <property name="colSpan">2</property>
+                        <property name="rowSpan">1</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <label id="19016">
+                            <text-property name="text">в ЕКАСУИ</text-property>
+                        </label>
+                    </cell>
+                </row>
+                <row id="18896">
+                    <property name="verticalAlign">middle</property>
+                    <cell id="18897">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <property name="verticalAlign">middle</property>
+                    </cell>
+                    <cell id="18900">
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <label id="18967">
+                            <property name="fontFamily">"Times New Roman"</property>
+                            <text-property name="text">работ- </text-property>
+                        </label>
+                    </cell>
+                    <cell id="18962">
+                        <property name="colSpan">3</property>
+                        <property name="rowSpan">1</property>
+                        <property name="verticalAlign">middle</property>
+                        <label id="19008">
+                            <text-property name="text">ч-час</text-property>
+                        </label>
+                    </cell>
+                    <cell id="18903">
+                        <property name="colSpan">2</property>
+                        <property name="rowSpan">1</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <label id="19011">
+                            <text-property name="text">ЕКАСУИ, ч-час</text-property>
+                        </label>
+                    </cell>
+                    <cell id="18908">
                         <property name="colSpan">2</property>
                         <property name="rowSpan">1</property>
                         <property name="borderBottomColor">#000000</property>
@@ -1851,15 +2063,551 @@ else "Предприятие"</expression>
                         <property name="borderRightColor">#000000</property>
                         <property name="borderRightStyle">solid</property>
                         <property name="borderRightWidth">thin</property>
+                        <label id="19014">
+                            <text-property name="text">шт</text-property>
+                        </label>
+                    </cell>
+                    <cell id="18910">
+                        <property name="colSpan">2</property>
+                        <property name="rowSpan">1</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <label id="19017">
+                            <text-property name="text">ч-час</text-property>
+                        </label>
+                    </cell>
+                </row>
+                <row id="18912">
+                    <property name="verticalAlign">middle</property>
+                    <cell id="18913">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
                         <property name="borderTopColor">#000000</property>
                         <property name="borderTopStyle">solid</property>
                         <property name="borderTopWidth">thin</property>
-                        <label id="18833">
-                            <text-property name="text">Средние трудозатраты на рабочее задание в ЕКАСУИ, ч-час</text-property>
+                        <property name="verticalAlign">middle</property>
+                    </cell>
+                    <cell id="18916">
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <label id="19028">
+                            <property name="fontFamily">"Times New Roman"</property>
+                            <text-property name="text">ников </text-property>
+                        </label>
+                    </cell>
+                    <cell id="18963">
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <property name="verticalAlign">middle</property>
+                    </cell>
+                    <cell id="18917">
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <label id="18974">
+                            <text-property name="text">План. фонд </text-property>
+                        </label>
+                    </cell>
+                    <cell id="18918">
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <label id="18977">
+                            <text-property name="text">План. фонд </text-property>
+                        </label>
+                    </cell>
+                    <cell id="18919">
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <label id="18980">
+                            <text-property name="text">Нарастающим</text-property>
+                        </label>
+                    </cell>
+                    <cell id="18920">
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <label id="18984">
+                            <text-property name="text">За</text-property>
+                        </label>
+                    </cell>
+                    <cell id="18921">
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <label id="18985">
+                            <text-property name="text">Процент</text-property>
+                        </label>
+                    </cell>
+                    <cell id="18922">
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <label id="18988">
+                            <text-property name="text">Внесено с 1</text-property>
+                        </label>
+                    </cell>
+                    <cell id="18923">
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <label id="18991">
+                            <text-property name="text">Внесено</text-property>
+                        </label>
+                    </cell>
+                    <cell id="18924">
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <label id="18996">
+                            <text-property name="text">Нарастающим</text-property>
+                        </label>
+                    </cell>
+                    <cell id="18925">
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <label id="18997">
+                            <text-property name="text">За</text-property>
+                        </label>
+                    </cell>
+                    <cell id="18926">
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <label id="19000">
+                            <text-property name="text">Нарастающим</text-property>
+                        </label>
+                    </cell>
+                    <cell id="18927">
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <label id="19003">
+                            <text-property name="text">За</text-property>
+                        </label>
+                    </cell>
+                </row>
+                <row id="18928">
+                    <property name="verticalAlign">middle</property>
+                    <cell id="18929">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <property name="verticalAlign">middle</property>
+                    </cell>
+                    <cell id="18932">
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <label id="18968">
+                            <property name="fontFamily">"Times New Roman"</property>
+                            <text-property name="text">по ЕК</text-property>
+                        </label>
+                    </cell>
+                    <cell id="18964">
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="verticalAlign">middle</property>
+                        <label id="18971">
+                            <text-property name="text">План. фонд</text-property>
+                        </label>
+                    </cell>
+                    <cell id="18933">
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <label id="18975">
+                            <text-property name="text">времени с</text-property>
+                        </label>
+                    </cell>
+                    <cell id="18934">
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <label id="18978">
+                            <text-property name="text">времени за</text-property>
+                        </label>
+                    </cell>
+                    <cell id="18935">
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <label id="18981">
+                            <text-property name="text">итогом за</text-property>
+                        </label>
+                    </cell>
+                    <cell id="18936">
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <label id="19029">
+                            <text-property name="text">отчет-</text-property>
+                        </label>
+                    </cell>
+                    <cell id="18937">
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <label id="18986">
+                            <text-property name="text">внесения за</text-property>
+                        </label>
+                    </cell>
+                    <cell id="18938">
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <label id="18989">
+                            <text-property name="text">дня месяца </text-property>
+                        </label>
+                    </cell>
+                    <cell id="18939">
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <label id="18992">
+                            <text-property name="text">за</text-property>
+                        </label>
+                    </cell>
+                    <cell id="18940">
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <label id="18995">
+                            <text-property name="text">итогом за</text-property>
+                        </label>
+                    </cell>
+                    <cell id="18941">
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <label id="19030">
+                            <text-property name="text">отчет-</text-property>
+                        </label>
+                    </cell>
+                    <cell id="18942">
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <label id="19001">
+                            <text-property name="text">итогом за</text-property>
+                        </label>
+                    </cell>
+                    <cell id="18943">
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <label id="19032">
+                            <text-property name="text">отчет-</text-property>
+                        </label>
+                    </cell>
+                </row>
+                <row id="18944">
+                    <property name="verticalAlign">middle</property>
+                    <cell id="18945">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <property name="verticalAlign">middle</property>
+                    </cell>
+                    <cell id="18948">
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <label id="18969">
+                            <property name="fontFamily">"Times New Roman"</property>
+                            <text-property name="text">АСУТР</text-property>
+                        </label>
+                    </cell>
+                    <cell id="18965">
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="verticalAlign">middle</property>
+                        <label id="18970">
+                            <text-property name="text">времени</text-property>
+                        </label>
+                    </cell>
+                    <cell id="18949">
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <label id="18976">
+                            <text-property name="text">1 дня месяца по</text-property>
+                        </label>
+                    </cell>
+                    <cell id="18950">
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <label id="18979">
+                            <text-property name="text">отчетную</text-property>
+                        </label>
+                    </cell>
+                    <cell id="18951">
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <label id="18982">
+                            <text-property name="text">отчетный </text-property>
+                        </label>
+                    </cell>
+                    <cell id="18952">
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <label id="18983">
+                            <text-property name="text">ную </text-property>
+                        </label>
+                    </cell>
+                    <cell id="18953">
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <label id="18987">
+                            <text-property name="text">отчетный </text-property>
+                        </label>
+                    </cell>
+                    <cell id="18954">
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <label id="18990">
+                            <text-property name="text">по отчетную</text-property>
+                        </label>
+                    </cell>
+                    <cell id="18955">
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <label id="18993">
+                            <text-property name="text">отчетную </text-property>
+                        </label>
+                    </cell>
+                    <cell id="18956">
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <label id="18994">
+                            <text-property name="text">отчетный</text-property>
+                        </label>
+                    </cell>
+                    <cell id="18957">
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <label id="19031">
+                            <text-property name="text">ную </text-property>
+                        </label>
+                    </cell>
+                    <cell id="18958">
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <label id="19002">
+                            <text-property name="text">отчетный</text-property>
+                        </label>
+                    </cell>
+                    <cell id="18959">
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <label id="19033">
+                            <text-property name="text">ную </text-property>
                         </label>
                     </cell>
                 </row>
                 <row id="18731">
+                    <property name="verticalAlign">middle</property>
                     <cell id="18858">
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
@@ -1888,11 +2636,20 @@ else "Предприятие"</expression>
                         <property name="borderRightColor">#000000</property>
                         <property name="borderRightStyle">solid</property>
                         <property name="borderRightWidth">thin</property>
-                        <property name="borderTopColor">#000000</property>
-                        <property name="borderTopStyle">solid</property>
-                        <property name="borderTopWidth">thin</property>
+                    </cell>
+                    <cell id="18966">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="verticalAlign">middle</property>
                         <label id="18800">
-                            <text-property name="text">План. фонд времени на август</text-property>
+                            <text-property name="text">на август</text-property>
                         </label>
                     </cell>
                     <cell id="18738">
@@ -1905,11 +2662,8 @@ else "Предприятие"</expression>
                         <property name="borderRightColor">#000000</property>
                         <property name="borderRightStyle">solid</property>
                         <property name="borderRightWidth">thin</property>
-                        <property name="borderTopColor">#000000</property>
-                        <property name="borderTopStyle">solid</property>
-                        <property name="borderTopWidth">thin</property>
                         <label id="18739">
-                            <text-property name="text">План. фонд времени с 1 дня месяца по отчетную дату</text-property>
+                            <text-property name="text">отчетную дату</text-property>
                         </label>
                     </cell>
                     <cell id="18740">
@@ -1922,11 +2676,8 @@ else "Предприятие"</expression>
                         <property name="borderRightColor">#000000</property>
                         <property name="borderRightStyle">solid</property>
                         <property name="borderRightWidth">thin</property>
-                        <property name="borderTopColor">#000000</property>
-                        <property name="borderTopStyle">solid</property>
-                        <property name="borderTopWidth">thin</property>
                         <label id="18741">
-                            <text-property name="text">План. фонд времени за отчетную дату</text-property>
+                            <text-property name="text">дату</text-property>
                         </label>
                     </cell>
                     <cell id="18742">
@@ -1939,11 +2690,8 @@ else "Предприятие"</expression>
                         <property name="borderRightColor">#000000</property>
                         <property name="borderRightStyle">solid</property>
                         <property name="borderRightWidth">thin</property>
-                        <property name="borderTopColor">#000000</property>
-                        <property name="borderTopStyle">solid</property>
-                        <property name="borderTopWidth">thin</property>
                         <label id="18743">
-                            <text-property name="text">Нарастающим итогом за отчетный месяц</text-property>
+                            <text-property name="text">месяц</text-property>
                         </label>
                     </cell>
                     <cell id="18744">
@@ -1956,11 +2704,8 @@ else "Предприятие"</expression>
                         <property name="borderRightColor">#000000</property>
                         <property name="borderRightStyle">solid</property>
                         <property name="borderRightWidth">thin</property>
-                        <property name="borderTopColor">#000000</property>
-                        <property name="borderTopStyle">solid</property>
-                        <property name="borderTopWidth">thin</property>
                         <label id="18745">
-                            <text-property name="text">За отчетную дату</text-property>
+                            <text-property name="text">дату</text-property>
                         </label>
                     </cell>
                     <cell id="18815">
@@ -1973,11 +2718,8 @@ else "Предприятие"</expression>
                         <property name="borderRightColor">#000000</property>
                         <property name="borderRightStyle">solid</property>
                         <property name="borderRightWidth">thin</property>
-                        <property name="borderTopColor">#000000</property>
-                        <property name="borderTopStyle">solid</property>
-                        <property name="borderTopWidth">thin</property>
                         <label id="18830">
-                            <text-property name="text">Процент внесения за отчетный месяц</text-property>
+                            <text-property name="text">месяц</text-property>
                         </label>
                     </cell>
                     <cell id="18810">
@@ -1990,11 +2732,8 @@ else "Предприятие"</expression>
                         <property name="borderRightColor">#000000</property>
                         <property name="borderRightStyle">solid</property>
                         <property name="borderRightWidth">thin</property>
-                        <property name="borderTopColor">#000000</property>
-                        <property name="borderTopStyle">solid</property>
-                        <property name="borderTopWidth">thin</property>
                         <label id="18831">
-                            <text-property name="text">Внесено с 1 дня месяца по отчетную дату</text-property>
+                            <text-property name="text">дату</text-property>
                         </label>
                     </cell>
                     <cell id="18805">
@@ -2007,11 +2746,8 @@ else "Предприятие"</expression>
                         <property name="borderRightColor">#000000</property>
                         <property name="borderRightStyle">solid</property>
                         <property name="borderRightWidth">thin</property>
-                        <property name="borderTopColor">#000000</property>
-                        <property name="borderTopStyle">solid</property>
-                        <property name="borderTopWidth">thin</property>
                         <label id="18832">
-                            <text-property name="text">Внесено за отчетную дату</text-property>
+                            <text-property name="text">дату</text-property>
                         </label>
                     </cell>
                     <cell id="18746">
@@ -2024,11 +2760,8 @@ else "Предприятие"</expression>
                         <property name="borderRightColor">#000000</property>
                         <property name="borderRightStyle">solid</property>
                         <property name="borderRightWidth">thin</property>
-                        <property name="borderTopColor">#000000</property>
-                        <property name="borderTopStyle">solid</property>
-                        <property name="borderTopWidth">thin</property>
                         <label id="18747">
-                            <text-property name="text">Нарастающим итогом за отчетный месяц</text-property>
+                            <text-property name="text">месяц</text-property>
                         </label>
                     </cell>
                     <cell id="18748">
@@ -2041,11 +2774,8 @@ else "Предприятие"</expression>
                         <property name="borderRightColor">#000000</property>
                         <property name="borderRightStyle">solid</property>
                         <property name="borderRightWidth">thin</property>
-                        <property name="borderTopColor">#000000</property>
-                        <property name="borderTopStyle">solid</property>
-                        <property name="borderTopWidth">thin</property>
-                        <label id="18803">
-                            <text-property name="text">За отчетную дату</text-property>
+                        <label id="18999">
+                            <text-property name="text">дату</text-property>
                         </label>
                     </cell>
                     <cell id="18825">
@@ -2058,11 +2788,8 @@ else "Предприятие"</expression>
                         <property name="borderRightColor">#000000</property>
                         <property name="borderRightStyle">solid</property>
                         <property name="borderRightWidth">thin</property>
-                        <property name="borderTopColor">#000000</property>
-                        <property name="borderTopStyle">solid</property>
-                        <property name="borderTopWidth">thin</property>
                         <label id="18834">
-                            <text-property name="text">Нарастающим итогом за отчетный месяц</text-property>
+                            <text-property name="text">месяц</text-property>
                         </label>
                     </cell>
                     <cell id="18820">
@@ -2075,11 +2802,8 @@ else "Предприятие"</expression>
                         <property name="borderRightColor">#000000</property>
                         <property name="borderRightStyle">solid</property>
                         <property name="borderRightWidth">thin</property>
-                        <property name="borderTopColor">#000000</property>
-                        <property name="borderTopStyle">solid</property>
-                        <property name="borderTopWidth">thin</property>
-                        <label id="18835">
-                            <text-property name="text">За отчетную дату</text-property>
+                        <label id="19005">
+                            <text-property name="text">дату</text-property>
                         </label>
                     </cell>
                 </row>
