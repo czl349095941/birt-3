@@ -2,7 +2,7 @@
 <report xmlns="http://www.eclipse.org/birt/2005/design" version="3.2.17" id="1">
     <property name="createdBy">Eclipse BIRT Designer Version 2.3.2.r232_20090202 Build &lt;2.3.2.v20090218-0730></property>
     <property name="units">in</property>
-    <text-property name="title">Справка по сопоставлению плановых и фактических данных рабочих заданий за период</text-property>
+    <text-property name="title">Выгрузка по трудозатратам</text-property>
     <property name="comments">IBM Confidential
 
 OCO Source Materials
@@ -239,6 +239,11 @@ else
                     <property name="name">SR_RAZR</property>
                     <property name="dataType">string</property>
                 </structure>
+                <structure>
+                    <property name="position">23</property>
+                    <property name="name">EXT</property>
+                    <property name="dataType">string</property>
+                </structure>
             </list-property>
             <list-property name="columnHints">
                 <structure>
@@ -306,6 +311,9 @@ else
                 </structure>
                 <structure>
                     <property name="columnName">SR_RAZR</property>
+                </structure>
+                <structure>
+                    <property name="columnName">EXT</property>
                 </structure>
             </list-property>
             <structure name="cachedMetaData">
@@ -420,6 +428,11 @@ else
                         <property name="name">SR_RAZR</property>
                         <property name="dataType">string</property>
                     </structure>
+                    <structure>
+                        <property name="position">23</property>
+                        <property name="name">EXT</property>
+                        <property name="dataType">string</property>
+                    </structure>
                 </list-property>
             </structure>
             <property name="dataSource">maximoDataSource</property>
@@ -434,7 +447,7 @@ sqlText = ""
  +"WITH wo AS " 
  +"        (SELECT actfinish, " 
  +"                wo.brigad_location l_podr , " 
- +"                loc.description    podr_d, " 
+ +"                ''    podr_d, " //+"                loc.description    podr_d, " 
  +"                wo.wonum , " 
  +"                JP.classstructureid jp_class, " 
  +"                jp.jpnum , " 
@@ -442,26 +455,29 @@ sqlText = ""
  +"                JPS.Numvalue " 
  +"                        || ' ' " 
  +"                        || jps.measureunitid edizm, " 
- +"                (SELECT COUNT (laborcode) " 
- +"                FROM    maximo.labtrans labt " 
- +"                WHERE   labt.siteid    = wo.siteid " 
- +"                        AND labt.refwo = wo.wonum " 
- +"                        AND labt.craft IN ('00000205', 'МНТР_ПТ') " 
- +"                )                                     mont, " 
- +"                case when nvl(wo.JPDURATION, 0) = 0 then WO.NOKOEFDURATION else wo.JPDURATION end jpduration , " 
- +"                TRFWORK.numvalue                      TRFWORK, " 
+ //+"                (SELECT COUNT (laborcode) " 
+ //+"                FROM    maximo.labtrans labt " 
+ //+"                WHERE   labt.siteid    = wo.siteid " 
+ //+"                        AND labt.refwo = wo.wonum " 
+ //+"                        AND labt.craft IN ('00000205', 'МНТР_ПТ') " 
+ //+"                )                                     mont, " 
+ +"				   to_number('') mont, "
+ +"                NVL(wo.jpduration, wo.nokoefduration) jpduration , " 
+ +"                to_number('')                      TRFWORK, " //+"                TRFWORK.numvalue                      TRFWORK, " 
  +"                wo.plan_labor_hour, " 
  +"                wo.plan_wo, " 
  +"                wo.labor_hour , " 
  +"                wo.fakt_wo, " 
  +"                WO.TYPEWORKORDER, " 
  +"                cls.description OTHERWORK, " 
- +"                (SELECT SUM(SKILLLEVEL*labor_hour) " 
- +"                FROM    maximo.labtrans labt " 
- +"                WHERE   labt.siteid    = wo.siteid " 
- +"                        AND labt.refwo = wo.wonum " 
- +"                        AND LABT.CRAFT IN ('00000205', 'МНТР_ПТ') " 
- +"                ) sr_razr " 
+ //+"                (SELECT SUM(SKILLLEVEL*labor_hour) " 
+ //+"                FROM    maximo.labtrans labt " 
+ //+"                WHERE   labt.siteid    = wo.siteid " 
+ //+"                        AND labt.refwo = wo.wonum " 
+ //+"                        AND LABT.CRAFT IN ('00000205', 'МНТР_ПТ') " 
+ //+"                ) sr_razr, "
+ +"				   to_number('') sr_razr, "
+ +"				   nvl(dom.description, wo.typeworkorder) ext " 
  +"        FROM    MAXIMO.WORKORDER WO " 
  +"                LEFT JOIN MAXIMO.WOJPRELATION JPT " 
  +"                        ON      JPT.WONUM              = WO.WONUM " 
@@ -471,14 +487,16 @@ sqlText = ""
  +"                LEFT JOIN MAXIMO.JOBPLANSPEC JPS " 
  +"                        ON      JPS.jpnum           = jp.jpnum " 
  +"                                AND jps.assetattrid = 'IZMRAB' " 
- +"                LEFT JOIN maximo.jobplanspec trfwork " 
- +"                        ON      trfwork.jpnum           = jp.jpnum " 
- +"                                AND trfwork.assetattrid = 'TRFWORK' " 
- +"                JOIN maximo.locations loc " 
- +"                        ON      loc.location   = wo.brigad_location " 
- +"                                AND loc.siteid = wo.siteid " 
+ //+"                LEFT JOIN maximo.jobplanspec trfwork " 
+ //+"                        ON      trfwork.jpnum           = jp.jpnum " 
+ //+"                                AND trfwork.assetattrid = 'TRFWORK' " 
+ //+"                JOIN maximo.locations loc " 
+ //+"                        ON      loc.location   = wo.brigad_location " 
+ //+"                                AND loc.siteid = wo.siteid " 
  +"                left JOIN MAXIMO.CLASSSTRUCTURE cls " 
  +"                        ON      wo.CLASSSTRUCTUREID = cls.CLASSSTRUCTUREID"
+ +"				   left join MAXIMO.INCIdEnT INC on wo.siteid = inc.siteid and WO.ORIGRECORDID = INC.TICKETID "
+ +"				   left join maximo.NUMERICDOMAIN dom on dom.domainid = 'NSI_EXTSYSTEMS' and dom.value = inc.extsystemid "
  +"         WHERE   WO.STATUS         IN ('НАПР_НА_УТ', 'ЗАВЕРШ', 'ОТКЛ_РГН', 'ОФОРМЛЕН', 'ЗАКРЫТО') "
  +"                 AND TYPEWORKORDER IN ('Внеплановое', 'Плановое', 'Прочее', 'Путевые обходчики') "
  +"                 AND WO.SITEID = '"+params["mroSite"]+"' "
@@ -524,7 +542,7 @@ sqlText = ""
  +"         wo.plan_labor_hour, "
  +"         wo.plan_wo, "
  +"         wo.labor_hour, "
- +"         wo.fakt_wo, wo.sr_razr "
+ +"         wo.fakt_wo, wo.sr_razr,  wo.ext "
  +" FROM    tk "
  +"         JOIN wo "
  +"                 ON      wo.jp_class = tk.cls3_class "
@@ -544,7 +562,7 @@ sqlText = ""
  +"         wo.plan_labor_hour, "
  +"         wo.plan_wo, "
  +"         wo.labor_hour, "
- +"         wo.fakt_wo, wo.sr_razr "
+ +"         wo.fakt_wo, wo.sr_razr, wo.ext "
  +" from    tk "
  +"         JOIN wo "
  +"                 ON      wo.jp_class = tk.cls4_class "
@@ -571,7 +589,7 @@ sqlText = ""
  +"         wo.plan_labor_hour, "
  +"         wo.plan_wo, "
  +"         wo.labor_hour, "
- +"         wo.fakt_wo, wo.sr_razr "
+ +"         wo.fakt_wo, wo.sr_razr, wo.ext "
  +" FROM     wo where typeworkorder in ('Прочее', 'Путевые обходчики') "
  
 ;
@@ -603,6 +621,7 @@ row["PLAN_WO"] = maximoDataSet.getString("PLAN_WO");
 row["LABOR_HOUR"] = maximoDataSet.getString("LABOR_HOUR");
 row["FAKT_WO"] = maximoDataSet.getString("FAKT_WO");
 row["SR_RAZR"] = maximoDataSet.getString("SR_RAZR");
+row["EXT"] = maximoDataSet.getString("EXT");
 
 	
 return (true);]]></method>
@@ -821,7 +840,7 @@ return (true);]]></method>
             <property name="fontSize">medium</property>
             <property name="fontWeight">bold</property>
             <property name="textAlign">center</property>
-            <text-property name="text">Справка по сопоставлению плановых и фактических данных рабочих заданий</text-property>
+            <text-property name="text">Выгрузка по трудозатратам</text-property>
         </label>
         <data id="17373">
             <property name="fontSize">medium</property>
@@ -853,6 +872,485 @@ return (true);]]></method>
             </list-property>
             <property name="resultSetColumn">D1</property>
         </data>
+        <table id="18572">
+            <property name="width">100%</property>
+            <property name="dataSet">11</property>
+            <list-property name="visibility">
+                <structure>
+                    <property name="format">all</property>
+                    <expression name="valueExpr">true</expression>
+                </structure>
+            </list-property>
+            <list-property name="boundDataColumns">
+                <structure>
+                    <property name="name">L_PODR</property>
+                    <property name="displayName">L_PODR</property>
+                    <expression name="expression">dataSetRow["L_PODR"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">PODR_D</property>
+                    <property name="displayName">PODR_D</property>
+                    <expression name="expression">dataSetRow["PODR_D"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">CLS1_CLASS</property>
+                    <property name="displayName">CLS1_CLASS</property>
+                    <expression name="expression">dataSetRow["CLS1_CLASS"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">CLS1</property>
+                    <property name="displayName">CLS1</property>
+                    <expression name="expression">dataSetRow["CLS1"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">CLS2_CLASS</property>
+                    <property name="displayName">CLS2_CLASS</property>
+                    <expression name="expression">dataSetRow["CLS2_CLASS"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">CLS2</property>
+                    <property name="displayName">CLS2</property>
+                    <expression name="expression">dataSetRow["CLS2"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">CLS3_CLASS</property>
+                    <property name="displayName">CLS3_CLASS</property>
+                    <expression name="expression">dataSetRow["CLS3_CLASS"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">CLS3</property>
+                    <property name="displayName">CLS3</property>
+                    <expression name="expression">dataSetRow["CLS3"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">CLS4_CLASS</property>
+                    <property name="displayName">CLS4_CLASS</property>
+                    <expression name="expression">dataSetRow["CLS4_CLASS"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">CLS4</property>
+                    <property name="displayName">CLS4</property>
+                    <expression name="expression">dataSetRow["CLS4"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">JPNUM</property>
+                    <property name="displayName">JPNUM</property>
+                    <expression name="expression">dataSetRow["JPNUM"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">WONUM</property>
+                    <property name="displayName">WONUM</property>
+                    <expression name="expression">dataSetRow["WONUM"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">JP_D</property>
+                    <property name="displayName">JP_D</property>
+                    <expression name="expression">dataSetRow["JP_D"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">EDIZM</property>
+                    <property name="displayName">EDIZM</property>
+                    <expression name="expression">dataSetRow["EDIZM"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">MONT</property>
+                    <property name="displayName">MONT</property>
+                    <expression name="expression">dataSetRow["MONT"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">JPDURATION</property>
+                    <property name="displayName">JPDURATION</property>
+                    <expression name="expression">dataSetRow["JPDURATION"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">TRFWORK</property>
+                    <property name="displayName">TRFWORK</property>
+                    <expression name="expression">dataSetRow["TRFWORK"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">PLAN_LABOR_HOUR</property>
+                    <property name="displayName">PLAN_LABOR_HOUR</property>
+                    <expression name="expression">dataSetRow["PLAN_LABOR_HOUR"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">PLAN_WO</property>
+                    <property name="displayName">PLAN_WO</property>
+                    <expression name="expression">dataSetRow["PLAN_WO"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">LABOR_HOUR</property>
+                    <property name="displayName">LABOR_HOUR</property>
+                    <expression name="expression">dataSetRow["LABOR_HOUR"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">FAKT_WO</property>
+                    <property name="displayName">FAKT_WO</property>
+                    <expression name="expression">dataSetRow["FAKT_WO"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">SR_RAZR</property>
+                    <property name="displayName">SR_RAZR</property>
+                    <expression name="expression">dataSetRow["SR_RAZR"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">EXT</property>
+                    <property name="displayName">EXT</property>
+                    <expression name="expression">dataSetRow["EXT"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">ext_cnt_wo</property>
+                    <property name="dataType">integer</property>
+                    <simple-property-list name="aggregateOn">
+                        <value>ext</value>
+                    </simple-property-list>
+                    <property name="aggregateFunction">COUNT</property>
+                    <list-property name="arguments">
+                        <structure>
+                            <property name="name">Expression</property>
+                            <expression name="value">row["WONUM"]</expression>
+                        </structure>
+                    </list-property>
+                </structure>
+                <structure>
+                    <property name="name">ext_sum_lh</property>
+                    <property name="dataType">float</property>
+                    <simple-property-list name="aggregateOn">
+                        <value>ext</value>
+                    </simple-property-list>
+                    <property name="aggregateFunction">SUM</property>
+                    <list-property name="arguments">
+                        <structure>
+                            <property name="name">Expression</property>
+                            <expression name="value">row["LABOR_HOUR"]</expression>
+                        </structure>
+                    </list-property>
+                </structure>
+                <structure>
+                    <property name="name">tab_cnt_wo</property>
+                    <property name="dataType">integer</property>
+                    <property name="aggregateFunction">COUNT</property>
+                    <list-property name="arguments">
+                        <structure>
+                            <property name="name">Expression</property>
+                            <expression name="value">row["WONUM"]</expression>
+                        </structure>
+                    </list-property>
+                </structure>
+                <structure>
+                    <property name="name">tab_sum_lh</property>
+                    <property name="dataType">float</property>
+                    <property name="aggregateFunction">SUM</property>
+                    <list-property name="arguments">
+                        <structure>
+                            <property name="name">Expression</property>
+                            <expression name="value">row["LABOR_HOUR"]</expression>
+                        </structure>
+                    </list-property>
+                </structure>
+            </list-property>
+            <column id="18702"/>
+            <column id="18710"/>
+            <column id="18713"/>
+            <header>
+                <row id="18573">
+                    <cell id="18596">
+                        <property name="backgroundColor">#C0C0C0</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <label id="18597">
+                            <text-property name="text">Тип РЗ</text-property>
+                        </label>
+                    </cell>
+                    <cell id="18612">
+                        <property name="backgroundColor">#C0C0C0</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <label id="18619">
+                            <text-property name="text">Количество РЗ</text-property>
+                        </label>
+                    </cell>
+                    <cell id="18618">
+                        <property name="backgroundColor">#C0C0C0</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <label id="18613">
+                            <text-property name="text">Трудозатраты</text-property>
+                        </label>
+                    </cell>
+                </row>
+            </header>
+            <group id="18715">
+                <property name="groupName">ext</property>
+                <property name="interval">none</property>
+                <property name="sortDirection">asc</property>
+                <expression name="keyExpr">row["EXT"]</expression>
+                <structure name="toc">
+                    <expression name="expressionValue">row["EXT"]</expression>
+                </structure>
+                <property name="repeatHeader">true</property>
+                <property name="hideDetail">true</property>
+                <property name="pageBreakAfter">auto</property>
+                <property name="pageBreakBefore">auto</property>
+                <property name="pageBreakInside">auto</property>
+                <header>
+                    <row id="18716">
+                        <cell id="18717">
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">thin</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">thin</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">thin</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">thin</property>
+                            <data id="18724">
+                                <property name="resultSetColumn">EXT</property>
+                            </data>
+                        </cell>
+                        <cell id="18718">
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">thin</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">thin</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">thin</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">thin</property>
+                            <data id="18725">
+                                <structure name="numberFormat">
+                                    <property name="category">Custom</property>
+                                    <property name="pattern">###,##0</property>
+                                </structure>
+                                <property name="textAlign">right</property>
+                                <property name="resultSetColumn">ext_cnt_wo</property>
+                            </data>
+                        </cell>
+                        <cell id="18719">
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">thin</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">thin</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">thin</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">thin</property>
+                            <data id="18726">
+                                <structure name="numberFormat">
+                                    <property name="category">Custom</property>
+                                    <property name="pattern">###,##0.00</property>
+                                </structure>
+                                <property name="textAlign">right</property>
+                                <property name="resultSetColumn">ext_sum_lh</property>
+                            </data>
+                        </cell>
+                    </row>
+                </header>
+                <footer>
+                    <row id="18720">
+                        <list-property name="visibility">
+                            <structure>
+                                <property name="format">all</property>
+                                <expression name="valueExpr">true</expression>
+                            </structure>
+                        </list-property>
+                        <cell id="18721"/>
+                        <cell id="18722"/>
+                        <cell id="18723"/>
+                    </row>
+                </footer>
+            </group>
+            <detail>
+                <row id="18620">
+                    <cell id="18643">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <data id="18666">
+                            <property name="resultSetColumn">EXT</property>
+                        </data>
+                    </cell>
+                    <cell id="18659">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <data id="18644">
+                            <property name="resultSetColumn">WONUM</property>
+                        </data>
+                    </cell>
+                    <cell id="18665">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <data id="18660">
+                            <property name="resultSetColumn">LABOR_HOUR</property>
+                        </data>
+                    </cell>
+                </row>
+            </detail>
+            <footer>
+                <row id="18667">
+                    <property name="backgroundColor">#C0C0C0</property>
+                    <property name="fontWeight">bold</property>
+                    <property name="textAlign">right</property>
+                    <cell id="18679">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <label id="18729">
+                            <text-property name="text">Итого</text-property>
+                        </label>
+                    </cell>
+                    <cell id="18687">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <data id="18727">
+                            <structure name="numberFormat">
+                                <property name="category">Custom</property>
+                                <property name="pattern">###,##0</property>
+                            </structure>
+                            <property name="textAlign">right</property>
+                            <property name="resultSetColumn">tab_cnt_wo</property>
+                        </data>
+                    </cell>
+                    <cell id="18690">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <data id="18728">
+                            <structure name="numberFormat">
+                                <property name="category">Custom</property>
+                                <property name="pattern">###,##0.00</property>
+                            </structure>
+                            <property name="textAlign">right</property>
+                            <property name="resultSetColumn">tab_sum_lh</property>
+                        </data>
+                    </cell>
+                </row>
+            </footer>
+        </table>
+        <text id="18714">
+            <property name="contentType">auto</property>
+        </text>
         <table id="17717">
             <property name="width">100%</property>
             <property name="dataSet">11</property>
@@ -1056,9 +1554,6 @@ return (true);]]></method>
                 <structure>
                     <property name="name">brig_plan_labor_our</property>
                     <property name="dataType">float</property>
-                    <simple-property-list name="aggregateOn">
-                        <value>BRIG</value>
-                    </simple-property-list>
                     <property name="aggregateFunction">SUM</property>
                     <list-property name="arguments">
                         <structure>
@@ -1140,9 +1635,6 @@ return (true);]]></method>
                 <structure>
                     <property name="name">brig_plan_wo</property>
                     <property name="dataType">float</property>
-                    <simple-property-list name="aggregateOn">
-                        <value>BRIG</value>
-                    </simple-property-list>
                     <property name="aggregateFunction">SUM</property>
                     <list-property name="arguments">
                         <structure>
@@ -1210,9 +1702,6 @@ return (true);]]></method>
                 <structure>
                     <property name="name">brig_labor_hour</property>
                     <property name="dataType">float</property>
-                    <simple-property-list name="aggregateOn">
-                        <value>BRIG</value>
-                    </simple-property-list>
                     <property name="aggregateFunction">SUM</property>
                     <list-property name="arguments">
                         <structure>
@@ -1294,9 +1783,6 @@ return (true);]]></method>
                 <structure>
                     <property name="name">brig_fakt_wo</property>
                     <property name="dataType">float</property>
-                    <simple-property-list name="aggregateOn">
-                        <value>BRIG</value>
-                    </simple-property-list>
                     <property name="aggregateFunction">SUM</property>
                     <list-property name="arguments">
                         <structure>
@@ -1378,9 +1864,6 @@ return (true);]]></method>
                 <structure>
                     <property name="name">brig_mont</property>
                     <property name="dataType">integer</property>
-                    <simple-property-list name="aggregateOn">
-                        <value>BRIG</value>
-                    </simple-property-list>
                     <property name="aggregateFunction">SUM</property>
                     <list-property name="arguments">
                         <structure>
@@ -1503,9 +1986,6 @@ return (true);]]></method>
                 <structure>
                     <property name="name">brig_sr_razr</property>
                     <property name="dataType">float</property>
-                    <simple-property-list name="aggregateOn">
-                        <value>BRIG</value>
-                    </simple-property-list>
                     <property name="aggregateFunction">SUM</property>
                     <list-property name="arguments">
                         <structure>
@@ -1612,6 +2092,12 @@ row["tab_sr_razr"]/row["tab_labor_hour"]</expression>
                         </structure>
                     </list-property>
                 </structure>
+                <structure>
+                    <property name="name">EXT</property>
+                    <property name="displayName">EXT</property>
+                    <expression name="expression">dataSetRow["EXT"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
             </list-property>
             <column id="17828"/>
             <column id="17829"/>
@@ -1624,15 +2110,65 @@ row["tab_sr_razr"]/row["tab_labor_hour"]</expression>
                 </list-property>
             </column>
             <column id="17839"/>
-            <column id="17840"/>
+            <column id="17840">
+                <list-property name="visibility">
+                    <structure>
+                        <property name="format">all</property>
+                        <expression name="valueExpr">true</expression>
+                    </structure>
+                </list-property>
+            </column>
             <column id="17841"/>
-            <column id="17842"/>
-            <column id="17843"/>
-            <column id="17844"/>
+            <column id="17842">
+                <list-property name="visibility">
+                    <structure>
+                        <property name="format">all</property>
+                        <expression name="valueExpr">true</expression>
+                    </structure>
+                </list-property>
+            </column>
+            <column id="17843">
+                <list-property name="visibility">
+                    <structure>
+                        <property name="format">all</property>
+                        <expression name="valueExpr">true</expression>
+                    </structure>
+                </list-property>
+            </column>
+            <column id="17844">
+                <list-property name="visibility">
+                    <structure>
+                        <property name="format">all</property>
+                        <expression name="valueExpr">true</expression>
+                    </structure>
+                </list-property>
+            </column>
             <column id="17845"/>
             <column id="17846"/>
-            <column id="18426"/>
-            <column id="18533"/>
+            <column id="18426">
+                <list-property name="visibility">
+                    <structure>
+                        <property name="format">all</property>
+                        <expression name="valueExpr">true</expression>
+                    </structure>
+                </list-property>
+            </column>
+            <column id="18533">
+                <list-property name="visibility">
+                    <structure>
+                        <property name="format">all</property>
+                        <expression name="valueExpr">true</expression>
+                    </structure>
+                </list-property>
+            </column>
+            <column id="18569">
+                <list-property name="visibility">
+                    <structure>
+                        <property name="format">all</property>
+                        <expression name="valueExpr">true</expression>
+                    </structure>
+                </list-property>
+            </column>
             <header>
                 <row id="17718">
                     <property name="backgroundColor">#C0C0C0</property>
@@ -1767,7 +2303,7 @@ row["tab_sr_razr"]/row["tab_labor_hour"]</expression>
                         </label>
                     </cell>
                     <cell id="17757">
-                        <property name="colSpan">2</property>
+                        <property name="colSpan">1</property>
                         <property name="rowSpan">1</property>
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
@@ -1784,6 +2320,20 @@ row["tab_sr_razr"]/row["tab_labor_hour"]</expression>
                         <label id="17760">
                             <text-property name="text">Факт</text-property>
                         </label>
+                    </cell>
+                    <cell id="18551">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
                     </cell>
                     <cell id="18409">
                         <property name="borderLeftColor">#000000</property>
@@ -1811,6 +2361,22 @@ row["tab_sr_razr"]/row["tab_labor_hour"]</expression>
                         <property name="borderTopWidth">thin</property>
                         <label id="18534">
                             <text-property name="text">Средний разряд</text-property>
+                        </label>
+                    </cell>
+                    <cell id="18552">
+                        <property name="colSpan">1</property>
+                        <property name="rowSpan">2</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <label id="18570">
+                            <text-property name="text">Источник</text-property>
                         </label>
                     </cell>
                 </row>
@@ -1985,6 +2551,12 @@ row["tab_sr_razr"]/row["tab_labor_hour"]</expression>
                 </row>
                 <row id="18376">
                     <property name="backgroundColor">#C0C0C0</property>
+                    <list-property name="visibility">
+                        <structure>
+                            <property name="format">all</property>
+                            <expression name="valueExpr">true</expression>
+                        </structure>
+                    </list-property>
                     <cell id="18377">
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
@@ -2203,269 +2775,22 @@ row["tab_sr_razr"]/row["tab_labor_hour"]</expression>
                             <text-property name="text">12</text-property>
                         </label>
                     </cell>
+                    <cell id="18554">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                    </cell>
                 </row>
             </header>
-            <group id="17939">
-                <property name="groupName">BRIG</property>
-                <property name="interval">none</property>
-                <property name="sortDirection">asc</property>
-                <expression name="keyExpr">row["L_PODR"]</expression>
-                <structure name="toc">
-                    <expression name="expressionValue">row["L_PODR"]</expression>
-                </structure>
-                <property name="repeatHeader">true</property>
-                <property name="hideDetail">false</property>
-                <property name="pageBreakAfter">auto</property>
-                <property name="pageBreakBefore">always-excluding-first</property>
-                <property name="pageBreakInside">auto</property>
-                <list-property name="sort">
-                    <structure>
-                        <expression name="key">row["PODR_D"]</expression>
-                        <property name="direction">asc</property>
-                    </structure>
-                </list-property>
-                <header>
-                    <row id="17940">
-                        <property name="backgroundColor">#D8A903</property>
-                        <property name="fontWeight">bold</property>
-                        <cell id="17943">
-                            <property name="colSpan">4</property>
-                            <property name="rowSpan">1</property>
-                            <property name="borderBottomColor">#000000</property>
-                            <property name="borderBottomStyle">solid</property>
-                            <property name="borderBottomWidth">thin</property>
-                            <property name="borderLeftColor">#000000</property>
-                            <property name="borderLeftStyle">solid</property>
-                            <property name="borderLeftWidth">thin</property>
-                            <property name="borderRightColor">#000000</property>
-                            <property name="borderRightStyle">solid</property>
-                            <property name="borderRightWidth">thin</property>
-                            <property name="borderTopColor">#000000</property>
-                            <property name="borderTopStyle">solid</property>
-                            <property name="borderTopWidth">thin</property>
-                            <data id="18215">
-                                <property name="resultSetColumn">PODR_D</property>
-                            </data>
-                            <data id="17984">
-                                <list-property name="visibility">
-                                    <structure>
-                                        <property name="format">all</property>
-                                        <expression name="valueExpr">true</expression>
-                                    </structure>
-                                </list-property>
-                                <property name="resultSetColumn">L_PODR</property>
-                            </data>
-                        </cell>
-                        <cell id="18454">
-                            <property name="borderBottomColor">#000000</property>
-                            <property name="borderBottomStyle">solid</property>
-                            <property name="borderBottomWidth">thin</property>
-                            <property name="borderLeftColor">#000000</property>
-                            <property name="borderLeftStyle">solid</property>
-                            <property name="borderLeftWidth">thin</property>
-                            <property name="borderRightColor">#000000</property>
-                            <property name="borderRightStyle">solid</property>
-                            <property name="borderRightWidth">thin</property>
-                            <property name="borderTopColor">#000000</property>
-                            <property name="borderTopStyle">solid</property>
-                            <property name="borderTopWidth">thin</property>
-                            <data id="18500">
-                                <structure name="numberFormat">
-                                    <property name="category">Custom</property>
-                                    <property name="pattern">###,##0</property>
-                                </structure>
-                                <property name="textAlign">right</property>
-                                <property name="resultSetColumn">brig_mont</property>
-                            </data>
-                        </cell>
-                        <cell id="18455">
-                            <property name="borderBottomColor">#000000</property>
-                            <property name="borderBottomStyle">solid</property>
-                            <property name="borderBottomWidth">thin</property>
-                            <property name="borderLeftColor">#000000</property>
-                            <property name="borderLeftStyle">solid</property>
-                            <property name="borderLeftWidth">thin</property>
-                            <property name="borderRightColor">#000000</property>
-                            <property name="borderRightStyle">solid</property>
-                            <property name="borderRightWidth">thin</property>
-                            <property name="borderTopColor">#000000</property>
-                            <property name="borderTopStyle">solid</property>
-                            <property name="borderTopWidth">thin</property>
-                            <property name="textAlign">right</property>
-                        </cell>
-                        <cell id="18456">
-                            <property name="borderBottomColor">#000000</property>
-                            <property name="borderBottomStyle">solid</property>
-                            <property name="borderBottomWidth">thin</property>
-                            <property name="borderLeftColor">#000000</property>
-                            <property name="borderLeftStyle">solid</property>
-                            <property name="borderLeftWidth">thin</property>
-                            <property name="borderRightColor">#000000</property>
-                            <property name="borderRightStyle">solid</property>
-                            <property name="borderRightWidth">thin</property>
-                            <property name="borderTopColor">#000000</property>
-                            <property name="borderTopStyle">solid</property>
-                            <property name="borderTopWidth">thin</property>
-                            <property name="textAlign">right</property>
-                        </cell>
-                        <cell id="18307">
-                            <property name="borderBottomColor">#000000</property>
-                            <property name="borderBottomStyle">solid</property>
-                            <property name="borderBottomWidth">thin</property>
-                            <property name="borderLeftColor">#000000</property>
-                            <property name="borderLeftStyle">solid</property>
-                            <property name="borderLeftWidth">thin</property>
-                            <property name="borderRightColor">#000000</property>
-                            <property name="borderRightStyle">solid</property>
-                            <property name="borderRightWidth">thin</property>
-                            <property name="borderTopColor">#000000</property>
-                            <property name="borderTopStyle">solid</property>
-                            <property name="borderTopWidth">thin</property>
-                            <property name="textAlign">right</property>
-                            <data id="18444">
-                                <structure name="numberFormat">
-                                    <property name="category">Custom</property>
-                                    <property name="pattern">###,##0.00</property>
-                                </structure>
-                                <property name="resultSetColumn">brig_plan_labor_our</property>
-                            </data>
-                        </cell>
-                        <cell id="18308">
-                            <property name="borderBottomColor">#000000</property>
-                            <property name="borderBottomStyle">solid</property>
-                            <property name="borderBottomWidth">thin</property>
-                            <property name="borderLeftColor">#000000</property>
-                            <property name="borderLeftStyle">solid</property>
-                            <property name="borderLeftWidth">thin</property>
-                            <property name="borderRightColor">#000000</property>
-                            <property name="borderRightStyle">solid</property>
-                            <property name="borderRightWidth">thin</property>
-                            <property name="borderTopColor">#000000</property>
-                            <property name="borderTopStyle">solid</property>
-                            <property name="borderTopWidth">thin</property>
-                            <property name="textAlign">right</property>
-                            <data id="18450">
-                                <structure name="numberFormat">
-                                    <property name="category">Custom</property>
-                                    <property name="pattern">###,##0.00</property>
-                                </structure>
-                                <property name="resultSetColumn">brig_plan_wo</property>
-                            </data>
-                        </cell>
-                        <cell id="18309">
-                            <property name="borderBottomColor">#000000</property>
-                            <property name="borderBottomStyle">solid</property>
-                            <property name="borderBottomWidth">thin</property>
-                            <property name="borderLeftColor">#000000</property>
-                            <property name="borderLeftStyle">solid</property>
-                            <property name="borderLeftWidth">thin</property>
-                            <property name="borderRightColor">#000000</property>
-                            <property name="borderRightStyle">solid</property>
-                            <property name="borderRightWidth">thin</property>
-                            <property name="borderTopColor">#000000</property>
-                            <property name="borderTopStyle">solid</property>
-                            <property name="borderTopWidth">thin</property>
-                            <property name="textAlign">right</property>
-                            <data id="18486">
-                                <structure name="numberFormat">
-                                    <property name="category">Custom</property>
-                                    <property name="pattern">###,##0.00</property>
-                                </structure>
-                                <property name="resultSetColumn">brig_labor_hour</property>
-                            </data>
-                        </cell>
-                        <cell id="18310">
-                            <property name="borderBottomColor">#000000</property>
-                            <property name="borderBottomStyle">solid</property>
-                            <property name="borderBottomWidth">thin</property>
-                            <property name="borderLeftColor">#000000</property>
-                            <property name="borderLeftStyle">solid</property>
-                            <property name="borderLeftWidth">thin</property>
-                            <property name="borderRightColor">#000000</property>
-                            <property name="borderRightStyle">solid</property>
-                            <property name="borderRightWidth">thin</property>
-                            <property name="borderTopColor">#000000</property>
-                            <property name="borderTopStyle">solid</property>
-                            <property name="borderTopWidth">thin</property>
-                            <property name="textAlign">right</property>
-                            <data id="18492">
-                                <structure name="numberFormat">
-                                    <property name="category">Custom</property>
-                                    <property name="pattern">###,##0.00</property>
-                                </structure>
-                                <property name="resultSetColumn">brig_fakt_wo</property>
-                            </data>
-                        </cell>
-                        <cell id="18412">
-                            <property name="borderBottomColor">#000000</property>
-                            <property name="borderBottomStyle">solid</property>
-                            <property name="borderBottomWidth">thin</property>
-                            <property name="borderLeftColor">#000000</property>
-                            <property name="borderLeftStyle">solid</property>
-                            <property name="borderLeftWidth">thin</property>
-                            <property name="borderRightColor">#000000</property>
-                            <property name="borderRightStyle">solid</property>
-                            <property name="borderRightWidth">thin</property>
-                            <property name="borderTopColor">#000000</property>
-                            <property name="borderTopStyle">solid</property>
-                            <property name="borderTopWidth">thin</property>
-                            <property name="textAlign">right</property>
-                            <data id="18513">
-                                <structure name="numberFormat">
-                                    <property name="category">Custom</property>
-                                    <property name="pattern">###,##0.00</property>
-                                </structure>
-                                <property name="resultSetColumn">brig_sr_razr</property>
-                            </data>
-                        </cell>
-                        <cell id="18519">
-                            <property name="borderBottomColor">#000000</property>
-                            <property name="borderBottomStyle">solid</property>
-                            <property name="borderBottomWidth">thin</property>
-                            <property name="borderLeftColor">#000000</property>
-                            <property name="borderLeftStyle">solid</property>
-                            <property name="borderLeftWidth">thin</property>
-                            <property name="borderRightColor">#000000</property>
-                            <property name="borderRightStyle">solid</property>
-                            <property name="borderRightWidth">thin</property>
-                            <property name="borderTopColor">#000000</property>
-                            <property name="borderTopStyle">solid</property>
-                            <property name="borderTopWidth">thin</property>
-                            <property name="textAlign">right</property>
-                            <data id="18542">
-                                <structure name="numberFormat">
-                                    <property name="category">Custom</property>
-                                    <property name="pattern">###,##0.00</property>
-                                </structure>
-                                <property name="resultSetColumn">brig_razr</property>
-                            </data>
-                        </cell>
-                    </row>
-                </header>
-                <footer>
-                    <row id="17962">
-                        <list-property name="visibility">
-                            <structure>
-                                <property name="format">all</property>
-                                <expression name="valueExpr">true</expression>
-                            </structure>
-                        </list-property>
-                        <cell id="17965"/>
-                        <cell id="17966"/>
-                        <cell id="17974"/>
-                        <cell id="17976"/>
-                        <cell id="17977"/>
-                        <cell id="17978"/>
-                        <cell id="17979"/>
-                        <cell id="17980"/>
-                        <cell id="17981"/>
-                        <cell id="17982"/>
-                        <cell id="17983"/>
-                        <cell id="18424"/>
-                        <cell id="18531"/>
-                    </row>
-                </footer>
-            </group>
             <group id="17985">
                 <property name="groupName">CLS1</property>
                 <property name="interval">none</property>
@@ -2701,6 +3026,21 @@ row["tab_sr_razr"]/row["tab_labor_hour"]</expression>
                                 <property name="resultSetColumn">cls1_razr</property>
                             </data>
                         </cell>
+                        <cell id="18556">
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">thin</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">thin</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">thin</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">thin</property>
+                            <property name="textAlign">right</property>
+                        </cell>
                     </row>
                 </header>
                 <footer>
@@ -2724,6 +3064,7 @@ row["tab_sr_razr"]/row["tab_labor_hour"]</expression>
                         <cell id="18029"/>
                         <cell id="18423"/>
                         <cell id="18530"/>
+                        <cell id="18566"/>
                     </row>
                 </footer>
             </group>
@@ -2744,6 +3085,12 @@ row["tab_sr_razr"]/row["tab_labor_hour"]</expression>
                     <row id="18032">
                         <property name="backgroundColor">#F2DDC6</property>
                         <property name="fontWeight">bold</property>
+                        <list-property name="visibility">
+                            <structure>
+                                <property name="format">all</property>
+                                <expression name="valueExpr">true</expression>
+                            </structure>
+                        </list-property>
                         <cell id="18035">
                             <property name="colSpan">4</property>
                             <property name="rowSpan">1</property>
@@ -2956,6 +3303,21 @@ row["tab_sr_razr"]/row["tab_labor_hour"]</expression>
                                 <property name="resultSetColumn">cls2_razr</property>
                             </data>
                         </cell>
+                        <cell id="18557">
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">thin</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">thin</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">thin</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">thin</property>
+                            <property name="textAlign">right</property>
+                        </cell>
                     </row>
                 </header>
                 <footer>
@@ -2979,6 +3341,7 @@ row["tab_sr_razr"]/row["tab_labor_hour"]</expression>
                         <cell id="18075"/>
                         <cell id="18422"/>
                         <cell id="18529"/>
+                        <cell id="18565"/>
                     </row>
                 </footer>
             </group>
@@ -3002,7 +3365,7 @@ row["tab_sr_razr"]/row["tab_labor_hour"]</expression>
                         <list-property name="visibility">
                             <structure>
                                 <property name="format">all</property>
-                                <expression name="valueExpr">row["CLS3_CLASS"] == "103"</expression>
+                                <expression name="valueExpr">true</expression>
                             </structure>
                         </list-property>
                         <cell id="18081">
@@ -3217,6 +3580,21 @@ row["tab_sr_razr"]/row["tab_labor_hour"]</expression>
                                 <property name="resultSetColumn">cls3_razr</property>
                             </data>
                         </cell>
+                        <cell id="18558">
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">thin</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">thin</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">thin</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">thin</property>
+                            <property name="textAlign">right</property>
+                        </cell>
                     </row>
                 </header>
                 <footer>
@@ -3240,6 +3618,7 @@ row["tab_sr_razr"]/row["tab_labor_hour"]</expression>
                         <cell id="18121"/>
                         <cell id="18421"/>
                         <cell id="18528"/>
+                        <cell id="18564"/>
                     </row>
                 </footer>
             </group>
@@ -3263,7 +3642,7 @@ row["tab_sr_razr"]/row["tab_labor_hour"]</expression>
                         <list-property name="visibility">
                             <structure>
                                 <property name="format">all</property>
-                                <expression name="valueExpr">row["CLS4_CLASS"] == "00"</expression>
+                                <expression name="valueExpr">true</expression>
                             </structure>
                         </list-property>
                         <cell id="18127">
@@ -3478,6 +3857,21 @@ row["tab_sr_razr"]/row["tab_labor_hour"]</expression>
                                 <property name="resultSetColumn">cls4_razr</property>
                             </data>
                         </cell>
+                        <cell id="18559">
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">thin</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">thin</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">thin</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">thin</property>
+                            <property name="textAlign">right</property>
+                        </cell>
                     </row>
                 </header>
                 <footer>
@@ -3501,6 +3895,7 @@ row["tab_sr_razr"]/row["tab_labor_hour"]</expression>
                         <cell id="18167"/>
                         <cell id="18420"/>
                         <cell id="18527"/>
+                        <cell id="18563"/>
                     </row>
                 </footer>
             </group>
@@ -3525,6 +3920,7 @@ row["tab_sr_razr"]/row["tab_labor_hour"]</expression>
                 </list-property>
                 <header>
                     <row id="18170">
+                        <property name="backgroundColor">#D8D8D8</property>
                         <cell id="18173">
                             <property name="borderLeftColor">#000000</property>
                             <property name="borderLeftStyle">solid</property>
@@ -3755,6 +4151,18 @@ row["tab_sr_razr"]/row["tab_labor_hour"]</expression>
                                 <property name="resultSetColumn">tk_razr</property>
                             </data>
                         </cell>
+                        <cell id="18560">
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">thin</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">thin</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">thin</property>
+                            <property name="textAlign">right</property>
+                        </cell>
                     </row>
                 </header>
                 <footer>
@@ -3778,6 +4186,7 @@ row["tab_sr_razr"]/row["tab_labor_hour"]</expression>
                         <cell id="18213"/>
                         <cell id="18419"/>
                         <cell id="18526"/>
+                        <cell id="18562"/>
                     </row>
                 </footer>
             </group>
@@ -4205,6 +4614,24 @@ row["tab_sr_razr"]/row["tab_labor_hour"]</expression>
                         <property name="borderRightWidth">thin</property>
                         <property name="textAlign">right</property>
                     </cell>
+                    <cell id="18561">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <property name="textAlign">right</property>
+                        <data id="18571">
+                            <property name="resultSetColumn">EXT</property>
+                        </data>
+                    </cell>
                 </row>
             </detail>
             <footer>
@@ -4417,6 +4844,21 @@ row["tab_sr_razr"]/row["tab_labor_hour"]</expression>
                             </structure>
                             <property name="resultSetColumn">tab_razr</property>
                         </data>
+                    </cell>
+                    <cell id="18568">
+                        <property name="backgroundColor">#C0C0C0</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
                     </cell>
                 </row>
             </footer>

@@ -20,16 +20,27 @@
 	</parameter>
 	<queryString>
 		<![CDATA[WITH WORKO AS
-        (SELECT wonum ,
-                origrecordid,
+        (SELECT WO.WONUM ,
+                wo.origrecordid,
                 ACTFINISH,
                 Wo.Description                       description,
                 TO_CHAR (wo.Actfinish, 'dd.mm.yyyy') reportdate,
                 WO.FAKTMEASURE ,
                 WO.PLAN_WO ,
-                Wo.Fakt_Wo ,
-                siteid
+                WO.FAKT_WO ,
+                wo.SITEID,
+                ' (от ' || mult.STARTMEASUREKM || ' км ' || mult.STARTMEASUREPIK || ' пк ' || mult.STARTMEASUREM || ' м до ' || mult.ENDMEASUREKM || ' км ' || mult.ENDMEASUREPIK || ' пк ' || MULT.ENDMEASUREM || ' м) ' mesto ,
+                MULT.ASSETNUM,
+                mult.ASSESSMENT,
+                MULT.STARTMEASUREKM+MULT.STARTMEASUREPIK/100+MULT.STARTMEASUREM/10000 STARTM,
+                mult.endMEASUREKM  +mult.endMEASUREPIK/100+mult.endMEASUREM/10000     endm
         FROM    MAXIMO.WORKORDER WO
+                LEFT JOIN MAXIMO.multiassetlocci mult
+                        ON      wo.wonum             = mult.recordkey
+                                AND MULT.RECORDCLASS = 'РАБОЧЕЕЗАДАНИЕ'
+                                AND WO.SITEID        = MULT.SITEID
+                                AND 1                = CASE WHEN (WO.ORIGRECORDID IS NOT NULL AND MULT.ISPRIMARY =1
+                                                ) THEN 0 ELSE 1 END
         WHERE   WO.TYPEWORKORDER = 'Путевые обходчики'
                 AND WO.STATUS IN ('НАПР_НА_УТ', 'ЗАВЕРШ', 'ОТКЛ_РГН', 'ОФОРМЛЕН', 'ЗАКРЫТО')
                 AND WO.SITEID                     = replace($P{mroSite},'=','')
@@ -38,99 +49,76 @@
                 AND TO_CHAR(wo.Actfinish, 'MM')   = replace($P{month},'=','')
         )
         ,
+        A1 AS
+        ( SELECT ALR.TARGETASSETNUM,
+                nkm.km,
+                NKM.L
+        FROM    WORKO
+                JOIN MAXIMO.ASSETLOCRELATION ALR
+                        ON      WORKO.SITEID       = ALR.SITEID
+                                AND WORKO.ASSETNUM = ALR.TARGETASSETNUM
+                JOIN MAXIMO.ASSET AST
+                        ON      ALR.SITEID             = AST.SITEID
+                                AND ALR.SOURCEASSETNUM = AST.ASSETNUM
+                JOIN MAXIMO.ICP0_H_NKM NKM
+                        ON      AST.SITEID            = NKM.SITEID
+                                AND AST.IDINEXTSYSTEM = NKM.PUTGL_ID
+                                AND NKM.KM BETWEEN ALR.SOURCESTARTMEASURE AND ALR.SOURCEENDMEASURE
+                                AND SYSDATE BETWEEN nkm.date_nd AND nkm.date_kd
+        GROUP BY ALR.TARGETASSETNUM,
+                NKM.KM,
+                NKM.L
+        )
+        ,
         labtr AS
-        (SELECT LABTRANS.REFWO ,
+        ( SELECT LABTRANS.REFWO ,
                 LABTRANS.SITEID ,
-                LABORCRAFTRATE.SKILLLEVEL,
-                LABTRANS.LABORCODE ,
-                LABTRANS.SIGNALIST ,
-                LABTRANS.craft ,
-                LABTRANS.labor_hour
+                SYS_XMLAGG(xmlelement(COL, PERSON.DISPLAYNAME || ' (' ||PERSON.TPPERSON || '), ')).extract('/ROWSET/COL/text()').GETCLOBVAL() FIO
         FROM    MAXIMO.LABTRANS
                 JOIN MAXIMO.LABORCRAFTRATE
                         ON      LABORCRAFTRATE.LABORCODE = LABTRANS.LABORCODE
-        WHERE   LABTRANS.LABORCODE             IS NOT NULL
-                AND LABORCRAFTRATE.DEFAULTCRAFT          = '1'
-                AND LABTRANS.SITEID                      = replace($P{mroSite},'=','')
-                AND LABTRANS.REFWO IN
-                (SELECT WONUM
+                JOIN MAXIMO.PERSON
+                        ON      PERSON.PERSONID = LABTRANS.LABORCODE
+        WHERE   LABTRANS.LABORCODE    IS NOT NULL
+                AND LABORCRAFTRATE.DEFAULTCRAFT = '1'
+                AND
+                (
+                        LABTRANS.REFWO, LABTRANS.SITEID
+                )
+                IN
+                (SELECT WONUM, siteid
                 FROM    WORKO
                 )
+        GROUP BY LABTRANS.REFWO ,
+                LABTRANS.SITEID
         )
-SELECT  to_char(SYS_XMLAGG(xmlelement(COL, PERSON.DISPLAYNAME
-                || ' ('
-                ||PERSON.TPPERSON
-                || '), ')).EXTRACT('/ROWSET/COL/text()').getclobval()) FIO ,
-        TO_CHAR (SUBSTR((regexp_REPLACE(ast.description, '"', '')
-                || ' (от '
-                || mult.STARTMEASUREKM
-                || ' км '
-                || mult.STARTMEASUREPIK
-                || ' пк '
-                || mult.STARTMEASUREM
-                || ' м до '
-                || mult.ENDMEASUREKM
-                || ' км '
-                || mult.ENDMEASUREPIK
-                || ' пк '
-                || MULT.ENDMEASUREM
-                || ' м) '),1,2000)) mesto ,
+SELECT  AST.ASSETNUM,
+        to_char(labtr.FIO) fio ,
+        TO_CHAR (SUBSTR((REGEXP_REPLACE(AST.DESCRIPTION, '\"', '') || worko.mesto),1,2000)) MESTO ,
         WORKO.DESCRIPTION ,
-        worko.reportdate ,
-        MIN( CASE WHEN ast.itemnum IN ('ГЛПУТЬ', 'СТАНПУТЬ', 'ПУТЬП', 'ГППС') THEN 'км' WHEN ast.itemnum IN ('ПЕРЕЕЗД', 'СООР_ЗП', 'КРИВАЯ') THEN 'шт' WHEN ast.itemnum IN
-                                (SELECT ITEMNUM
-                                FROM    maximo.ITEM
-                                WHERE   ITEM.CLASSSTRUCTUREID IN
-                                        (SELECT CLASSSTRUCTUREID
-                                        FROM    maximo.CLASSSTRUCTURE
-                                        WHERE   PARENT = '090000010056'
-                                        )
-                                ) THEN 'шт' END) FAKTMEASURE,
-        Worko.Plan_Wo                            Vup ,
-        Worko.Fakt_Wo                            Zad ,
-        MULT.ASSESSMENT
+        WORKO.REPORTDATE , (case when AST.ITEMNUM in ('ГЛПУТЬ', 'СТАНПУТЬ', 'ПУТЬП', 'ГППС') then 'км' else 'шт' end) FAKTMEASURE,
+        case when AST.ITEMNUM in ('ГЛПУТЬ', 'СТАНПУТЬ', 'ПУТЬП', 'ГППС') then (NVL((NVL((select L/1000 from    A1 where   A1.TARGETASSETNUM = WORKO.ASSETNUM and A1.KM = FLOOR(WORKO.STARTM)) ,0.1)-MOD(WORKO.STARTM, 1))*10000 + ((FLOOR(WORKO.ENDM) - CEIL(WORKO.STARTM))*1000
+                                        +(select SUM(case when A1.KM between CEIL(WORKO.STARTM) and FLOOR(WORKO.ENDM)-1 then A1.L-1000 else 0 end) from A1 where   A1.TARGETASSETNUM = WORKO.ASSETNUM))
+                                        + MOD(worko.endm, 1)*10000, ((MOD(WORKO.ENDM, 1)*10000+FLOOR(WORKO.ENDM)*1000) - (MOD(WORKO.STARTM, 1)*10000+FLOOR(WORKO.STARTM)*1000)))/1000) ELSE 1 END Zad ,
+        Worko.PLAN_WO                                                                                                                                                               Vup ,
+        worko.ASSESSMENT
 FROM    worko
-        LEFT JOIN MAXIMO.multiassetlocci mult
-                ON      Worko.wonum          = mult.recordkey
-                        AND MULT.RECORDCLASS = 'РАБОЧЕЕЗАДАНИЕ'
-                        AND Worko.siteid     = mult.siteid
-                        AND 1                = CASE WHEN (worko.origrecordid IS NOT NULL AND mult.ISPRIMARY =1
-                                        ) THEN 0 ELSE 1 END
         LEFT JOIN maximo.asset ast
-                ON      mult.assetnum   =ast.assetnum
-                        AND MULT.SITEID = AST.SITEID
+                ON      worko.assetnum   =ast.assetnum
+                        AND worko.SITEID = AST.SITEID
         JOIN LABTR
-                ON      WORKO.WONUM      = LABTR.REFWO
+                on      WORKO.WONUM      = LABTR.REFWO
                         AND WORKO.SITEID = LABTR.SITEID
-        LEFT JOIN MAXIMO.PERSON
-                ON      PERSON.PERSONID = LABTR.LABORCODE
-GROUP BY TO_CHAR (SUBSTR((regexp_REPLACE(ast.description, '"', '')
-                || ' (от '
-                || mult.STARTMEASUREKM
-                || ' км '
-                || mult.STARTMEASUREPIK
-                || ' пк '
-                || mult.STARTMEASUREM
-                || ' м до '
-                || mult.ENDMEASUREKM
-                || ' км '
-                || mult.ENDMEASUREPIK
-                || ' пк '
-                || MULT.ENDMEASUREM
-                || ' м) '),1,2000)),
-        WORKO.DESCRIPTION ,
-        worko.reportdate ,
-        Worko.Plan_Wo ,
-        WORKO.FAKT_WO ,
-        MULT.ASSESSMENT]]>
+ORDER BY to_char(labtr.FIO)]]>
 	</queryString>
+	<field name="ASSETNUM" class="java.lang.String"/>
 	<field name="FIO" class="java.lang.String"/>
 	<field name="MESTO" class="java.lang.String"/>
 	<field name="DESCRIPTION" class="java.lang.String"/>
 	<field name="REPORTDATE" class="java.lang.String"/>
 	<field name="FAKTMEASURE" class="java.lang.String"/>
-	<field name="VUP" class="java.math.BigDecimal"/>
 	<field name="ZAD" class="java.math.BigDecimal"/>
+	<field name="VUP" class="java.math.BigDecimal"/>
 	<field name="ASSESSMENT" class="java.lang.String"/>
 	<background>
 		<band splitType="Stretch"/>
@@ -139,7 +127,9 @@ GROUP BY TO_CHAR (SUBSTR((regexp_REPLACE(ast.description, '"', '')
 		<band height="20" splitType="Stretch">
 			<staticText>
 				<reportElement x="0" y="0" width="802" height="20" uuid="487af364-c867-4626-a4d0-549a63428d3e"/>
-				<textElement textAlignment="Center"/>
+				<textElement textAlignment="Center">
+					<font fontName="Times New Roman" size="12"/>
+				</textElement>
 				<text><![CDATA[IV. Работа путевых обходчиков]]></text>
 			</staticText>
 		</band>
@@ -148,9 +138,12 @@ GROUP BY TO_CHAR (SUBSTR((regexp_REPLACE(ast.description, '"', '')
 		<band splitType="Stretch"/>
 	</pageHeader>
 	<columnHeader>
-		<band height="30" splitType="Stretch">
+		<band height="50" splitType="Stretch">
 			<staticText>
-				<reportElement mode="Transparent" x="0" y="0" width="19" height="30" forecolor="#000000" backcolor="#FFFFFF" uuid="d0172aec-641f-4695-bc8c-f666a9e1fae3"/>
+				<reportElement mode="Transparent" x="0" y="0" width="19" height="50" forecolor="#000000" backcolor="#FFFFFF" uuid="d0172aec-641f-4695-bc8c-f666a9e1fae3">
+					<property name="net.sf.jasperreports.export.xls.sheet.name" value="IV. Путевые обходчики"/>
+					<property name="net.sf.jasperreports.export.xls.freeze.row.edge" value="Bottom"/>
+				</reportElement>
 				<box>
 					<topPen lineWidth="1.0"/>
 					<leftPen lineWidth="1.0"/>
@@ -164,7 +157,7 @@ GROUP BY TO_CHAR (SUBSTR((regexp_REPLACE(ast.description, '"', '')
 				<text><![CDATA[№ п/п.]]></text>
 			</staticText>
 			<staticText>
-				<reportElement mode="Transparent" x="19" y="0" width="209" height="30" forecolor="#000000" backcolor="#FFFFFF" uuid="b8ba2a25-d244-4a84-a6a5-b76b86503f1a"/>
+				<reportElement mode="Transparent" x="19" y="0" width="209" height="50" forecolor="#000000" backcolor="#FFFFFF" uuid="b8ba2a25-d244-4a84-a6a5-b76b86503f1a"/>
 				<box>
 					<topPen lineWidth="1.0"/>
 					<leftPen lineWidth="1.0"/>
@@ -178,7 +171,7 @@ GROUP BY TO_CHAR (SUBSTR((regexp_REPLACE(ast.description, '"', '')
 				<text><![CDATA[Фамилия путевого обходчика]]></text>
 			</staticText>
 			<staticText>
-				<reportElement mode="Transparent" x="228" y="0" width="203" height="30" forecolor="#000000" backcolor="#FFFFFF" uuid="09a39c0b-721a-48c8-b6cc-981b05ea6179"/>
+				<reportElement mode="Transparent" x="228" y="0" width="203" height="50" forecolor="#000000" backcolor="#FFFFFF" uuid="09a39c0b-721a-48c8-b6cc-981b05ea6179"/>
 				<box>
 					<topPen lineWidth="1.0"/>
 					<leftPen lineWidth="1.0"/>
@@ -192,7 +185,7 @@ GROUP BY TO_CHAR (SUBSTR((regexp_REPLACE(ast.description, '"', '')
 				<text><![CDATA[Обслуживаемый участок (№№ км пути)]]></text>
 			</staticText>
 			<staticText>
-				<reportElement mode="Transparent" x="431" y="0" width="100" height="30" forecolor="#000000" backcolor="#FFFFFF" uuid="fae52fef-5b7d-4fc7-9767-5e5b11a4f4bd"/>
+				<reportElement mode="Transparent" x="431" y="0" width="112" height="50" forecolor="#000000" backcolor="#FFFFFF" uuid="fae52fef-5b7d-4fc7-9767-5e5b11a4f4bd"/>
 				<box>
 					<topPen lineWidth="1.0"/>
 					<leftPen lineWidth="1.0"/>
@@ -206,7 +199,7 @@ GROUP BY TO_CHAR (SUBSTR((regexp_REPLACE(ast.description, '"', '')
 				<text><![CDATA[Место и наименование заданных работ]]></text>
 			</staticText>
 			<staticText>
-				<reportElement mode="Transparent" x="531" y="0" width="53" height="30" forecolor="#000000" backcolor="#FFFFFF" uuid="03e70c4c-2ce5-4cef-81e1-6f1e4bb25241"/>
+				<reportElement mode="Transparent" x="543" y="0" width="53" height="50" forecolor="#000000" backcolor="#FFFFFF" uuid="03e70c4c-2ce5-4cef-81e1-6f1e4bb25241"/>
 				<box>
 					<topPen lineWidth="1.0"/>
 					<leftPen lineWidth="1.0"/>
@@ -220,7 +213,7 @@ GROUP BY TO_CHAR (SUBSTR((regexp_REPLACE(ast.description, '"', '')
 				<text><![CDATA[Срок исполнения]]></text>
 			</staticText>
 			<staticText>
-				<reportElement mode="Transparent" x="584" y="0" width="50" height="30" forecolor="#000000" backcolor="#FFFFFF" uuid="065bf521-5c9e-4c8c-bf32-f74bba2933a1"/>
+				<reportElement mode="Transparent" x="596" y="0" width="34" height="50" forecolor="#000000" backcolor="#FFFFFF" uuid="065bf521-5c9e-4c8c-bf32-f74bba2933a1"/>
 				<box>
 					<topPen lineWidth="1.0"/>
 					<leftPen lineWidth="1.0"/>
@@ -231,10 +224,10 @@ GROUP BY TO_CHAR (SUBSTR((regexp_REPLACE(ast.description, '"', '')
 					<font fontName="Times New Roman" size="9" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="false"/>
 					<paragraph lineSpacing="Single"/>
 				</textElement>
-				<text><![CDATA[Единица измерения]]></text>
+				<text><![CDATA[Еди-ница изме-рения]]></text>
 			</staticText>
 			<staticText>
-				<reportElement mode="Transparent" x="634" y="0" width="33" height="30" forecolor="#000000" backcolor="#FFFFFF" uuid="44605397-8ffa-4347-837c-85d6962d5e04"/>
+				<reportElement mode="Transparent" x="630" y="0" width="33" height="50" forecolor="#000000" backcolor="#FFFFFF" uuid="44605397-8ffa-4347-837c-85d6962d5e04"/>
 				<box>
 					<topPen lineWidth="1.0"/>
 					<leftPen lineWidth="1.0"/>
@@ -245,10 +238,10 @@ GROUP BY TO_CHAR (SUBSTR((regexp_REPLACE(ast.description, '"', '')
 					<font fontName="Times New Roman" size="9" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="false"/>
 					<paragraph lineSpacing="Single"/>
 				</textElement>
-				<text><![CDATA[Задано]]></text>
+				<text><![CDATA[Зада-но]]></text>
 			</staticText>
 			<staticText>
-				<reportElement mode="Transparent" x="667" y="0" width="52" height="30" forecolor="#000000" backcolor="#FFFFFF" uuid="7aee9eda-67c4-49f1-877d-568f35a10a44"/>
+				<reportElement mode="Transparent" x="663" y="0" width="40" height="50" forecolor="#000000" backcolor="#FFFFFF" uuid="7aee9eda-67c4-49f1-877d-568f35a10a44"/>
 				<box>
 					<topPen lineWidth="1.0"/>
 					<leftPen lineWidth="1.0"/>
@@ -259,10 +252,10 @@ GROUP BY TO_CHAR (SUBSTR((regexp_REPLACE(ast.description, '"', '')
 					<font fontName="Times New Roman" size="9" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="false"/>
 					<paragraph lineSpacing="Single"/>
 				</textElement>
-				<text><![CDATA[Выполнено]]></text>
+				<text><![CDATA[Выпол-нено]]></text>
 			</staticText>
 			<staticText>
-				<reportElement mode="Transparent" x="719" y="0" width="83" height="30" forecolor="#000000" backcolor="#FFFFFF" uuid="862ac761-220c-4c8a-b963-e2183560fd48"/>
+				<reportElement mode="Transparent" x="703" y="0" width="43" height="50" forecolor="#000000" backcolor="#FFFFFF" uuid="862ac761-220c-4c8a-b963-e2183560fd48"/>
 				<box>
 					<topPen lineWidth="1.0"/>
 					<leftPen lineWidth="1.0"/>
@@ -273,7 +266,21 @@ GROUP BY TO_CHAR (SUBSTR((regexp_REPLACE(ast.description, '"', '')
 					<font fontName="Times New Roman" size="9" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="false"/>
 					<paragraph lineSpacing="Single"/>
 				</textElement>
-				<text><![CDATA[Оценка обслуживаемого участка]]></text>
+				<text><![CDATA[Оценка обслужи-ваемого участка]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="746" y="0" width="56" height="50" forecolor="#000000" backcolor="#FFFFFF" uuid="2fd59aef-f150-4176-b884-5e14e87fe8b3"/>
+				<box>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="Times New Roman" size="9" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[% премии к выплате]]></text>
 			</staticText>
 		</band>
 	</columnHeader>
@@ -287,11 +294,11 @@ GROUP BY TO_CHAR (SUBSTR((regexp_REPLACE(ast.description, '"', '')
 					<bottomPen lineWidth="0.75"/>
 					<rightPen lineWidth="0.75"/>
 				</box>
-				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
+				<textElement textAlignment="Left" verticalAlignment="Middle" rotation="None" markup="none">
 					<font fontName="Times New Roman" size="8" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
-					<paragraph lineSpacing="Single"/>
+					<paragraph lineSpacing="Single" leftIndent="2" rightIndent="2"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$F{FIO}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{FIO}.replace("," ,"")]]></textFieldExpression>
 			</textField>
 			<textField pattern="" isBlankWhenNull="true">
 				<reportElement mode="Transparent" x="0" y="0" width="19" height="30" forecolor="#000000" backcolor="#FFFFFF" uuid="fbeedb53-9335-4f23-969a-00b9eadf986c"/>
@@ -315,28 +322,28 @@ GROUP BY TO_CHAR (SUBSTR((regexp_REPLACE(ast.description, '"', '')
 					<bottomPen lineWidth="0.75"/>
 					<rightPen lineWidth="0.75"/>
 				</box>
-				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
+				<textElement textAlignment="Left" verticalAlignment="Middle" rotation="None" markup="none">
 					<font fontName="Times New Roman" size="8" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
-					<paragraph lineSpacing="Single"/>
+					<paragraph lineSpacing="Single" leftIndent="2" rightIndent="2"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{MESTO}]]></textFieldExpression>
 			</textField>
 			<textField pattern="" isBlankWhenNull="true">
-				<reportElement mode="Transparent" x="431" y="0" width="100" height="30" forecolor="#000000" backcolor="#FFFFFF" uuid="f336b8e5-1535-486e-8295-bd38355e1e51"/>
+				<reportElement mode="Transparent" x="431" y="0" width="112" height="30" forecolor="#000000" backcolor="#FFFFFF" uuid="f336b8e5-1535-486e-8295-bd38355e1e51"/>
 				<box>
 					<topPen lineWidth="0.75"/>
 					<leftPen lineWidth="0.75"/>
 					<bottomPen lineWidth="0.75"/>
 					<rightPen lineWidth="0.75"/>
 				</box>
-				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
+				<textElement textAlignment="Left" verticalAlignment="Middle" rotation="None" markup="none">
 					<font fontName="Times New Roman" size="8" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
-					<paragraph lineSpacing="Single"/>
+					<paragraph lineSpacing="Single" leftIndent="2" rightIndent="2"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{DESCRIPTION}]]></textFieldExpression>
 			</textField>
 			<textField pattern="" isBlankWhenNull="true">
-				<reportElement mode="Transparent" x="531" y="0" width="53" height="30" forecolor="#000000" backcolor="#FFFFFF" uuid="3874db0e-86ce-4a43-be23-13f358335dbf"/>
+				<reportElement mode="Transparent" x="543" y="0" width="53" height="30" forecolor="#000000" backcolor="#FFFFFF" uuid="3874db0e-86ce-4a43-be23-13f358335dbf"/>
 				<box>
 					<topPen lineWidth="0.75"/>
 					<leftPen lineWidth="0.75"/>
@@ -345,12 +352,12 @@ GROUP BY TO_CHAR (SUBSTR((regexp_REPLACE(ast.description, '"', '')
 				</box>
 				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
 					<font fontName="Times New Roman" size="8" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
-					<paragraph lineSpacing="Single"/>
+					<paragraph lineSpacing="Single" leftIndent="2" rightIndent="2"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{REPORTDATE}]]></textFieldExpression>
 			</textField>
 			<textField pattern="" isBlankWhenNull="true">
-				<reportElement mode="Transparent" x="584" y="0" width="50" height="30" forecolor="#000000" backcolor="#FFFFFF" uuid="c921e3f4-cb84-41c4-8667-d7cf9e3a7c6c"/>
+				<reportElement mode="Transparent" x="596" y="0" width="34" height="30" forecolor="#000000" backcolor="#FFFFFF" uuid="c921e3f4-cb84-41c4-8667-d7cf9e3a7c6c"/>
 				<box>
 					<topPen lineWidth="0.75"/>
 					<leftPen lineWidth="0.75"/>
@@ -359,40 +366,40 @@ GROUP BY TO_CHAR (SUBSTR((regexp_REPLACE(ast.description, '"', '')
 				</box>
 				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
 					<font fontName="Times New Roman" size="8" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
-					<paragraph lineSpacing="Single"/>
+					<paragraph lineSpacing="Single" leftIndent="2" rightIndent="2"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{FAKTMEASURE}]]></textFieldExpression>
 			</textField>
-			<textField pattern="" isBlankWhenNull="true">
-				<reportElement mode="Transparent" x="634" y="0" width="33" height="30" forecolor="#000000" backcolor="#FFFFFF" uuid="76e7074e-4a66-48ba-954f-e85475db37b6"/>
+			<textField pattern="###0.000" isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="630" y="0" width="33" height="30" forecolor="#000000" backcolor="#FFFFFF" uuid="76e7074e-4a66-48ba-954f-e85475db37b6"/>
 				<box>
 					<topPen lineWidth="0.75"/>
 					<leftPen lineWidth="0.75"/>
 					<bottomPen lineWidth="0.75"/>
 					<rightPen lineWidth="0.75"/>
 				</box>
-				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
+				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" markup="none">
 					<font fontName="Times New Roman" size="8" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
-					<paragraph lineSpacing="Single"/>
+					<paragraph lineSpacing="Single" leftIndent="2" rightIndent="2"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{VUP}]]></textFieldExpression>
 			</textField>
-			<textField pattern="" isBlankWhenNull="true">
-				<reportElement mode="Transparent" x="667" y="0" width="52" height="30" forecolor="#000000" backcolor="#FFFFFF" uuid="4b804ee4-6cba-49f9-aac8-3c345f4c3c65"/>
+			<textField pattern="###0.000" isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="663" y="0" width="40" height="30" forecolor="#000000" backcolor="#FFFFFF" uuid="4b804ee4-6cba-49f9-aac8-3c345f4c3c65"/>
 				<box>
 					<topPen lineWidth="0.75"/>
 					<leftPen lineWidth="0.75"/>
 					<bottomPen lineWidth="0.75"/>
 					<rightPen lineWidth="0.75"/>
 				</box>
-				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
+				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" markup="none">
 					<font fontName="Times New Roman" size="8" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
-					<paragraph lineSpacing="Single"/>
+					<paragraph lineSpacing="Single" leftIndent="2" rightIndent="2"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{ZAD}]]></textFieldExpression>
 			</textField>
 			<textField pattern="" isBlankWhenNull="true">
-				<reportElement mode="Transparent" x="719" y="0" width="83" height="30" forecolor="#000000" backcolor="#FFFFFF" uuid="cdd57e3d-bf60-4445-9e3a-c907480f68fb"/>
+				<reportElement mode="Transparent" x="703" y="0" width="43" height="30" forecolor="#000000" backcolor="#FFFFFF" uuid="cdd57e3d-bf60-4445-9e3a-c907480f68fb"/>
 				<box>
 					<topPen lineWidth="0.75"/>
 					<leftPen lineWidth="0.75"/>
@@ -401,10 +408,20 @@ GROUP BY TO_CHAR (SUBSTR((regexp_REPLACE(ast.description, '"', '')
 				</box>
 				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
 					<font fontName="Times New Roman" size="8" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
-					<paragraph lineSpacing="Single"/>
+					<paragraph lineSpacing="Single" leftIndent="2" rightIndent="2"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{ASSESSMENT}]]></textFieldExpression>
 			</textField>
+			<staticText>
+				<reportElement x="746" y="0" width="56" height="30" uuid="9cc68304-b83d-4e38-bb41-9c4ece6231c2"/>
+				<box>
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
 		</band>
 	</detail>
 	<columnFooter>
@@ -416,7 +433,7 @@ GROUP BY TO_CHAR (SUBSTR((regexp_REPLACE(ast.description, '"', '')
 	<summary>
 		<band height="133" splitType="Stretch">
 			<subreport>
-				<reportElement x="0" y="0" width="802" height="132" uuid="102d07f2-9a75-4194-acd5-fdd3283a3d78"/>
+				<reportElement x="0" y="1" width="802" height="132" uuid="102d07f2-9a75-4194-acd5-fdd3283a3d78"/>
 				<subreportParameter name="mroSite">
 					<subreportParameterExpression><![CDATA[$P{mroSite}]]></subreportParameterExpression>
 				</subreportParameter>
@@ -433,9 +450,6 @@ GROUP BY TO_CHAR (SUBSTR((regexp_REPLACE(ast.description, '"', '')
 				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
 				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "pu74_5_1.jrxml"]]></subreportExpression>
 			</subreport>
-			<break>
-				<reportElement x="0" y="0" width="100" height="1" uuid="9e35c437-9517-4c94-a42d-c95fed2cd37c"/>
-			</break>
 		</band>
 	</summary>
 </jasperReport>

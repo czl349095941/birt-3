@@ -5573,99 +5573,91 @@ else if(params["year"]!='')
 
 
 sqlText =  ""
-  +" WITH WORKO AS "
- +"      (SELECT wonum    , origrecordid,"
- +"              ACTFINISH, "
- +"              Wo.Description description, "
- +"              to_char (wo.Actfinish, 'dd.mm.yyyy') reportdate, "
- +"              WO.FAKTMEASURE                                    , "
- +"              WO.PLAN_WO                                        , "
- +"              Wo.Fakt_Wo                                        , "
- +"              siteid "
- +"      FROM    MAXIMO.WORKORDER WO "
- +"      WHERE   WO.TYPEWORKORDER = 'Путевые обходчики' "
- +"      AND     WO.STATUS IN (" + params["status"] +") "
- 
- +"      AND     WO.SITEID                     = '"+params["mroSite"]+"'"
- +"      AND     WO.BRIGAD_LOCATION                     = '" + (params["podr"]).replace("=","") + "' "
- +"      AND     TO_CHAR(WO.ACTFINISH, 'YYYY') = '"+ year +"' "
- +"      AND     TO_CHAR(wo.Actfinish, 'MM')   = "+ par
- +"      ) "
- +"      , "
- +" labtr AS "
- +" ( SELECT LABTRANS.REFWO          , "
- +"         LABTRANS.SITEID          , "
- +"         LABORCRAFTRATE.SKILLLEVEL, "
- +"         LABTRANS.LABORCODE       , "
- +"         LABTRANS.SIGNALIST       , "
- +"         LABTRANS.craft           , "
- +"         LABTRANS.labor_hour "
- +" FROM    MAXIMO.LABTRANS "
- +"         JOIN MAXIMO.LABORCRAFTRATE "
- +"         ON      LABORCRAFTRATE.LABORCODE = LABTRANS.LABORCODE "
- +" WHERE   LABTRANS.LABORCODE     IS NOT NULL "
- +" AND     LABORCRAFTRATE.DEFAULTCRAFT      = '1' "
- +" AND     LABTRANS.SITEID                  = '"+params["mroSite"]+"'"
- +" AND     LABTRANS.REFWO IN "
- +"         (SELECT WONUM "
- +"         FROM    WORKO "
+   +" WITH WORKO AS "
+ +"         (SELECT WO.WONUM , "
+ +"                 wo.origrecordid, "
+ +"                 ACTFINISH, "
+ +"                 Wo.Description                       description, "
+ +"                 TO_CHAR (wo.Actfinish, 'dd.mm.yyyy') reportdate, "
+ +"                 WO.FAKTMEASURE , "
+ +"                 WO.PLAN_WO , "
+ +"                 WO.FAKT_WO , "
+ +"                 wo.SITEID, "
+ +"                 ' (от ' || mult.STARTMEASUREKM || ' км ' || mult.STARTMEASUREPIK || ' пк ' || mult.STARTMEASUREM || ' м до ' || mult.ENDMEASUREKM || ' км ' || mult.ENDMEASUREPIK || ' пк ' || MULT.ENDMEASUREM || ' м) ' mesto , "
+ +"                 MULT.ASSETNUM, "
+ +"                 mult.ASSESSMENT, "
+ +"                 MULT.STARTMEASUREKM+MULT.STARTMEASUREPIK/100+MULT.STARTMEASUREM/10000 STARTM, "
+ +"                 mult.endMEASUREKM  +mult.endMEASUREPIK/100+mult.endMEASUREM/10000     endm "
+ +"         FROM    MAXIMO.WORKORDER WO "
+ +"                 LEFT JOIN MAXIMO.multiassetlocci mult "
+ +"                         ON      wo.wonum             = mult.recordkey "
+ +"                                 AND MULT.RECORDCLASS = 'РАБОЧЕЕЗАДАНИЕ' "
+ +"                                 AND WO.SITEID        = MULT.SITEID "
+ +"                                 AND 1                = CASE WHEN (WO.ORIGRECORDID IS NOT NULL AND MULT.ISPRIMARY =1 "
+ +"                                                 ) THEN 0 ELSE 1 END "
+ +"         WHERE   WO.TYPEWORKORDER = 'Путевые обходчики' "
+ +"                 AND WO.STATUS IN (" + params["status"] +") "
+ +"                 AND WO.SITEID                     = '"+params["mroSite"]+"'"
+ +"                 AND WO.BRIGAD_LOCATION            = '" + (params["podr"]).replace("=","") + "' "
+ +"                 AND TO_CHAR(WO.ACTFINISH, 'YYYY') = '"+ year +"' "
+ +"                 and TO_CHAR(WO.ACTFINISH, 'MM')   = "+ par
  +"         ) "
- +" ) "
- +" SELECT    SYS_XMLAGG(xmlelement(COL, PERSON.DISPLAYNAME "
- +"                     || ' (' "
- +"                     ||PERSON.TPPERSON "
- +"                     || '), ')).EXTRACT('/ROWSET/COL/text()').getclobval() FIO , "
- +"           TO_CHAR (SUBSTR((regexp_REPLACE(ast.description, '\"', '') "
- +"                     || ' (от ' "
- +"                     || mult.STARTMEASUREKM "
- +"                     || ' км ' "
- +"                     || mult.STARTMEASUREPIK "
- +"                     || ' пк ' "
- +"                     || mult.STARTMEASUREM "
- +"                     || ' м до '  || mult.ENDMEASUREKM"
- +"                     || ' км ' "
- +"                     || mult.ENDMEASUREPIK "
- +"                     || ' пк ' "
- +"                     || MULT.ENDMEASUREM "
- +"                     || ' м) '),1,2000)) mesto , "
- +"           WORKO.DESCRIPTION                   , "
- +"           worko.reportdate                    , "
- +"           WORKO.FAKTMEASURE                   , "
- +"           Worko.Plan_Wo Vup                   , "
- +"           Worko.Fakt_Wo Zad                   , "
- +"           MULT.ASSESSMENT "
- +" FROM      worko "
- +"           LEFT JOIN MAXIMO.multiassetlocci mult "
- +"           ON        Worko.wonum      = mult.recordkey "
- +"           AND       MULT.RECORDCLASS = 'РАБОЧЕЕЗАДАНИЕ' "
- +"           AND       Worko.siteid     = mult.siteid and 1 = case when (worko.origrecordid is not null and mult.ISPRIMARY =1) then 0 else 1 end"
- +"           LEFT JOIN maximo.asset ast "
- +"           ON        mult.assetnum =ast.assetnum "
- +"           AND       MULT.SITEID   = AST.SITEID "
- +"           JOIN LABTR "
- +"           ON        WORKO.WONUM  = LABTR.REFWO "
- +"           AND       WORKO.SITEID = LABTR.SITEID "
- +"           LEFT JOIN MAXIMO.PERSON "
- +"           ON        PERSON.PERSONID = LABTR.LABORCODE "
- +" GROUP BY  TO_CHAR (SUBSTR((regexp_REPLACE(ast.description, '\"', '') "
- +"                     || ' (от ' "
- +"                     || mult.STARTMEASUREKM "
- +"                     || ' км ' "
- +"                     || mult.STARTMEASUREPIK "
- +"                     || ' пк ' "
- +"                     || mult.STARTMEASUREM "
- +"                     || ' м до ' || mult.ENDMEASUREKM"
- +"                     || ' км ' "
- +"                     || mult.ENDMEASUREPIK "
- +"                     || ' пк ' "
- +"                     || MULT.ENDMEASUREM "
- +"                     || ' м) '),1,2000)), "
- +"           WORKO.DESCRIPTION            , "
- +"           worko.reportdate             , "
- +"           WORKO.FAKTMEASURE            , "
- +"           Worko.Plan_Wo                , "
- +"           WORKO.FAKT_WO                , "
- +"           MULT.ASSESSMENT "
+ +"         , "
+ +"         A1 AS "
+ +"         ( SELECT ALR.TARGETASSETNUM, "
+ +"                 nkm.km, "
+ +"                 NKM.L "
+ +"         FROM    WORKO "
+ +"                 JOIN MAXIMO.ASSETLOCRELATION ALR "
+ +"                         ON      WORKO.SITEID       = ALR.SITEID "
+ +"                                 AND WORKO.ASSETNUM = ALR.TARGETASSETNUM "
+ +"                 JOIN MAXIMO.ASSET AST "
+ +"                         ON      ALR.SITEID             = AST.SITEID "
+ +"                                 AND ALR.SOURCEASSETNUM = AST.ASSETNUM "
+ +"                 JOIN MAXIMO.ICP0_H_NKM NKM "
+ +"                         ON      AST.SITEID            = NKM.SITEID "
+ +"                                 AND AST.IDINEXTSYSTEM = NKM.PUTGL_ID "
+ +"                                 AND NKM.KM BETWEEN ALR.SOURCESTARTMEASURE AND ALR.SOURCEENDMEASURE "
+ +"                                 AND SYSDATE BETWEEN nkm.date_nd AND nkm.date_kd "
+ +"         GROUP BY ALR.TARGETASSETNUM, "
+ +"                 NKM.KM, "
+ +"                 NKM.L "
+ +"         ) "
+ +"         , "
+ +"         labtr AS "
+ +"         ( "
+ +" SELECT          LABTRANS.REFWO , "
+ +"                 LABTRANS.SITEID , "
+ +"                  SYS_XMLAGG(xmlelement(COL, PERSON.DISPLAYNAME || ' (' ||PERSON.TPPERSON || '), ')).extract('/ROWSET/COL/text()').GETCLOBVAL() FIO "
+ +"         FROM    MAXIMO.LABTRANS "
+ +"                 JOIN MAXIMO.LABORCRAFTRATE "
+ +"                         on      LABORCRAFTRATE.LABORCODE = LABTRANS.LABORCODE "
+ +"                 JOIN MAXIMO.PERSON ON      PERSON.PERSONID = LABTRANS.LABORCODE "
+ +"         WHERE   LABTRANS.LABORCODE             IS NOT NULL "
+ +"                 and LABORCRAFTRATE.DEFAULTCRAFT          = '1' "
+ +"                 and (LABTRANS.REFWO, LABTRANS.SITEID) in (SELECT WONUM, siteid FROM WORKO) "
+ +"         group by LABTRANS.REFWO , "
+ +"                 LABTRANS.SITEID  "
+ +"                  "
+ +"         ) "
+ +" select  AST.ASSETNUM, "
+ +"         labtr.FIO , "
+ +"         TO_CHAR (SUBSTR((REGEXP_REPLACE(AST.DESCRIPTION, '\"', '') || worko.mesto),1,2000)) MESTO , "
+ +"         WORKO.DESCRIPTION , "
+ +"         worko.reportdate , "
+ +"         (case when ast.itemnum in ('ГЛПУТЬ', 'СТАНПУТЬ', 'ПУТЬП', 'ГППС') then 'км' else 'шт' end) FAKTMEASURE, "
+ +"         case when ast.itemnum in ('ГЛПУТЬ', 'СТАНПУТЬ', 'ПУТЬП', 'ГППС') then (nvl((NVL((select L/1000 from  A1 where A1.TARGETASSETNUM = WORKO.ASSETNUM and A1.KM = FLOOR(WORKO.STARTM)) ,0.1)-MOD(WORKO.STARTM, 1))*10000 + "
+ +"        ((FLOOR(WORKO.ENDM) - CEIL(WORKO.STARTM))*1000+ (select SUM(case when A1.KM between CEIL(WORKO.STARTM) and FLOOR(WORKO.ENDM)-1 then A1.L-1000 else 0 end) from A1 where A1.TARGETASSETNUM = WORKO.ASSETNUM))+ "
+ +"        MOD(worko.endm, 1)*10000, ((MOD(WORKO.ENDM, 1)*10000+FLOOR(WORKO.ENDM)*1000) - (MOD(WORKO.STARTM, 1)*10000+FLOOR(WORKO.STARTM)*1000)))/1000) else 1 end Zad , "
+ +"         Worko.PLAN_WO Vup , "
+ +"         worko.ASSESSMENT "
+ +" FROM    worko "
+ +"         LEFT JOIN maximo.asset ast "
+ +"                 ON      worko.assetnum   =ast.assetnum "
+ +"                         AND worko.SITEID = AST.SITEID "
+ +"         JOIN LABTR "
+ +"                 ON      WORKO.WONUM      = LABTR.REFWO "
+ +"                         AND WORKO.SITEID = LABTR.SITEID "
     ;
 	maximoDataSet.setQuery(sqlText);]]></method>
             <method name="fetch"><![CDATA[if (!maximoDataSet.fetch())
@@ -10526,7 +10518,7 @@ dataSetRow["DORM"]</expression>
                 <structure>
                     <property name="name">Column Binding</property>
                     <expression name="expression">dataSetRow["Ч_Ч_1"]+dataSetRow["Ч_Ч_10"]+dataSetRow["Ч_Ч_11"]+dataSetRow["Ч_Ч_12"]+dataSetRow["Ч_Ч_13"]+dataSetRow["Ч_Ч_14"]+dataSetRow["Ч_Ч_15"]+dataSetRow["Ч_Ч_2"]+dataSetRow["Ч_Ч_3"]+dataSetRow["Ч_Ч_4"]+dataSetRow["Ч_Ч_5"]+dataSetRow["Ч_Ч_6"]+dataSetRow["Ч_Ч_7"]+dataSetRow["Ч_Ч_8"]+dataSetRow["Ч_Ч_9"]</expression>
-                    <property name="dataType">string</property>
+                    <property name="dataType">float</property>
                 </structure>
                 <structure>
                     <property name="name">Column Binding_1</property>
@@ -10544,7 +10536,7 @@ dataSetRow["DORM"]</expression>
                     <expression name="expression">if (row["NUMVALUE"] != 0 &amp; row["NUMVALUE"] != null) 
 (parseFloat (row["Column Binding_1"])/row["NUMVALUE"]*parseFloat (row["НОРМА_ВРЕМЕНИ"]))
 else (0)</expression>
-                    <property name="dataType">string</property>
+                    <property name="dataType">float</property>
                 </structure>
                 <structure>
                     <property name="name">Aggregation</property>
@@ -10713,7 +10705,7 @@ else (0)</expression>
                 </structure>
                 <structure>
                     <property name="name">Aggregation_15</property>
-                    <property name="dataType">string</property>
+                    <property name="dataType">float</property>
                     <property name="aggregateFunction">SUM</property>
                     <list-property name="arguments">
                         <structure>
@@ -10724,7 +10716,7 @@ else (0)</expression>
                 </structure>
                 <structure>
                     <property name="name">Aggregation_16</property>
-                    <property name="dataType">string</property>
+                    <property name="dataType">float</property>
                     <property name="aggregateFunction">SUM</property>
                     <list-property name="arguments">
                         <structure>
@@ -11188,7 +11180,7 @@ else (0)</expression>
                 </structure>
                 <structure>
                     <property name="name">tnk_fact_otrab</property>
-                    <property name="dataType">string</property>
+                    <property name="dataType">float</property>
                     <simple-property-list name="aggregateOn">
                         <value>tnk</value>
                     </simple-property-list>
@@ -11202,7 +11194,7 @@ else (0)</expression>
                 </structure>
                 <structure>
                     <property name="name">tnk_normir</property>
-                    <property name="dataType">string</property>
+                    <property name="dataType">float</property>
                     <simple-property-list name="aggregateOn">
                         <value>tnk</value>
                     </simple-property-list>
@@ -12399,6 +12391,10 @@ row["ТЕХ_КАРТА"].replace(/^\D{1,}/, "").replace (/\/\d{1,}$/, "");</expr
                             <property name="borderTopWidth">thin</property>
                             <property name="textAlign">right</property>
                             <data id="18244">
+                                <structure name="numberFormat">
+                                    <property name="category">Fixed</property>
+                                    <property name="pattern">###0.000</property>
+                                </structure>
                                 <property name="resultSetColumn">tnk_fact_otrab</property>
                             </data>
                         </cell>
@@ -12419,6 +12415,10 @@ row["ТЕХ_КАРТА"].replace(/^\D{1,}/, "").replace (/\/\d{1,}$/, "");</expr
                             <property name="borderTopWidth">thin</property>
                             <property name="textAlign">right</property>
                             <data id="18245">
+                                <structure name="numberFormat">
+                                    <property name="category">Fixed</property>
+                                    <property name="pattern">###0.000</property>
+                                </structure>
                                 <property name="resultSetColumn">tnk_normir</property>
                             </data>
                         </cell>
@@ -12441,7 +12441,7 @@ row["ТЕХ_КАРТА"].replace(/^\D{1,}/, "").replace (/\/\d{1,}$/, "");</expr
                             <data id="18246">
                                 <structure name="numberFormat">
                                     <property name="category">Fixed</property>
-                                    <property name="pattern">Fixed</property>
+                                    <property name="pattern">###0.000</property>
                                 </structure>
                                 <property name="resultSetColumn">tnk_vip_rab</property>
                             </data>
@@ -13196,7 +13196,7 @@ row["ТЕХ_КАРТА"].replace(/^\D{1,}/, "").replace (/\/\d{1,}$/, "");</expr
                         <data id="15525">
                             <structure name="numberFormat">
                                 <property name="category">Fixed</property>
-                                <property name="pattern">Fixed</property>
+                                <property name="pattern">###0.000</property>
                             </structure>
                             <property name="resultSetColumn">Column Binding</property>
                         </data>
@@ -13218,6 +13218,10 @@ row["ТЕХ_КАРТА"].replace(/^\D{1,}/, "").replace (/\/\d{1,}$/, "");</expr
                         <property name="borderTopWidth">thin</property>
                         <property name="textAlign">right</property>
                         <data id="15550">
+                            <structure name="numberFormat">
+                                <property name="category">Fixed</property>
+                                <property name="pattern">###0.000</property>
+                            </structure>
                             <property name="resultSetColumn">Column Binding_2</property>
                         </data>
                     </cell>
@@ -13240,8 +13244,14 @@ row["ТЕХ_КАРТА"].replace(/^\D{1,}/, "").replace (/\/\d{1,}$/, "");</expr
                         <data id="15531">
                             <structure name="numberFormat">
                                 <property name="category">Fixed</property>
-                                <property name="pattern">Fixed</property>
+                                <property name="pattern">###0.000</property>
                             </structure>
+                            <list-property name="visibility">
+                                <structure>
+                                    <property name="format">all</property>
+                                    <expression name="valueExpr">row["MESTO"] == "invis"</expression>
+                                </structure>
+                            </list-property>
                             <property name="resultSetColumn">Column Binding_1</property>
                         </data>
                     </cell>
@@ -13997,6 +14007,10 @@ row["ТЕХ_КАРТА"].replace(/^\D{1,}/, "").replace (/\/\d{1,}$/, "");</expr
                         <property name="borderTopWidth">thin</property>
                         <property name="textAlign">right</property>
                         <data id="15566">
+                            <structure name="numberFormat">
+                                <property name="category">Fixed</property>
+                                <property name="pattern">###0.000</property>
+                            </structure>
                             <property name="resultSetColumn">Aggregation_15</property>
                         </data>
                     </cell>
@@ -14015,6 +14029,10 @@ row["ТЕХ_КАРТА"].replace(/^\D{1,}/, "").replace (/\/\d{1,}$/, "");</expr
                         <property name="borderTopWidth">thin</property>
                         <property name="textAlign">right</property>
                         <data id="15567">
+                            <structure name="numberFormat">
+                                <property name="category">Fixed</property>
+                                <property name="pattern">###0.000</property>
+                            </structure>
                             <property name="resultSetColumn">Aggregation_16</property>
                         </data>
                     </cell>
@@ -17233,6 +17251,12 @@ row["ТЕХ_КАРТА"].replace(/^\D{1,}/, "").replace (/\/\d{1,}$/, "");</expr
                                 <property name="category">Fixed</property>
                                 <property name="pattern">Fixed</property>
                             </structure>
+                            <list-property name="visibility">
+                                <structure>
+                                    <property name="format">all</property>
+                                    <expression name="valueExpr">row["MESTO"] == "invis"</expression>
+                                </structure>
+                            </list-property>
                             <property name="resultSetColumn">Column Binding_1</property>
                         </data>
                     </cell>
@@ -20469,7 +20493,7 @@ row["ТЕХ_КАРТА"].replace(/^\D{1,}/, "").replace (/\/\d{1,}$/, "");</expr
             </footer>
         </table>
         <label id="15465">
-            <property name="pageBreakAfter">always</property>
+            <property name="pageBreakAfter">auto</property>
         </label>
         <table id="17671">
             <property name="pageBreakAfter">always</property>
@@ -22642,9 +22666,6 @@ row["ТЕХ_КАРТА"].replace(/^\D{1,}/, "").replace (/\/\d{1,}$/, "");</expr
                         <data id="17024">
                             <property name="resultSetColumn">FAKTMEASURE</property>
                         </data>
-                        <label id="17940">
-                            <text-property name="text">км</text-property>
-                        </label>
                     </cell>
                     <cell id="17025">
                         <property name="borderBottomColor">#000000</property>
