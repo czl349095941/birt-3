@@ -24,7 +24,28 @@ mxReportScriptContext = MXReportScriptContext.initialize(reportContext);
 mxReportScriptContext.setDefaultLogLevel("DEBUG");
 mxReportScriptContext.setDefaultLogFile("c:/temp/tetttt.txt");
 
-params["pred"] = params["pred"].replace("=", "")]]></method>
+params["pred"] = params["pred"].replace("=", "")
+
+if (BirtComp.equalTo(params["date1"],null) == true || params["date1"] == '' )
+	{if (BirtComp.equalTo(params["date2"],null) == true || params["date2"] == '')
+		{params["date1"] = "to_date('01."+ BirtDateTime.month(BirtDateTime.now())+"." + BirtDateTime.year(BirtDateTime.now()) + "')";
+		params["date2"] = "to_date(LAST_DAY(TO_DATE('1."+ BirtDateTime.month(BirtDateTime.now()) + "."+ BirtDateTime.year(BirtDateTime.now()) +"','dd.mm.yyyy')))";
+		}
+	else
+		{params["date1"] = "to_date('" +params["date2"]+ "') - to_number(TO_CHAR(LAST_DAY(TO_DATE('1.' || to_char(extract (month from to_date('" +params["date2"]+ "'))-1) || '.'|| extract (year from to_date('" +params["date2"]+ "')),'dd.mm.yyyy')),'dd'))";
+		params["date2"] = "to_date('" +params["date2"]+ "')";
+		}
+	}
+else  
+	{if (BirtComp.equalTo(params["date2"],null) == true || params["date2"] == '')
+		{params["date2"] = "to_date('" +params["date1"]+ "')";
+		params["date1"] = "to_date('" +params["date1"]+ "')";
+		}
+	 else 
+	 	{params["date1"] = "to_date('" +params["date1"]+ "')";
+		params["date2"] = "to_date('" +params["date2"]+ "')";
+		}
+	}]]></method>
     <method name="afterFactory"><![CDATA[MXReportScriptContext.close();]]></method>
     <property name="theme">MaximoSystemLibrary.maximoTheme</property>
     <text-property name="displayName">Tivoli Maximo Grouped Chart Template</text-property>
@@ -82,7 +103,7 @@ params["pred"] = params["pred"].replace("=", "")]]></method>
             <property name="dataType">string</property>
             <property name="paramType">simple</property>
             <text-property name="promptText">Начало периода</text-property>
-            <property name="isRequired">true</property>
+            <property name="isRequired">false</property>
             <property name="controlType">text-box</property>
             <property name="distinct">true</property>
             <structure name="format">
@@ -94,7 +115,7 @@ params["pred"] = params["pred"].replace("=", "")]]></method>
             <property name="dataType">string</property>
             <property name="paramType">simple</property>
             <text-property name="promptText">Конец периода</text-property>
-            <property name="isRequired">true</property>
+            <property name="isRequired">false</property>
             <property name="controlType">text-box</property>
             <property name="distinct">true</property>
             <structure name="format">
@@ -302,7 +323,8 @@ sqlText = ""
  +"                 AND WO.H      = 800 "
  +"                 AND WO.SITEID = '"+ params["mroSite"]+"'"
  +"                 AND WO.L_PRED = '"+params["pred"]+"'"
- +"                 AND WO.ACTFINISH BETWEEN TO_DATE ('"+params["date1"]+"') AND TO_DATE ('"+params["date2"]+"')+1 "
+ +"                 AND wo.actfinish >= "+params["date1"]+" AND wo.actfinish < "+params["date2"]+" +1"
+ //+"					and wo.brigad_location = 'PODR_1110' "
  +"         ) "
  +"         , "
  +"         SUMWO AS "
@@ -382,7 +404,7 @@ sqlText = ""
  +"                 case when DOLIA  < 0.01 then '' else MEASUREUNITID end "
  +"         ) "
  +" select  case when NORM_ALL.JPNUM is null then 99  else NORM_ALL.NOM end NOM, "
- +"         '' flag, "
+ +"         case when NORM_ALL.JPNUM is null then 3 else 2 end flag, "
  +"         NVL(PRED.L_PRED, ALL_RAB.L_PRED) L_PRED, "
  +"         nvl(PRED.pred_d, ALL_RAB.PRED_D) PRED_D, "
  +"         case when NORM_ALL.JPNUM is null then ''  else NORM_ALL.JPNUM end                                                             JPNUM, "
@@ -412,6 +434,7 @@ sqlText = ""
  +"                 ) ALL_RAB "
  +"                 on      NORM_ALL.JPNUM = ALL_RAB.JPNUM and PRED.L_PRED = ALL_RAB.L_PRED "
  +" group by case when NORM_ALL.JPNUM is null then 99  else NORM_ALL.NOM end, "
+ +"			case when NORM_ALL.JPNUM is null then 3 else 2 end, "
  +"         NVL(PRED.L_PRED, ALL_RAB.L_PRED), "
  +"         nvl(PRED.pred_d, ALL_RAB.PRED_D), "
  +"         case when NORM_ALL.JPNUM is null then ''  else NORM_ALL.JPNUM end, "
@@ -452,6 +475,16 @@ return (true);]]></method>
                     <property name="name">SITE_D</property>
                     <property name="dataType">string</property>
                 </structure>
+                <structure>
+                    <property name="position">3</property>
+                    <property name="name">D1</property>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="position">4</property>
+                    <property name="name">D2</property>
+                    <property name="dataType">string</property>
+                </structure>
             </list-property>
             <list-property name="columnHints">
                 <structure>
@@ -487,6 +520,12 @@ return (true);]]></method>
                 <structure>
                     <property name="columnName">SITE_D</property>
                 </structure>
+                <structure>
+                    <property name="columnName">D1</property>
+                </structure>
+                <structure>
+                    <property name="columnName">D2</property>
+                </structure>
             </list-property>
             <structure name="cachedMetaData">
                 <list-property name="resultSet">
@@ -500,6 +539,16 @@ return (true);]]></method>
                         <property name="name">SITE_D</property>
                         <property name="dataType">string</property>
                     </structure>
+                    <structure>
+                        <property name="position">3</property>
+                        <property name="name">D1</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">4</property>
+                        <property name="name">D2</property>
+                        <property name="dataType">string</property>
+                    </structure>
                 </list-property>
             </structure>
             <property name="dataSource">maximoDataSource</property>
@@ -511,8 +560,10 @@ maximoDataSet.open();
 var sqlText = new String();
 
 sqlText = "" 
-+"SELECT  preds.description pred_d, " 
-+"        site.description  site_d " 
++"SELECT  preds.description 							 pred_d, " 
++"        site.description  							 site_d, "
++"		  to_char(" + params["date1"] + ", 'DD.MM.YYYY') D1,"
++"		  to_char(" + params["date2"] + ", 'DD.MM.YYYY') D2 "
 +"FROM    maximo.preds " 
 +"        JOIN maximo.site " 
 +"                ON      preds.siteid = site.siteid " 
@@ -528,6 +579,8 @@ maximoDataSet.setQuery(sqlText);]]></method>
 
 row["PRED_D"] = maximoDataSet.getString("PRED_D");
 row["SITE_D"] = maximoDataSet.getString("SITE_D");
+row["D1"] = maximoDataSet.getString("D1");
+row["D2"] = maximoDataSet.getString("D2");
 
 return (true);]]></method>
         </script-data-set>
@@ -610,7 +663,7 @@ return (true);]]></method>
                 <structure>
                     <property name="name">PRED_D</property>
                     <property name="displayName">PRED_D</property>
-                    <expression name="expression">"Ведомость учета объемов выполняемых работ и затрат рабочего времени в разрезе ТНК по " +dataSetRow["PRED_D"]+ " " + dataSetRow["SITE_D"].replace("ая", "ой") + " ДИ за период с " + params["date1"].value + " по " + params["date2"].value</expression>
+                    <expression name="expression">"Ведомость учета объемов выполняемых работ и затрат рабочего времени в разрезе ТНК по " +dataSetRow["PRED_D"]+ " " + dataSetRow["SITE_D"].replace("ая", "ой") + " ДИ за период с " + dataSetRow["D1"] + " по " + dataSetRow["D2"]</expression>
                     <property name="dataType">string</property>
                 </structure>
             </list-property>
@@ -745,7 +798,7 @@ return (true);]]></method>
                 </structure>
                 <structure>
                     <property name="name">vip_norm_hour</property>
-                    <expression name="expression">if (row["LABOR_HOUR"] != "")
+                    <expression name="expression">if (BirtComp.equalTo(row["LABOR_HOUR"],null) == false &amp;&amp; row["LABOR_HOUR"] != 0)
 row["NORM_HOUR"]/row["LABOR_HOUR"]</expression>
                     <property name="dataType">float</property>
                 </structure>
@@ -937,6 +990,12 @@ if (dataSetRow["FLAG"] == 2 || dataSetRow["FLAG"] == 3) this.text = "Норми�
                             <property name="name">Expression</property>
                         </structure>
                     </list-property>
+                </structure>
+                <structure>
+                    <property name="name">type_vip_norm_hour</property>
+                    <expression name="expression">if (BirtComp.equalTo(row["type_labor_haur"],null) == false &amp;&amp; row["type_labor_haur"] != 0)
+row["type_norm_hour"]/row["type_labor_haur"]</expression>
+                    <property name="dataType">float</property>
                 </structure>
             </list-property>
             <list-property name="sort">
@@ -1895,6 +1954,20 @@ else row["FLAG"];</expression>
                             <property name="borderTopColor">#000000</property>
                             <property name="borderTopStyle">solid</property>
                             <property name="borderTopWidth">thin</property>
+                            <data id="18174">
+                                <structure name="numberFormat">
+                                    <property name="category">Percent</property>
+                                    <property name="pattern">Percent</property>
+                                </structure>
+                                <property name="textAlign">right</property>
+                                <list-property name="visibility">
+                                    <structure>
+                                        <property name="format">all</property>
+                                        <expression name="valueExpr">row["FLAG"] == 0 || row["FLAG"] == 1</expression>
+                                    </structure>
+                                </list-property>
+                                <property name="resultSetColumn">type_vip_norm_hour</property>
+                            </data>
                         </cell>
                         <cell id="18048">
                             <property name="borderBottomColor">#000000</property>
@@ -2073,11 +2146,18 @@ else row["FLAG"];</expression>
                     <list-property name="highlightRules">
                         <structure>
                             <property name="operator">eq</property>
-                            <property name="backgroundColor">#80FF80</property>
                             <property name="fontWeight">bold</property>
-                            <expression name="testExpr">row["NOM"]</expression>
+                            <expression name="testExpr">row["FLAG"]</expression>
                             <simple-property-list name="value1">
-                                <value>99</value>
+                                <value>3</value>
+                            </simple-property-list>
+                        </structure>
+                        <structure>
+                            <property name="operator">eq</property>
+                            <property name="fontWeight">bold</property>
+                            <expression name="testExpr">row["FLAG"]</expression>
+                            <simple-property-list name="value1">
+                                <value>1</value>
                             </simple-property-list>
                         </structure>
                     </list-property>
