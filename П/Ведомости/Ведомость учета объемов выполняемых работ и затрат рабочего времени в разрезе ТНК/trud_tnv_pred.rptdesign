@@ -168,6 +168,11 @@ params["pred"] = params["pred"].replace("=", "")]]></method>
                     <property name="name">DOLIA</property>
                     <property name="dataType">string</property>
                 </structure>
+                <structure>
+                    <property name="position">13</property>
+                    <property name="name">NOM</property>
+                    <property name="dataType">integer</property>
+                </structure>
             </list-property>
             <list-property name="columnHints">
                 <structure>
@@ -205,6 +210,9 @@ params["pred"] = params["pred"].replace("=", "")]]></method>
                 </structure>
                 <structure>
                     <property name="columnName">PLAN_WO</property>
+                </structure>
+                <structure>
+                    <property name="columnName">NOM</property>
                 </structure>
             </list-property>
             <structure name="cachedMetaData">
@@ -269,6 +277,11 @@ params["pred"] = params["pred"].replace("=", "")]]></method>
                         <property name="name">DOLIA</property>
                         <property name="dataType">string</property>
                     </structure>
+                    <structure>
+                        <property name="position">13</property>
+                        <property name="name">NOM</property>
+                        <property name="dataType">integer</property>
+                    </structure>
                 </list-property>
             </structure>
             <property name="dataSource">maximoDataSource</property>
@@ -330,8 +343,9 @@ sqlText = ""
  +"         ) "
  +"         , "
  +"         NORM_ALL AS "
- +"         ( SELECT CASE WHEN DOLIA < 0.01 THEN 'tk_dolia' ELSE jpnum END                                                     jpnum, "
- +"                 CASE WHEN DOLIA  < 0.01 THEN 'Остальные работы (доля от общего объема трудозатрат менее 1)' ELSE WO_D END WO_D, "
+ +"         (select  ROW_NUMBER() over (order by sum(DOLIA) desc) nom, "
+ +"                 CASE WHEN DOLIA < 0.01 THEN 'tk_dolia' ELSE jpnum END                                                     jpnum, "
+ +"                 case when DOLIA  < 0.01 then 'Остальные работы (доля от общего объема трудозатрат менее 1)' else WO_D end WO_D, "
  +"                 CASE WHEN DOLIA  < 0.01 THEN TO_NUMBER('') ELSE NUMVALUE END                                               NUMVALUE, "
  +"                 CASE WHEN DOLIA  < 0.01 THEN '' ELSE MEASUREUNITID END                                                     MEASUREUNITID, "
  +"                 SUM(CNT_WO)                                                                                                CNT_WO, "
@@ -365,11 +379,12 @@ sqlText = ""
  +"         GROUP BY CASE WHEN DOLIA < 0.01 THEN 'tk_dolia' ELSE jpnum END, "
  +"                 CASE WHEN DOLIA  < 0.01 THEN 'Остальные работы (доля от общего объема трудозатрат менее 1)' ELSE WO_D END, "
  +"                 CASE WHEN DOLIA  < 0.01 THEN TO_NUMBER('') ELSE NUMVALUE END, "
- +"                 CASE WHEN DOLIA  < 0.01 THEN '' ELSE MEASUREUNITID END "
+ +"                 case when DOLIA  < 0.01 then '' else MEASUREUNITID end "
  +"         ) "
- +" select  case when NORM_ALL.JPNUM is null then 3 else 2 end FLAG, "
+ +" select  case when NORM_ALL.JPNUM is null then 99  else NORM_ALL.NOM end NOM, "
+ +"         '' flag, "
  +"         NVL(PRED.L_PRED, ALL_RAB.L_PRED) L_PRED, "
- +"         nvl(pred.L_PRED, ALL_RAB.l_pred) PRED_D, "
+ +"         nvl(PRED.pred_d, ALL_RAB.PRED_D) PRED_D, "
  +"         case when NORM_ALL.JPNUM is null then ''  else NORM_ALL.JPNUM end                                                             JPNUM, "
  +"         case when NORM_ALL.JPNUM is null then 'Остальные работы (доля от общего объема трудозатрат менее 1)' else NORM_ALL.WO_D  end WO_D, "
  +"         case when NORM_ALL.JPNUM is null then TO_NUMBER('') else  NORM_ALL.NUMVALUE end                                               NUMVALUE, "
@@ -380,8 +395,8 @@ sqlText = ""
  +"         SUM (ALL_RAB.LABOR_HOUR)                                                                                                           LABOR_HOUR, "
  +"         SUM(ALL_RAB.NORM_HOUR)                                                                                                             NORM_HOUR, "
  +"         SUM(ALL_RAB.DOLIA)                                                                                                                 DOLIA "
- +" from    NORM_ALL "
- +"         full join (select distinct brigad_location l_pred from ALLWO) pred on 1=1 "
+ +" from    (select * from NORM_ALL where JPNUM <> 'tk_dolia') NORM_ALL "
+ +"         full join (select distinct brigad_location l_pred, pred_d from ALLWO) pred on 1=1 "
  +"         full join "
  +"                 (select BNM.*, "
  +"                         nvl(CASE WHEN (SELECT SUMWO.SUMWO "
@@ -395,21 +410,21 @@ sqlText = ""
  +"                                                 ) end, 0) DOLIA "
  +"                 FROM    base_norm bnm "
  +"                 ) ALL_RAB "
- +"                 ON      ALL_RAB.jpnum = norm_all.jpnum and pred.l_pred = ALL_RAB.l_pred "
- +" group by case when NORM_ALL.JPNUM is null then 3 else 2 end, "
- +"         nvl(pred.L_PRED, ALL_RAB.l_pred), "
- //+" --        PRED_D, "
+ +"                 on      NORM_ALL.JPNUM = ALL_RAB.JPNUM and PRED.L_PRED = ALL_RAB.L_PRED "
+ +" group by case when NORM_ALL.JPNUM is null then 99  else NORM_ALL.NOM end, "
+ +"         NVL(PRED.L_PRED, ALL_RAB.L_PRED), "
+ +"         nvl(PRED.pred_d, ALL_RAB.PRED_D), "
  +"         case when NORM_ALL.JPNUM is null then ''  else NORM_ALL.JPNUM end, "
  +"         case when NORM_ALL.JPNUM is null then 'Остальные работы (доля от общего объема трудозатрат менее 1)' else NORM_ALL.WO_D  end, "
  +"         case when NORM_ALL.JPNUM is null then TO_NUMBER('') else  NORM_ALL.NUMVALUE end, "
  +"         case when NORM_ALL.JPNUM is null then '' else NORM_ALL.MEASUREUNITID end "
-
  ;
 
 
 maximoDataSet.setQuery(sqlText);]]></method>
             <method name="fetch"><![CDATA[if (!maximoDataSet.fetch())
 	return (false);
+row["NOM"] = maximoDataSet.getString("NOM");	
 row["FLAG"] = maximoDataSet.getString("FLAG");
 row["L_PRED"] = maximoDataSet.getString("L_PRED");
 row["PRED_D"] = maximoDataSet.getString("PRED_D");
@@ -904,17 +919,33 @@ if (dataSetRow["FLAG"] == 2 || dataSetRow["FLAG"] == 3) this.text = "Норми�
                         </structure>
                     </list-property>
                 </structure>
+                <structure>
+                    <property name="name">NOM</property>
+                    <property name="displayName">NOM</property>
+                    <expression name="expression">dataSetRow["NOM"]</expression>
+                    <property name="dataType">integer</property>
+                </structure>
+                <structure>
+                    <property name="name">num</property>
+                    <property name="dataType">integer</property>
+                    <simple-property-list name="aggregateOn">
+                        <value>typewo</value>
+                    </simple-property-list>
+                    <property name="aggregateFunction">RUNNINGCOUNT</property>
+                    <list-property name="arguments">
+                        <structure>
+                            <property name="name">Expression</property>
+                        </structure>
+                    </list-property>
+                </structure>
             </list-property>
             <list-property name="sort">
                 <structure>
-                    <expression name="key">row["FLAG"]</expression>
+                    <expression name="key">row["NOM"]</expression>
                     <property name="direction">asc</property>
                 </structure>
-                <structure>
-                    <expression name="key">row["DOLIA"]</expression>
-                    <property name="direction">desc</property>
-                </structure>
             </list-property>
+            <column id="18080"/>
             <column id="17915">
                 <list-property name="visibility">
                     <structure>
@@ -939,6 +970,7 @@ if (dataSetRow["FLAG"] == 2 || dataSetRow["FLAG"] == 3) this.text = "Норми�
                     </structure>
                 </list-property>
             </column>
+            <column id="18172"/>
             <column id="17918"/>
             <column id="17919"/>
             <column id="17920"/>
@@ -952,6 +984,23 @@ if (dataSetRow["FLAG"] == 2 || dataSetRow["FLAG"] == 3) this.text = "Норми�
             <header>
                 <row id="17857">
                     <property name="backgroundColor">#C0C0C0</property>
+                    <cell id="18073">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <label id="18163">
+                            <text-property name="text">NOM</text-property>
+                        </label>
+                    </cell>
                     <cell id="17858">
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
@@ -1002,6 +1051,20 @@ if (dataSetRow["FLAG"] == 2 || dataSetRow["FLAG"] == 3) this.text = "Норми�
                         <label id="17863">
                             <text-property name="text">PRED_D</text-property>
                         </label>
+                    </cell>
+                    <cell id="18165">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
                     </cell>
                     <cell id="17864">
                         <property name="borderBottomColor">#000000</property>
@@ -1176,6 +1239,20 @@ if (dataSetRow["FLAG"] == 2 || dataSetRow["FLAG"] == 3) this.text = "Норми�
                 </row>
                 <row id="17972">
                     <property name="backgroundColor">#C0C0C0</property>
+                    <cell id="18074">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                    </cell>
                     <cell id="17973">
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
@@ -1205,6 +1282,20 @@ if (dataSetRow["FLAG"] == 2 || dataSetRow["FLAG"] == 3) this.text = "Норми�
                         <property name="borderTopWidth">thin</property>
                     </cell>
                     <cell id="17975">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                    </cell>
+                    <cell id="18166">
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
                         <property name="borderBottomWidth">thin</property>
@@ -1407,6 +1498,7 @@ if (dataSetRow["FLAG"] == 2 || dataSetRow["FLAG"] == 3) this.text = "Норми�
                     <row id="17927">
                         <property name="backgroundColor">#FFFF80</property>
                         <property name="fontWeight">bold</property>
+                        <cell id="18075"/>
                         <cell id="17928">
                             <data id="17951">
                                 <property name="resultSetColumn">L_PRED</property>
@@ -1414,6 +1506,20 @@ if (dataSetRow["FLAG"] == 2 || dataSetRow["FLAG"] == 3) this.text = "Норми�
                         </cell>
                         <cell id="17929"/>
                         <cell id="17930"/>
+                        <cell id="18167">
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">thin</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">thin</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">thin</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">thin</property>
+                        </cell>
                         <cell id="17931">
                             <property name="colSpan">3</property>
                             <property name="rowSpan">1</property>
@@ -1621,9 +1727,24 @@ else row["FLAG"];</expression>
                         <property name="backgroundColor">#80FFFF</property>
                         <property name="fontWeight">bold</property>
                         <property name="textAlign">right</property>
+                        <cell id="18076"/>
                         <cell id="18037"/>
                         <cell id="18038"/>
                         <cell id="18039"/>
+                        <cell id="18168">
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">thin</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">thin</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">thin</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">thin</property>
+                        </cell>
                         <cell id="18040">
                             <property name="colSpan">3</property>
                             <property name="rowSpan">1</property>
@@ -1809,9 +1930,24 @@ else row["FLAG"];</expression>
                                 <expression name="valueExpr">true</expression>
                             </structure>
                         </list-property>
+                        <cell id="18078"/>
                         <cell id="18017"/>
                         <cell id="18018"/>
                         <cell id="18019"/>
+                        <cell id="18170">
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">thin</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">thin</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">thin</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">thin</property>
+                        </cell>
                         <cell id="18020">
                             <property name="colSpan">3</property>
                             <property name="rowSpan">1</property>
@@ -1939,21 +2075,29 @@ else row["FLAG"];</expression>
                             <property name="operator">eq</property>
                             <property name="backgroundColor">#80FF80</property>
                             <property name="fontWeight">bold</property>
-                            <expression name="testExpr">row["FLAG"]</expression>
+                            <expression name="testExpr">row["NOM"]</expression>
                             <simple-property-list name="value1">
-                                <value>1</value>
-                            </simple-property-list>
-                        </structure>
-                        <structure>
-                            <property name="operator">eq</property>
-                            <property name="backgroundColor">#80FF80</property>
-                            <property name="fontWeight">bold</property>
-                            <expression name="testExpr">row["FLAG"]</expression>
-                            <simple-property-list name="value1">
-                                <value>3</value>
+                                <value>99</value>
                             </simple-property-list>
                         </structure>
                     </list-property>
+                    <cell id="18077">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <data id="18164">
+                            <property name="resultSetColumn">NOM</property>
+                        </data>
+                    </cell>
                     <cell id="17881">
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
@@ -2003,6 +2147,23 @@ else row["FLAG"];</expression>
                         <property name="borderTopWidth">thin</property>
                         <data id="17886">
                             <property name="resultSetColumn">PRED_D</property>
+                        </data>
+                    </cell>
+                    <cell id="18169">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <data id="18173">
+                            <property name="resultSetColumn">num</property>
                         </data>
                     </cell>
                     <cell id="17887">
@@ -2234,9 +2395,24 @@ else row["FLAG"];</expression>
                     <property name="backgroundColor">#C0C0C0</property>
                     <property name="fontWeight">bold</property>
                     <property name="textAlign">right</property>
+                    <cell id="18079"/>
                     <cell id="17904"/>
                     <cell id="17905"/>
                     <cell id="17906"/>
+                    <cell id="18171">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                    </cell>
                     <cell id="17907">
                         <property name="colSpan">3</property>
                         <property name="rowSpan">1</property>
