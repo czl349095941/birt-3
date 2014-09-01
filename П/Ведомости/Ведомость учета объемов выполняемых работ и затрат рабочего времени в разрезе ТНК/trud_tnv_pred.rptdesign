@@ -354,7 +354,7 @@ sqlText = ""
  +"         NONORM_ALL as "
  +"         (SELECT /*+ MATERIALIZE */ ROW_NUMBER() over (ORDER BY SUM(DOLIA) DESC)                                                                    nom, "
  +"                 CASE WHEN DOLIA < 0.01 THEN '100500' ELSE CLS END                                                               JPNUM, "
- +"                 CASE WHEN DOLIA < 0.01 THEN 'Остальные прочие работы (доля от общего объема трудозатрат менее 1)' ELSE WO_D END WO_D, "
+ +"                 CASE WHEN DOLIA < 0.01 THEN 'Остальные прочие работы (доля от общего объема трудозатрат менее 1%)' ELSE WO_D END WO_D, "
  +"                 TO_NUMBER('')                                                                                                   NUMVALUE, "
  +"                 ''                                                                                                              MEASUREUNITID, "
  +"                 SUM(CNT_WO)                                                                                                     CNT_WO, "
@@ -378,7 +378,7 @@ sqlText = ""
  +"                 GROUP BY B_NN.WO_D, "
  +"                         b_nn.cls "
  +"                 ) "
- +"         GROUP BY CASE WHEN DOLIA < 0.01 THEN 'Остальные прочие работы (доля от общего объема трудозатрат менее 1)' ELSE WO_D END, "
+ +"         GROUP BY CASE WHEN DOLIA < 0.01 THEN 'Остальные прочие работы (доля от общего объема трудозатрат менее 1%)' ELSE WO_D END, "
  +"                 CASE WHEN DOLIA  < 0.01 THEN '100500' ELSE CLS END "
  +"         ) "
  +"         , "
@@ -415,7 +415,7 @@ sqlText = ""
  +"         NORM_ALL as "
  +"         (SELECT /*+ MATERIALIZE */ ROW_NUMBER() over (ORDER BY SUM(DOLIA) DESC)                                                             nom, "
  +"                 CASE WHEN DOLIA < 0.01 THEN 'tk_dolia' ELSE jpnum END                                                    jpnum, "
- +"                 CASE WHEN DOLIA < 0.01 THEN 'Остальные работы (доля от общего объема трудозатрат менее 1)' ELSE WO_D END WO_D, "
+ +"                 CASE WHEN DOLIA < 0.01 THEN 'Остальные работы (доля от общего объема трудозатрат менее 1%)' ELSE WO_D END WO_D, "
  +"                 CASE WHEN DOLIA < 0.01 THEN TO_NUMBER('') ELSE NUMVALUE END                                              NUMVALUE, "
  +"                 CASE WHEN DOLIA < 0.01 THEN '' ELSE MEASUREUNITID END                                                    MEASUREUNITID, "
  +"                 SUM(CNT_WO)                                                                                              CNT_WO, "
@@ -447,14 +447,14 @@ sqlText = ""
  +"                         bn.MEASUREUNITID "
  +"                 ) "
  +"         GROUP BY CASE WHEN DOLIA < 0.01 THEN 'tk_dolia' ELSE jpnum END, "
- +"                 CASE WHEN DOLIA  < 0.01 THEN 'Остальные работы (доля от общего объема трудозатрат менее 1)' ELSE WO_D END, "
+ +"                 CASE WHEN DOLIA  < 0.01 THEN 'Остальные работы (доля от общего объема трудозатрат менее 1%)' ELSE WO_D END, "
  +"                 CASE WHEN DOLIA  < 0.01 THEN TO_NUMBER('') ELSE NUMVALUE END, "
  +"                 CASE WHEN DOLIA  < 0.01 THEN '' ELSE MEASUREUNITID END "
  +"         ) "
  +" SELECT  CASE WHEN NONORM_ALL.JPNUM = '100500' THEN 89 ELSE NONORM_ALL.NOM END nom, "
  +"         CASE WHEN NONORM_ALL.JPNUM = '100500' THEN 1 ELSE 0 END               FLAG, "
  +"         '01'                                                                  L_PRED, "
- +"         'ПЧ'                                                                  PRED_D, "
+ +"         (select description from maximo.locations where (siteid, location) in (select distinct siteid, l_pred from allwo))               	  PRED_D, "
  +"         jpnum, "
  +"         WO_D, "
  +"         NUMVALUE, "
@@ -472,7 +472,7 @@ sqlText = ""
  +" SELECT  CASE WHEN NORM_ALL.JPNUM = 'tk_dolia' THEN 99 ELSE NORM_ALL.NOM END nom, "
  +"         CASE WHEN NORM_ALL.JPNUM = 'tk_dolia' THEN 3 ELSE 2 END             FLAG, "
  +"         '01'                                                              L_PRED, "
- +"         'ПЧ'                                                              PRED_D, "
+ +"         (select description from maximo.locations where (siteid, location) in (select distinct siteid, l_pred from allwo))               	  PRED_D, "
  +"         jpnum, "
  +"         WO_D, "
  +"         NUMVALUE, "
@@ -492,7 +492,7 @@ sqlText = ""
  +"         NVL(PRED.L_PRED, a_rab.L_PRED)                                                                                                         L_PRED, "
  +"         NVL(PRED.PRED_D, A_RAB.PRED_D)                                                                                                         PRED_D, "
  +"         CASE WHEN NONORM_ALL.jpnum IS NULL THEN '' ELSE NONORM_ALL.jpnum END                                                                   jpnum, "
- +"         CASE WHEN NONORM_ALL.jpnum IS NULL THEN 'Остальные прочие работы (доля от общего объема трудозатрат менее 1)' ELSE NONORM_ALL.WO_D END WO_D, "
+ +"         CASE WHEN NONORM_ALL.jpnum IS NULL THEN 'Остальные прочие работы (доля от общего объема трудозатрат менее 1%)' ELSE NONORM_ALL.WO_D END WO_D, "
  +"         TO_NUMBER('')                                                                                                                          NUMVALUE, "
  +"         ''                                                                                                                                     MEASUREUNITID, "
  +"         SUM(CNT_WO)                                                                                                                            CNT_WO, "
@@ -535,7 +535,7 @@ sqlText = ""
  +"         CASE WHEN nonorm_all.jpnum  IS NULL THEN 1 ELSE 0 END, "
  +"         NVL(PRED.L_PRED, a_rab.L_PRED), "
  +"         NVL(PRED.PRED_D, A_RAB.PRED_D), "
- +"         CASE WHEN NONORM_ALL.JPNUM IS NULL THEN 'Остальные прочие работы (доля от общего объема трудозатрат менее 1)' ELSE NONORM_ALL.WO_D END, "
+ +"         CASE WHEN NONORM_ALL.JPNUM IS NULL THEN 'Остальные прочие работы (доля от общего объема трудозатрат менее 1%)' ELSE NONORM_ALL.WO_D END, "
  +"         CASE WHEN NONORM_ALL.jpnum IS NULL THEN '' ELSE NONORM_ALL.jpnum END "
  +"  "
  +" UNION ALL "
@@ -545,7 +545,7 @@ sqlText = ""
  +"         NVL(PRED.L_PRED, ALL_RAB.L_PRED)                                                                                            L_PRED, "
  +"         NVL(PRED.pred_d, ALL_RAB.PRED_D)                                                                                            PRED_D, "
  +"         CASE WHEN NORM_ALL.JPNUM IS NULL THEN '' ELSE NORM_ALL.JPNUM END                                                            JPNUM, "
- +"         CASE WHEN NORM_ALL.JPNUM IS NULL THEN 'Остальные работы (доля от общего объема трудозатрат менее 1)' ELSE NORM_ALL.WO_D END WO_D, "
+ +"         CASE WHEN NORM_ALL.JPNUM IS NULL THEN 'Остальные работы (доля от общего объема трудозатрат менее 1%)' ELSE NORM_ALL.WO_D END WO_D, "
  +"         CASE WHEN NORM_ALL.JPNUM IS NULL THEN TO_NUMBER('') ELSE NORM_ALL.NUMVALUE END                                              NUMVALUE, "
  +"         CASE WHEN norm_all.JPNUM IS NULL THEN '' ELSE norm_all.MEASUREUNITID END                                                    MEASUREUNITID, "
  +"         SUM(ALL_RAB.CNT_WO)                                                                                                         CNT_WO, "
@@ -584,7 +584,7 @@ sqlText = ""
  +"         NVL(PRED.L_PRED, ALL_RAB.L_PRED), "
  +"         NVL(PRED.pred_d, ALL_RAB.PRED_D), "
  +"         CASE WHEN NORM_ALL.JPNUM IS NULL THEN '' ELSE NORM_ALL.JPNUM END, "
- +"         CASE WHEN NORM_ALL.JPNUM IS NULL THEN 'Остальные работы (доля от общего объема трудозатрат менее 1)' ELSE NORM_ALL.WO_D END, "
+ +"         CASE WHEN NORM_ALL.JPNUM IS NULL THEN 'Остальные работы (доля от общего объема трудозатрат менее 1%)' ELSE NORM_ALL.WO_D END, "
  +"         CASE WHEN NORM_ALL.JPNUM IS NULL THEN TO_NUMBER('') ELSE NORM_ALL.NUMVALUE END, "
  +"         CASE WHEN NORM_ALL.JPNUM IS NULL THEN '' ELSE NORM_ALL.MEASUREUNITID END "
  ;
@@ -835,7 +835,7 @@ return (true);]]></method>
                 <structure>
                     <property name="name">PRED_D</property>
                     <property name="displayName">PRED_D</property>
-                    <expression name="expression">dataSetRow["PRED_D"]</expression>
+                    <expression name="expression">dataSetRow["PRED_D"].replace(/(\d|\D){1,},/,"")</expression>
                     <property name="dataType">string</property>
                 </structure>
                 <structure>
@@ -1943,7 +1943,7 @@ else row["FLAG"];</expression>
                 <property name="pageBreakInside">auto</property>
                 <header>
                     <row id="18036">
-                        <property name="backgroundColor">#80FFFF</property>
+                        <property name="backgroundColor">#CCFFFF</property>
                         <property name="fontWeight">bold</property>
                         <property name="textAlign">right</property>
                         <cell id="18076"/>
@@ -2641,6 +2641,12 @@ else row["FLAG"];</expression>
                     <property name="backgroundColor">#C0C0C0</property>
                     <property name="fontWeight">bold</property>
                     <property name="textAlign">right</property>
+                    <list-property name="visibility">
+                        <structure>
+                            <property name="format">all</property>
+                            <expression name="valueExpr">true</expression>
+                        </structure>
+                    </list-property>
                     <cell id="18079"/>
                     <cell id="17904"/>
                     <cell id="17905"/>

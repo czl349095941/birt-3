@@ -1,0 +1,2182 @@
+﻿﻿<?xml version="1.0" encoding="UTF-8"?>
+<report xmlns="http://www.eclipse.org/birt/2005/design" version="3.2.17" id="1">
+    <property name="createdBy">Eclipse BIRT Designer Version 2.3.2.r232_20090202 Build &lt;2.3.2.v20090218-0730></property>
+    <property name="units">in</property>
+    <property name="comments">IBM Confidential
+
+OCO Source Materials
+
+5724-M19
+
+(C) COPYRIGHT IBM CORP. 2006
+
+The source code for this program is not published or otherwise
+divested of its trade secrets, irrespective of what has been
+deposited with the U.S. Copyright Office.</property>
+    <html-property name="description">This template will create a report with one or more groups, each having identical data fields, and contains three styles of charts.</html-property>
+    <method name="initialize"><![CDATA[importPackage(Packages.com.ibm.tivoli.maximo.report.script);
+
+mxReportScriptContext = MXReportScriptContext.initialize(reportContext);]]></method>
+    <method name="afterFactory"><![CDATA[MXReportScriptContext.close();]]></method>
+    <property name="theme">MaximoSystemLibrary.maximoTheme</property>
+    <text-property name="displayName">Tivoli Maximo Grouped Chart Template</text-property>
+    <list-property name="libraries">
+        <structure>
+            <property name="fileName">MaximoSystemLibrary.rptlibrary</property>
+            <property name="namespace">MaximoSystemLibrary</property>
+        </structure>
+    </list-property>
+    <parameters>
+        <scalar-parameter name="where" id="25">
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="isRequired">false</property>
+            <property name="controlType">text-box</property>
+            <property name="defaultValue">1=1</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="appname" id="240">
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="isRequired">false</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="paramdelimiter" id="241">
+            <property name="hidden">true</property>
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="isRequired">false</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="paramstring" id="242">
+            <property name="hidden">true</property>
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="isRequired">false</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="userName" id="7480">
+            <property name="hidden">true</property>
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="paramType">simple</property>
+            <property name="isRequired">false</property>
+            <property name="controlType">text-box</property>
+            <property name="distinct">true</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="incidentId" id="7814">
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="paramType">simple</property>
+            <property name="isRequired">false</property>
+            <property name="controlType">text-box</property>
+            <property name="distinct">true</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+    </parameters>
+    <data-sources>
+        <script-data-source name="maximoDataSource" id="64" extends="MaximoSystemLibrary.maximoDataSource"/>
+    </data-sources>
+    <data-sets>
+        <script-data-set name="incident" id="368">
+            <list-property name="resultSetHints">
+                <structure>
+                    <property name="position">1</property>
+                    <property name="name">INCIDENTID</property>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="position">2</property>
+                    <property name="name">STATUS</property>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="position">3</property>
+                    <property name="name">REP</property>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="position">4</property>
+                    <property name="name">REPORTDATE</property>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="position">5</property>
+                    <property name="name">TARGETFINISH</property>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="position">6</property>
+                    <property name="name">CLASS_HOZ</property>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="position">7</property>
+                    <property name="name">CLASS_OBJ</property>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="position">8</property>
+                    <property name="name">CLASS_ELEM</property>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="position">9</property>
+                    <property name="name">CLASS_GROUP</property>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="position">10</property>
+                    <property name="name">CLASS_VID</property>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="position">11</property>
+                    <property name="name">SPEED</property>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="position">12</property>
+                    <property name="name">PLACE</property>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="position">13</property>
+                    <property name="name">PRIO</property>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="position">14</property>
+                    <property name="name">W_GROUP</property>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="position">15</property>
+                    <property name="name">PRIMECH</property>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="position">16</property>
+                    <property name="name">RESOLUTION</property>
+                    <property name="dataType">string</property>
+                </structure>
+            </list-property>
+            <list-property name="columnHints">
+                <structure>
+                    <property name="columnName">INCIDENTID</property>
+                </structure>
+                <structure>
+                    <property name="columnName">STATUS</property>
+                </structure>
+                <structure>
+                    <property name="columnName">REP</property>
+                </structure>
+                <structure>
+                    <property name="columnName">REPORTDATE</property>
+                </structure>
+                <structure>
+                    <property name="columnName">TARGETFINISH</property>
+                </structure>
+                <structure>
+                    <property name="columnName">CLASS_HOZ</property>
+                </structure>
+                <structure>
+                    <property name="columnName">CLASS_OBJ</property>
+                </structure>
+                <structure>
+                    <property name="columnName">CLASS_ELEM</property>
+                </structure>
+                <structure>
+                    <property name="columnName">CLASS_GROUP</property>
+                </structure>
+                <structure>
+                    <property name="columnName">CLASS_VID</property>
+                </structure>
+                <structure>
+                    <property name="columnName">SPEED</property>
+                </structure>
+                <structure>
+                    <property name="columnName">PLACE</property>
+                </structure>
+                <structure>
+                    <property name="columnName">PRIO</property>
+                </structure>
+                <structure>
+                    <property name="columnName">W_GROUP</property>
+                </structure>
+                <structure>
+                    <property name="columnName">PRIMECH</property>
+                </structure>
+                <structure>
+                    <property name="columnName">RESOLUTION</property>
+                </structure>
+            </list-property>
+            <structure name="cachedMetaData">
+                <list-property name="resultSet">
+                    <structure>
+                        <property name="position">1</property>
+                        <property name="name">INCIDENTID</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">2</property>
+                        <property name="name">STATUS</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">3</property>
+                        <property name="name">REP</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">4</property>
+                        <property name="name">REPORTDATE</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">5</property>
+                        <property name="name">TARGETFINISH</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">6</property>
+                        <property name="name">CLASS_HOZ</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">7</property>
+                        <property name="name">CLASS_OBJ</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">8</property>
+                        <property name="name">CLASS_ELEM</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">9</property>
+                        <property name="name">CLASS_GROUP</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">10</property>
+                        <property name="name">CLASS_VID</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">11</property>
+                        <property name="name">SPEED</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">12</property>
+                        <property name="name">PLACE</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">13</property>
+                        <property name="name">PRIO</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">14</property>
+                        <property name="name">W_GROUP</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">15</property>
+                        <property name="name">PRIMECH</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">16</property>
+                        <property name="name">RESOLUTION</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                </list-property>
+            </structure>
+            <property name="dataSource">maximoDataSource</property>
+            <method name="open"><![CDATA[maximoDataSet = MXReportDataSetProvider.create(this.getDataSource().getName(), this.getName());
+	maximoDataSet.open();
+	
+var sqlText = new String();
+var siteid = new String();
+
+siteid = " ( select distinct defsite from maximo.maxuser where loginid = '" + params["userName"] + "' )";
+//siteid = "61";
+
+var incidentId = new String(params["incidentId"].replace("=",""));
+
+sqlText = "select " 
++"  i.ticketid as incidentId "
++"  ,s.description as status "
++"  ,i.description "
++"  ,i.reportdate "
++"  ,i.targetfinish "
++"	,i.PRIMECH "
++"	,i.RESOLUTION "
++"  ,pr.description as class_hoz "
++"  ,o.description as class_obj "
++"  ,e.description as class_elem "
++"  ,g.description as class_group "
++"  ,v.description as class_vid "
++"  ,nvl(sp.speed,'Не установлено') as speed "
++"  ,case pl_s.assetattrid "
++"    when 'TIP_RAZMST' then 'Станция ' "
++"    when 'TIP_RAZM_MSP' then 'Перегон ' "
++"   end || pl.description as place "
++"  ,pri.description as prio "
++"  ,podr.description as w_group " 
++"from MAXIMO.incident I "
++"  left join MAXIMO.classstructure PR on (i.h = pR.classstructureid) "
++"  left join maximo.locations PL "
++"    left   join MAXIMO.locationspec PL_S on pl_s.location = pl.location and pl_s.siteid = pl.siteid   and pl_s.assetattrid in ('TIP_RAZMST','TIP_RAZM_MSP') "
++"  on (pl.location = i.location and pl.siteid = i.siteid) "
++"  left join MAXIMO.classstructure O on (o.classstructureid = i.classid_object ) "
++"  left join MAXIMO.classstructure e on (e.classstructureid = i.classid_element ) "
++"  left join MAXIMO.classstructure g on (g.classstructureid = i.classid_group ) "
++"  left join MAXIMO.classstructure v on (v.classstructureid = i.classidmain ) "
++"  left join maximo.rzd_incspec sp on (sp.CLASSSTRUCTUREID=i.classidmain and (i.norm>=sp.min and i.norm <= sp.max) )"
++"  left join MAXIMO.numericdomain pri on (pri.value = i.inc_priority and  pri.domainid = 'NSI_INC_PRIORITY') "
++"  left join MAXIMO.locations podr on (podr.location = i.podr and podr.siteid = i.siteid) "
++"  left join MAXIMO.synonymdomain s on (s.value = i.status and s.domainid = 'INCIDENTSTATUS') "
++"where " 
++"  i.ticketid = '"+incidentId+"' "
++"  and "
+
++"  i.siteid = " + siteid;
+
+maximoDataSet.setQuery(sqlText);]]></method>
+            <method name="fetch"><![CDATA[if (!maximoDataSet.fetch())
+     return (false);
+
+row["INCIDENTID"] = maximoDataSet.getString("INCIDENTID");
+row["STATUS"] = maximoDataSet.getString("STATUS");
+row["DESCRIPTION"] = maximoDataSet.getString("DESCRIPTION");
+row["REPORTDATE"] = maximoDataSet.getString("REPORTDATE");
+row["TARGETFINISH"] = maximoDataSet.getString("TARGETFINISH");
+row["CLASS_HOZ"] = maximoDataSet.getString("CLASS_HOZ");
+row["CLASS_OBJ"] = maximoDataSet.getString("CLASS_OBJ");
+row["CLASS_ELEM"] = maximoDataSet.getString("CLASS_ELEM");
+row["CLASS_GROUP"] = maximoDataSet.getString("CLASS_GROUP");
+row["CLASS_VID"] = maximoDataSet.getString("CLASS_VID");
+row["SPEED"] = maximoDataSet.getString("SPEED");
+row["PLACE"] = maximoDataSet.getString("PLACE");
+row["PRIO"] = maximoDataSet.getString("PRIO");
+row["W_GROUP"] = maximoDataSet.getString("W_GROUP");
+row["PRIMECH"] = maximoDataSet.getString("PRIMECH");
+row["RESOLUTION"] = maximoDataSet.getString("RESOLUTION");
+  
+return (true);]]></method>
+        </script-data-set>
+        <script-data-set name="workOrder" id="7817">
+            <list-property name="resultSetHints">
+                <structure>
+                    <property name="position">1</property>
+                    <property name="name">WORDERID</property>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="position">2</property>
+                    <property name="name">STATUS</property>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="position">3</property>
+                    <property name="name">BEGINDATE</property>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="position">4</property>
+                    <property name="name">ENDDATE</property>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="position">5</property>
+                    <property name="name">MSTR</property>
+                    <property name="dataType">string</property>
+                </structure>
+            </list-property>
+            <list-property name="columnHints">
+                <structure>
+                    <property name="columnName">WORDERID</property>
+                </structure>
+                <structure>
+                    <property name="columnName">STATUS</property>
+                </structure>
+                <structure>
+                    <property name="columnName">BEGINDATE</property>
+                </structure>
+                <structure>
+                    <property name="columnName">ENDDATE</property>
+                </structure>
+                <structure>
+                    <property name="columnName">MSTR</property>
+                </structure>
+            </list-property>
+            <structure name="cachedMetaData">
+                <list-property name="resultSet">
+                    <structure>
+                        <property name="position">1</property>
+                        <property name="name">WORDERID</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">2</property>
+                        <property name="name">STATUS</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">3</property>
+                        <property name="name">BEGINDATE</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">4</property>
+                        <property name="name">ENDDATE</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">5</property>
+                        <property name="name">MSTR</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                </list-property>
+            </structure>
+            <property name="dataSource">maximoDataSource</property>
+            <method name="open"><![CDATA[maximoDataSet = MXReportDataSetProvider.create(this.getDataSource().getName(), this.getName());
+	maximoDataSet.open();
+
+var sqlText = new String();
+var siteid = new String();
+var incidentId = new String(params["incidentId"].replace("=",""));
+siteid = " ( select distinct defsite from maximo.maxuser where loginid = '" + params["userName"] + "' )";
+//siteid = "24"
+
+sqlText = "select "
++"  w.wonum as worderId "
++"  ,s.description as status "
++"  ,w.actstart as beginDate "
++"  ,w.actfinish as endDate "
++"  ,nvl(p.displayname,' ') as mstr "
++"from MAXIMO.relatedrecord R "
++"  left join MAXIMO.workorder W " 
++"    left join MAXIMO.person P on (p.personid = w.supervisor and p.locationsite = w.siteid ) "
++"  on (r.relatedreckey = w.wonum) "
++"  join MAXIMO.synonymdomain s on (w.status = s.value) "
++"where " 
++"  r.recordkey = '"+incidentId+"' and R.class = 'ИНЦИДЕНТ' and R.relatedrecclass = 'РАБОЧЕЕЗАДАНИЕ' "
++"  and "
++"  w.siteid = "+siteid
++"  and "
++"  s.domainid = 'WOSTATUS' ";
+
+maximoDataSet.setQuery(sqlText);]]></method>
+            <method name="fetch"><![CDATA[if (!maximoDataSet.fetch())
+	   return (false);
+
+row["WORDERID"] = maximoDataSet.getString("WORDERID");
+row["STATUS"] = maximoDataSet.getString("STATUS");
+row["BEGINDATE"] = maximoDataSet.getString("BEGINDATE");
+row["ENDDATE"] = maximoDataSet.getString("ENDDATE");
+row["MSTR"] = maximoDataSet.getString("MSTR");
+
+return (true);]]></method>
+        </script-data-set>
+        <script-data-set name="assets" id="7885">
+            <list-property name="resultSetHints">
+                <structure>
+                    <property name="position">1</property>
+                    <property name="name">ASSETNUM</property>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="position">2</property>
+                    <property name="name">DESCRIPTION</property>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="position">3</property>
+                    <property name="name">ENDMEASURE</property>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="position">4</property>
+                    <property name="name">STARTMEASURE</property>
+                    <property name="dataType">string</property>
+                </structure>
+            </list-property>
+            <list-property name="columnHints">
+                <structure>
+                    <property name="columnName">ASSETNUM</property>
+                </structure>
+                <structure>
+                    <property name="columnName">DESCRIPTION</property>
+                </structure>
+                <structure>
+                    <property name="columnName">ENDMEASURE</property>
+                </structure>
+                <structure>
+                    <property name="columnName">STARTMEASURE</property>
+                </structure>
+            </list-property>
+            <structure name="cachedMetaData">
+                <list-property name="resultSet">
+                    <structure>
+                        <property name="position">1</property>
+                        <property name="name">ASSETNUM</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">2</property>
+                        <property name="name">DESCRIPTION</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">3</property>
+                        <property name="name">ENDMEASURE</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">4</property>
+                        <property name="name">STARTMEASURE</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                </list-property>
+            </structure>
+            <property name="dataSource">maximoDataSource</property>
+            <method name="open"><![CDATA[maximoDataSet = MXReportDataSetProvider.create(this.getDataSource().getName(), this.getName());
+	maximoDataSet.open();
+
+var siteid = new String();
+var incidentId = new String(params["incidentId"].replace("=",""));
+
+siteid = " ( select distinct defsite from maximo.maxuser where loginid = '" + params["userName"] + "' )";
+//siteid = "24";
+
+var sqlText = new String();
+
+sqlText = "select " 
++"  a.assetnum "
++"  ,a.description "
++"  ,ma.endmeasure "
++"  ,ma.startmeasure "
++"from MAXIMO.multiassetlocci MA "
++"  join MAXIMO.asset A on (ma.assetnum = a.assetnum and ma.siteid = a.siteid) "
++"where "
++"  ma.recordkey = '"+incidentId+"' and ma.recordclass = 'ИНЦИДЕНТ' and ma.assetnum is not null "
++"  and "
++"  ma.siteid = "+siteid;
+
+maximoDataSet.setQuery(sqlText);]]></method>
+            <method name="fetch"><![CDATA[if (!maximoDataSet.fetch())
+	   return (false);
+	row["ASSETNUM"] = maximoDataSet.getString("ASSETNUM");
+	row["DESCRIPTION"] = maximoDataSet.getString("DESCRIPTION");
+	row["ENDMEASURE"] = maximoDataSet.getString("ENDMEASURE");
+	row["STARTMEASURE"] = maximoDataSet.getString("STARTMEASURE");
+	return (true);]]></method>
+        </script-data-set>
+    </data-sets>
+    <styles>
+        <style name="NewStyle" id="583">
+            <property name="borderBottomStyle">solid</property>
+            <property name="borderBottomWidth">thin</property>
+            <property name="borderLeftStyle">solid</property>
+            <property name="borderLeftWidth">thin</property>
+            <property name="borderRightStyle">solid</property>
+            <property name="borderRightWidth">thin</property>
+            <property name="borderTopStyle">solid</property>
+            <property name="borderTopWidth">thin</property>
+            <property name="textAlign">center</property>
+        </style>
+    </styles>
+    <page-setup>
+        <simple-master-page name="maximoLandscape" id="47" extends="MaximoSystemLibrary.maximoLandscape">
+            <property name="type">a4</property>
+            <overridden-values>
+                <ref-entry baseId="304" name="NewGrid2" id="304"/>
+                <ref-entry baseId="305" id="305"/>
+                <ref-entry baseId="306" id="306"/>
+                <ref-entry baseId="307" id="307"/>
+                <ref-entry baseId="308" id="308"/>
+                <ref-entry baseId="340" name="NewImage1" id="340">
+                    <property name="source">file</property>
+                    <expression name="uri">"IBM_logo_Black.gif"</expression>
+                    <property name="height">1px</property>
+                    <property name="width">3px</property>
+                </ref-entry>
+                <ref-entry baseId="309" id="309"/>
+                <ref-entry baseId="310" name="NewImage" id="310">
+                    <property name="height">1px</property>
+                    <property name="width">1px</property>
+                </ref-entry>
+                <ref-entry baseId="322" name="NewGrid" id="322"/>
+                <ref-entry baseId="323" id="323"/>
+                <ref-entry baseId="324" id="324"/>
+                <ref-entry baseId="325" id="325"/>
+                <ref-entry baseId="326" id="326"/>
+                <ref-entry baseId="328" name="NewText" id="328"/>
+                <ref-entry baseId="327" id="327"/>
+                <ref-entry baseId="329" name="NewGrid1" id="329"/>
+                <ref-entry baseId="330" id="330"/>
+                <ref-entry baseId="331" id="331"/>
+                <ref-entry baseId="332" id="332"/>
+                <ref-entry baseId="333" id="333"/>
+                <ref-entry baseId="334" id="334"/>
+                <ref-entry baseId="335" name="NewAutoText" id="335"/>
+                <ref-entry baseId="336" id="336"/>
+                <ref-entry baseId="337" name="NewText1" id="337"/>
+                <ref-entry baseId="338" id="338"/>
+                <ref-entry baseId="339" name="NewAutoText1" id="339"/>
+            </overridden-values>
+        </simple-master-page>
+    </page-setup>
+    <body>
+        <label id="8389">
+            <property name="fontSize">16pt</property>
+            <property name="fontWeight">bold</property>
+            <property name="marginTop">10pt</property>
+            <property name="paddingTop">1pt</property>
+            <property name="textAlign">center</property>
+            <text-property name="text">Карточка инцидента</text-property>
+        </label>
+        <label id="8227">
+            <property name="backgroundColor">#8BCBF5</property>
+            <property name="fontSize">12pt</property>
+            <property name="fontWeight">bold</property>
+            <property name="textUnderline">none</property>
+            <property name="borderBottomColor">#000000</property>
+            <property name="borderBottomStyle">solid</property>
+            <property name="borderBottomWidth">2px</property>
+            <property name="borderLeftColor">#000000</property>
+            <property name="borderLeftStyle">solid</property>
+            <property name="borderLeftWidth">2px</property>
+            <property name="borderRightColor">#000000</property>
+            <property name="borderRightStyle">solid</property>
+            <property name="borderRightWidth">2px</property>
+            <property name="borderTopColor">#000000</property>
+            <property name="borderTopStyle">solid</property>
+            <property name="borderTopWidth">2px</property>
+            <property name="marginTop">10pt</property>
+            <property name="marginLeft">5pt</property>
+            <property name="marginRight">5pt</property>
+            <property name="paddingTop">1pt</property>
+            <property name="paddingLeft">100pt</property>
+            <property name="textAlign">left</property>
+            <text-property name="text">Инцидент</text-property>
+        </label>
+        <grid id="8231">
+            <property name="marginTop">10pt</property>
+            <property name="marginLeft">5pt</property>
+            <property name="marginRight">5pt</property>
+            <property name="width">99%</property>
+            <column id="8260">
+                <property name="width">60mm</property>
+                <property name="textAlign">right</property>
+            </column>
+            <column id="8232">
+                <property name="width">70mm</property>
+            </column>
+            <column id="8233">
+                <property name="width">40mm</property>
+                <property name="textAlign">left</property>
+            </column>
+            <column id="8234"/>
+            <row id="8302">
+                <cell id="8303">
+                    <property name="colSpan">2</property>
+                    <property name="rowSpan">1</property>
+                    <property name="fontSize">small</property>
+                    <property name="borderBottomColor">#000000</property>
+                    <property name="borderBottomStyle">solid</property>
+                    <property name="borderBottomWidth">1px</property>
+                    <property name="borderLeftColor">#000000</property>
+                    <property name="borderLeftStyle">solid</property>
+                    <property name="borderLeftWidth">1px</property>
+                    <property name="borderRightColor">#000000</property>
+                    <property name="borderRightStyle">solid</property>
+                    <property name="borderRightWidth">1px</property>
+                    <property name="borderTopColor">#000000</property>
+                    <property name="borderTopStyle">solid</property>
+                    <property name="borderTopWidth">1px</property>
+                    <label id="8308">
+                        <property name="fontWeight">bold</property>
+                        <property name="marginTop">0pt</property>
+                        <property name="paddingLeft">50pt</property>
+                        <property name="textAlign">left</property>
+                        <text-property name="text">Информация по инциденту</text-property>
+                    </label>
+                </cell>
+                <cell id="8305">
+                    <property name="colSpan">2</property>
+                    <property name="rowSpan">1</property>
+                    <property name="fontSize">small</property>
+                    <property name="borderBottomColor">#000000</property>
+                    <property name="borderBottomStyle">solid</property>
+                    <property name="borderBottomWidth">1px</property>
+                    <property name="borderLeftColor">#000000</property>
+                    <property name="borderLeftStyle">solid</property>
+                    <property name="borderLeftWidth">1px</property>
+                    <property name="borderRightColor">#000000</property>
+                    <property name="borderRightStyle">solid</property>
+                    <property name="borderRightWidth">1px</property>
+                    <property name="borderTopColor">#000000</property>
+                    <property name="borderTopStyle">solid</property>
+                    <property name="borderTopWidth">1px</property>
+                    <label id="8307">
+                        <property name="fontWeight">bold</property>
+                        <property name="paddingLeft">50pt</property>
+                        <property name="textAlign">left</property>
+                        <text-property name="text">Описание неисправности</text-property>
+                    </label>
+                </cell>
+            </row>
+            <row id="8235">
+                <cell id="8256">
+                    <property name="fontSize">small</property>
+                    <property name="borderBottomColor">#000000</property>
+                    <property name="borderBottomStyle">solid</property>
+                    <property name="borderBottomWidth">1px</property>
+                    <property name="borderLeftColor">#000000</property>
+                    <property name="borderLeftStyle">solid</property>
+                    <property name="borderLeftWidth">1px</property>
+                    <property name="borderRightColor">#000000</property>
+                    <property name="borderRightStyle">solid</property>
+                    <property name="borderRightWidth">1px</property>
+                    <property name="borderTopColor">#000000</property>
+                    <property name="borderTopStyle">solid</property>
+                    <property name="borderTopWidth">1px</property>
+                    <label id="8261">
+                        <property name="paddingLeft">20pt</property>
+                        <property name="paddingRight">1pt</property>
+                        <property name="textAlign">left</property>
+                        <text-property name="text">Номер инцидента:</text-property>
+                    </label>
+                </cell>
+                <cell id="8236">
+                    <property name="fontSize">small</property>
+                    <property name="borderBottomColor">#000000</property>
+                    <property name="borderBottomStyle">solid</property>
+                    <property name="borderBottomWidth">1px</property>
+                    <property name="borderLeftColor">#000000</property>
+                    <property name="borderLeftStyle">solid</property>
+                    <property name="borderLeftWidth">1px</property>
+                    <property name="borderRightColor">#000000</property>
+                    <property name="borderRightStyle">solid</property>
+                    <property name="borderRightWidth">1px</property>
+                    <property name="borderTopColor">#000000</property>
+                    <property name="borderTopStyle">solid</property>
+                    <property name="borderTopWidth">1px</property>
+                    <data id="8248">
+                        <property name="paddingLeft">5pt</property>
+                        <property name="widows">inherit</property>
+                        <property name="dataSet">incident</property>
+                        <list-property name="boundDataColumns">
+                            <structure>
+                                <property name="name">INCIDENTID</property>
+                                <property name="displayName">INCIDENTID</property>
+                                <expression name="expression">dataSetRow["INCIDENTID"]</expression>
+                                <property name="dataType">string</property>
+                            </structure>
+                        </list-property>
+                        <property name="resultSetColumn">INCIDENTID</property>
+                    </data>
+                </cell>
+                <cell id="8237">
+                    <property name="fontSize">small</property>
+                    <property name="borderBottomColor">#000000</property>
+                    <property name="borderBottomStyle">solid</property>
+                    <property name="borderBottomWidth">1px</property>
+                    <property name="borderLeftColor">#000000</property>
+                    <property name="borderLeftStyle">solid</property>
+                    <property name="borderLeftWidth">1px</property>
+                    <property name="borderRightColor">#000000</property>
+                    <property name="borderRightStyle">solid</property>
+                    <property name="borderRightWidth">1px</property>
+                    <property name="borderTopColor">#000000</property>
+                    <property name="borderTopStyle">solid</property>
+                    <property name="borderTopWidth">1px</property>
+                    <label id="8265">
+                        <property name="paddingLeft">20pt</property>
+                        <property name="paddingRight">1pt</property>
+                        <text-property name="text">Хозяйство:</text-property>
+                    </label>
+                </cell>
+                <cell id="8238">
+                    <property name="fontSize">small</property>
+                    <property name="borderBottomColor">#000000</property>
+                    <property name="borderBottomStyle">solid</property>
+                    <property name="borderBottomWidth">1px</property>
+                    <property name="borderLeftColor">#000000</property>
+                    <property name="borderLeftStyle">solid</property>
+                    <property name="borderLeftWidth">1px</property>
+                    <property name="borderRightColor">#000000</property>
+                    <property name="borderRightStyle">solid</property>
+                    <property name="borderRightWidth">1px</property>
+                    <property name="borderTopColor">#000000</property>
+                    <property name="borderTopStyle">solid</property>
+                    <property name="borderTopWidth">1px</property>
+                    <data id="8297">
+                        <property name="paddingLeft">5pt</property>
+                        <property name="dataSet">incident</property>
+                        <list-property name="boundDataColumns">
+                            <structure>
+                                <property name="name">CLASS_HOZ</property>
+                                <property name="displayName">CLASS_HOZ</property>
+                                <expression name="expression">dataSetRow["CLASS_HOZ"]</expression>
+                                <property name="dataType">string</property>
+                            </structure>
+                        </list-property>
+                        <property name="resultSetColumn">CLASS_HOZ</property>
+                    </data>
+                </cell>
+            </row>
+            <row id="8239">
+                <cell id="8257">
+                    <property name="fontSize">small</property>
+                    <property name="borderBottomColor">#000000</property>
+                    <property name="borderBottomStyle">solid</property>
+                    <property name="borderBottomWidth">1px</property>
+                    <property name="borderLeftColor">#000000</property>
+                    <property name="borderLeftStyle">solid</property>
+                    <property name="borderLeftWidth">1px</property>
+                    <property name="borderRightColor">#000000</property>
+                    <property name="borderRightStyle">solid</property>
+                    <property name="borderRightWidth">1px</property>
+                    <property name="borderTopColor">#000000</property>
+                    <property name="borderTopStyle">solid</property>
+                    <property name="borderTopWidth">1px</property>
+                    <label id="8262">
+                        <property name="paddingLeft">20pt</property>
+                        <property name="paddingRight">1pt</property>
+                        <property name="textAlign">left</property>
+                        <text-property name="text">Статус:</text-property>
+                    </label>
+                </cell>
+                <cell id="8240">
+                    <property name="fontSize">small</property>
+                    <property name="borderBottomColor">#000000</property>
+                    <property name="borderBottomStyle">solid</property>
+                    <property name="borderBottomWidth">1px</property>
+                    <property name="borderLeftColor">#000000</property>
+                    <property name="borderLeftStyle">solid</property>
+                    <property name="borderLeftWidth">1px</property>
+                    <property name="borderRightColor">#000000</property>
+                    <property name="borderRightStyle">solid</property>
+                    <property name="borderRightWidth">1px</property>
+                    <property name="borderTopColor">#000000</property>
+                    <property name="borderTopStyle">solid</property>
+                    <property name="borderTopWidth">1px</property>
+                    <property name="paddingLeft">1pt</property>
+                    <data id="8249">
+                        <property name="paddingLeft">5pt</property>
+                        <property name="dataSet">incident</property>
+                        <list-property name="boundDataColumns">
+                            <structure>
+                                <property name="name">STATUS</property>
+                                <property name="displayName">STATUS</property>
+                                <expression name="expression">dataSetRow["STATUS"]</expression>
+                                <property name="dataType">string</property>
+                            </structure>
+                        </list-property>
+                        <property name="resultSetColumn">STATUS</property>
+                    </data>
+                </cell>
+                <cell id="8241">
+                    <property name="fontSize">small</property>
+                    <property name="borderBottomColor">#000000</property>
+                    <property name="borderBottomStyle">solid</property>
+                    <property name="borderBottomWidth">1px</property>
+                    <property name="borderLeftColor">#000000</property>
+                    <property name="borderLeftStyle">solid</property>
+                    <property name="borderLeftWidth">1px</property>
+                    <property name="borderRightColor">#000000</property>
+                    <property name="borderRightStyle">solid</property>
+                    <property name="borderRightWidth">1px</property>
+                    <property name="borderTopColor">#000000</property>
+                    <property name="borderTopStyle">solid</property>
+                    <property name="borderTopWidth">1px</property>
+                    <label id="8266">
+                        <property name="paddingLeft">20pt</property>
+                        <property name="paddingRight">1pt</property>
+                        <text-property name="text">Объект:</text-property>
+                    </label>
+                </cell>
+                <cell id="8242">
+                    <property name="fontSize">small</property>
+                    <property name="borderBottomColor">#000000</property>
+                    <property name="borderBottomStyle">solid</property>
+                    <property name="borderBottomWidth">1px</property>
+                    <property name="borderLeftColor">#000000</property>
+                    <property name="borderLeftStyle">solid</property>
+                    <property name="borderLeftWidth">1px</property>
+                    <property name="borderRightColor">#000000</property>
+                    <property name="borderRightStyle">solid</property>
+                    <property name="borderRightWidth">1px</property>
+                    <property name="borderTopColor">#000000</property>
+                    <property name="borderTopStyle">solid</property>
+                    <property name="borderTopWidth">1px</property>
+                    <data id="8298">
+                        <property name="paddingLeft">5pt</property>
+                        <property name="dataSet">incident</property>
+                        <list-property name="boundDataColumns">
+                            <structure>
+                                <property name="name">CLASS_OBJ</property>
+                                <property name="displayName">CLASS_OBJ</property>
+                                <expression name="expression">dataSetRow["CLASS_OBJ"]</expression>
+                                <property name="dataType">string</property>
+                            </structure>
+                        </list-property>
+                        <property name="resultSetColumn">CLASS_OBJ</property>
+                    </data>
+                </cell>
+            </row>
+            <row id="8243">
+                <cell id="8258">
+                    <property name="fontSize">small</property>
+                    <property name="borderBottomColor">#000000</property>
+                    <property name="borderBottomStyle">solid</property>
+                    <property name="borderBottomWidth">1px</property>
+                    <property name="borderLeftColor">#000000</property>
+                    <property name="borderLeftStyle">solid</property>
+                    <property name="borderLeftWidth">1px</property>
+                    <property name="borderRightColor">#000000</property>
+                    <property name="borderRightStyle">solid</property>
+                    <property name="borderRightWidth">1px</property>
+                    <property name="borderTopColor">#000000</property>
+                    <property name="borderTopStyle">solid</property>
+                    <property name="borderTopWidth">1px</property>
+                    <label id="8263">
+                        <property name="paddingLeft">20pt</property>
+                        <property name="paddingRight">1pt</property>
+                        <property name="textAlign">left</property>
+                        <text-property name="text">Дата возникновения:</text-property>
+                    </label>
+                </cell>
+                <cell id="8244">
+                    <property name="fontSize">small</property>
+                    <property name="borderBottomColor">#000000</property>
+                    <property name="borderBottomStyle">solid</property>
+                    <property name="borderBottomWidth">1px</property>
+                    <property name="borderLeftColor">#000000</property>
+                    <property name="borderLeftStyle">solid</property>
+                    <property name="borderLeftWidth">1px</property>
+                    <property name="borderRightColor">#000000</property>
+                    <property name="borderRightStyle">solid</property>
+                    <property name="borderRightWidth">1px</property>
+                    <property name="borderTopColor">#000000</property>
+                    <property name="borderTopStyle">solid</property>
+                    <property name="borderTopWidth">1px</property>
+                    <data id="8250">
+                        <property name="paddingLeft">5pt</property>
+                        <property name="dataSet">incident</property>
+                        <list-property name="boundDataColumns">
+                            <structure>
+                                <property name="name">REPORTDATE</property>
+                                <property name="displayName">REPORTDATE</property>
+                                <expression name="expression">dataSetRow["REPORTDATE"]</expression>
+                                <property name="dataType">date-time</property>
+                            </structure>
+                        </list-property>
+                        <property name="resultSetColumn">REPORTDATE</property>
+                    </data>
+                </cell>
+                <cell id="8245">
+                    <property name="fontSize">small</property>
+                    <property name="borderBottomColor">#000000</property>
+                    <property name="borderBottomStyle">solid</property>
+                    <property name="borderBottomWidth">1px</property>
+                    <property name="borderLeftColor">#000000</property>
+                    <property name="borderLeftStyle">solid</property>
+                    <property name="borderLeftWidth">1px</property>
+                    <property name="borderRightColor">#000000</property>
+                    <property name="borderRightStyle">solid</property>
+                    <property name="borderRightWidth">1px</property>
+                    <property name="borderTopColor">#000000</property>
+                    <property name="borderTopStyle">solid</property>
+                    <property name="borderTopWidth">1px</property>
+                    <label id="8267">
+                        <property name="paddingLeft">20pt</property>
+                        <property name="paddingRight">1pt</property>
+                        <text-property name="text">Элемент:</text-property>
+                    </label>
+                </cell>
+                <cell id="8246">
+                    <property name="fontSize">small</property>
+                    <property name="borderBottomColor">#000000</property>
+                    <property name="borderBottomStyle">solid</property>
+                    <property name="borderBottomWidth">1px</property>
+                    <property name="borderLeftColor">#000000</property>
+                    <property name="borderLeftStyle">solid</property>
+                    <property name="borderLeftWidth">1px</property>
+                    <property name="borderRightColor">#000000</property>
+                    <property name="borderRightStyle">solid</property>
+                    <property name="borderRightWidth">1px</property>
+                    <property name="borderTopColor">#000000</property>
+                    <property name="borderTopStyle">solid</property>
+                    <property name="borderTopWidth">1px</property>
+                    <data id="8299">
+                        <property name="paddingLeft">5pt</property>
+                        <property name="dataSet">incident</property>
+                        <list-property name="boundDataColumns">
+                            <structure>
+                                <property name="name">CLASS_ELEM</property>
+                                <property name="displayName">CLASS_ELEM</property>
+                                <expression name="expression">dataSetRow["CLASS_ELEM"]</expression>
+                                <property name="dataType">string</property>
+                            </structure>
+                        </list-property>
+                        <property name="resultSetColumn">CLASS_ELEM</property>
+                    </data>
+                </cell>
+            </row>
+            <row id="8251">
+                <cell id="8259">
+                    <property name="fontSize">small</property>
+                    <property name="borderBottomColor">#000000</property>
+                    <property name="borderBottomStyle">solid</property>
+                    <property name="borderBottomWidth">1px</property>
+                    <property name="borderLeftColor">#000000</property>
+                    <property name="borderLeftStyle">solid</property>
+                    <property name="borderLeftWidth">1px</property>
+                    <property name="borderRightColor">#000000</property>
+                    <property name="borderRightStyle">solid</property>
+                    <property name="borderRightWidth">1px</property>
+                    <property name="borderTopColor">#000000</property>
+                    <property name="borderTopStyle">solid</property>
+                    <property name="borderTopWidth">1px</property>
+                    <label id="8264">
+                        <property name="paddingLeft">20pt</property>
+                        <property name="paddingRight">1pt</property>
+                        <property name="textAlign">left</property>
+                        <text-property name="text">Крайний срок:</text-property>
+                    </label>
+                </cell>
+                <cell id="8252">
+                    <property name="fontSize">small</property>
+                    <property name="borderBottomColor">#000000</property>
+                    <property name="borderBottomStyle">solid</property>
+                    <property name="borderBottomWidth">1px</property>
+                    <property name="borderLeftColor">#000000</property>
+                    <property name="borderLeftStyle">solid</property>
+                    <property name="borderLeftWidth">1px</property>
+                    <property name="borderRightColor">#000000</property>
+                    <property name="borderRightStyle">solid</property>
+                    <property name="borderRightWidth">1px</property>
+                    <property name="borderTopColor">#000000</property>
+                    <property name="borderTopStyle">solid</property>
+                    <property name="borderTopWidth">1px</property>
+                    <data id="8255">
+                        <property name="paddingLeft">5pt</property>
+                        <property name="dataSet">incident</property>
+                        <list-property name="boundDataColumns">
+                            <structure>
+                                <property name="name">TARGETFINISH</property>
+                                <property name="displayName">TARGETFINISH</property>
+                                <expression name="expression">dataSetRow["TARGETFINISH"]</expression>
+                                <property name="dataType">date-time</property>
+                            </structure>
+                        </list-property>
+                        <property name="resultSetColumn">TARGETFINISH</property>
+                    </data>
+                </cell>
+                <cell id="8253">
+                    <property name="fontSize">small</property>
+                    <property name="borderBottomColor">#000000</property>
+                    <property name="borderBottomStyle">solid</property>
+                    <property name="borderBottomWidth">1px</property>
+                    <property name="borderLeftColor">#000000</property>
+                    <property name="borderLeftStyle">solid</property>
+                    <property name="borderLeftWidth">1px</property>
+                    <property name="borderRightColor">#000000</property>
+                    <property name="borderRightStyle">solid</property>
+                    <property name="borderRightWidth">1px</property>
+                    <property name="borderTopColor">#000000</property>
+                    <property name="borderTopStyle">solid</property>
+                    <property name="borderTopWidth">1px</property>
+                    <label id="8268">
+                        <property name="paddingLeft">20pt</property>
+                        <property name="paddingRight">1pt</property>
+                        <text-property name="text">Группа:</text-property>
+                    </label>
+                </cell>
+                <cell id="8254">
+                    <property name="fontSize">small</property>
+                    <property name="borderBottomColor">#000000</property>
+                    <property name="borderBottomStyle">solid</property>
+                    <property name="borderBottomWidth">1px</property>
+                    <property name="borderLeftColor">#000000</property>
+                    <property name="borderLeftStyle">solid</property>
+                    <property name="borderLeftWidth">1px</property>
+                    <property name="borderRightColor">#000000</property>
+                    <property name="borderRightStyle">solid</property>
+                    <property name="borderRightWidth">1px</property>
+                    <property name="borderTopColor">#000000</property>
+                    <property name="borderTopStyle">solid</property>
+                    <property name="borderTopWidth">1px</property>
+                    <data id="8300">
+                        <property name="paddingLeft">5pt</property>
+                        <property name="dataSet">incident</property>
+                        <list-property name="boundDataColumns">
+                            <structure>
+                                <property name="name">CLASS_GROUP</property>
+                                <property name="displayName">CLASS_GROUP</property>
+                                <expression name="expression">dataSetRow["CLASS_GROUP"]</expression>
+                                <property name="dataType">string</property>
+                            </structure>
+                        </list-property>
+                        <property name="resultSetColumn">CLASS_GROUP</property>
+                    </data>
+                </cell>
+            </row>
+            <row id="8269">
+                <cell id="8270">
+                    <property name="fontSize">small</property>
+                    <property name="borderBottomColor">#000000</property>
+                    <property name="borderBottomStyle">solid</property>
+                    <property name="borderBottomWidth">1px</property>
+                    <property name="borderLeftColor">#000000</property>
+                    <property name="borderLeftStyle">solid</property>
+                    <property name="borderLeftWidth">1px</property>
+                    <property name="borderRightColor">#000000</property>
+                    <property name="borderRightStyle">solid</property>
+                    <property name="borderRightWidth">1px</property>
+                    <property name="borderTopColor">#000000</property>
+                    <property name="borderTopStyle">solid</property>
+                    <property name="borderTopWidth">1px</property>
+                    <label id="8275">
+                        <property name="paddingLeft">20pt</property>
+                        <property name="paddingRight">1pt</property>
+                        <property name="textAlign">left</property>
+                        <text-property name="text">Приоритет:</text-property>
+                    </label>
+                </cell>
+                <cell id="8271">
+                    <property name="fontSize">small</property>
+                    <property name="borderBottomColor">#000000</property>
+                    <property name="borderBottomStyle">solid</property>
+                    <property name="borderBottomWidth">1px</property>
+                    <property name="borderLeftColor">#000000</property>
+                    <property name="borderLeftStyle">solid</property>
+                    <property name="borderLeftWidth">1px</property>
+                    <property name="borderRightColor">#000000</property>
+                    <property name="borderRightStyle">solid</property>
+                    <property name="borderRightWidth">1px</property>
+                    <property name="borderTopColor">#000000</property>
+                    <property name="borderTopStyle">solid</property>
+                    <property name="borderTopWidth">1px</property>
+                    <data id="8294">
+                        <property name="paddingLeft">5pt</property>
+                        <property name="dataSet">incident</property>
+                        <list-property name="boundDataColumns">
+                            <structure>
+                                <property name="name">PRIO</property>
+                                <property name="displayName">PRIO</property>
+                                <expression name="expression">dataSetRow["PRIO"]</expression>
+                                <property name="dataType">string</property>
+                            </structure>
+                        </list-property>
+                        <property name="resultSetColumn">PRIO</property>
+                    </data>
+                </cell>
+                <cell id="8272">
+                    <property name="fontSize">small</property>
+                    <property name="borderBottomColor">#000000</property>
+                    <property name="borderBottomStyle">solid</property>
+                    <property name="borderBottomWidth">1px</property>
+                    <property name="borderLeftColor">#000000</property>
+                    <property name="borderLeftStyle">solid</property>
+                    <property name="borderLeftWidth">1px</property>
+                    <property name="borderRightColor">#000000</property>
+                    <property name="borderRightStyle">solid</property>
+                    <property name="borderRightWidth">1px</property>
+                    <property name="borderTopColor">#000000</property>
+                    <property name="borderTopStyle">solid</property>
+                    <property name="borderTopWidth">1px</property>
+                    <label id="8274">
+                        <property name="paddingLeft">20pt</property>
+                        <property name="paddingRight">1pt</property>
+                        <text-property name="text">Вид:</text-property>
+                    </label>
+                </cell>
+                <cell id="8273">
+                    <property name="fontSize">small</property>
+                    <property name="borderBottomColor">#000000</property>
+                    <property name="borderBottomStyle">solid</property>
+                    <property name="borderBottomWidth">1px</property>
+                    <property name="borderLeftColor">#000000</property>
+                    <property name="borderLeftStyle">solid</property>
+                    <property name="borderLeftWidth">1px</property>
+                    <property name="borderRightColor">#000000</property>
+                    <property name="borderRightStyle">solid</property>
+                    <property name="borderRightWidth">1px</property>
+                    <property name="borderTopColor">#000000</property>
+                    <property name="borderTopStyle">solid</property>
+                    <property name="borderTopWidth">1px</property>
+                    <data id="8301">
+                        <property name="paddingLeft">5pt</property>
+                        <property name="dataSet">incident</property>
+                        <list-property name="boundDataColumns">
+                            <structure>
+                                <property name="name">CLASS_VID</property>
+                                <property name="displayName">CLASS_VID</property>
+                                <expression name="expression">dataSetRow["CLASS_VID"]</expression>
+                                <property name="dataType">string</property>
+                            </structure>
+                        </list-property>
+                        <property name="resultSetColumn">CLASS_VID</property>
+                    </data>
+                </cell>
+            </row>
+            <row id="8276">
+                <cell id="8277">
+                    <property name="fontSize">small</property>
+                    <property name="borderBottomColor">#000000</property>
+                    <property name="borderBottomStyle">solid</property>
+                    <property name="borderBottomWidth">1px</property>
+                    <property name="borderLeftColor">#000000</property>
+                    <property name="borderLeftStyle">solid</property>
+                    <property name="borderLeftWidth">1px</property>
+                    <property name="borderRightColor">#000000</property>
+                    <property name="borderRightStyle">solid</property>
+                    <property name="borderRightWidth">1px</property>
+                    <property name="borderTopColor">#000000</property>
+                    <property name="borderTopStyle">solid</property>
+                    <property name="borderTopWidth">1px</property>
+                    <label id="8286">
+                        <property name="paddingLeft">20pt</property>
+                        <property name="paddingRight">1pt</property>
+                        <property name="textAlign">left</property>
+                        <text-property name="text">Местоположение:</text-property>
+                    </label>
+                </cell>
+                <cell id="8278">
+                    <property name="fontSize">small</property>
+                    <property name="borderBottomColor">#000000</property>
+                    <property name="borderBottomStyle">solid</property>
+                    <property name="borderBottomWidth">1px</property>
+                    <property name="borderLeftColor">#000000</property>
+                    <property name="borderLeftStyle">solid</property>
+                    <property name="borderLeftWidth">1px</property>
+                    <property name="borderRightColor">#000000</property>
+                    <property name="borderRightStyle">solid</property>
+                    <property name="borderRightWidth">1px</property>
+                    <property name="borderTopColor">#000000</property>
+                    <property name="borderTopStyle">solid</property>
+                    <property name="borderTopWidth">1px</property>
+                    <data id="8295">
+                        <property name="paddingLeft">5pt</property>
+                        <property name="dataSet">incident</property>
+                        <list-property name="boundDataColumns">
+                            <structure>
+                                <property name="name">PLACE</property>
+                                <property name="displayName">PLACE</property>
+                                <expression name="expression">dataSetRow["PLACE"]</expression>
+                                <property name="dataType">string</property>
+                            </structure>
+                        </list-property>
+                        <property name="resultSetColumn">PLACE</property>
+                    </data>
+                </cell>
+                <cell id="8279">
+                    <property name="fontSize">small</property>
+                    <property name="borderBottomColor">#000000</property>
+                    <property name="borderBottomStyle">solid</property>
+                    <property name="borderBottomWidth">1px</property>
+                    <property name="borderLeftColor">#000000</property>
+                    <property name="borderLeftStyle">solid</property>
+                    <property name="borderLeftWidth">1px</property>
+                    <property name="borderRightColor">#000000</property>
+                    <property name="borderRightStyle">solid</property>
+                    <property name="borderRightWidth">1px</property>
+                    <property name="borderTopColor">#000000</property>
+                    <property name="borderTopStyle">solid</property>
+                    <property name="borderTopWidth">1px</property>
+                </cell>
+                <cell id="8280">
+                    <property name="fontSize">small</property>
+                    <property name="borderBottomColor">#000000</property>
+                    <property name="borderBottomStyle">solid</property>
+                    <property name="borderBottomWidth">1px</property>
+                    <property name="borderLeftColor">#000000</property>
+                    <property name="borderLeftStyle">solid</property>
+                    <property name="borderLeftWidth">1px</property>
+                    <property name="borderRightColor">#000000</property>
+                    <property name="borderRightStyle">solid</property>
+                    <property name="borderRightWidth">1px</property>
+                    <property name="borderTopColor">#000000</property>
+                    <property name="borderTopStyle">solid</property>
+                    <property name="borderTopWidth">1px</property>
+                </cell>
+            </row>
+            <row id="8281">
+                <cell id="8282">
+                    <property name="fontSize">small</property>
+                    <property name="borderBottomColor">#000000</property>
+                    <property name="borderBottomStyle">solid</property>
+                    <property name="borderBottomWidth">1px</property>
+                    <property name="borderLeftColor">#000000</property>
+                    <property name="borderLeftStyle">solid</property>
+                    <property name="borderLeftWidth">1px</property>
+                    <property name="borderRightColor">#000000</property>
+                    <property name="borderRightStyle">solid</property>
+                    <property name="borderRightWidth">1px</property>
+                    <property name="borderTopColor">#000000</property>
+                    <property name="borderTopStyle">solid</property>
+                    <property name="borderTopWidth">1px</property>
+                    <label id="8287">
+                        <property name="paddingLeft">20pt</property>
+                        <property name="paddingRight">1pt</property>
+                        <property name="textAlign">left</property>
+                        <text-property name="text">Ограничение по скорости:</text-property>
+                    </label>
+                </cell>
+                <cell id="8283">
+                    <property name="fontSize">small</property>
+                    <property name="borderBottomColor">#000000</property>
+                    <property name="borderBottomStyle">solid</property>
+                    <property name="borderBottomWidth">1px</property>
+                    <property name="borderLeftColor">#000000</property>
+                    <property name="borderLeftStyle">solid</property>
+                    <property name="borderLeftWidth">1px</property>
+                    <property name="borderRightColor">#000000</property>
+                    <property name="borderRightStyle">solid</property>
+                    <property name="borderRightWidth">1px</property>
+                    <property name="borderTopColor">#000000</property>
+                    <property name="borderTopStyle">solid</property>
+                    <property name="borderTopWidth">1px</property>
+                    <data id="8296">
+                        <property name="paddingLeft">5pt</property>
+                        <property name="dataSet">incident</property>
+                        <list-property name="boundDataColumns">
+                            <structure>
+                                <property name="name">SPEED</property>
+                                <property name="displayName">SPEED</property>
+                                <expression name="expression">dataSetRow["SPEED"]</expression>
+                                <property name="dataType">string</property>
+                            </structure>
+                        </list-property>
+                        <property name="resultSetColumn">SPEED</property>
+                    </data>
+                </cell>
+                <cell id="8284">
+                    <property name="fontSize">small</property>
+                    <property name="borderBottomColor">#000000</property>
+                    <property name="borderBottomStyle">solid</property>
+                    <property name="borderBottomWidth">1px</property>
+                    <property name="borderLeftColor">#000000</property>
+                    <property name="borderLeftStyle">solid</property>
+                    <property name="borderLeftWidth">1px</property>
+                    <property name="borderRightColor">#000000</property>
+                    <property name="borderRightStyle">solid</property>
+                    <property name="borderRightWidth">1px</property>
+                    <property name="borderTopColor">#000000</property>
+                    <property name="borderTopStyle">solid</property>
+                    <property name="borderTopWidth">1px</property>
+                </cell>
+                <cell id="8285">
+                    <property name="fontSize">small</property>
+                    <property name="borderBottomColor">#000000</property>
+                    <property name="borderBottomStyle">solid</property>
+                    <property name="borderBottomWidth">1px</property>
+                    <property name="borderLeftColor">#000000</property>
+                    <property name="borderLeftStyle">solid</property>
+                    <property name="borderLeftWidth">1px</property>
+                    <property name="borderRightColor">#000000</property>
+                    <property name="borderRightStyle">solid</property>
+                    <property name="borderRightWidth">1px</property>
+                    <property name="borderTopColor">#000000</property>
+                    <property name="borderTopStyle">solid</property>
+                    <property name="borderTopWidth">1px</property>
+                </cell>
+            </row>
+            <row id="8390">
+                <cell id="8391">
+                    <property name="fontSize">small</property>
+                    <property name="borderBottomColor">#000000</property>
+                    <property name="borderBottomStyle">solid</property>
+                    <property name="borderBottomWidth">1px</property>
+                    <property name="borderLeftColor">#000000</property>
+                    <property name="borderLeftStyle">solid</property>
+                    <property name="borderLeftWidth">1px</property>
+                    <property name="borderRightColor">#000000</property>
+                    <property name="borderRightStyle">solid</property>
+                    <property name="borderRightWidth">1px</property>
+                    <property name="borderTopColor">#000000</property>
+                    <property name="borderTopStyle">solid</property>
+                    <property name="borderTopWidth">1px</property>
+                    <label id="8395">
+                        <property name="paddingLeft">20pt</property>
+                        <property name="paddingRight">1pt</property>
+                        <property name="textAlign">left</property>
+                        <text-property name="text">Примечание:</text-property>
+                    </label>
+                </cell>
+                <cell id="8392">
+                    <property name="fontSize">small</property>
+                    <property name="borderBottomColor">#000000</property>
+                    <property name="borderBottomStyle">solid</property>
+                    <property name="borderBottomWidth">1px</property>
+                    <property name="borderLeftColor">#000000</property>
+                    <property name="borderLeftStyle">solid</property>
+                    <property name="borderLeftWidth">1px</property>
+                    <property name="borderRightColor">#000000</property>
+                    <property name="borderRightStyle">solid</property>
+                    <property name="borderRightWidth">1px</property>
+                    <property name="borderTopColor">#000000</property>
+                    <property name="borderTopStyle">solid</property>
+                    <property name="borderTopWidth">1px</property>
+                    <data id="8396">
+                        <property name="dataSet">incident</property>
+                        <list-property name="boundDataColumns">
+                            <structure>
+                                <property name="name">PRIMECH</property>
+                                <property name="displayName">PRIMECH</property>
+                                <expression name="expression">dataSetRow["PRIMECH"]</expression>
+                                <property name="dataType">string</property>
+                            </structure>
+                        </list-property>
+                        <property name="resultSetColumn">PRIMECH</property>
+                    </data>
+                </cell>
+                <cell id="8393">
+                    <property name="fontSize">small</property>
+                    <property name="borderBottomColor">#000000</property>
+                    <property name="borderBottomStyle">solid</property>
+                    <property name="borderBottomWidth">1px</property>
+                    <property name="borderLeftColor">#000000</property>
+                    <property name="borderLeftStyle">solid</property>
+                    <property name="borderLeftWidth">1px</property>
+                    <property name="borderRightColor">#000000</property>
+                    <property name="borderRightStyle">solid</property>
+                    <property name="borderRightWidth">1px</property>
+                    <property name="borderTopColor">#000000</property>
+                    <property name="borderTopStyle">solid</property>
+                    <property name="borderTopWidth">1px</property>
+                </cell>
+                <cell id="8394">
+                    <property name="fontSize">small</property>
+                    <property name="borderBottomColor">#000000</property>
+                    <property name="borderBottomStyle">solid</property>
+                    <property name="borderBottomWidth">1px</property>
+                    <property name="borderLeftColor">#000000</property>
+                    <property name="borderLeftStyle">solid</property>
+                    <property name="borderLeftWidth">1px</property>
+                    <property name="borderRightColor">#000000</property>
+                    <property name="borderRightStyle">solid</property>
+                    <property name="borderRightWidth">1px</property>
+                    <property name="borderTopColor">#000000</property>
+                    <property name="borderTopStyle">solid</property>
+                    <property name="borderTopWidth">1px</property>
+                </cell>
+            </row>
+            <row id="8397">
+                <cell id="8398">
+                    <property name="fontSize">small</property>
+                    <property name="borderBottomColor">#000000</property>
+                    <property name="borderBottomStyle">solid</property>
+                    <property name="borderBottomWidth">1px</property>
+                    <property name="borderLeftColor">#000000</property>
+                    <property name="borderLeftStyle">solid</property>
+                    <property name="borderLeftWidth">1px</property>
+                    <property name="borderRightColor">#000000</property>
+                    <property name="borderRightStyle">solid</property>
+                    <property name="borderRightWidth">1px</property>
+                    <property name="borderTopColor">#000000</property>
+                    <property name="borderTopStyle">solid</property>
+                    <property name="borderTopWidth">1px</property>
+                    <label id="8403">
+                        <property name="paddingLeft">20pt</property>
+                        <property name="paddingRight">1pt</property>
+                        <property name="textAlign">left</property>
+                        <text-property name="text">Решение:</text-property>
+                    </label>
+                </cell>
+                <cell id="8399">
+                    <property name="fontSize">small</property>
+                    <property name="borderBottomColor">#000000</property>
+                    <property name="borderBottomStyle">solid</property>
+                    <property name="borderBottomWidth">1px</property>
+                    <property name="borderLeftColor">#000000</property>
+                    <property name="borderLeftStyle">solid</property>
+                    <property name="borderLeftWidth">1px</property>
+                    <property name="borderRightColor">#000000</property>
+                    <property name="borderRightStyle">solid</property>
+                    <property name="borderRightWidth">1px</property>
+                    <property name="borderTopColor">#000000</property>
+                    <property name="borderTopStyle">solid</property>
+                    <property name="borderTopWidth">1px</property>
+                    <data id="8402">
+                        <property name="dataSet">incident</property>
+                        <list-property name="boundDataColumns">
+                            <structure>
+                                <property name="name">RESOLUTION</property>
+                                <property name="displayName">RESOLUTION</property>
+                                <expression name="expression">dataSetRow["RESOLUTION"]</expression>
+                                <property name="dataType">string</property>
+                            </structure>
+                        </list-property>
+                        <property name="resultSetColumn">RESOLUTION</property>
+                    </data>
+                </cell>
+                <cell id="8400">
+                    <property name="fontSize">small</property>
+                    <property name="borderBottomColor">#000000</property>
+                    <property name="borderBottomStyle">solid</property>
+                    <property name="borderBottomWidth">1px</property>
+                    <property name="borderLeftColor">#000000</property>
+                    <property name="borderLeftStyle">solid</property>
+                    <property name="borderLeftWidth">1px</property>
+                    <property name="borderRightColor">#000000</property>
+                    <property name="borderRightStyle">solid</property>
+                    <property name="borderRightWidth">1px</property>
+                    <property name="borderTopColor">#000000</property>
+                    <property name="borderTopStyle">solid</property>
+                    <property name="borderTopWidth">1px</property>
+                </cell>
+                <cell id="8401">
+                    <property name="fontSize">small</property>
+                    <property name="borderBottomColor">#000000</property>
+                    <property name="borderBottomStyle">solid</property>
+                    <property name="borderBottomWidth">1px</property>
+                    <property name="borderLeftColor">#000000</property>
+                    <property name="borderLeftStyle">solid</property>
+                    <property name="borderLeftWidth">1px</property>
+                    <property name="borderRightColor">#000000</property>
+                    <property name="borderRightStyle">solid</property>
+                    <property name="borderRightWidth">1px</property>
+                    <property name="borderTopColor">#000000</property>
+                    <property name="borderTopStyle">solid</property>
+                    <property name="borderTopWidth">1px</property>
+                </cell>
+            </row>
+        </grid>
+        <label id="8228">
+            <property name="backgroundColor">#8BCBF5</property>
+            <property name="fontSize">12pt</property>
+            <property name="fontWeight">bold</property>
+            <property name="textUnderline">none</property>
+            <property name="borderBottomColor">#000000</property>
+            <property name="borderBottomStyle">solid</property>
+            <property name="borderBottomWidth">2px</property>
+            <property name="borderLeftColor">#000000</property>
+            <property name="borderLeftStyle">solid</property>
+            <property name="borderLeftWidth">2px</property>
+            <property name="borderRightColor">#000000</property>
+            <property name="borderRightStyle">solid</property>
+            <property name="borderRightWidth">2px</property>
+            <property name="borderTopColor">#000000</property>
+            <property name="borderTopStyle">solid</property>
+            <property name="borderTopWidth">2px</property>
+            <property name="marginTop">10pt</property>
+            <property name="marginLeft">5pt</property>
+            <property name="marginRight">5pt</property>
+            <property name="paddingTop">1pt</property>
+            <property name="paddingLeft">100pt</property>
+            <property name="textAlign">left</property>
+            <text-property name="text">Активы</text-property>
+        </label>
+        <table id="8327">
+            <property name="fontSize">small</property>
+            <property name="marginTop">10pt</property>
+            <property name="marginLeft">5pt</property>
+            <property name="marginRight">5pt</property>
+            <property name="width">99%</property>
+            <property name="dataSet">assets</property>
+            <list-property name="boundDataColumns">
+                <structure>
+                    <property name="name">ASSETNUM</property>
+                    <property name="displayName">ASSETNUM</property>
+                    <expression name="expression">dataSetRow["ASSETNUM"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">DESCRIPTION</property>
+                    <property name="displayName">DESCRIPTION</property>
+                    <expression name="expression">dataSetRow["DESCRIPTION"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">ENDMEASURE</property>
+                    <property name="displayName">ENDMEASURE</property>
+                    <expression name="expression">dataSetRow["STARTMEASURE"]</expression>
+                    <property name="dataType">decimal</property>
+                </structure>
+                <structure>
+                    <property name="name">STARTMEASURE</property>
+                    <property name="displayName">STARTMEASURE</property>
+                    <expression name="expression">dataSetRow["ENDMEASURE"]</expression>
+                    <property name="dataType">decimal</property>
+                </structure>
+            </list-property>
+            <column id="8351"/>
+            <column id="8352"/>
+            <column id="8353"/>
+            <column id="8354"/>
+            <header>
+                <row id="8328">
+                    <property name="fontWeight">bold</property>
+                    <property name="textAlign">center</property>
+                    <cell id="8329">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">1px</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">1px</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">1px</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">1px</property>
+                        <property name="paddingTop">5pt</property>
+                        <property name="paddingBottom">5pt</property>
+                        <label id="8330">
+                            <text-property name="text">Номер актива</text-property>
+                        </label>
+                    </cell>
+                    <cell id="8331">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">1px</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">1px</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">1px</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">1px</property>
+                        <property name="paddingTop">5pt</property>
+                        <property name="paddingBottom">5pt</property>
+                        <label id="8332">
+                            <text-property name="text">Описание</text-property>
+                        </label>
+                    </cell>
+                    <cell id="8333">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">1px</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">1px</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">1px</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">1px</property>
+                        <property name="paddingTop">5pt</property>
+                        <property name="paddingBottom">5pt</property>
+                        <label id="8334">
+                            <text-property name="text">Начало</text-property>
+                        </label>
+                    </cell>
+                    <cell id="8335">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">1px</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">1px</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">1px</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">1px</property>
+                        <property name="paddingTop">5pt</property>
+                        <property name="paddingBottom">5pt</property>
+                        <label id="8336">
+                            <text-property name="text">Конец</text-property>
+                        </label>
+                    </cell>
+                </row>
+            </header>
+            <detail>
+                <row id="8337">
+                    <property name="textAlign">center</property>
+                    <cell id="8338">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">1px</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">1px</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">1px</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">1px</property>
+                        <property name="paddingTop">3pt</property>
+                        <property name="paddingLeft">5pt</property>
+                        <property name="paddingBottom">3pt</property>
+                        <property name="textAlign">left</property>
+                        <data id="8339">
+                            <property name="resultSetColumn">ASSETNUM</property>
+                        </data>
+                    </cell>
+                    <cell id="8340">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">1px</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">1px</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">1px</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">1px</property>
+                        <property name="paddingTop">3pt</property>
+                        <property name="paddingLeft">5pt</property>
+                        <property name="paddingBottom">3pt</property>
+                        <property name="textAlign">left</property>
+                        <data id="8341">
+                            <property name="resultSetColumn">DESCRIPTION</property>
+                        </data>
+                    </cell>
+                    <cell id="8342">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">1px</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">1px</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">1px</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">1px</property>
+                        <property name="paddingTop">3pt</property>
+                        <property name="paddingLeft">5pt</property>
+                        <property name="paddingBottom">3pt</property>
+                        <property name="textAlign">left</property>
+                        <data id="8343">
+                            <structure name="numberFormat">
+                                <property name="category">Currency</property>
+                                <property name="pattern">###0.00</property>
+                            </structure>
+                            <property name="resultSetColumn">ENDMEASURE</property>
+                        </data>
+                    </cell>
+                    <cell id="8344">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">1px</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">1px</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">1px</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">1px</property>
+                        <property name="paddingTop">3pt</property>
+                        <property name="paddingLeft">5pt</property>
+                        <property name="paddingBottom">3pt</property>
+                        <property name="textAlign">left</property>
+                        <data id="8345">
+                            <property name="resultSetColumn">STARTMEASURE</property>
+                        </data>
+                    </cell>
+                </row>
+            </detail>
+            <footer>
+                <row id="8346">
+                    <cell id="8347">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">1px</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">1px</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">1px</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">1px</property>
+                    </cell>
+                    <cell id="8348">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">1px</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">1px</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">1px</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">1px</property>
+                    </cell>
+                    <cell id="8349">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">1px</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">1px</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">1px</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">1px</property>
+                    </cell>
+                    <cell id="8350">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">1px</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">1px</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">1px</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">1px</property>
+                    </cell>
+                </row>
+            </footer>
+        </table>
+        <label id="8229">
+            <property name="backgroundColor">#8BCBF5</property>
+            <property name="fontSize">12pt</property>
+            <property name="fontWeight">bold</property>
+            <property name="textUnderline">none</property>
+            <property name="borderBottomColor">#000000</property>
+            <property name="borderBottomStyle">solid</property>
+            <property name="borderBottomWidth">2px</property>
+            <property name="borderLeftColor">#000000</property>
+            <property name="borderLeftStyle">solid</property>
+            <property name="borderLeftWidth">2px</property>
+            <property name="borderRightColor">#000000</property>
+            <property name="borderRightStyle">solid</property>
+            <property name="borderRightWidth">2px</property>
+            <property name="borderTopColor">#000000</property>
+            <property name="borderTopStyle">solid</property>
+            <property name="borderTopWidth">2px</property>
+            <property name="marginTop">10pt</property>
+            <property name="marginLeft">5pt</property>
+            <property name="marginRight">5pt</property>
+            <property name="paddingTop">1pt</property>
+            <property name="paddingLeft">100pt</property>
+            <property name="textAlign">left</property>
+            <text-property name="text">Рабочие задания</text-property>
+        </label>
+        <table id="8355">
+            <property name="marginTop">10pt</property>
+            <property name="marginLeft">5pt</property>
+            <property name="width">99%</property>
+            <property name="dataSet">workOrder</property>
+            <list-property name="boundDataColumns">
+                <structure>
+                    <property name="name">WORDERID</property>
+                    <property name="displayName">WORDERID</property>
+                    <expression name="expression">dataSetRow["WORDERID"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">STATUS</property>
+                    <property name="displayName">STATUS</property>
+                    <expression name="expression">dataSetRow["STATUS"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">BEGINDATE</property>
+                    <property name="displayName">BEGINDATE</property>
+                    <expression name="expression">dataSetRow["BEGINDATE"]</expression>
+                    <property name="dataType">date-time</property>
+                </structure>
+                <structure>
+                    <property name="name">ENDDATE</property>
+                    <property name="displayName">ENDDATE</property>
+                    <expression name="expression">dataSetRow["ENDDATE"]</expression>
+                    <property name="dataType">date-time</property>
+                </structure>
+                <structure>
+                    <property name="name">MSTR</property>
+                    <property name="displayName">MSTR</property>
+                    <expression name="expression">dataSetRow["MSTR"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+            </list-property>
+            <column id="8384"/>
+            <column id="8385"/>
+            <column id="8386"/>
+            <column id="8387"/>
+            <column id="8388"/>
+            <header>
+                <row id="8356">
+                    <property name="fontSize">small</property>
+                    <property name="fontWeight">bold</property>
+                    <property name="borderBottomColor">#000000</property>
+                    <property name="borderBottomStyle">solid</property>
+                    <property name="borderBottomWidth">1px</property>
+                    <property name="borderLeftColor">#000000</property>
+                    <property name="borderLeftStyle">solid</property>
+                    <property name="borderLeftWidth">1px</property>
+                    <property name="borderRightColor">#000000</property>
+                    <property name="borderRightStyle">solid</property>
+                    <property name="borderRightWidth">1px</property>
+                    <property name="borderTopColor">#000000</property>
+                    <property name="borderTopStyle">solid</property>
+                    <property name="borderTopWidth">1px</property>
+                    <property name="textAlign">center</property>
+                    <cell id="8357">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">1px</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">1px</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">1px</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">1px</property>
+                        <property name="paddingTop">5pt</property>
+                        <property name="paddingBottom">5pt</property>
+                        <label id="8358">
+                            <text-property name="text">Номер рабочего задания</text-property>
+                        </label>
+                    </cell>
+                    <cell id="8359">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">1px</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">1px</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">1px</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">1px</property>
+                        <property name="paddingTop">5pt</property>
+                        <property name="paddingBottom">5pt</property>
+                        <label id="8360">
+                            <text-property name="text">Статус</text-property>
+                        </label>
+                    </cell>
+                    <cell id="8361">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">1px</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">1px</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">1px</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">1px</property>
+                        <property name="paddingTop">5pt</property>
+                        <property name="paddingBottom">5pt</property>
+                        <label id="8362">
+                            <text-property name="text">Дата начала работ</text-property>
+                        </label>
+                    </cell>
+                    <cell id="8363">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">1px</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">1px</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">1px</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">1px</property>
+                        <property name="paddingTop">5pt</property>
+                        <property name="paddingBottom">5pt</property>
+                        <label id="8364">
+                            <text-property name="text">Дата окончания работ</text-property>
+                        </label>
+                    </cell>
+                    <cell id="8365">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">1px</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">1px</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">1px</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">1px</property>
+                        <property name="paddingTop">5pt</property>
+                        <property name="paddingBottom">5pt</property>
+                        <label id="8366">
+                            <text-property name="text">Мастер</text-property>
+                        </label>
+                    </cell>
+                </row>
+            </header>
+            <detail>
+                <row id="8367">
+                    <property name="borderBottomColor">#000000</property>
+                    <property name="borderBottomStyle">solid</property>
+                    <property name="borderBottomWidth">1px</property>
+                    <property name="borderLeftColor">#000000</property>
+                    <property name="borderLeftStyle">solid</property>
+                    <property name="borderLeftWidth">1px</property>
+                    <property name="borderRightColor">#000000</property>
+                    <property name="borderRightStyle">solid</property>
+                    <property name="borderRightWidth">1px</property>
+                    <property name="borderTopColor">#000000</property>
+                    <property name="borderTopStyle">solid</property>
+                    <property name="borderTopWidth">1px</property>
+                    <cell id="8368">
+                        <property name="fontSize">small</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">1px</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">1px</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">1px</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">1px</property>
+                        <property name="paddingTop">3pt</property>
+                        <property name="paddingLeft">5pt</property>
+                        <property name="paddingBottom">3pt</property>
+                        <data id="8369">
+                            <property name="resultSetColumn">WORDERID</property>
+                        </data>
+                    </cell>
+                    <cell id="8370">
+                        <property name="fontSize">small</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">1px</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">1px</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">1px</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">1px</property>
+                        <property name="paddingTop">3pt</property>
+                        <property name="paddingLeft">5pt</property>
+                        <property name="paddingBottom">3pt</property>
+                        <data id="8371">
+                            <property name="resultSetColumn">STATUS</property>
+                        </data>
+                    </cell>
+                    <cell id="8372">
+                        <property name="fontSize">small</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">1px</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">1px</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">1px</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">1px</property>
+                        <property name="paddingTop">3pt</property>
+                        <property name="paddingLeft">5pt</property>
+                        <property name="paddingBottom">3pt</property>
+                        <data id="8373">
+                            <property name="resultSetColumn">BEGINDATE</property>
+                        </data>
+                    </cell>
+                    <cell id="8374">
+                        <property name="fontSize">small</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">1px</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">1px</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">1px</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">1px</property>
+                        <property name="paddingTop">3pt</property>
+                        <property name="paddingLeft">5pt</property>
+                        <property name="paddingBottom">3pt</property>
+                        <data id="8375">
+                            <property name="resultSetColumn">ENDDATE</property>
+                        </data>
+                    </cell>
+                    <cell id="8376">
+                        <property name="fontSize">small</property>
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">1px</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">1px</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">1px</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">1px</property>
+                        <property name="paddingTop">3pt</property>
+                        <property name="paddingLeft">5pt</property>
+                        <property name="paddingBottom">3pt</property>
+                        <data id="8377">
+                            <property name="resultSetColumn">MSTR</property>
+                        </data>
+                    </cell>
+                </row>
+            </detail>
+            <footer>
+                <row id="8378">
+                    <cell id="8379"/>
+                    <cell id="8380"/>
+                    <cell id="8381"/>
+                    <cell id="8382"/>
+                    <cell id="8383"/>
+                </row>
+            </footer>
+        </table>
+    </body>
+</report>
