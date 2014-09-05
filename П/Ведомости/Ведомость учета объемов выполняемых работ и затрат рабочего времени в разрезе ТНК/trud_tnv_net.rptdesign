@@ -2,7 +2,7 @@
 <report xmlns="http://www.eclipse.org/birt/2005/design" version="3.2.17" id="1">
     <property name="createdBy">Eclipse BIRT Designer Version 2.3.2.r232_20090202 Build &lt;2.3.2.v20090218-0730></property>
     <property name="units">in</property>
-    <text-property name="title">Ведомость учета объемов выполняемых работ и затрат рабочего времени в разрезе ТНК по дистанции за период</text-property>
+    <text-property name="title">Трудозатраты по рабочим заданиям в разрезе ТНВ по сети дорог</text-property>
     <property name="comments">IBM Confidential
 
 OCO Source Materials
@@ -24,7 +24,7 @@ mxReportScriptContext = MXReportScriptContext.initialize(reportContext);
 mxReportScriptContext.setDefaultLogLevel("DEBUG");
 mxReportScriptContext.setDefaultLogFile("c:/temp/tetttt.txt");
 
-params["pred"] = params["pred"].replace("=", "")
+//params["pred"] = params["pred"].replace("=", "")
 
 if (BirtComp.equalTo(params["date1"],null) == true || params["date1"] == '' )
 	{if (BirtComp.equalTo(params["date2"],null) == true || params["date2"] == '')
@@ -76,11 +76,12 @@ else
             </structure>
         </scalar-parameter>
         <scalar-parameter name="mroSite" id="7964">
+            <property name="hidden">true</property>
             <property name="valueType">static</property>
             <property name="dataType">integer</property>
             <property name="paramType">simple</property>
             <text-property name="promptText">Дорога</text-property>
-            <property name="isRequired">true</property>
+            <property name="isRequired">false</property>
             <property name="controlType">text-box</property>
             <property name="distinct">true</property>
             <structure name="format">
@@ -88,10 +89,12 @@ else
             </structure>
         </scalar-parameter>
         <scalar-parameter name="pred" id="18064">
+            <property name="hidden">true</property>
             <property name="valueType">static</property>
             <property name="dataType">string</property>
             <property name="paramType">simple</property>
             <text-property name="promptText">Дистанция</text-property>
+            <property name="isRequired">false</property>
             <property name="controlType">text-box</property>
             <property name="distinct">true</property>
             <structure name="format">
@@ -328,66 +331,22 @@ sqlText = ""
  //+"					and wo.brigad_location = 'PODR_2114' "
  +"         ) "
  +"         , "
- +"         SUMWO AS "
- +"         ( SELECT SUM(LABOR_HOUR) SUMWO, "
- +"                 tek_loc brigad_location "
+ +" SUMWO as "
+ +"         (select /*+ MATERIALIZE */  "
+ +"                 SUM(LABOR_HOUR) SUMWO, "
+ +"                 tek_loc         brigad_location "
  +"         FROM    allwo "
  +"         GROUP BY tek_loc "
  +"         ) "
- +"        , "
- +"         BASE_NONORM as "
- +"         (SELECT /*+ MATERIALIZE */ WO.tek_loc L_PRED, "
- +"                 wo.pred_d, "
- +"                 CASE WHEN WO.TYPEWORKORDER    = 'Путевые обходчики' THEN 'Осмотр пути' ELSE CLASSSTRUCTURE.DESCRIPTION END WO_D, "
- +"                 CASE WHEN WO.CLASSSTRUCTUREID = '010001000100' THEN '010001000104' ELSE WO.CLASSSTRUCTUREID END            cls, "
- +"                 COUNT (WO.WONUM)                                                                                           CNT_WO, "
- +"                 NVL (SUM (WO.LABOR_HOUR), 0)                                                                               LABOR_HOUR "
- +"         FROM    allwo wo "
- +"                 JOIN MAXIMO.CLASSSTRUCTURE "
- +"                         ON      WO.CLASSSTRUCTUREID = CLASSSTRUCTURE.CLASSSTRUCTUREID "
- +"         WHERE   typeworkorder IN ('Прочее', 'Путевые обходчики') "
- +"         GROUP BY WO.tek_loc, "
+ +"         , "
+  +"         BASE AS "
+ +"         ( SELECT "
+ +"                 /*+ MATERIALIZE */ "
+ +"                 WO.tek_loc L_PRED, "
  +"                 WO.PRED_D, "
- +"                 CASE WHEN WO.TYPEWORKORDER    = 'Путевые обходчики' THEN 'Осмотр пути' ELSE CLASSSTRUCTURE.DESCRIPTION END, "
- +"                 CASE WHEN WO.CLASSSTRUCTUREID = '010001000100' THEN '010001000104' ELSE WO.CLASSSTRUCTUREID END "
- +"         ) "
- +"         , "
- +"         NONORM_ALL as "
- +"         (SELECT /*+ MATERIALIZE */ ROW_NUMBER() over (ORDER BY SUM(DOLIA) DESC)                                                                    nom, "
- +"                 CASE WHEN DOLIA < 0.01 THEN '100500' ELSE CLS END                                                               JPNUM, "
- +"                 CASE WHEN DOLIA < 0.01 THEN 'Остальные прочие работы (доля от общего объема трудозатрат менее 1)' ELSE WO_D END WO_D, "
- +"                 TO_NUMBER('')                                                                                                   NUMVALUE, "
- +"                 ''                                                                                                              MEASUREUNITID, "
- +"                 SUM(CNT_WO)                                                                                                     CNT_WO, "
- +"                 TO_NUMBER('')                                                                                                   PLAN_WO, "
- +"                 TO_NUMBER('')                                                                                                   FAKT_WO, "
- +"                 SUM (LABOR_HOUR)                                                                                                LABOR_HOUR, "
- +"                 TO_NUMBER('')                                                                                                   NORM_HOUR, "
- +"                 SUM(DOLIA)                                                                                                      DOLIA "
- +"         FROM    (SELECT B_NN.WO_D, "
- +"                         b_nn.cls, "
- +"                         COUNT (B_NN.CNT_WO)   CNT_WO, "
- +"                         SUM (B_NN.LABOR_HOUR) LABOR_HOUR, "
- +"                         NVL(SUM( CASE WHEN (SELECT SUM(SUMWO.SUMWO) "
- +"                                                         FROM    SUMWO "
- +"                                                 ) "
- +"                                                 = 0 THEN 0 ELSE B_NN.LABOR_HOUR/ "
- +"                                                 (SELECT SUM(SUMWO.SUMWO) "
- +"                                                 FROM    SUMWO "
- +"                                                 ) END ),0) DOLIA "
- +"                 FROM    base_nonorm b_nn "
- +"                 GROUP BY B_NN.WO_D, "
- +"                         b_nn.cls "
- +"                 ) "
- +"         GROUP BY CASE WHEN DOLIA < 0.01 THEN 'Остальные прочие работы (доля от общего объема трудозатрат менее 1)' ELSE WO_D END, "
- +"                 CASE WHEN DOLIA  < 0.01 THEN '100500' ELSE CLS END "
- +"         ) "
- +"         , "
- +"         BASE_NORM as "
- +"         (SELECT /*+ MATERIALIZE */ WO.tek_loc L_PRED, "
- +"                 wo.pred_d, "
- +"                 NVL(jp.jpnum, 'notk')                       jpnum, "
- +"                 NVL (JP.DESCRIPTION, 'Техкарта не указана') WO_D, "
+ +"                 CASE WHEN WO.TYPEWORKORDER NOT IN ('Прочее', 'Путевые обходчики') then 1 else 0 end tip, "
+ +"                 CASE WHEN WO.TYPEWORKORDER NOT IN ('Прочее', 'Путевые обходчики') THEN NVL(JP.JPNUM, 'notk') WHEN WO.CLASSSTRUCTUREID                    = '010001000100' THEN '010001000104' ELSE WO.CLASSSTRUCTUREID END            JPNUM, "
+ +"                 CASE WHEN WO.TYPEWORKORDER NOT IN ('Прочее', 'Путевые обходчики') THEN NVL (JP.DESCRIPTION, 'Техкарта не указана') WHEN WO.TYPEWORKORDER = 'Путевые обходчики' THEN 'Осмотр пути' ELSE CLASSSTRUCTURE.DESCRIPTION END WO_D, "
  +"                 jps.numvalue, "
  +"                 JPS.MEASUREUNITID, "
  +"                 COUNT (WO.WONUM)                                                                                                                       CNT_WO, "
@@ -395,7 +354,9 @@ sqlText = ""
  +"                 NVL (SUM (WO.FAKT_WO), 0)                                                                                                              FAKT_WO, "
  +"                 NVL (SUM (WO.LABOR_HOUR), 0)                                                                                                           LABOR_HOUR, "
  +"                 NVL (ROUND (SUM (WO.FAKT_WO/JPS.NUMVALUE*( CASE WHEN NVL(WO.JPDURATION, 0) = 0 THEN WO.NOKOEFDURATION ELSE WO.JPDURATION END)), 2), 0) NORM_HOUR "
- +"         FROM    allWO wo "
+ +"         FROM    ALLWO WO "
+ +"                 JOIN MAXIMO.CLASSSTRUCTURE "
+ +"                         ON      WO.CLASSSTRUCTUREID = CLASSSTRUCTURE.CLASSSTRUCTUREID "
  +"                 LEFT JOIN MAXIMO.wojprelation wojp "
  +"                         ON      wo.wonum                = wojp.wonum "
  +"                                 AND WOJP.USETHISMEASURE = 1 "
@@ -404,32 +365,37 @@ sqlText = ""
  +"                 LEFT JOIN maximo.jobplanspec jps "
  +"                         ON      jps.jpnum       = jp.jpnum "
  +"                                 AND ASSETATTRID = 'IZMRAB' "
- +"         WHERE   WO.TYPEWORKORDER NOT IN ('Прочее', 'Путевые обходчики') "
  +"         GROUP BY WO.tek_loc, "
- +"                 wo.pred_d, "
- +"                 JP.DESCRIPTION, "
- +"                 NVL(jp.jpnum, 'notk'), "
+ +"                 WO.PRED_D, "
+ +"                 CASE WHEN WO.TYPEWORKORDER NOT IN ('Прочее', 'Путевые обходчики') then 1 else 0 end, "
+ +"                 CASE WHEN WO.TYPEWORKORDER NOT IN ('Прочее', 'Путевые обходчики') THEN NVL(JP.JPNUM, 'notk') WHEN WO.CLASSSTRUCTUREID                    = '010001000100' THEN '010001000104' ELSE WO.CLASSSTRUCTUREID END, "
+ +"                 CASE WHEN WO.TYPEWORKORDER NOT IN ('Прочее', 'Путевые обходчики') THEN NVL (JP.DESCRIPTION, 'Техкарта не указана') WHEN WO.TYPEWORKORDER = 'Путевые обходчики' THEN 'Осмотр пути' ELSE CLASSSTRUCTURE.DESCRIPTION END, "
  +"                 JPS.NUMVALUE, "
  +"                 JPS.MEASUREUNITID "
  +"         ) "
  +"         , "
- +"         NORM_ALL as "
- +"         (SELECT /*+ MATERIALIZE */ ROW_NUMBER() over (ORDER BY SUM(DOLIA) DESC)                                                             nom, "
- +"                 CASE WHEN DOLIA < 0.01 THEN 'tk_dolia' ELSE jpnum END                                                    jpnum, "
- +"                 CASE WHEN DOLIA < 0.01 THEN 'Остальные работы (доля от общего объема трудозатрат менее 1)' ELSE WO_D END WO_D, "
- +"                 CASE WHEN DOLIA < 0.01 THEN TO_NUMBER('') ELSE NUMVALUE END                                              NUMVALUE, "
- +"                 CASE WHEN DOLIA < 0.01 THEN '' ELSE MEASUREUNITID END                                                    MEASUREUNITID, "
- +"                 SUM(CNT_WO)                                                                                              CNT_WO, "
- +"                 SUM (PLAN_WO)                                                                                            PLAN_WO, "
- +"                 SUM (FAKT_WO)                                                                                            FAKT_WO, "
- +"                 SUM (LABOR_HOUR)                                                                                         LABOR_HOUR, "
- +"                 SUM(NORM_HOUR)                                                                                           NORM_HOUR, "
- +"                 SUM(DOLIA)                                                                                               DOLIA "
- +"         FROM    (SELECT BN.JPNUM, "
+ +"         ALL_sum AS "
+ +"         (  "
+ +"         SELECT "
+ +"                 /*+ MATERIALIZE */ "
+ +"                 ROW_NUMBER() over (partition BY tip ORDER BY SUM(DOLIA) DESC)                                                                                                                                                   NOM, "
+ +"                 TIP, "
+ +"                 case when DOLIA < 0.01 then case TIP when 1 then '100500' when 0 then 'tk_dolia' end else JPNUM end                                                                                                                 JPNUM, "
+ +"                 CASE WHEN DOLIA < 0.01 THEN case tip when  1 then 'Остальные прочие работы (доля от общего объема трудозатрат менее 1)' WHEN  0 THEN 'Остальные работы (доля от общего объема трудозатрат менее 1)' end ELSE wo_d END WO_D, "
+ +"                 CASE WHEN DOLIA             < 0.01 THEN TO_NUMBER('') ELSE NUMVALUE END                                                                                                                                                                                          NUMVALUE, "
+ +"                 CASE WHEN DOLIA             < 0.01 THEN '' ELSE MEASUREUNITID END                                                                                                                                                                                                MEASUREUNITID, "
+ +"                 SUM(CNT_WO)                                                                                                                                                                                                        CNT_WO, "
+ +"                 SUM (PLAN_WO)                                                                                                                                                                                                        PLAN_WO, "
+ +"                 SUM (FAKT_WO)                                                                                                                                                                                                        FAKT_WO, "
+ +"                 SUM (LABOR_HOUR)                                                                                                                                                                                                        LABOR_HOUR, "
+ +"                 SUM(NORM_HOUR)                                                                                                                                                                                                        NORM_HOUR, "
+ +"                 SUM(DOLIA)                                                                                                                                                                                                        DOLIA "
+ +"         FROM    (SELECT bn.tip, "
+ +"                         BN.JPNUM, "
  +"                         bn.WO_D, "
  +"                         bn.numvalue, "
- +"                         bn.MEASUREUNITID, "
- +"                         COUNT (bn.CNT_WO)   CNT_WO, "
+ +"                         BN.MEASUREUNITID, "
+ +"                         sum (bn.CNT_WO)   CNT_WO, "
  +"                         SUM (bn.PLAN_WO)    PLAN_WO, "
  +"                         SUM (bn.FAKT_WO)    FAKT_WO, "
  +"                         SUM (BN.LABOR_HOUR) LABOR_HOUR, "
@@ -441,21 +407,23 @@ sqlText = ""
  +"                                                 (SELECT SUM(SUMWO.SUMWO) "
  +"                                                 FROM    SUMWO "
  +"                                                 ) END ),0) DOLIA "
- +"                 FROM    base_norm bn "
- +"                 GROUP BY BN.JPNUM, "
+ +"                 from    BASE BN "
+ +"                 group by BN.TIP, "
+ +"                         BN.JPNUM, "
  +"                         bn.WO_D, "
  +"                         bn.numvalue, "
  +"                         bn.MEASUREUNITID "
  +"                 ) "
- +"         GROUP BY CASE WHEN DOLIA < 0.01 THEN 'tk_dolia' ELSE jpnum END, "
- +"                 CASE WHEN DOLIA  < 0.01 THEN 'Остальные работы (доля от общего объема трудозатрат менее 1)' ELSE WO_D END, "
- +"                 CASE WHEN DOLIA  < 0.01 THEN TO_NUMBER('') ELSE NUMVALUE END, "
- +"                 CASE WHEN DOLIA  < 0.01 THEN '' ELSE MEASUREUNITID END "
+ +"         group by TIP, "
+ +"                 case when DOLIA < 0.01 then case TIP when 1 then '100500' when 0 then 'tk_dolia' end else JPNUM end, "
+ +"                 CASE WHEN DOLIA < 0.01 THEN case tip when 1 then 'Остальные прочие работы (доля от общего объема трудозатрат менее 1)' WHEN 0 THEN 'Остальные работы (доля от общего объема трудозатрат менее 1)' end ELSE wo_d END, "
+ +"                 CASE WHEN DOLIA              < 0.01 THEN TO_NUMBER('') ELSE NUMVALUE END, "
+ +"                 CASE WHEN DOLIA              < 0.01 THEN '' ELSE MEASUREUNITID END "
  +"         ) "
- +" SELECT  CASE WHEN NONORM_ALL.JPNUM = '100500' THEN 89 ELSE NONORM_ALL.NOM END nom, "
- +"         CASE WHEN NONORM_ALL.JPNUM = '100500' THEN 1 ELSE 0 END               FLAG, "
- +"         '01'                                                                  L_PRED, "
- +"         'По всем ДИ'                                                                  PRED_D, "
+ +" SELECT  CASE WHEN ALL_SUM.TIP                                = 1 AND ALL_SUM.JPNUM = '100500' THEN 89 WHEN ALL_SUM.TIP = 0 AND ALL_SUM.JPNUM = 'tk_dolia' THEN 99 ELSE ALL_SUM.NOM END NOM, "
+ +"         CASE ALL_SUM.TIP WHEN 1 THEN CASE WHEN ALL_SUM.JPNUM = '100500' THEN 3 ELSE 2 END WHEN 0 THEN CASE WHEN ALL_SUM.JPNUM = 'tk_dolia' THEN 1 ELSE 0 END END                       flag, "
+ +"         '01'                                                                                                                                                                           L_PRED, "
+ +"         'По всем ДИ'                                                                                                                                                                   PRED_D, "
  +"         jpnum, "
  +"         WO_D, "
  +"         NUMVALUE, "
@@ -466,98 +434,27 @@ sqlText = ""
  +"         LABOR_HOUR, "
  +"         NORM_HOUR, "
  +"         DOLIA "
- +" FROM    NONORM_ALL "
+ +" FROM    ALL_SUM "
  +"  "
  +" UNION ALL "
  +"  "
- +" SELECT  CASE WHEN NORM_ALL.JPNUM = 'tk_dolia' THEN 99 ELSE NORM_ALL.NOM END nom, "
- +"         CASE WHEN NORM_ALL.JPNUM = 'tk_dolia' THEN 3 ELSE 2 END             FLAG, "
- +"         '01'                                                              L_PRED, "
- +"         'По всем ДИ'                                                              PRED_D, "
- +"         jpnum, "
- +"         WO_D, "
- +"         NUMVALUE, "
- +"         MEASUREUNITID, "
- +"         CNT_WO, "
- +"         PLAN_WO, "
- +"         FAKT_WO, "
- +"         LABOR_HOUR, "
- +"         NORM_HOUR, "
- +"         DOLIA "
- +" FROM    NORM_ALL "
- +"  "
- +" UNION ALL "
- +"  "
- +" SELECT  CASE WHEN nonorm_all.jpnum IS NULL THEN 89 ELSE NONORM_ALL.NOM END                                                                     NOM, "
- +"         CASE WHEN nonorm_all.jpnum IS NULL THEN 1 ELSE 0 END                                                                                   flag, "
- +"         NVL(PRED.L_PRED, a_rab.L_PRED)                                                                                                         L_PRED, "
- +"         NVL(PRED.PRED_D, A_RAB.PRED_D)                                                                                                         PRED_D, "
- +"         CASE WHEN NONORM_ALL.jpnum IS NULL THEN '' ELSE NONORM_ALL.jpnum END                                                                   jpnum, "
- +"         CASE WHEN NONORM_ALL.jpnum IS NULL THEN 'Остальные прочие работы (доля от общего объема трудозатрат менее 1)' ELSE NONORM_ALL.WO_D END WO_D, "
- +"         TO_NUMBER('')                                                                                                                          NUMVALUE, "
- +"         ''                                                                                                                                     MEASUREUNITID, "
- +"         SUM(CNT_WO)                                                                                                                            CNT_WO, "
- +"         TO_NUMBER('')                                                                                                                          PLAN_WO, "
- +"         TO_NUMBER('')                                                                                                                          FAKT_WO, "
- +"         SUM (LABOR_HOUR)                                                                                                                       LABOR_HOUR, "
- +"         TO_NUMBER('')                                                                                                                          NORM_HOUR, "
- +"         SUM(DOLIA)                                                                                                                             DOLIA "
+ +" select  case when NORM_ALL.JPNUM is null then case ALL_RAB.TIP when 1 then 89 when 0 then 99 end else NORM_ALL.NOM end                                                                                                                          NOM, "
+ +"         CASE WHEN NORM_ALL.JPNUM is null  THEN CASE nvl(ALL_RAB.TIP, NORM_ALL.TIP) WHEN 1 THEN 3 WHEN 0 THEN 1 else 66 END else CASE nvl(ALL_RAB.TIP, NORM_ALL.TIP) WHEN 1 THEN 2 WHEN 0 THEN 0 END END                                        FLAG, "
+ +"         NVL(PRED.L_PRED, ALL_RAB.L_PRED)                                                                                                                                                                                                        L_PRED, "
+ +"         NVL(PRED.pred_d, ALL_RAB.PRED_D)                                                                                                                                                                                                        PRED_D, "
+ +"         CASE WHEN NORM_ALL.JPNUM IS NULL THEN '' ELSE NORM_ALL.JPNUM END                                                                                                                                                                               JPNUM, "
+ +"         CASE WHEN NORM_ALL.JPNUM IS NULL THEN CASE ALL_RAB.TIP WHEN 1 THEN 'Остальные прочие работы (доля от общего объема трудозатрат менее 1)' WHEN 0 THEN 'Остальные работы (доля от общего объема трудозатрат менее 1)' END ELSE NORM_ALL.WO_D END WO_D, "
+ +"         CASE WHEN NORM_ALL.JPNUM IS NULL THEN TO_NUMBER('') ELSE NORM_ALL.NUMVALUE END                                                                                                                                                                 NUMVALUE, "
+ +"         case when NORM_ALL.JPNUM is null then '' else NORM_ALL.MEASUREUNITID end                                                                                                                                                                       MEASUREUNITID, "
+ +"         SUM(ALL_RAB.CNT_WO)                                                                                                                                                                                                          CNT_WO, "
+ +"         SUM (ALL_RAB.PLAN_WO)                                                                                                                                                                                                        PLAN_WO, "
+ +"         SUM (ALL_RAB.FAKT_WO)                                                                                                                                                                                                        FAKT_WO, "
+ +"         SUM (ALL_RAB.LABOR_HOUR)                                                                                                                                                                                                     LABOR_HOUR, "
+ +"         SUM(ALL_RAB.NORM_HOUR)                                                                                                                                                                                                       NORM_HOUR, "
+ +"         SUM(ALL_RAB.DOLIA)                                                                                                                                                                                                           DOLIA "
  +" FROM    (SELECT * "
- +"         FROM    nonorm_all "
- +"         WHERE   jpnum <> '100500' "
- +"         ) nonorm_all "
- +"         FULL JOIN "
- +"                 (SELECT DISTINCT tek_loc l_pred, "
- +"                         pred_d "
- +"                 FROM    ALLWO "
- +"                 ) pred "
- +"                 ON      1=1 "
- +"         FULL JOIN "
- +"                 (SELECT b_nn_m.L_PRED, "
- +"                         b_nn_m.PRED_D, "
- +"                         B_NN_M.WO_D, "
- +"                         b_nn_m.cls, "
- +"                         b_nn_m.CNT_WO, "
- +"                         B_NN_M.LABOR_HOUR LABOR_HOUR, "
- +"                         NVL( CASE WHEN (SELECT SUMWO.SUMWO "
- +"                                                         FROM    SUMWO "
- +"                                                         WHERE   SUMWO.BRIGAD_LOCATION = b_nn_m.L_PRED "
- +"                                                 ) "
- +"                                                 = 0 THEN 0 ELSE b_nn_m.LABOR_HOUR/ "
- +"                                                 (SELECT SUMWO.SUMWO "
- +"                                                 FROM    SUMWO "
- +"                                                 WHERE   SUMWO.BRIGAD_LOCATION = B_NN_M.L_PRED "
- +"                                                 ) END, 0) DOLIA "
- +"                 FROM    BASE_NONORM B_NN_M "
- +"                 ) a_rab "
- +"                 ON      NONORM_ALL.jpnum  = a_rab.cls "
- +"                         AND PRED.L_PRED   = A_RAB.L_PRED "
- +" GROUP BY CASE WHEN NONORM_ALL.JPNUM IS NULL THEN 89 ELSE NONORM_ALL.NOM END, "
- +"         CASE WHEN nonorm_all.jpnum  IS NULL THEN 1 ELSE 0 END, "
- +"         NVL(PRED.L_PRED, a_rab.L_PRED), "
- +"         NVL(PRED.PRED_D, A_RAB.PRED_D), "
- +"         CASE WHEN NONORM_ALL.JPNUM IS NULL THEN 'Остальные прочие работы (доля от общего объема трудозатрат менее 1)' ELSE NONORM_ALL.WO_D END, "
- +"         CASE WHEN NONORM_ALL.jpnum IS NULL THEN '' ELSE NONORM_ALL.jpnum END "
- +"  "
- +" UNION ALL "
- +"  "
- +" SELECT  CASE WHEN NORM_ALL.JPNUM IS NULL THEN 99 ELSE NORM_ALL.NOM END                                                              NOM, "
- +"         CASE WHEN NORM_ALL.JPNUM IS NULL THEN 3 ELSE 2 END                                                                          flag, "
- +"         NVL(PRED.L_PRED, ALL_RAB.L_PRED)                                                                                            L_PRED, "
- +"         NVL(PRED.pred_d, ALL_RAB.PRED_D)                                                                                            PRED_D, "
- +"         CASE WHEN NORM_ALL.JPNUM IS NULL THEN '' ELSE NORM_ALL.JPNUM END                                                            JPNUM, "
- +"         CASE WHEN NORM_ALL.JPNUM IS NULL THEN 'Остальные работы (доля от общего объема трудозатрат менее 1)' ELSE NORM_ALL.WO_D END WO_D, "
- +"         CASE WHEN NORM_ALL.JPNUM IS NULL THEN TO_NUMBER('') ELSE NORM_ALL.NUMVALUE END                                              NUMVALUE, "
- +"         CASE WHEN norm_all.JPNUM IS NULL THEN '' ELSE norm_all.MEASUREUNITID END                                                    MEASUREUNITID, "
- +"         SUM(ALL_RAB.CNT_WO)                                                                                                         CNT_WO, "
- +"         SUM (ALL_RAB.PLAN_WO)                                                                                                       PLAN_WO, "
- +"         SUM (ALL_RAB.FAKT_WO)                                                                                                       FAKT_WO, "
- +"         SUM (ALL_RAB.LABOR_HOUR)                                                                                                    LABOR_HOUR, "
- +"         SUM(ALL_RAB.NORM_HOUR)                                                                                                      NORM_HOUR, "
- +"         SUM(ALL_RAB.DOLIA)                                                                                                          DOLIA "
- +" FROM    (SELECT * "
- +"         FROM    NORM_ALL "
- +"         WHERE   JPNUM <> 'tk_dolia' "
+ +"         FROM    ALL_SUM "
+ +"         WHERE   JPNUM NOT IN ('tk_dolia', '100500') "
  +"         ) NORM_ALL "
  +"         FULL JOIN "
  +"                 (SELECT DISTINCT tek_loc l_pred, "
@@ -576,16 +473,16 @@ sqlText = ""
  +"                                                 FROM    SUMWO "
  +"                                                 WHERE   SUMWO.BRIGAD_LOCATION = BNM.L_PRED "
  +"                                                 ) END, 0) DOLIA "
- +"                 FROM    base_norm bnm "
+ +"                 FROM    base bnm "
  +"                 ) ALL_RAB "
  +"                 ON      NORM_ALL.JPNUM  = ALL_RAB.JPNUM "
  +"                         AND PRED.L_PRED = ALL_RAB.L_PRED "
- +" GROUP BY CASE WHEN NORM_ALL.JPNUM IS NULL THEN 99 ELSE NORM_ALL.NOM END, "
- +"         CASE WHEN NORM_ALL.JPNUM  IS NULL THEN 3 ELSE 2 END, "
+ +" group by case when NORM_ALL.JPNUM is null then case ALL_RAB.TIP when 1 then 89 when 0 then 99 end else NORM_ALL.NOM end, "
+ +"         CASE WHEN NORM_ALL.JPNUM is null  THEN CASE nvl(ALL_RAB.TIP, NORM_ALL.TIP) WHEN 1 THEN 3 WHEN 0 THEN 1 else 66 END else CASE nvl(ALL_RAB.TIP, NORM_ALL.TIP) WHEN 1 THEN 2 WHEN 0 THEN 0 END END, "
  +"         NVL(PRED.L_PRED, ALL_RAB.L_PRED), "
  +"         NVL(PRED.pred_d, ALL_RAB.PRED_D), "
  +"         CASE WHEN NORM_ALL.JPNUM IS NULL THEN '' ELSE NORM_ALL.JPNUM END, "
- +"         CASE WHEN NORM_ALL.JPNUM IS NULL THEN 'Остальные работы (доля от общего объема трудозатрат менее 1)' ELSE NORM_ALL.WO_D END, "
+ +"         CASE WHEN NORM_ALL.JPNUM IS NULL THEN CASE ALL_RAB.TIP WHEN 1 THEN 'Остальные прочие работы (доля от общего объема трудозатрат менее 1)' WHEN 0 THEN 'Остальные работы (доля от общего объема трудозатрат менее 1)' END ELSE NORM_ALL.WO_D END, "
  +"         CASE WHEN NORM_ALL.JPNUM IS NULL THEN TO_NUMBER('') ELSE NORM_ALL.NUMVALUE END, "
  +"         CASE WHEN NORM_ALL.JPNUM IS NULL THEN '' ELSE NORM_ALL.MEASUREUNITID END "
  ;
@@ -707,15 +604,15 @@ maximoDataSet.open();
 var sqlText = new String();
 
 sqlText = "" 
-+"SELECT  preds.description 							 pred_d, " 
-+"        site.description  							 site_d, "
++"SELECT  'preds.description' 							 pred_d, " 
++"        'site.description'  							 site_d, "
 +"		  to_char(" + params["date1"] + ", 'DD.MM.YYYY') D1,"
 +"		  to_char(" + params["date2"] + ", 'DD.MM.YYYY') D2 "
-+"FROM    maximo.preds " 
-+"        JOIN maximo.site " 
-+"                ON      preds.siteid = site.siteid " 
-+"WHERE   preds.siteid                 = '"+params["mroSite"]+"'" 
-+"        AND preds.location           = '"+params["pred"]+"'"  
++"FROM    dual " //maximo.preds " 
+//+"        JOIN maximo.site " 
+//+"                ON      preds.siteid = site.siteid " 
+//+"WHERE   preds.siteid                 = '"+params["mroSite"]+"'" 
+//+"        AND preds.location           = '"+params["pred"]+"'"  
  
 ;
 
@@ -810,7 +707,8 @@ return (true);]]></method>
                 <structure>
                     <property name="name">PRED_D</property>
                     <property name="displayName">PRED_D</property>
-                    <expression name="expression">"Ведомость учета объемов выполняемых работ и затрат рабочего времени в разрезе ТНК по " +dataSetRow["PRED_D"]+ " " + dataSetRow["SITE_D"].replace("ая", "ой") + " ДИ за период с " + dataSetRow["D1"] + " по " + dataSetRow["D2"]</expression>
+                    <expression name="expression">"Трудозатраты по рабочим заданиям в разрезе ТНВ по сети дорог за период с " + dataSetRow["D1"] + " по " + dataSetRow["D2"]
+//"Ведомость учета объемов выполняемых работ и затрат рабочего времени в разрезе ТНК по " +dataSetRow["PRED_D"]+ " " + dataSetRow["SITE_D"].replace("ая", "ой") + " ДИ за период с " + dataSetRow["D1"] + " по " + dataSetRow["D2"]</expression>
                     <property name="dataType">string</property>
                 </structure>
             </list-property>
@@ -1204,6 +1102,7 @@ row["type_norm_hour"]/row["type_labor_haur"]</expression>
             <header>
                 <row id="17857">
                     <property name="backgroundColor">#C0C0C0</property>
+                    <property name="verticalAlign">middle</property>
                     <cell id="18073">
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
@@ -1287,9 +1186,8 @@ row["type_norm_hour"]/row["type_labor_haur"]</expression>
                         <property name="borderTopWidth">thin</property>
                     </cell>
                     <cell id="17864">
-                        <property name="borderBottomColor">#000000</property>
-                        <property name="borderBottomStyle">solid</property>
-                        <property name="borderBottomWidth">thin</property>
+                        <property name="colSpan">1</property>
+                        <property name="rowSpan">4</property>
                         <property name="borderLeftColor">#000000</property>
                         <property name="borderLeftStyle">solid</property>
                         <property name="borderLeftWidth">thin</property>
@@ -1304,9 +1202,6 @@ row["type_norm_hour"]/row["type_labor_haur"]</expression>
                         </label>
                     </cell>
                     <cell id="17866">
-                        <property name="borderBottomColor">#000000</property>
-                        <property name="borderBottomStyle">solid</property>
-                        <property name="borderBottomWidth">thin</property>
                         <property name="borderLeftColor">#000000</property>
                         <property name="borderLeftStyle">solid</property>
                         <property name="borderLeftWidth">thin</property>
@@ -1317,13 +1212,10 @@ row["type_norm_hour"]/row["type_labor_haur"]</expression>
                         <property name="borderTopStyle">solid</property>
                         <property name="borderTopWidth">thin</property>
                         <label id="17867">
-                            <text-property name="text">Измеритель работы по ТНВ</text-property>
+                            <text-property name="text">Измеритель</text-property>
                         </label>
                     </cell>
                     <cell id="17868">
-                        <property name="borderBottomColor">#000000</property>
-                        <property name="borderBottomStyle">solid</property>
-                        <property name="borderBottomWidth">thin</property>
                         <property name="borderLeftColor">#000000</property>
                         <property name="borderLeftStyle">solid</property>
                         <property name="borderLeftWidth">thin</property>
@@ -1333,14 +1225,8 @@ row["type_norm_hour"]/row["type_labor_haur"]</expression>
                         <property name="borderTopColor">#000000</property>
                         <property name="borderTopStyle">solid</property>
                         <property name="borderTopWidth">thin</property>
-                        <label id="17869">
-                            <text-property name="text">Единица измерения</text-property>
-                        </label>
                     </cell>
                     <cell id="17870">
-                        <property name="borderBottomColor">#000000</property>
-                        <property name="borderBottomStyle">solid</property>
-                        <property name="borderBottomWidth">thin</property>
                         <property name="borderLeftColor">#000000</property>
                         <property name="borderLeftStyle">solid</property>
                         <property name="borderLeftWidth">thin</property>
@@ -1350,14 +1236,8 @@ row["type_norm_hour"]/row["type_labor_haur"]</expression>
                         <property name="borderTopColor">#000000</property>
                         <property name="borderTopStyle">solid</property>
                         <property name="borderTopWidth">thin</property>
-                        <label id="17871">
-                            <text-property name="text">Кол-во РЗ</text-property>
-                        </label>
                     </cell>
                     <cell id="17872">
-                        <property name="borderBottomColor">#000000</property>
-                        <property name="borderBottomStyle">solid</property>
-                        <property name="borderBottomWidth">thin</property>
                         <property name="borderLeftColor">#000000</property>
                         <property name="borderLeftStyle">solid</property>
                         <property name="borderLeftWidth">thin</property>
@@ -1367,14 +1247,8 @@ row["type_norm_hour"]/row["type_labor_haur"]</expression>
                         <property name="borderTopColor">#000000</property>
                         <property name="borderTopStyle">solid</property>
                         <property name="borderTopWidth">thin</property>
-                        <label id="17873">
-                            <text-property name="text">Плановый объем работы</text-property>
-                        </label>
                     </cell>
                     <cell id="18050">
-                        <property name="borderBottomColor">#000000</property>
-                        <property name="borderBottomStyle">solid</property>
-                        <property name="borderBottomWidth">thin</property>
                         <property name="borderLeftColor">#000000</property>
                         <property name="borderLeftStyle">solid</property>
                         <property name="borderLeftWidth">thin</property>
@@ -1385,13 +1259,10 @@ row["type_norm_hour"]/row["type_labor_haur"]</expression>
                         <property name="borderTopStyle">solid</property>
                         <property name="borderTopWidth">thin</property>
                         <label id="18059">
-                            <text-property name="text">Фактический объем работ</text-property>
+                            <text-property name="text">Факти-</text-property>
                         </label>
                     </cell>
                     <cell id="17874">
-                        <property name="borderBottomColor">#000000</property>
-                        <property name="borderBottomStyle">solid</property>
-                        <property name="borderBottomWidth">thin</property>
                         <property name="borderLeftColor">#000000</property>
                         <property name="borderLeftStyle">solid</property>
                         <property name="borderLeftWidth">thin</property>
@@ -1402,13 +1273,10 @@ row["type_norm_hour"]/row["type_labor_haur"]</expression>
                         <property name="borderTopStyle">solid</property>
                         <property name="borderTopWidth">thin</property>
                         <label id="17875">
-                            <text-property name="text">Фактическое время, ч-час</text-property>
+                            <text-property name="text">Факти-</text-property>
                         </label>
                     </cell>
                     <cell id="17876">
-                        <property name="borderBottomColor">#000000</property>
-                        <property name="borderBottomStyle">solid</property>
-                        <property name="borderBottomWidth">thin</property>
                         <property name="borderLeftColor">#000000</property>
                         <property name="borderLeftStyle">solid</property>
                         <property name="borderLeftWidth">thin</property>
@@ -1419,13 +1287,10 @@ row["type_norm_hour"]/row["type_labor_haur"]</expression>
                         <property name="borderTopStyle">solid</property>
                         <property name="borderTopWidth">thin</property>
                         <label id="17877">
-                            <text-property name="text">Нормиро-ванное время, ч-час</text-property>
+                            <text-property name="text">Нормиро-</text-property>
                         </label>
                     </cell>
                     <cell id="17966">
-                        <property name="borderBottomColor">#000000</property>
-                        <property name="borderBottomStyle">solid</property>
-                        <property name="borderBottomWidth">thin</property>
                         <property name="borderLeftColor">#000000</property>
                         <property name="borderLeftStyle">solid</property>
                         <property name="borderLeftWidth">thin</property>
@@ -1436,10 +1301,28 @@ row["type_norm_hour"]/row["type_labor_haur"]</expression>
                         <property name="borderTopStyle">solid</property>
                         <property name="borderTopWidth">thin</property>
                         <label id="17994">
-                            <text-property name="text">Выполнение нормы по выработке</text-property>
+                            <text-property name="text">Выпол-</text-property>
                         </label>
                     </cell>
                     <cell id="17878">
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                        <label id="17879">
+                            <text-property name="text">Доля от</text-property>
+                        </label>
+                    </cell>
+                </row>
+                <row id="18175">
+                    <property name="backgroundColor">#C0C0C0</property>
+                    <property name="verticalAlign">middle</property>
+                    <cell id="18176">
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
                         <property name="borderBottomWidth">thin</property>
@@ -1452,8 +1335,530 @@ row["type_norm_hour"]/row["type_labor_haur"]</expression>
                         <property name="borderTopColor">#000000</property>
                         <property name="borderTopStyle">solid</property>
                         <property name="borderTopWidth">thin</property>
-                        <label id="17879">
-                            <text-property name="text">Доля от общего объема трудозатрат</text-property>
+                    </cell>
+                    <cell id="18177">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                    </cell>
+                    <cell id="18178">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                    </cell>
+                    <cell id="18179">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                    </cell>
+                    <cell id="18180">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                    </cell>
+                    <cell id="18182">
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <label id="18225">
+                            <text-property name="text"> работы </text-property>
+                        </label>
+                    </cell>
+                    <cell id="18183">
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <label id="18228">
+                            <text-property name="text">Единица</text-property>
+                        </label>
+                    </cell>
+                    <cell id="18184">
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <label id="17871">
+                            <text-property name="text">Коли-</text-property>
+                        </label>
+                    </cell>
+                    <cell id="18185">
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <label id="17873">
+                            <text-property name="text">Плановый</text-property>
+                        </label>
+                    </cell>
+                    <cell id="18186">
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <label id="18233">
+                            <text-property name="text">ческий</text-property>
+                        </label>
+                    </cell>
+                    <cell id="18187">
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <label id="18236">
+                            <text-property name="text">ческое</text-property>
+                        </label>
+                    </cell>
+                    <cell id="18188">
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <label id="18239">
+                            <text-property name="text">ванное</text-property>
+                        </label>
+                    </cell>
+                    <cell id="18189">
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <label id="18242">
+                            <text-property name="text">нение</text-property>
+                        </label>
+                    </cell>
+                    <cell id="18190">
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <label id="18245">
+                            <text-property name="text">общего</text-property>
+                        </label>
+                    </cell>
+                </row>
+                <row id="18207">
+                    <property name="backgroundColor">#C0C0C0</property>
+                    <property name="verticalAlign">middle</property>
+                    <cell id="18208">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                    </cell>
+                    <cell id="18209">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                    </cell>
+                    <cell id="18210">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                    </cell>
+                    <cell id="18211">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                    </cell>
+                    <cell id="18212">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                    </cell>
+                    <cell id="18214">
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <label id="18226">
+                            <text-property name="text">по </text-property>
+                        </label>
+                    </cell>
+                    <cell id="18215">
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <label id="17869">
+                            <text-property name="text">измерения</text-property>
+                        </label>
+                    </cell>
+                    <cell id="18216">
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <label id="18229">
+                            <text-property name="text">чество</text-property>
+                        </label>
+                    </cell>
+                    <cell id="18217">
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <label id="18231">
+                            <text-property name="text">объем</text-property>
+                        </label>
+                    </cell>
+                    <cell id="18218">
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <label id="18234">
+                            <text-property name="text">объем</text-property>
+                        </label>
+                    </cell>
+                    <cell id="18219">
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <label id="18237">
+                            <text-property name="text">время, </text-property>
+                        </label>
+                    </cell>
+                    <cell id="18220">
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <label id="18240">
+                            <text-property name="text">время,</text-property>
+                        </label>
+                    </cell>
+                    <cell id="18221">
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <label id="18243">
+                            <text-property name="text">нормы по</text-property>
+                        </label>
+                    </cell>
+                    <cell id="18222">
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <label id="18246">
+                            <text-property name="text">объема</text-property>
+                        </label>
+                    </cell>
+                </row>
+                <row id="18191">
+                    <property name="backgroundColor">#C0C0C0</property>
+                    <property name="verticalAlign">middle</property>
+                    <cell id="18192">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                    </cell>
+                    <cell id="18193">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                    </cell>
+                    <cell id="18194">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                    </cell>
+                    <cell id="18195">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                    </cell>
+                    <cell id="18196">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                    </cell>
+                    <cell id="18198">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <label id="18227">
+                            <text-property name="text">ТНВ</text-property>
+                        </label>
+                    </cell>
+                    <cell id="18199">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                    </cell>
+                    <cell id="18200">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <label id="18230">
+                            <text-property name="text">РЗ</text-property>
+                        </label>
+                    </cell>
+                    <cell id="18201">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <label id="18232">
+                            <text-property name="text">работы</text-property>
+                        </label>
+                    </cell>
+                    <cell id="18202">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <label id="18235">
+                            <text-property name="text">работ</text-property>
+                        </label>
+                    </cell>
+                    <cell id="18203">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <label id="18238">
+                            <text-property name="text">ч-час</text-property>
+                        </label>
+                    </cell>
+                    <cell id="18204">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <label id="18241">
+                            <text-property name="text">ч-час</text-property>
+                        </label>
+                    </cell>
+                    <cell id="18205">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <label id="18244">
+                            <text-property name="text">выработке</text-property>
+                        </label>
+                    </cell>
+                    <cell id="18206">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <property name="borderLeftColor">#000000</property>
+                        <property name="borderLeftStyle">solid</property>
+                        <property name="borderLeftWidth">thin</property>
+                        <property name="borderRightColor">#000000</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <label id="18247">
+                            <text-property name="text">трудозатрат</text-property>
                         </label>
                     </cell>
                 </row>
