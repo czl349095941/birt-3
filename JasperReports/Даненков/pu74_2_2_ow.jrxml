@@ -369,7 +369,8 @@ GROUP BY TO_CHAR (SUBSTR (a1.mesto,1,2000)) ,
                 extract (DAY FROM wo.Actfinish) Actfinish ,
                 wo.fakt_wo ,
                 wo.labor_hour ,
-                Wo.Plan_Wo
+                Wo.Plan_Wo ,
+	      NVL (ROUND ((WO.FAKT_WO/J1.NUMVALUE*( CASE WHEN NVL(WO.JPDURATION, 0) = 0 THEN WO.NOKOEFDURATION ELSE WO.JPDURATION END)), 2), 0) norm
         FROM    Maximo.WORKORDER wo
                 LEFT JOIN MAXIMO.wojprelation jpr
                         ON      wo.wonum               = jpr.wonum
@@ -427,7 +428,8 @@ GROUP BY TO_CHAR (SUBSTR (a1.mesto,1,2000)) ,
           sum (case when  Actfinish=28 then labor_hour end)Ч_Ч_28,
           sum (case when  Actfinish=29 then labor_hour end)Ч_Ч_29,
           sum (case when  Actfinish=30 then labor_hour end)Ч_Ч_30,
-          sum (case when  Actfinish=31 then labor_hour end)Ч_Ч_31
+          sum (case when  Actfinish=31 then labor_hour end)Ч_Ч_31,
+	to_number('') snorm
   FROM      a1 left join MAXIMO.CLASSSTRUCTURE cls on cls.CLASSSTRUCTUREID = a1.CLASSSTRUCTUREID WHERE TYPEWORKORDER IN ('Прочее', 'Путевые обходчики')
  GROUP BY nvl(case when TYPEWORKORDER IN ('Путевые обходчики') then 'Осмотр пути' else NVL(a1.OTHERWORK, cls.description) end, 'Прочие работы')
   UNION ALL
@@ -470,7 +472,8 @@ GROUP BY TO_CHAR (SUBSTR (a1.mesto,1,2000)) ,
           sum (case when  Actfinish=28 then labor_hour end)Ч_Ч_28,
           sum (case when  Actfinish=29 then labor_hour end)Ч_Ч_29,
           sum (case when  Actfinish=30 then labor_hour end)Ч_Ч_30,
-          sum (case when  Actfinish=31 then labor_hour end)Ч_Ч_31
+          sum (case when  Actfinish=31 then labor_hour end)Ч_Ч_31,
+	sum (norm) snorm
   FROM     a1]]>
 	</queryString>
 	<field name="MESTO" class="java.lang.String"/>
@@ -513,6 +516,7 @@ GROUP BY TO_CHAR (SUBSTR (a1.mesto,1,2000)) ,
 	<field name="Ч_Ч_29" class="java.math.BigDecimal"/>
 	<field name="Ч_Ч_30" class="java.math.BigDecimal"/>
 	<field name="Ч_Ч_31" class="java.math.BigDecimal"/>
+	<field name="SNORM" class="java.math.BigDecimal"/>
 	<background>
 		<band splitType="Stretch"/>
 	</background>
@@ -860,6 +864,20 @@ GROUP BY TO_CHAR (SUBSTR (a1.mesto,1,2000)) ,
 				</textElement>
 				<text><![CDATA[]]></text>
 			</staticText>
+			<textField pattern="###0.0;-###0.0" isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="756" y="0" width="21" height="34" forecolor="#000000" backcolor="#FFFFFF" uuid="c17b530a-91db-4475-a12c-894a87ca4ff8"/>
+				<box>
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="Times New Roman" size="7" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{SNORM}]]></textFieldExpression>
+			</textField>
 		</band>
 	</detail>
 	<columnFooter>

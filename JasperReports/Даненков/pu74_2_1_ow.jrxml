@@ -543,7 +543,8 @@ GROUP BY TO_CHAR (SUBSTR (a1.mesto,1,2000)) ,
                 extract (DAY FROM wo.Actfinish) Actfinish ,
                 wo.fakt_wo ,
                 wo.labor_hour ,
-                Wo.Plan_Wo
+                Wo.Plan_Wo ,
+	      NVL (ROUND ((WO.FAKT_WO/J1.NUMVALUE*( CASE WHEN NVL(WO.JPDURATION, 0) = 0 THEN WO.NOKOEFDURATION ELSE WO.JPDURATION END)), 2), 0) norm
         FROM    Maximo.WORKORDER wo
                 LEFT JOIN MAXIMO.wojprelation jpr
                         ON      wo.wonum               = jpr.wonum
@@ -599,7 +600,8 @@ SELECT  'invis' MESTO ,
         SUM ( CASE WHEN Actfinish=12 THEN labor_hour END)Ч_Ч_12,
         SUM ( CASE WHEN Actfinish=13 THEN labor_hour END)Ч_Ч_13,
         SUM ( CASE WHEN Actfinish=14 THEN labor_hour END)Ч_Ч_14,
-        SUM ( CASE WHEN Actfinish=15 THEN labor_hour END)Ч_Ч_15
+        SUM ( CASE WHEN Actfinish=15 THEN labor_hour END)Ч_Ч_15,
+        to_number('') snorm
 FROM    a1
         LEFT JOIN MAXIMO.CLASSSTRUCTURE cls
                 ON      cls.CLASSSTRUCTUREID = a1.CLASSSTRUCTUREID
@@ -643,7 +645,8 @@ UNION ALL
         SUM (CASE WHEN Actfinish=12 THEN labor_hour END)Ч_Ч_12  ,
         SUM (CASE WHEN Actfinish=13 THEN labor_hour END)Ч_Ч_13  ,
         SUM (CASE WHEN Actfinish=14 THEN labor_hour END)Ч_Ч_14  ,
-        SUM (CASE WHEN Actfinish=15 THEN labor_hour END)Ч_Ч_15
+        SUM (CASE WHEN Actfinish=15 THEN labor_hour END)Ч_Ч_15  ,
+        sum (norm) snorm
  FROM   a1]]>
 	</queryString>
 	<field name="MESTO" class="java.lang.String"/>
@@ -684,6 +687,7 @@ UNION ALL
 	<field name="Ч_Ч_13" class="java.math.BigDecimal"/>
 	<field name="Ч_Ч_14" class="java.math.BigDecimal"/>
 	<field name="Ч_Ч_15" class="java.math.BigDecimal"/>
+	<field name="SNORM" class="java.math.BigDecimal"/>
 	<background>
 		<band splitType="Stretch"/>
 	</background>
@@ -1036,6 +1040,20 @@ UNION ALL
 				</textElement>
 				<text><![CDATA[]]></text>
 			</staticText>
+			<textField pattern="###0.0;-###0.0" isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="756" y="0" width="21" height="29" forecolor="#000000" backcolor="#FFFFFF" uuid="c4acf8a9-f2bb-4547-859b-3bf56a3cd388"/>
+				<box>
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="Times New Roman" size="7" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Roman" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{SNORM}]]></textFieldExpression>
+			</textField>
 		</band>
 	</detail>
 	<columnFooter>
