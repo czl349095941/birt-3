@@ -1053,8 +1053,8 @@ sqlText = " WITH "
  +"   (  "
  +"   SELECT count(distinct laborcode)*(select sum (cnt) from trud where to_date (dat, 'DD.MM.YY') BETWEEN '"+params["par"]+"' AND '"+params["fin"]+"')  plan, COUNT(DISTINCT LABORCODE) CNT_RAB, PERSON.L_PODR  "
  +"   FROM MAXIMO.LABOR  "
- +"   join MAXIMO.PERSON on PERSON.PERSONID   = LABOR.LABORCODE  and person.HIREDATE < to_date('"+params["fin"]+"') +1"
- +"   WHERE labor.status     = 'АКТИВНО'  AND LABOR.LABORCODE LIKE 'P%' AND person.location IN '" +params["pred"].replace("=", "") + "' "
+ +"   join MAXIMO.PERSON on PERSON.PERSONID   = LABOR.LABORCODE "
+ +"   WHERE labor.status     = 'АКТИВНО' AND LABOR.LABORCODE LIKE 'P%' AND person.location IN '" +params["pred"].replace("=", "") + "' "
  +"   AND laborcode   IN  "
  +"     (SELECT laborcode  "
  +"     FROM MAXIMO.LABORCRAFTRATE  "
@@ -1074,7 +1074,7 @@ sqlText = " WITH "
  +"   SELECT  LOCATIONS.LOCATION, NVL (LOCATIONS.DESCRIPTION, 'Бригада не указана') DESCRIPTION, NVL (PLAN.CNT_RAB, 0) CNT_RAB,  NVL (PLAN.PLAN, 0) PLAN, ROUND (NVL (FAKT.FAKT, 0),2) FAKT, FAKT.CW, ROUND (NVL (FAKT.FAKT/FAKT.CW, 0),2) AL  "
  +"   FROM PLAN   "
  +"   LEFT JOIN FAKT   ON FAKT.brigad_location = PLAN.L_PODR  "
- +"   LEFT JOIN MAXIMO.LOCATIONS ON LOCATIONS.LOCATION = FAKT.brigad_location "
+ +"   LEFT JOIN MAXIMO.LOCATIONS ON LOCATIONS.LOCATION = PLAN.L_PODR "
  +"   AND LOCATIONS.SITEID = '"+params["mroSite"]+"' and LOCATIONS.STATUS = 'РАБОТАЕТ' "
  
  
@@ -2127,6 +2127,12 @@ else 0</expression>
                             <expression name="value">row["CNT_RAB"]</expression>
                         </structure>
                     </list-property>
+                </structure>
+            </list-property>
+            <list-property name="sort">
+                <structure>
+                    <expression name="key">row["DESCRIPTION"]</expression>
+                    <property name="direction">asc</property>
                 </structure>
             </list-property>
             <column id="10371"/>
