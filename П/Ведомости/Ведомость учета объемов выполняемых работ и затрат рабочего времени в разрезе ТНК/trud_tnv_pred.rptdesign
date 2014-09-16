@@ -24,28 +24,7 @@ mxReportScriptContext = MXReportScriptContext.initialize(reportContext);
 mxReportScriptContext.setDefaultLogLevel("DEBUG");
 mxReportScriptContext.setDefaultLogFile("c:/temp/tetttt.txt");
 
-params["pred"] = params["pred"].replace("=", "")
-
-if (BirtComp.equalTo(params["date1"],null) == true || params["date1"] == '' )
-	{if (BirtComp.equalTo(params["date2"],null) == true || params["date2"] == '')
-		{params["date1"] = "to_date('01."+ BirtDateTime.month(BirtDateTime.now())+"." + BirtDateTime.year(BirtDateTime.now()) + "')";
-		params["date2"] = "to_date(LAST_DAY(TO_DATE('1."+ BirtDateTime.month(BirtDateTime.now()) + "."+ BirtDateTime.year(BirtDateTime.now()) +"','dd.mm.yyyy')))";
-		}
-	else
-		{params["date1"] = "to_date('" +params["date2"]+ "') - to_number(TO_CHAR(LAST_DAY(TO_DATE('1.' || to_char(extract (month from to_date('" +params["date2"]+ "'))-1) || '.'|| extract (year from to_date('" +params["date2"]+ "')),'dd.mm.yyyy')),'dd'))";
-		params["date2"] = "to_date('" +params["date2"]+ "')";
-		}
-	}
-else  
-	{if (BirtComp.equalTo(params["date2"],null) == true || params["date2"] == '')
-		{params["date2"] = "to_date('" +params["date1"]+ "')";
-		params["date1"] = "to_date('" +params["date1"]+ "')";
-		}
-	 else 
-	 	{params["date1"] = "to_date('" +params["date1"]+ "')";
-		params["date2"] = "to_date('" +params["date2"]+ "')";
-		}
-	}]]></method>
+params["pred"] = params["pred"].replace("=", "")]]></method>
     <method name="afterFactory"><![CDATA[MXReportScriptContext.close();]]></method>
     <property name="theme">MaximoSystemLibrary.maximoTheme</property>
     <text-property name="displayName">Tivoli Maximo Grouped Chart Template</text-property>
@@ -103,7 +82,7 @@ else
             <property name="dataType">string</property>
             <property name="paramType">simple</property>
             <text-property name="promptText">Начало периода</text-property>
-            <property name="isRequired">false</property>
+            <property name="isRequired">true</property>
             <property name="controlType">text-box</property>
             <property name="distinct">true</property>
             <structure name="format">
@@ -115,7 +94,7 @@ else
             <property name="dataType">string</property>
             <property name="paramType">simple</property>
             <text-property name="promptText">Конец периода</text-property>
-            <property name="isRequired">false</property>
+            <property name="isRequired">true</property>
             <property name="controlType">text-box</property>
             <property name="distinct">true</property>
             <structure name="format">
@@ -189,11 +168,6 @@ else
                     <property name="name">DOLIA</property>
                     <property name="dataType">string</property>
                 </structure>
-                <structure>
-                    <property name="position">13</property>
-                    <property name="name">NOM</property>
-                    <property name="dataType">integer</property>
-                </structure>
             </list-property>
             <list-property name="columnHints">
                 <structure>
@@ -231,9 +205,6 @@ else
                 </structure>
                 <structure>
                     <property name="columnName">PLAN_WO</property>
-                </structure>
-                <structure>
-                    <property name="columnName">NOM</property>
                 </structure>
             </list-property>
             <structure name="cachedMetaData">
@@ -298,11 +269,6 @@ else
                         <property name="name">DOLIA</property>
                         <property name="dataType">string</property>
                     </structure>
-                    <structure>
-                        <property name="position">13</property>
-                        <property name="name">NOM</property>
-                        <property name="dataType">integer</property>
-                    </structure>
                 </list-property>
             </structure>
             <property name="dataSource">maximoDataSource</property>
@@ -314,7 +280,6 @@ var sqlText = new String();
 sqlText = "" 
  +" WITH ALLWO AS "
  +"         ( SELECT wo.*, "
- +"					loc.location tek_loc, "
  +"                 loc.description pred_d "
  +"         FROM    MAXIMO.WORKORDER WO "
  +"                 JOIN maximo.locations loc "
@@ -324,171 +289,102 @@ sqlText = ""
  +"                 AND WO.H      = 800 "
  +"                 AND WO.SITEID = '"+ params["mroSite"]+"'"
  +"                 AND WO.L_PRED = '"+params["pred"]+"'"
- +"                 AND wo.actfinish >= "+params["date1"]+" AND wo.actfinish < "+params["date2"]+" +1"
- //+"					and wo.brigad_location = 'PODR_2114' "
+ +"                 AND WO.ACTFINISH BETWEEN TO_DATE ('"+params["date1"]+"') AND TO_DATE ('"+params["date2"]+"')+1 "
  +"         ) "
  +"         , "
- +" SUMWO as "
- +"         (select /*+ MATERIALIZE */  "
- +"                 SUM(LABOR_HOUR) SUMWO, "
- +"                 tek_loc         brigad_location "
+ +"         SUMWO AS "
+ +"         ( SELECT SUM(LABOR_HOUR) SUMWO, "
+ +"                 brigad_location "
  +"         FROM    allwo "
- +"         GROUP BY tek_loc "
+ +"         GROUP BY brigad_location "
  +"         ) "
  +"         , "
-  +"         BASE AS "
- +"         ( SELECT "
- +"                 /*+ MATERIALIZE */ "
- +"                 WO.tek_loc L_PRED, "
- +"                 WO.PRED_D, "
- +"                 CASE WHEN WO.TYPEWORKORDER NOT IN ('Прочее', 'Путевые обходчики') then 1 else 0 end tip, "
- +"                 CASE WHEN WO.TYPEWORKORDER NOT IN ('Прочее', 'Путевые обходчики') THEN NVL(JP.JPNUM, 'notk') WHEN WO.CLASSSTRUCTUREID                    = '010001000100' THEN '010001000104' ELSE WO.CLASSSTRUCTUREID END            JPNUM, "
- +"                 CASE WHEN WO.TYPEWORKORDER NOT IN ('Прочее', 'Путевые обходчики') THEN NVL (JP.DESCRIPTION, 'Техкарта не указана') WHEN WO.TYPEWORKORDER = 'Путевые обходчики' THEN 'Осмотр пути' ELSE CLASSSTRUCTURE.DESCRIPTION END WO_D, "
- +"                 jps.numvalue, "
- +"                 JPS.MEASUREUNITID, "
- +"                 COUNT (WO.WONUM)                                                                                                                       CNT_WO, "
- +"                 NVL (SUM (WO.PLAN_WO), 0)                                                                                                              PLAN_WO, "
- +"                 NVL (SUM (WO.FAKT_WO), 0)                                                                                                              FAKT_WO, "
- +"                 NVL (SUM (WO.LABOR_HOUR), 0)                                                                                                           LABOR_HOUR, "
- +"                 NVL (ROUND (SUM (WO.FAKT_WO/JPS.NUMVALUE*( CASE WHEN NVL(WO.JPDURATION, 0) = 0 THEN WO.NOKOEFDURATION ELSE WO.JPDURATION END)), 2), 0) NORM_HOUR "
- +"         FROM    ALLWO WO "
- +"                 JOIN MAXIMO.CLASSSTRUCTURE "
- +"                         ON      WO.CLASSSTRUCTUREID = CLASSSTRUCTURE.CLASSSTRUCTUREID "
- +"                 LEFT JOIN MAXIMO.wojprelation wojp "
- +"                         ON      wo.wonum                = wojp.wonum "
- +"                                 AND WOJP.USETHISMEASURE = 1 "
- +"                 LEFT JOIN maximo.jobplan jp "
- +"                         ON      WOJP.JOBPLANID = JP.JOBPLANID "
- +"                 LEFT JOIN maximo.jobplanspec jps "
- +"                         ON      jps.jpnum       = jp.jpnum "
- +"                                 AND ASSETATTRID = 'IZMRAB' "
- +"         GROUP BY WO.tek_loc, "
- +"                 WO.PRED_D, "
- +"                 CASE WHEN WO.TYPEWORKORDER NOT IN ('Прочее', 'Путевые обходчики') then 1 else 0 end, "
- +"                 CASE WHEN WO.TYPEWORKORDER NOT IN ('Прочее', 'Путевые обходчики') THEN NVL(JP.JPNUM, 'notk') WHEN WO.CLASSSTRUCTUREID                    = '010001000100' THEN '010001000104' ELSE WO.CLASSSTRUCTUREID END, "
- +"                 CASE WHEN WO.TYPEWORKORDER NOT IN ('Прочее', 'Путевые обходчики') THEN NVL (JP.DESCRIPTION, 'Техкарта не указана') WHEN WO.TYPEWORKORDER = 'Путевые обходчики' THEN 'Осмотр пути' ELSE CLASSSTRUCTURE.DESCRIPTION END, "
- +"                 JPS.NUMVALUE, "
- +"                 JPS.MEASUREUNITID "
- +"         ) "
- +"         , "
- +"         ALL_sum AS "
- +"         (  "
- +"         SELECT "
- +"                 /*+ MATERIALIZE */ "
- +"                 ROW_NUMBER() over (partition BY tip ORDER BY SUM(DOLIA) DESC)                                                                                                                                                   NOM, "
- +"                 TIP, "
- +"                 case when DOLIA < 0.01 then case TIP when 1 then '100500' when 0 then 'tk_dolia' end else JPNUM end                                                                                                                 JPNUM, "
- +"                 CASE WHEN DOLIA < 0.01 THEN case tip when  1 then 'Остальные прочие работы (доля от общего объема трудозатрат менее 1)' WHEN  0 THEN 'Остальные работы (доля от общего объема трудозатрат менее 1)' end ELSE wo_d END WO_D, "
- +"                 CASE WHEN DOLIA             < 0.01 THEN TO_NUMBER('') ELSE NUMVALUE END                                                                                                                                                                                          NUMVALUE, "
- +"                 CASE WHEN DOLIA             < 0.01 THEN '' ELSE MEASUREUNITID END                                                                                                                                                                                                MEASUREUNITID, "
- +"                 SUM(CNT_WO)                                                                                                                                                                                                        CNT_WO, "
- +"                 SUM (PLAN_WO)                                                                                                                                                                                                        PLAN_WO, "
- +"                 SUM (FAKT_WO)                                                                                                                                                                                                        FAKT_WO, "
- +"                 SUM (LABOR_HOUR)                                                                                                                                                                                                        LABOR_HOUR, "
- +"                 SUM(NORM_HOUR)                                                                                                                                                                                                        NORM_HOUR, "
- +"                 SUM(DOLIA)                                                                                                                                                                                                        DOLIA "
- +"         FROM    (SELECT bn.tip, "
- +"                         BN.JPNUM, "
- +"                         bn.WO_D, "
- +"                         bn.numvalue, "
- +"                         BN.MEASUREUNITID, "
- +"                         sum (bn.CNT_WO)   CNT_WO, "
- +"                         SUM (bn.PLAN_WO)    PLAN_WO, "
- +"                         SUM (bn.FAKT_WO)    FAKT_WO, "
- +"                         SUM (BN.LABOR_HOUR) LABOR_HOUR, "
- +"                         SUM (bn.NORM_HOUR)  NORM_HOUR, "
- +"                         NVL(SUM( CASE WHEN (SELECT SUM(SUMWO.SUMWO) "
- +"                                                         FROM    SUMWO "
- +"                                                 ) "
- +"                                                 = 0 THEN 0 ELSE bn.LABOR_HOUR/ "
- +"                                                 (SELECT SUM(SUMWO.SUMWO) "
- +"                                                 FROM    SUMWO "
- +"                                                 ) END ),0) DOLIA "
- +"                 from    BASE BN "
- +"                 group by BN.TIP, "
- +"                         BN.JPNUM, "
- +"                         bn.WO_D, "
- +"                         bn.numvalue, "
- +"                         bn.MEASUREUNITID "
+ +"         NORM AS "
+ +"         (SELECT L_PRED, "
+ +"                 pred_d, "
+ +"                 CASE WHEN DOLIA < 0.01 THEN 'Остальные работы (доля от общего объема трудозатрат менее 1%)' ELSE WO_D END WO_D, "
+ +"                 CASE WHEN DOLIA < 0.01 THEN TO_NUMBER('') ELSE NUMVALUE END                                               NUMVALUE, "
+ +"                 CASE WHEN DOLIA < 0.01 THEN '' ELSE MEASUREUNITID END                                                    MEASUREUNITID, "
+ +"                 SUM(CNT_WO)                                                                                               CNT_WO, "
+ +"                 SUM (PLAN_WO)                                                                                             PLAN_WO, "
+ +"                 SUM (FAKT_WO)                                                                                             FAKT_WO, "
+ +"                 SUM (LABOR_HOUR)                                                                                          LABOR_HOUR, "
+ +"                 SUM(NORM_HOUR)                                                                                            NORM_HOUR, "
+ +"                 SUM(DOLIA)                                                                                                DOLIA "
+ +"         FROM    (SELECT WO.brigad_location L_PRED, "
+ +"                         wo.pred_d, "
+ +"                         NVL (jp.description, 'Техкарта не указана') wo_d, "
+ +"                         jps.numvalue, "
+ +"                         JPS.MEASUREUNITID, "
+ +"                         COUNT (WO.WONUM)                                                                        CNT_WO, "
+ +"                         NVL (SUM (WO.PLAN_WO), 0)                                                               PLAN_WO, "
+ +"                         NVL (SUM (WO.FAKT_WO), 0)                                                               FAKT_WO, "
+ +"                         NVL (SUM (WO.LABOR_HOUR), 0)                                                            LABOR_HOUR, "
+ +"                         NVL (ROUND (SUM (WO.FAKT_WO/JPS.NUMVALUE*(case when nvl(wo.JPDURATION, 0) = 0 then WO.NOKOEFDURATION else wo.JPDURATION end)), 2), 0) NORM_HOUR, "
+ +"                         NVL(SUM(case when (select SUMWO.SUMWO from    SUMWO where   SUMWO.BRIGAD_LOCATION = WO.BRIGAD_LOCATION ) = 0 then 0 else LABOR_HOUR/(select SUMWO.SUMWO from    SUMWO where   SUMWO.BRIGAD_LOCATION = WO.BRIGAD_LOCATION)end ),0) dolia "
+ +"                 FROM    allWO wo "
+ +"                         LEFT JOIN MAXIMO.wojprelation wojp "
+ +"                                 ON      wo.wonum                = wojp.wonum "
+ +"                                         AND WOJP.USETHISMEASURE = 1 "
+ +"                         LEFT JOIN maximo.jobplan jp "
+ +"                                 ON      WOJP.JOBPLANID = JP.JOBPLANID "
+ +"                         LEFT JOIN maximo.jobplanspec jps "
+ +"                                 ON      jps.jpnum       = jp.jpnum "
+ +"                                         AND ASSETATTRID = 'IZMRAB' "
+ +"                 WHERE   WO.TYPEWORKORDER NOT IN ('Прочее', 'Путевые обходчики') "
+ +"                 GROUP BY WO.brigad_location, "
+ +"                         wo.pred_d, "
+ +"                         jp.description, "
+ +"                         jps.numvalue, "
+ +"                         JPS.MEASUREUNITID "
  +"                 ) "
- +"         group by TIP, "
- +"                 case when DOLIA < 0.01 then case TIP when 1 then '100500' when 0 then 'tk_dolia' end else JPNUM end, "
- +"                 CASE WHEN DOLIA < 0.01 THEN case tip when 1 then 'Остальные прочие работы (доля от общего объема трудозатрат менее 1)' WHEN 0 THEN 'Остальные работы (доля от общего объема трудозатрат менее 1)' end ELSE wo_d END, "
- +"                 CASE WHEN DOLIA              < 0.01 THEN TO_NUMBER('') ELSE NUMVALUE END, "
- +"                 CASE WHEN DOLIA              < 0.01 THEN '' ELSE MEASUREUNITID END "
+ +"         GROUP BY L_PRED, "
+ +"                 pred_d, "
+ +"                 CASE WHEN DOLIA < 0.01 THEN 'Остальные работы (доля от общего объема трудозатрат менее 1%)' ELSE WO_D END, "
+ +"                 CASE WHEN DOLIA < 0.01 THEN TO_NUMBER('') ELSE NUMVALUE END, "
+ +"                 CASE WHEN DOLIA < 0.01 THEN '' ELSE MEASUREUNITID END "
  +"         ) "
- +" SELECT  CASE WHEN ALL_SUM.TIP                                = 1 AND ALL_SUM.JPNUM = '100500' THEN 89 WHEN ALL_SUM.TIP = 0 AND ALL_SUM.JPNUM = 'tk_dolia' THEN 99 ELSE ALL_SUM.NOM END NOM, "
- +"         CASE ALL_SUM.TIP WHEN 1 THEN CASE WHEN ALL_SUM.JPNUM = '100500' THEN 3 ELSE 2 END WHEN 0 THEN CASE WHEN ALL_SUM.JPNUM = 'tk_dolia' THEN 1 ELSE 0 END END                       flag, "
- +"         '01'                                                                                                                                                                           L_PRED, "
- +"         (select description from maximo.locations where (siteid, location) in (select distinct siteid, l_pred from allwo))               	  										   PRED_D, "
- +"         jpnum, "
- +"         WO_D, "
- +"         NUMVALUE, "
- +"         MEASUREUNITID, "
- +"         CNT_WO, "
- +"         PLAN_WO, "
- +"         FAKT_WO, "
- +"         LABOR_HOUR, "
- +"         NORM_HOUR, "
- +"         DOLIA "
- +" FROM    ALL_SUM "
- +"  "
- +" UNION ALL "
- +"  "
- +" select  case when NORM_ALL.JPNUM is null then case ALL_RAB.TIP when 1 then 89 when 0 then 99 end else NORM_ALL.NOM end                                                                                                                          NOM, "
- +"         CASE WHEN NORM_ALL.JPNUM is null  THEN CASE nvl(ALL_RAB.TIP, NORM_ALL.TIP) WHEN 1 THEN 3 WHEN 0 THEN 1 else 66 END else CASE nvl(ALL_RAB.TIP, NORM_ALL.TIP) WHEN 1 THEN 2 WHEN 0 THEN 0 END END                                        FLAG, "
- +"         NVL(PRED.L_PRED, ALL_RAB.L_PRED)                                                                                                                                                                                                        L_PRED, "
- +"         NVL(PRED.pred_d, ALL_RAB.PRED_D)                                                                                                                                                                                                        PRED_D, "
- +"         CASE WHEN NORM_ALL.JPNUM IS NULL THEN '' ELSE NORM_ALL.JPNUM END                                                                                                                                                                               JPNUM, "
- +"         CASE WHEN NORM_ALL.JPNUM IS NULL THEN CASE ALL_RAB.TIP WHEN 1 THEN 'Остальные прочие работы (доля от общего объема трудозатрат менее 1)' WHEN 0 THEN 'Остальные работы (доля от общего объема трудозатрат менее 1)' END ELSE NORM_ALL.WO_D END WO_D, "
- +"         CASE WHEN NORM_ALL.JPNUM IS NULL THEN TO_NUMBER('') ELSE NORM_ALL.NUMVALUE END                                                                                                                                                                 NUMVALUE, "
- +"         case when NORM_ALL.JPNUM is null then '' else NORM_ALL.MEASUREUNITID end                                                                                                                                                                       MEASUREUNITID, "
- +"         SUM(ALL_RAB.CNT_WO)                                                                                                                                                                                                          CNT_WO, "
- +"         SUM (ALL_RAB.PLAN_WO)                                                                                                                                                                                                        PLAN_WO, "
- +"         SUM (ALL_RAB.FAKT_WO)                                                                                                                                                                                                        FAKT_WO, "
- +"         SUM (ALL_RAB.LABOR_HOUR)                                                                                                                                                                                                     LABOR_HOUR, "
- +"         SUM(ALL_RAB.NORM_HOUR)                                                                                                                                                                                                       NORM_HOUR, "
- +"         SUM(ALL_RAB.DOLIA)                                                                                                                                                                                                           DOLIA "
- +" FROM    (SELECT * "
- +"         FROM    ALL_SUM "
- +"         WHERE   JPNUM NOT IN ('tk_dolia', '100500') "
- +"         ) NORM_ALL "
- +"         FULL JOIN "
- +"                 (SELECT DISTINCT tek_loc l_pred, "
- +"                         pred_d "
- +"                 FROM    ALLWO "
- +"                 ) pred "
- +"                 ON      1=1 "
- +"         FULL JOIN "
- +"                 (SELECT BNM.*, "
- +"                         NVL( CASE WHEN (SELECT SUMWO.SUMWO "
- +"                                                         FROM    SUMWO "
- +"                                                         WHERE   SUMWO.BRIGAD_LOCATION = bnm.L_PRED "
- +"                                                 ) "
- +"                                                 = 0 THEN 0 ELSE bnm.LABOR_HOUR/ "
- +"                                                 (SELECT SUMWO.SUMWO "
- +"                                                 FROM    SUMWO "
- +"                                                 WHERE   SUMWO.BRIGAD_LOCATION = BNM.L_PRED "
- +"                                                 ) END, 0) DOLIA "
- +"                 FROM    base bnm "
- +"                 ) ALL_RAB "
- +"                 ON      NORM_ALL.JPNUM  = ALL_RAB.JPNUM "
- +"                         AND PRED.L_PRED = ALL_RAB.L_PRED "
- +" group by case when NORM_ALL.JPNUM is null then case ALL_RAB.TIP when 1 then 89 when 0 then 99 end else NORM_ALL.NOM end, "
- +"         CASE WHEN NORM_ALL.JPNUM is null  THEN CASE nvl(ALL_RAB.TIP, NORM_ALL.TIP) WHEN 1 THEN 3 WHEN 0 THEN 1 else 66 END else CASE nvl(ALL_RAB.TIP, NORM_ALL.TIP) WHEN 1 THEN 2 WHEN 0 THEN 0 END END, "
- +"         NVL(PRED.L_PRED, ALL_RAB.L_PRED), "
- +"         NVL(PRED.pred_d, ALL_RAB.PRED_D), "
- +"         CASE WHEN NORM_ALL.JPNUM IS NULL THEN '' ELSE NORM_ALL.JPNUM END, "
- +"         CASE WHEN NORM_ALL.JPNUM IS NULL THEN CASE ALL_RAB.TIP WHEN 1 THEN 'Остальные прочие работы (доля от общего объема трудозатрат менее 1)' WHEN 0 THEN 'Остальные работы (доля от общего объема трудозатрат менее 1)' END ELSE NORM_ALL.WO_D END, "
- +"         CASE WHEN NORM_ALL.JPNUM IS NULL THEN TO_NUMBER('') ELSE NORM_ALL.NUMVALUE END, "
- +"         CASE WHEN NORM_ALL.JPNUM IS NULL THEN '' ELSE NORM_ALL.MEASUREUNITID END "
+ +"         , "
+ +"         NONORM AS "
+ +"         ( SELECT L_PRED, "
+ +"                 pred_d, "
+ +"                 CASE WHEN DOLIA < 0.01 THEN 'Остальные прочие работы (доля от общего объема трудозатрат менее 1%)' ELSE WO_D END WO_D, "
+ +"                 TO_NUMBER('')                                                                                                                    NUMVALUE, "
+ +"                 ''                                                                                                                              MEASUREUNITID, "
+ +"                 SUM(CNT_WO)                                                                                                                      CNT_WO, "
+ +"                 0                                                                                                                                PLAN_WO, "
+ +"                 0                                                                                                                                FAKT_WO, "
+ +"                 SUM (LABOR_HOUR)                                                                                                                 LABOR_HOUR, "
+ +"                 0                                                                                                                                NORM_HOUR, "
+ +"                 SUM(DOLIA)                                                                                                                       DOLIA "
+ +"         FROM    ( SELECT WO.brigad_location L_PRED, "
+ +"                         wo.pred_d, "
+ +"                         CASE WHEN WO.TYPEWORKORDER = 'Путевые обходчики' THEN 'Осмотр пути' ELSE CLASSSTRUCTURE.DESCRIPTION END wo_d, "
+ +"                         COUNT (WO.WONUM)                                                                                        CNT_WO, "
+ +"                         NVL (SUM (WO.LABOR_HOUR), 0)                                                                            LABOR_HOUR, "
+ +"                         NVL(SUM(case when (select SUMWO.SUMWO from    SUMWO where   SUMWO.BRIGAD_LOCATION = WO.BRIGAD_LOCATION ) = 0 then 0 else LABOR_HOUR/(select SUMWO.SUMWO from    SUMWO where   SUMWO.BRIGAD_LOCATION = WO.BRIGAD_LOCATION)end ),0) dolia "
+ +"                 FROM    allwo wo "
+ +"                         JOIN MAXIMO.CLASSSTRUCTURE "
+ +"                                 ON      WO.CLASSSTRUCTUREID = CLASSSTRUCTURE.CLASSSTRUCTUREID "
+ +"                 WHERE   typeworkorder IN ('Прочее', 'Путевые обходчики') "
+ +"                 GROUP BY WO.brigad_location, "
+ +"                         wo.pred_d, "
+ +"                         CASE WHEN WO.TYPEWORKORDER = 'Путевые обходчики' THEN 'Осмотр пути' ELSE CLASSSTRUCTURE.DESCRIPTION END "
+ +"                 ) "
+ +"         GROUP BY L_PRED, "
+ +"                 pred_d, "
+ +"                 CASE WHEN DOLIA < 0.01 THEN 'Остальные прочие работы (доля от общего объема трудозатрат менее 1%)' ELSE WO_D END "
+ +"         ) "
+ +"   select case when WO_D = 'Остальные работы (доля от общего объема трудозатрат менее 1%)' then 3 else 2 end flag, norm.* from NORM "
+ +"     union all "
+ +"   select  case when WO_D = 'Остальные прочие работы (доля от общего объема трудозатрат менее 1%)' then 1 else 0 end flag, nonorm.* from nonorm "
+
  ;
 
 
 maximoDataSet.setQuery(sqlText);]]></method>
             <method name="fetch"><![CDATA[if (!maximoDataSet.fetch())
 	return (false);
-row["NOM"] = maximoDataSet.getString("NOM");	
 row["FLAG"] = maximoDataSet.getString("FLAG");
 row["L_PRED"] = maximoDataSet.getString("L_PRED");
 row["PRED_D"] = maximoDataSet.getString("PRED_D");
@@ -514,16 +410,6 @@ return (true);]]></method>
                 <structure>
                     <property name="position">2</property>
                     <property name="name">SITE_D</property>
-                    <property name="dataType">string</property>
-                </structure>
-                <structure>
-                    <property name="position">3</property>
-                    <property name="name">D1</property>
-                    <property name="dataType">string</property>
-                </structure>
-                <structure>
-                    <property name="position">4</property>
-                    <property name="name">D2</property>
                     <property name="dataType">string</property>
                 </structure>
             </list-property>
@@ -561,12 +447,6 @@ return (true);]]></method>
                 <structure>
                     <property name="columnName">SITE_D</property>
                 </structure>
-                <structure>
-                    <property name="columnName">D1</property>
-                </structure>
-                <structure>
-                    <property name="columnName">D2</property>
-                </structure>
             </list-property>
             <structure name="cachedMetaData">
                 <list-property name="resultSet">
@@ -580,16 +460,6 @@ return (true);]]></method>
                         <property name="name">SITE_D</property>
                         <property name="dataType">string</property>
                     </structure>
-                    <structure>
-                        <property name="position">3</property>
-                        <property name="name">D1</property>
-                        <property name="dataType">string</property>
-                    </structure>
-                    <structure>
-                        <property name="position">4</property>
-                        <property name="name">D2</property>
-                        <property name="dataType">string</property>
-                    </structure>
                 </list-property>
             </structure>
             <property name="dataSource">maximoDataSource</property>
@@ -601,10 +471,8 @@ maximoDataSet.open();
 var sqlText = new String();
 
 sqlText = "" 
-+"SELECT  preds.description 							 pred_d, " 
-+"        site.description  							 site_d, "
-+"		  to_char(" + params["date1"] + ", 'DD.MM.YYYY') D1,"
-+"		  to_char(" + params["date2"] + ", 'DD.MM.YYYY') D2 "
++"SELECT  preds.description pred_d, " 
++"        site.description  site_d " 
 +"FROM    maximo.preds " 
 +"        JOIN maximo.site " 
 +"                ON      preds.siteid = site.siteid " 
@@ -620,8 +488,6 @@ maximoDataSet.setQuery(sqlText);]]></method>
 
 row["PRED_D"] = maximoDataSet.getString("PRED_D");
 row["SITE_D"] = maximoDataSet.getString("SITE_D");
-row["D1"] = maximoDataSet.getString("D1");
-row["D2"] = maximoDataSet.getString("D2");
 
 return (true);]]></method>
         </script-data-set>
@@ -704,7 +570,7 @@ return (true);]]></method>
                 <structure>
                     <property name="name">PRED_D</property>
                     <property name="displayName">PRED_D</property>
-                    <expression name="expression">"Ведомость учета объемов выполняемых работ и затрат рабочего времени в разрезе ТНК по " +dataSetRow["PRED_D"]+ " " + dataSetRow["SITE_D"].replace("ая", "ой") + " ДИ за период с " + dataSetRow["D1"] + " по " + dataSetRow["D2"]</expression>
+                    <expression name="expression">"Ведомость учета объемов выполняемых работ и затрат рабочего времени в разрезе ТНК по " +dataSetRow["PRED_D"]+ " " + dataSetRow["SITE_D"].replace("ая", "ой") + " ДИ за период с " + params["date1"].value + " по " + params["date2"].value</expression>
                     <property name="dataType">string</property>
                 </structure>
             </list-property>
@@ -730,7 +596,7 @@ return (true);]]></method>
                 <structure>
                     <property name="name">PRED_D</property>
                     <property name="displayName">PRED_D</property>
-                    <expression name="expression">dataSetRow["PRED_D"].replace(/(\d|\D){1,},/,"")</expression>
+                    <expression name="expression">dataSetRow["PRED_D"]</expression>
                     <property name="dataType">string</property>
                 </structure>
                 <structure>
@@ -839,7 +705,7 @@ return (true);]]></method>
                 </structure>
                 <structure>
                     <property name="name">vip_norm_hour</property>
-                    <expression name="expression">if (BirtComp.equalTo(row["LABOR_HOUR"],null) == false &amp;&amp; row["LABOR_HOUR"] != 0)
+                    <expression name="expression">if (row["LABOR_HOUR"] != "")
 row["NORM_HOUR"]/row["LABOR_HOUR"]</expression>
                     <property name="dataType">float</property>
                 </structure>
@@ -1013,46 +879,17 @@ if (dataSetRow["FLAG"] == 2 || dataSetRow["FLAG"] == 3) this.text = "Норми�
                         </structure>
                     </list-property>
                 </structure>
-                <structure>
-                    <property name="name">NOM</property>
-                    <property name="displayName">NOM</property>
-                    <expression name="expression">dataSetRow["NOM"]</expression>
-                    <property name="dataType">integer</property>
-                </structure>
-                <structure>
-                    <property name="name">num</property>
-                    <property name="dataType">integer</property>
-                    <simple-property-list name="aggregateOn">
-                        <value>typewo</value>
-                    </simple-property-list>
-                    <property name="aggregateFunction">RUNNINGCOUNT</property>
-                    <list-property name="arguments">
-                        <structure>
-                            <property name="name">Expression</property>
-                        </structure>
-                    </list-property>
-                </structure>
-                <structure>
-                    <property name="name">type_vip_norm_hour</property>
-                    <expression name="expression">if (BirtComp.equalTo(row["type_labor_haur"],null) == false &amp;&amp; row["type_labor_haur"] != 0)
-row["type_norm_hour"]/row["type_labor_haur"]</expression>
-                    <property name="dataType">float</property>
-                </structure>
             </list-property>
             <list-property name="sort">
                 <structure>
-                    <expression name="key">row["NOM"]</expression>
+                    <expression name="key">row["FLAG"]</expression>
                     <property name="direction">asc</property>
                 </structure>
+                <structure>
+                    <expression name="key">row["DOLIA"]</expression>
+                    <property name="direction">desc</property>
+                </structure>
             </list-property>
-            <column id="18080">
-                <list-property name="visibility">
-                    <structure>
-                        <property name="format">all</property>
-                        <expression name="valueExpr">true</expression>
-                    </structure>
-                </list-property>
-            </column>
             <column id="17915">
                 <list-property name="visibility">
                     <structure>
@@ -1077,14 +914,6 @@ row["type_norm_hour"]/row["type_labor_haur"]</expression>
                     </structure>
                 </list-property>
             </column>
-            <column id="18172">
-                <list-property name="visibility">
-                    <structure>
-                        <property name="format">all</property>
-                        <expression name="valueExpr">true</expression>
-                    </structure>
-                </list-property>
-            </column>
             <column id="17918"/>
             <column id="17919"/>
             <column id="17920"/>
@@ -1098,23 +927,6 @@ row["type_norm_hour"]/row["type_labor_haur"]</expression>
             <header>
                 <row id="17857">
                     <property name="backgroundColor">#C0C0C0</property>
-                    <cell id="18073">
-                        <property name="borderBottomColor">#000000</property>
-                        <property name="borderBottomStyle">solid</property>
-                        <property name="borderBottomWidth">thin</property>
-                        <property name="borderLeftColor">#000000</property>
-                        <property name="borderLeftStyle">solid</property>
-                        <property name="borderLeftWidth">thin</property>
-                        <property name="borderRightColor">#000000</property>
-                        <property name="borderRightStyle">solid</property>
-                        <property name="borderRightWidth">thin</property>
-                        <property name="borderTopColor">#000000</property>
-                        <property name="borderTopStyle">solid</property>
-                        <property name="borderTopWidth">thin</property>
-                        <label id="18163">
-                            <text-property name="text">NOM</text-property>
-                        </label>
-                    </cell>
                     <cell id="17858">
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
@@ -1165,20 +977,6 @@ row["type_norm_hour"]/row["type_labor_haur"]</expression>
                         <label id="17863">
                             <text-property name="text">PRED_D</text-property>
                         </label>
-                    </cell>
-                    <cell id="18165">
-                        <property name="borderBottomColor">#000000</property>
-                        <property name="borderBottomStyle">solid</property>
-                        <property name="borderBottomWidth">thin</property>
-                        <property name="borderLeftColor">#000000</property>
-                        <property name="borderLeftStyle">solid</property>
-                        <property name="borderLeftWidth">thin</property>
-                        <property name="borderRightColor">#000000</property>
-                        <property name="borderRightStyle">solid</property>
-                        <property name="borderRightWidth">thin</property>
-                        <property name="borderTopColor">#000000</property>
-                        <property name="borderTopStyle">solid</property>
-                        <property name="borderTopWidth">thin</property>
                     </cell>
                     <cell id="17864">
                         <property name="borderBottomColor">#000000</property>
@@ -1353,20 +1151,6 @@ row["type_norm_hour"]/row["type_labor_haur"]</expression>
                 </row>
                 <row id="17972">
                     <property name="backgroundColor">#C0C0C0</property>
-                    <cell id="18074">
-                        <property name="borderBottomColor">#000000</property>
-                        <property name="borderBottomStyle">solid</property>
-                        <property name="borderBottomWidth">thin</property>
-                        <property name="borderLeftColor">#000000</property>
-                        <property name="borderLeftStyle">solid</property>
-                        <property name="borderLeftWidth">thin</property>
-                        <property name="borderRightColor">#000000</property>
-                        <property name="borderRightStyle">solid</property>
-                        <property name="borderRightWidth">thin</property>
-                        <property name="borderTopColor">#000000</property>
-                        <property name="borderTopStyle">solid</property>
-                        <property name="borderTopWidth">thin</property>
-                    </cell>
                     <cell id="17973">
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
@@ -1396,20 +1180,6 @@ row["type_norm_hour"]/row["type_labor_haur"]</expression>
                         <property name="borderTopWidth">thin</property>
                     </cell>
                     <cell id="17975">
-                        <property name="borderBottomColor">#000000</property>
-                        <property name="borderBottomStyle">solid</property>
-                        <property name="borderBottomWidth">thin</property>
-                        <property name="borderLeftColor">#000000</property>
-                        <property name="borderLeftStyle">solid</property>
-                        <property name="borderLeftWidth">thin</property>
-                        <property name="borderRightColor">#000000</property>
-                        <property name="borderRightStyle">solid</property>
-                        <property name="borderRightWidth">thin</property>
-                        <property name="borderTopColor">#000000</property>
-                        <property name="borderTopStyle">solid</property>
-                        <property name="borderTopWidth">thin</property>
-                    </cell>
-                    <cell id="18166">
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
                         <property name="borderBottomWidth">thin</property>
@@ -1610,7 +1380,7 @@ row["type_norm_hour"]/row["type_labor_haur"]</expression>
                 <property name="pageBreakInside">auto</property>
                 <list-property name="sort">
                     <structure>
-                        <expression name="key">dataSetRow["PRED_D"]</expression>
+                        <expression name="key">row["PRED_D"].replace(/^\D{1,}/, "").replace(/\D{1,}$/, "")*1</expression>
                         <property name="direction">asc</property>
                     </structure>
                 </list-property>
@@ -1618,7 +1388,6 @@ row["type_norm_hour"]/row["type_labor_haur"]</expression>
                     <row id="17927">
                         <property name="backgroundColor">#FFFF80</property>
                         <property name="fontWeight">bold</property>
-                        <cell id="18075"/>
                         <cell id="17928">
                             <data id="17951">
                                 <property name="resultSetColumn">L_PRED</property>
@@ -1626,20 +1395,6 @@ row["type_norm_hour"]/row["type_labor_haur"]</expression>
                         </cell>
                         <cell id="17929"/>
                         <cell id="17930"/>
-                        <cell id="18167">
-                            <property name="borderBottomColor">#000000</property>
-                            <property name="borderBottomStyle">solid</property>
-                            <property name="borderBottomWidth">thin</property>
-                            <property name="borderLeftColor">#000000</property>
-                            <property name="borderLeftStyle">solid</property>
-                            <property name="borderLeftWidth">thin</property>
-                            <property name="borderRightColor">#000000</property>
-                            <property name="borderRightStyle">solid</property>
-                            <property name="borderRightWidth">thin</property>
-                            <property name="borderTopColor">#000000</property>
-                            <property name="borderTopStyle">solid</property>
-                            <property name="borderTopWidth">thin</property>
-                        </cell>
                         <cell id="17931">
                             <property name="colSpan">3</property>
                             <property name="rowSpan">1</property>
@@ -1844,27 +1599,12 @@ else row["FLAG"];</expression>
                 <property name="pageBreakInside">auto</property>
                 <header>
                     <row id="18036">
-                        <property name="backgroundColor">#CCFFFF</property>
+                        <property name="backgroundColor">#80FFFF</property>
                         <property name="fontWeight">bold</property>
                         <property name="textAlign">right</property>
-                        <cell id="18076"/>
                         <cell id="18037"/>
                         <cell id="18038"/>
                         <cell id="18039"/>
-                        <cell id="18168">
-                            <property name="borderBottomColor">#000000</property>
-                            <property name="borderBottomStyle">solid</property>
-                            <property name="borderBottomWidth">thin</property>
-                            <property name="borderLeftColor">#000000</property>
-                            <property name="borderLeftStyle">solid</property>
-                            <property name="borderLeftWidth">thin</property>
-                            <property name="borderRightColor">#000000</property>
-                            <property name="borderRightStyle">solid</property>
-                            <property name="borderRightWidth">thin</property>
-                            <property name="borderTopColor">#000000</property>
-                            <property name="borderTopStyle">solid</property>
-                            <property name="borderTopWidth">thin</property>
-                        </cell>
                         <cell id="18040">
                             <property name="colSpan">3</property>
                             <property name="rowSpan">1</property>
@@ -2015,20 +1755,6 @@ else row["FLAG"];</expression>
                             <property name="borderTopColor">#000000</property>
                             <property name="borderTopStyle">solid</property>
                             <property name="borderTopWidth">thin</property>
-                            <data id="18174">
-                                <structure name="numberFormat">
-                                    <property name="category">Percent</property>
-                                    <property name="pattern">Percent</property>
-                                </structure>
-                                <property name="textAlign">right</property>
-                                <list-property name="visibility">
-                                    <structure>
-                                        <property name="format">all</property>
-                                        <expression name="valueExpr">row["FLAG"] == 0 || row["FLAG"] == 1</expression>
-                                    </structure>
-                                </list-property>
-                                <property name="resultSetColumn">type_vip_norm_hour</property>
-                            </data>
                         </cell>
                         <cell id="18048">
                             <property name="borderBottomColor">#000000</property>
@@ -2064,24 +1790,9 @@ else row["FLAG"];</expression>
                                 <expression name="valueExpr">true</expression>
                             </structure>
                         </list-property>
-                        <cell id="18078"/>
                         <cell id="18017"/>
                         <cell id="18018"/>
                         <cell id="18019"/>
-                        <cell id="18170">
-                            <property name="borderBottomColor">#000000</property>
-                            <property name="borderBottomStyle">solid</property>
-                            <property name="borderBottomWidth">thin</property>
-                            <property name="borderLeftColor">#000000</property>
-                            <property name="borderLeftStyle">solid</property>
-                            <property name="borderLeftWidth">thin</property>
-                            <property name="borderRightColor">#000000</property>
-                            <property name="borderRightStyle">solid</property>
-                            <property name="borderRightWidth">thin</property>
-                            <property name="borderTopColor">#000000</property>
-                            <property name="borderTopStyle">solid</property>
-                            <property name="borderTopWidth">thin</property>
-                        </cell>
                         <cell id="18020">
                             <property name="colSpan">3</property>
                             <property name="rowSpan">1</property>
@@ -2207,38 +1918,23 @@ else row["FLAG"];</expression>
                     <list-property name="highlightRules">
                         <structure>
                             <property name="operator">eq</property>
-                            <property name="fontWeight">bold</property>
-                            <expression name="testExpr">row["FLAG"]</expression>
-                            <simple-property-list name="value1">
-                                <value>3</value>
-                            </simple-property-list>
-                        </structure>
-                        <structure>
-                            <property name="operator">eq</property>
+                            <property name="backgroundColor">#80FF80</property>
                             <property name="fontWeight">bold</property>
                             <expression name="testExpr">row["FLAG"]</expression>
                             <simple-property-list name="value1">
                                 <value>1</value>
                             </simple-property-list>
                         </structure>
+                        <structure>
+                            <property name="operator">eq</property>
+                            <property name="backgroundColor">#80FF80</property>
+                            <property name="fontWeight">bold</property>
+                            <expression name="testExpr">row["FLAG"]</expression>
+                            <simple-property-list name="value1">
+                                <value>3</value>
+                            </simple-property-list>
+                        </structure>
                     </list-property>
-                    <cell id="18077">
-                        <property name="borderBottomColor">#000000</property>
-                        <property name="borderBottomStyle">solid</property>
-                        <property name="borderBottomWidth">thin</property>
-                        <property name="borderLeftColor">#000000</property>
-                        <property name="borderLeftStyle">solid</property>
-                        <property name="borderLeftWidth">thin</property>
-                        <property name="borderRightColor">#000000</property>
-                        <property name="borderRightStyle">solid</property>
-                        <property name="borderRightWidth">thin</property>
-                        <property name="borderTopColor">#000000</property>
-                        <property name="borderTopStyle">solid</property>
-                        <property name="borderTopWidth">thin</property>
-                        <data id="18164">
-                            <property name="resultSetColumn">NOM</property>
-                        </data>
-                    </cell>
                     <cell id="17881">
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
@@ -2288,23 +1984,6 @@ else row["FLAG"];</expression>
                         <property name="borderTopWidth">thin</property>
                         <data id="17886">
                             <property name="resultSetColumn">PRED_D</property>
-                        </data>
-                    </cell>
-                    <cell id="18169">
-                        <property name="borderBottomColor">#000000</property>
-                        <property name="borderBottomStyle">solid</property>
-                        <property name="borderBottomWidth">thin</property>
-                        <property name="borderLeftColor">#000000</property>
-                        <property name="borderLeftStyle">solid</property>
-                        <property name="borderLeftWidth">thin</property>
-                        <property name="borderRightColor">#000000</property>
-                        <property name="borderRightStyle">solid</property>
-                        <property name="borderRightWidth">thin</property>
-                        <property name="borderTopColor">#000000</property>
-                        <property name="borderTopStyle">solid</property>
-                        <property name="borderTopWidth">thin</property>
-                        <data id="18173">
-                            <property name="resultSetColumn">num</property>
                         </data>
                     </cell>
                     <cell id="17887">
@@ -2504,12 +2183,6 @@ else row["FLAG"];</expression>
                                 <property name="pattern">Percent</property>
                             </structure>
                             <property name="textAlign">right</property>
-                            <list-property name="visibility">
-                                <structure>
-                                    <property name="format">all</property>
-                                    <expression name="valueExpr">row["FLAG"] == 0 || row["FLAG"] == 1</expression>
-                                </structure>
-                            </list-property>
                             <property name="resultSetColumn">vip_norm_hour</property>
                         </data>
                     </cell>
@@ -2542,30 +2215,9 @@ else row["FLAG"];</expression>
                     <property name="backgroundColor">#C0C0C0</property>
                     <property name="fontWeight">bold</property>
                     <property name="textAlign">right</property>
-                    <list-property name="visibility">
-                        <structure>
-                            <property name="format">all</property>
-                            <expression name="valueExpr">true</expression>
-                        </structure>
-                    </list-property>
-                    <cell id="18079"/>
                     <cell id="17904"/>
                     <cell id="17905"/>
                     <cell id="17906"/>
-                    <cell id="18171">
-                        <property name="borderBottomColor">#000000</property>
-                        <property name="borderBottomStyle">solid</property>
-                        <property name="borderBottomWidth">thin</property>
-                        <property name="borderLeftColor">#000000</property>
-                        <property name="borderLeftStyle">solid</property>
-                        <property name="borderLeftWidth">thin</property>
-                        <property name="borderRightColor">#000000</property>
-                        <property name="borderRightStyle">solid</property>
-                        <property name="borderRightWidth">thin</property>
-                        <property name="borderTopColor">#000000</property>
-                        <property name="borderTopStyle">solid</property>
-                        <property name="borderTopWidth">thin</property>
-                    </cell>
                     <cell id="17907">
                         <property name="colSpan">3</property>
                         <property name="rowSpan">1</property>
