@@ -307,10 +307,6 @@ else
 	var sqlText = new String();
 
 
-var siteid = new String(params["mroSite"]);
-siteid = "'"+params["mroSite"]+"'"  ;
-
-
 var locationId = new String(params["locationId"]);
 locationId = "'" + (params["locationId"]).replace(/=/g,"") + "'";
 locationId = locationId.replace(/,/g,"','");
@@ -326,7 +322,7 @@ else if(params["podrId"]=='')
 {	podrId_ex = 0;
 	podrId = "'0'";}
 	
-	
+
 
 var start = new String(params["par"]);
 start = "to_date ('"+params["par"]+"','DD.MM.YY')"
@@ -345,9 +341,9 @@ finish = "to_date ('"+params["fin"]+"','DD.MM.YY HH24:MI:SS')"
  +"         ASTLOCR.SOURCESTARTMEASURE, "
  +"         COUNT ( CASE WHEN W.STATUS     IN ('ПЛАНИРОВАНИЕ') THEN 1 ELSE NULL END)                                                                                                                         WAITING, "
  +"         COUNT ( CASE WHEN w.status     IN ('В_РАБОТЕ', 'ОЖМАТ', 'НАЗНАЧЕНО') THEN 1 ELSE NULL END)                                                                                                       inwork, "
- +"         COUNT ( CASE WHEN W.STATUS NOT IN ('ЗАВЕРШ', 'ЗАКРЫТО', 'ОФОРМЛЕН') AND W.TARGCOMPDATE  <= TO_DATE ('30.09.14','DD.MM.YY HH24:MI:SS') THEN 1 ELSE NULL END)                                      OVERDUE , "
- +"         COUNT ( CASE WHEN W.STATUS     IN ('В_РАБОТЕ', 'ОЖМАТ', 'НАЗНАЧЕНО') AND W.TARGCOMPDATE <= TO_DATE ('30.09.14','DD.MM.YY HH24:MI:SS') THEN 1 ELSE NULL END)                                      INWORK_OVERDUE, "
- +"         COUNT ( CASE WHEN w.status     IN ('ЗАВЕРШ', 'ЗАКРЫТО', 'ОФОРМЛЕН') AND w.actfinish BETWEEN to_date ('01.09.14','DD.MM.YY') AND to_date ('30.09.14','DD.MM.YY HH24:MI:SS') THEN 1 ELSE NULL END) closed "
+ +"         COUNT ( CASE WHEN W.STATUS NOT IN ('ЗАВЕРШ', 'ЗАКРЫТО', 'ОФОРМЛЕН') AND W.TARGCOMPDATE  <= TO_DATE ("+finish+",'DD.MM.YY HH24:MI:SS') THEN 1 ELSE NULL END)                                      OVERDUE , "
+ +"         COUNT ( CASE WHEN W.STATUS     IN ('В_РАБОТЕ', 'ОЖМАТ', 'НАЗНАЧЕНО') AND W.TARGCOMPDATE <= TO_DATE ("+finish+",'DD.MM.YY HH24:MI:SS') THEN 1 ELSE NULL END)                                      INWORK_OVERDUE, "
+ +"         COUNT ( CASE WHEN w.status     IN ('ЗАВЕРШ', 'ЗАКРЫТО', 'ОФОРМЛЕН') AND w.actfinish BETWEEN to_date ("+start+",'DD.MM.YY') AND to_date ("+finish+",'DD.MM.YY HH24:MI:SS') THEN 1 ELSE NULL END) closed "
  +" FROM    MAXIMO.workorder w "
  +"         LEFT JOIN maximo.locations "
  +"                 ON      locations.location  =w.location "
@@ -361,7 +357,7 @@ finish = "to_date ('"+params["fin"]+"','DD.MM.YY HH24:MI:SS')"
  +"                         AND locations.siteid = sp1.siteid "
  +"                         AND sp1.assetattrid  = 'TIP_RAZM_MSP' "
  +"         LEFT JOIN maximo.locations pd "
- +"                 ON      pd.siteid IN ('28') "
+ +"                 ON      pd.siteid = w.siteid "
  +"                         AND pd.location=w.l_podr "
  +"         LEFT JOIN "
  +"                 (SELECT s.siteid   siteid, "
@@ -370,7 +366,7 @@ finish = "to_date ('"+params["fin"]+"','DD.MM.YY HH24:MI:SS')"
  +"                 FROM    MAXIMO.locationspec s "
  +"                 WHERE   s.assetattrid= 'SNAME_PODR' "
  +"                 ) pd_p "
- +"                 ON      pd_p.siteid IN ('28') "
+ +"                 ON      pd_p.siteid = w.siteid "
  +"                         AND PD_P.location=W.L_PODR "
  +"         JOIN MAXIMO.ASSET AST "
  +"                 ON      AST.SITEID       = W.SITEID "
@@ -380,9 +376,9 @@ finish = "to_date ('"+params["fin"]+"','DD.MM.YY HH24:MI:SS')"
  +"                         AND ASTLOCR.TARGETASSETNUM = AST.ASSETNUM "
  +"                         AND ASTLOCR.ASSETRELATIONNUM IN ('ГЛПУТЬ_ПУТЬП','ГЛПУТЬ_ГППС') "
  +" WHERE   W.STATUS NOT                                 IN ( 'УДАЛЕНО') "
- +"         AND w.l_podr                                 IN( 'ECHS_28_238') "
- +"         AND w.siteid = '28' "
- +"         AND W.TARGCOMPDATE BETWEEN TO_DATE ('01.09.14','DD.MM.YY') AND TO_DATE ('30.09.14','DD.MM.YY HH24:MI:SS') "
+ +"         AND w.l_podr                                 IN("+podrId+") "
+ +"         AND w.siteid = '"+params["mroSite"]+"'"
+ +"         AND W.TARGCOMPDATE BETWEEN TO_DATE ("+start+",'DD.MM.YY') AND TO_DATE ("+finish+",'DD.MM.YY HH24:MI:SS') "
  +"         AND "
  +"         ( w.VID_RAB IN (1001, 101) "
  +"         OR w.typeworkorder = 'Плановое' "
