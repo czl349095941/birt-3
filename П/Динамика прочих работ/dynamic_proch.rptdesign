@@ -125,12 +125,37 @@ else
                 <property name="category">Unformatted</property>
             </structure>
         </scalar-parameter>
+        <scalar-parameter name="cls" id="18300">
+            <property name="valueType">dynamic</property>
+            <property name="dataType">string</property>
+            <property name="paramType">multi-value</property>
+            <text-property name="promptText">Выберите работы</text-property>
+            <property name="controlType">list-box</property>
+            <property name="dataSetName">02_mih</property>
+            <expression name="valueExpr">dataSetRow["CLS"]</expression>
+            <expression name="labelExpr">dataSetRow["CLS_D"]</expression>
+            <property name="mustMatch">true</property>
+            <property name="fixedOrder">false</property>
+            <property name="distinct">true</property>
+            <expression name="sortByColumn">dataSetRow["CLS_D"]</expression>
+            <property name="sortDirection">asc</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
     </parameters>
     <data-sources>
         <script-data-source name="maximoDataSource" id="64" extends="MaximoSystemLibrary.maximoDataSource"/>
+        <oda-data-source extensionID="org.eclipse.birt.report.data.oda.jdbc" name="Data Source" id="18298">
+            <text-property name="displayName"></text-property>
+            <property name="odaDriverClass">oracle.jdbc.driver.OracleDriver</property>
+            <property name="odaURL">jdbc:oracle:thin:@10.22.64.57:1521:ctginst1</property>
+            <property name="odaUser">mihaylov</property>
+            <encrypted-property name="odaPassword" encryptionID="base64">aW5pdDEyMzQ=</encrypted-property>
+        </oda-data-source>
     </data-sources>
     <data-sets>
-        <script-data-set name="11" id="7971">
+        <script-data-set name="03" id="7971">
             <list-property name="resultSetHints">
                 <structure>
                     <property name="position">1</property>
@@ -308,6 +333,7 @@ else
                     </structure>
                 </list-property>
             </structure>
+            <property name="needsCache">false</property>
             <property name="dataSource">maximoDataSource</property>
             <method name="open"><![CDATA[maximoDataSet = MXReportDataSetProvider.create(this.getDataSource().getName(), this.getName());
 maximoDataSet.open();
@@ -315,176 +341,23 @@ maximoDataSet.open();
 var sqlText = new String();
 
 sqlText = "" 
- +" WITH ALLWO AS "
- +"         ( SELECT wo.*, "
- +"					loc.location tek_loc, "
- +"                 loc.description pred_d "
- +"         FROM    MAXIMO.WORKORDER WO "
- +"                 JOIN maximo.locations loc "
- +"                         ON      loc.siteid       = wo.siteid "
- +"                                 AND loc.location = wo.l_pred "
- +"         WHERE   WO.STATUS IN ('НАПР_НА_УТ', 'ЗАВЕРШ', 'ОТКЛ_РГН', 'ОФОРМЛЕН', 'ЗАКРЫТО') "
- +"                 AND WO.H      = 800 "
- +"                 AND WO.SITEID = '"+ params["mroSite"]+"'"
- //+"                 AND WO.L_PRED = '"+params["pred"]+"'"
- +"                 AND wo.actfinish >= "+params["date1"]+" AND wo.actfinish < "+params["date2"]+" +1"
- //+"					and wo.brigad_location = 'PODR_2114' "
- +"         ) "
- +"         , "
- +" SUMWO as "
- +"         (select /*+ MATERIALIZE */  "
- +"                 SUM(LABOR_HOUR) SUMWO, "
- +"                 tek_loc         brigad_location "
- +"         FROM    allwo "
- +"         GROUP BY tek_loc "
- +"         ) "
- +"         , "
-  +"         BASE AS "
- +"         ( SELECT "
- +"                 /*+ MATERIALIZE */ "
- +"                 WO.tek_loc L_PRED, "
- +"                 WO.PRED_D, "
- +"                 CASE WHEN WO.TYPEWORKORDER NOT IN ('Прочее', 'Путевые обходчики') then 1 else 0 end tip, "
- +"                 CASE WHEN WO.TYPEWORKORDER NOT IN ('Прочее', 'Путевые обходчики') THEN NVL(JP.JPNUM, 'notk') WHEN WO.CLASSSTRUCTUREID                    = '010001000100' THEN '010001000104' ELSE WO.CLASSSTRUCTUREID END            JPNUM, "
- +"                 CASE WHEN WO.TYPEWORKORDER NOT IN ('Прочее', 'Путевые обходчики') THEN NVL (JP.DESCRIPTION, 'Техкарта не указана') WHEN WO.TYPEWORKORDER = 'Путевые обходчики' THEN 'Осмотр пути' ELSE CLASSSTRUCTURE.DESCRIPTION END WO_D, "
- +"                 jps.numvalue, "
- +"                 JPS.MEASUREUNITID, "
- +"                 COUNT (WO.WONUM)                                                                                                                       CNT_WO, "
- +"                 NVL (SUM (WO.PLAN_WO), 0)                                                                                                              PLAN_WO, "
- +"                 NVL (SUM (WO.FAKT_WO), 0)                                                                                                              FAKT_WO, "
- +"                 NVL (SUM (WO.LABOR_HOUR), 0)                                                                                                           LABOR_HOUR, "
- +"                 NVL (ROUND (SUM (WO.FAKT_WO/JPS.NUMVALUE*( CASE WHEN NVL(WO.JPDURATION, 0) = 0 THEN WO.NOKOEFDURATION ELSE WO.JPDURATION END)), 2), 0) NORM_HOUR "
- +"         FROM    ALLWO WO "
- +"                 JOIN MAXIMO.CLASSSTRUCTURE "
- +"                         ON      WO.CLASSSTRUCTUREID = CLASSSTRUCTURE.CLASSSTRUCTUREID "
- +"                 LEFT JOIN MAXIMO.wojprelation wojp "
- +"                         ON      wo.wonum                = wojp.wonum "
- +"                                 AND WOJP.USETHISMEASURE = 1 "
- +"                 LEFT JOIN maximo.jobplan jp "
- +"                         ON      WOJP.JOBPLANID = JP.JOBPLANID "
- +"                 LEFT JOIN maximo.jobplanspec jps "
- +"                         ON      jps.jpnum       = jp.jpnum "
- +"                                 AND ASSETATTRID = 'IZMRAB' "
- +"         GROUP BY WO.tek_loc, "
- +"                 WO.PRED_D, "
- +"                 CASE WHEN WO.TYPEWORKORDER NOT IN ('Прочее', 'Путевые обходчики') then 1 else 0 end, "
- +"                 CASE WHEN WO.TYPEWORKORDER NOT IN ('Прочее', 'Путевые обходчики') THEN NVL(JP.JPNUM, 'notk') WHEN WO.CLASSSTRUCTUREID                    = '010001000100' THEN '010001000104' ELSE WO.CLASSSTRUCTUREID END, "
- +"                 CASE WHEN WO.TYPEWORKORDER NOT IN ('Прочее', 'Путевые обходчики') THEN NVL (JP.DESCRIPTION, 'Техкарта не указана') WHEN WO.TYPEWORKORDER = 'Путевые обходчики' THEN 'Осмотр пути' ELSE CLASSSTRUCTURE.DESCRIPTION END, "
- +"                 JPS.NUMVALUE, "
- +"                 JPS.MEASUREUNITID "
- +"         ) "
- +"         , "
- +"         ALL_sum AS "
- +"         (  "
- +"         SELECT "
- +"                 /*+ MATERIALIZE */ "
- +"                 ROW_NUMBER() over (partition BY tip ORDER BY SUM(DOLIA) DESC)                                                                                                                                                   NOM, "
- +"                 TIP, "
- +"                 case when DOLIA < 0.01 then case TIP when 1 then '100500' when 0 then 'tk_dolia' end else JPNUM end                                                                                                                 JPNUM, "
- +"                 CASE WHEN DOLIA < 0.01 THEN case tip when  1 then 'Остальные работы (доля от общего объема трудозатрат менее 1)' WHEN  0 THEN 'Остальные прочие работы (доля от общего объема трудозатрат менее 1)' end ELSE wo_d END WO_D, "
- +"                 CASE WHEN DOLIA             < 0.01 THEN TO_NUMBER('') ELSE NUMVALUE END                                                                                                                                                                                          NUMVALUE, "
- +"                 CASE WHEN DOLIA             < 0.01 THEN '' ELSE MEASUREUNITID END                                                                                                                                                                                                MEASUREUNITID, "
- +"                 SUM(CNT_WO)                                                                                                                                                                                                        CNT_WO, "
- +"                 SUM (PLAN_WO)                                                                                                                                                                                                        PLAN_WO, "
- +"                 SUM (FAKT_WO)                                                                                                                                                                                                        FAKT_WO, "
- +"                 SUM (LABOR_HOUR)                                                                                                                                                                                                        LABOR_HOUR, "
- +"                 SUM(NORM_HOUR)                                                                                                                                                                                                        NORM_HOUR, "
- +"                 SUM(DOLIA)                                                                                                                                                                                                        DOLIA "
- +"         FROM    (SELECT bn.tip, "
- +"                         BN.JPNUM, "
- +"                         bn.WO_D, "
- +"                         bn.numvalue, "
- +"                         BN.MEASUREUNITID, "
- +"                         sum (bn.CNT_WO)   CNT_WO, "
- +"                         SUM (bn.PLAN_WO)    PLAN_WO, "
- +"                         SUM (bn.FAKT_WO)    FAKT_WO, "
- +"                         SUM (BN.LABOR_HOUR) LABOR_HOUR, "
- +"                         SUM (bn.NORM_HOUR)  NORM_HOUR, "
- +"                         NVL(SUM( CASE WHEN (SELECT SUM(SUMWO.SUMWO) "
- +"                                                         FROM    SUMWO "
- +"                                                 ) "
- +"                                                 = 0 THEN 0 ELSE bn.LABOR_HOUR/ "
- +"                                                 (SELECT SUM(SUMWO.SUMWO) "
- +"                                                 FROM    SUMWO "
- +"                                                 ) END ),0) DOLIA "
- +"                 from    BASE BN "
- +"                 group by BN.TIP, "
- +"                         BN.JPNUM, "
- +"                         bn.WO_D, "
- +"                         bn.numvalue, "
- +"                         bn.MEASUREUNITID "
- +"                 ) "
- +"         group by TIP, "
- +"                 case when DOLIA < 0.01 then case TIP when 1 then '100500' when 0 then 'tk_dolia' end else JPNUM end, "
- +"                 CASE WHEN DOLIA < 0.01 THEN case tip when 1 then 'Остальные работы (доля от общего объема трудозатрат менее 1)' WHEN 0 THEN 'Остальные прочие работы (доля от общего объема трудозатрат менее 1)' end ELSE wo_d END, "
- +"                 CASE WHEN DOLIA              < 0.01 THEN TO_NUMBER('') ELSE NUMVALUE END, "
- +"                 CASE WHEN DOLIA              < 0.01 THEN '' ELSE MEASUREUNITID END "
- +"         ) "
- +" SELECT  CASE WHEN ALL_SUM.TIP                                = 1 AND ALL_SUM.JPNUM = '100500' THEN 89 WHEN ALL_SUM.TIP = 0 AND ALL_SUM.JPNUM = 'tk_dolia' THEN 99 ELSE ALL_SUM.NOM END NOM, "
- +"         CASE ALL_SUM.TIP WHEN 1 THEN CASE WHEN ALL_SUM.JPNUM = '100500' THEN 3 ELSE 2 END WHEN 0 THEN CASE WHEN ALL_SUM.JPNUM = 'tk_dolia' THEN 1 ELSE 0 END END                       flag, "
- +"         '01'                                                                                                                                                                           L_PRED, "
- +"         (select description from maximo.site where siteid in (select siteid from allwo))                                                             				   				   PRED_D, "
- +"         jpnum, "
- +"         WO_D, "
- +"         NUMVALUE, "
- +"         MEASUREUNITID, "
- +"         CNT_WO, "
- +"         PLAN_WO, "
- +"         FAKT_WO, "
- +"         LABOR_HOUR, "
- +"         NORM_HOUR, "
- +"         DOLIA "
- +" FROM    ALL_SUM "
- +"  "
- +" UNION ALL "
- +"  "
- +" select  case when NORM_ALL.JPNUM is null then case ALL_RAB.TIP when 1 then 89 when 0 then 99 end else NORM_ALL.NOM end                                                                                                                          NOM, "
- +"         CASE WHEN NORM_ALL.JPNUM is null  THEN CASE nvl(ALL_RAB.TIP, NORM_ALL.TIP) WHEN 1 THEN 3 WHEN 0 THEN 1 else 66 END else CASE nvl(ALL_RAB.TIP, NORM_ALL.TIP) WHEN 1 THEN 2 WHEN 0 THEN 0 END END                                        FLAG, "
- +"         NVL(PRED.L_PRED, ALL_RAB.L_PRED)                                                                                                                                                                                                        L_PRED, "
- +"         NVL(PRED.pred_d, ALL_RAB.PRED_D)                                                                                                                                                                                                        PRED_D, "
- +"         CASE WHEN NORM_ALL.JPNUM IS NULL THEN '' ELSE NORM_ALL.JPNUM END                                                                                                                                                                               JPNUM, "
- +"         CASE WHEN NORM_ALL.JPNUM IS NULL THEN CASE ALL_RAB.TIP WHEN 1 THEN 'Остальные работы (доля от общего объема трудозатрат менее 1)' WHEN 0 THEN 'Остальные прочие работы (доля от общего объема трудозатрат менее 1)' END ELSE NORM_ALL.WO_D END WO_D, "
- +"         CASE WHEN NORM_ALL.JPNUM IS NULL THEN TO_NUMBER('') ELSE NORM_ALL.NUMVALUE END                                                                                                                                                                 NUMVALUE, "
- +"         case when NORM_ALL.JPNUM is null then '' else NORM_ALL.MEASUREUNITID end                                                                                                                                                                       MEASUREUNITID, "
- +"         SUM(ALL_RAB.CNT_WO)                                                                                                                                                                                                          CNT_WO, "
- +"         SUM (ALL_RAB.PLAN_WO)                                                                                                                                                                                                        PLAN_WO, "
- +"         SUM (ALL_RAB.FAKT_WO)                                                                                                                                                                                                        FAKT_WO, "
- +"         SUM (ALL_RAB.LABOR_HOUR)                                                                                                                                                                                                     LABOR_HOUR, "
- +"         SUM(ALL_RAB.NORM_HOUR)                                                                                                                                                                                                       NORM_HOUR, "
- +"         SUM(ALL_RAB.DOLIA)                                                                                                                                                                                                           DOLIA "
- +" FROM    (SELECT * "
- +"         FROM    ALL_SUM "
- +"         WHERE   JPNUM NOT IN ('tk_dolia', '100500') "
- +"         ) NORM_ALL "
- +"         FULL JOIN "
- +"                 (SELECT DISTINCT tek_loc l_pred, "
- +"                         pred_d "
- +"                 FROM    ALLWO "
- +"                 ) pred "
- +"                 ON      1=1 "
- +"         FULL JOIN "
- +"                 (SELECT BNM.*, "
- +"                         NVL( CASE WHEN (SELECT SUMWO.SUMWO "
- +"                                                         FROM    SUMWO "
- +"                                                         WHERE   SUMWO.BRIGAD_LOCATION = bnm.L_PRED "
- +"                                                 ) "
- +"                                                 = 0 THEN 0 ELSE bnm.LABOR_HOUR/ "
- +"                                                 (SELECT SUMWO.SUMWO "
- +"                                                 FROM    SUMWO "
- +"                                                 WHERE   SUMWO.BRIGAD_LOCATION = BNM.L_PRED "
- +"                                                 ) END, 0) DOLIA "
- +"                 FROM    base bnm "
- +"                 ) ALL_RAB "
- +"                 ON      NORM_ALL.JPNUM  = ALL_RAB.JPNUM "
- +"                         AND PRED.L_PRED = ALL_RAB.L_PRED "
- +" group by case when NORM_ALL.JPNUM is null then case ALL_RAB.TIP when 1 then 89 when 0 then 99 end else NORM_ALL.NOM end, "
- +"         CASE WHEN NORM_ALL.JPNUM is null  THEN CASE nvl(ALL_RAB.TIP, NORM_ALL.TIP) WHEN 1 THEN 3 WHEN 0 THEN 1 else 66 END else CASE nvl(ALL_RAB.TIP, NORM_ALL.TIP) WHEN 1 THEN 2 WHEN 0 THEN 0 END END, "
- +"         NVL(PRED.L_PRED, ALL_RAB.L_PRED), "
- +"         NVL(PRED.pred_d, ALL_RAB.PRED_D), "
- +"         CASE WHEN NORM_ALL.JPNUM IS NULL THEN '' ELSE NORM_ALL.JPNUM END, "
- +"         CASE WHEN NORM_ALL.JPNUM IS NULL THEN CASE ALL_RAB.TIP WHEN 1 THEN 'Остальные работы (доля от общего объема трудозатрат менее 1)' WHEN 0 THEN 'Остальные прочие работы (доля от общего объема трудозатрат менее 1)' END ELSE NORM_ALL.WO_D END, "
- +"         CASE WHEN NORM_ALL.JPNUM IS NULL THEN TO_NUMBER('') ELSE NORM_ALL.NUMVALUE END, "
- +"         CASE WHEN NORM_ALL.JPNUM IS NULL THEN '' ELSE NORM_ALL.MEASUREUNITID END "
+ 
+ +" SELECT  '' NOM, "
+ +"         '' flag, "
+ +"         '01' L_PRED, "
+ +"         ''  PRED_D, "
+ +"         '' jpnum, "
+ +"         '' WO_D, "
+ +"         '' NUMVALUE, "
+ +"         '' MEASUREUNITID, "
+ +"         '' CNT_WO, "
+ +"         '' PLAN_WO, "
+ +"         '' FAKT_WO, "
+ +"         '' LABOR_HOUR, "
+ +"         '' NORM_HOUR, "
+ +"         '' DOLIA "
+ +" FROM    dual  "
+
  ;
 
 
@@ -507,7 +380,7 @@ row["DOLIA"] = maximoDataSet.getString("DOLIA");
 
 return (true);]]></method>
         </script-data-set>
-        <script-data-set name="label" id="13864">
+        <script-data-set name="01label" id="13864">
             <list-property name="resultSetHints">
                 <structure>
                     <property name="position">1</property>
@@ -595,6 +468,7 @@ return (true);]]></method>
                     </structure>
                 </list-property>
             </structure>
+            <property name="needsCache">false</property>
             <property name="dataSource">maximoDataSource</property>
             <method name="open"><![CDATA[maximoDataSet = MXReportDataSetProvider.create(this.getDataSource().getName(), this.getName());
 maximoDataSet.open();
@@ -626,6 +500,131 @@ row["D2"] = maximoDataSet.getString("D2");
 
 return (true);]]></method>
         </script-data-set>
+        <script-data-set name="02perechen" id="18248">
+            <list-property name="resultSetHints">
+                <structure>
+                    <property name="position">1</property>
+                    <property name="name">CLS</property>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="position">2</property>
+                    <property name="name">CLS_D</property>
+                    <property name="dataType">string</property>
+                </structure>
+            </list-property>
+            <list-property name="columnHints">
+                <structure>
+                    <property name="columnName">CLS</property>
+                </structure>
+                <structure>
+                    <property name="columnName">CLS_D</property>
+                </structure>
+            </list-property>
+            <structure name="cachedMetaData">
+                <list-property name="resultSet">
+                    <structure>
+                        <property name="position">1</property>
+                        <property name="name">CLS</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">2</property>
+                        <property name="name">CLS_D</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                </list-property>
+            </structure>
+            <property name="needsCache">false</property>
+            <property name="dataSource">maximoDataSource</property>
+            <method name="open"><![CDATA[maximoDataSet = MXReportDataSetProvider.create(this.getDataSource().getName(), this.getName());
+maximoDataSet.open();
+
+var sqlText = new String();
+
+sqlText = "" 
+  +" SELECT  a1.CLASSSTRUCTUREID cls, "
+ +"         cls.description     cls_d "
+ +" FROM    ( SELECT DISTINCT wo.CLASSSTRUCTUREID "
+ +"         FROM    MAXIMO.WORKORDER WO "
+ +"         WHERE   wo.h = 800 "
+ +"                 AND WO.STATUS        IN ( 'НАПР_НА_УТ', 'ЗАВЕРШ', 'ОТКЛ_РГН', 'ОФОРМЛЕН', 'ЗАКРЫТО' ) "
+ +"                 AND wo.TYPEWORKORDER IN ('Прочее') "
+ +"                 AND WO.SITEID = '24' "
+ +"					and wo.l_pred = 'PRED_1369' "
+ +"                 AND WO.ACTFINISH BETWEEN TO_DATE('01.09.2014') AND TO_DATE ('03.09.2014')+1 "
+ +"         ) a1 "
+ +"         JOIN MAXIMO.CLASSSTRUCTURE cls "
+ +"                 ON      CLS.CLASSSTRUCTUREID = a1.CLASSSTRUCTUREID "
+
+ ;
+
+
+maximoDataSet.setQuery(sqlText);]]></method>
+            <method name="fetch"><![CDATA[if (!maximoDataSet.fetch())
+	return (false);
+row["CLS"] = maximoDataSet.getString("CLS");	
+row["CLS_D"] = maximoDataSet.getString("CLS_D");
+
+return (true);]]></method>
+        </script-data-set>
+        <oda-data-set extensionID="org.eclipse.birt.report.data.oda.jdbc.JdbcSelectDataSet" name="02_mih" id="18299">
+            <list-property name="columnHints">
+                <structure>
+                    <property name="columnName">CLS</property>
+                    <property name="displayName">CLS</property>
+                </structure>
+                <structure>
+                    <property name="columnName">CLS_D</property>
+                    <property name="displayName">CLS_D</property>
+                </structure>
+            </list-property>
+            <structure name="cachedMetaData">
+                <list-property name="resultSet">
+                    <structure>
+                        <property name="position">1</property>
+                        <property name="name">CLS</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">2</property>
+                        <property name="name">CLS_D</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                </list-property>
+            </structure>
+            <property name="dataSource">Data Source</property>
+            <list-property name="resultSet">
+                <structure>
+                    <property name="position">1</property>
+                    <property name="name">CLS</property>
+                    <property name="nativeName">CLS</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">12</property>
+                </structure>
+                <structure>
+                    <property name="position">2</property>
+                    <property name="name">CLS_D</property>
+                    <property name="nativeName">CLS_D</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">12</property>
+                </structure>
+            </list-property>
+            <property name="queryText">SELECT a1.CLASSSTRUCTUREID cls,
+  cls.description cls_d
+FROM
+  ( SELECT DISTINCT wo.CLASSSTRUCTUREID
+  FROM MAXIMO.WORKORDER WO
+  WHERE wo.h            = 800
+  AND WO.STATUS        IN ( 'НАПР_НА_УТ', 'ЗАВЕРШ', 'ОТКЛ_РГН', 'ОФОРМЛЕН', 'ЗАКРЫТО' )
+  AND wo.TYPEWORKORDER IN ('Прочее')
+  and WO.SITEID         = '24'
+  and wo.l_pred = 'PRED_1369'
+  AND WO.ACTFINISH BETWEEN TO_DATE('01.09.2014') AND TO_DATE ('03.09.2014')+1
+  ) a1
+JOIN MAXIMO.CLASSSTRUCTURE cls
+ON CLS.CLASSSTRUCTUREID = a1.CLASSSTRUCTUREID </property>
+        </oda-data-set>
     </data-sets>
     <page-setup>
         <simple-master-page name="maximoLandscape" id="47" extends="MaximoSystemLibrary.maximoLandscape">
@@ -700,7 +699,7 @@ return (true);]]></method>
         <data id="17791">
             <property name="fontSize">medium</property>
             <property name="textAlign">center</property>
-            <property name="dataSet">label</property>
+            <property name="dataSet">01label</property>
             <list-property name="boundDataColumns">
                 <structure>
                     <property name="name">PRED_D</property>
@@ -715,7 +714,7 @@ return (true);]]></method>
         <label id="17792"/>
         <table id="17856">
             <property name="width">100%</property>
-            <property name="dataSet">11</property>
+            <property name="dataSet">03</property>
             <list-property name="boundDataColumns">
                 <structure>
                     <property name="name">FLAG</property>
@@ -2117,12 +2116,6 @@ row["type_norm_hour"]/row["type_labor_haur"]</expression>
                 <property name="pageBreakAfter">auto</property>
                 <property name="pageBreakBefore">always-excluding-first</property>
                 <property name="pageBreakInside">auto</property>
-                <list-property name="sort">
-                    <structure>
-                        <expression name="key">row["PRED_D"].replace(/^\D*/,"").replace(/\D*$/,"")*1</expression>
-                        <property name="direction">asc</property>
-                    </structure>
-                </list-property>
                 <header>
                     <row id="17927">
                         <property name="backgroundColor">#FFFF80</property>
