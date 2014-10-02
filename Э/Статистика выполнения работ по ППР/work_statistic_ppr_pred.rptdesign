@@ -108,17 +108,6 @@ else
                 <property name="category">Unformatted</property>
             </structure>
         </scalar-parameter>
-        <scalar-parameter name="locationId" id="8002">
-            <property name="valueType">static</property>
-            <property name="dataType">string</property>
-            <property name="paramType">simple</property>
-            <property name="isRequired">true</property>
-            <property name="controlType">text-box</property>
-            <property name="distinct">true</property>
-            <structure name="format">
-                <property name="category">Unformatted</property>
-            </structure>
-        </scalar-parameter>
         <scalar-parameter name="podrId" id="9154">
             <property name="valueType">static</property>
             <property name="dataType">string</property>
@@ -306,13 +295,6 @@ else
 	maximoDataSet.open();
 	var sqlText = new String();
 
-
-var locationId = new String(params["locationId"]);
-locationId = "'" + (params["locationId"]).replace(/=/g,"") + "'";
-locationId = locationId.replace(/,/g,"','");
-
-
-
 var podrId = new String(params["podrId"]);
 var podrId_ex = new String(1);
 
@@ -468,61 +450,6 @@ siteid = "'"+params["mroSite"]+"'"  ;
 	row["description"] = maximoDataSet.getString("description");
 	return (true);]]></method>
         </script-data-set>
-        <script-data-set name="des" id="7998">
-            <list-property name="resultSetHints">
-                <structure>
-                    <property name="position">1</property>
-                    <property name="name">description</property>
-                    <property name="dataType">string</property>
-                </structure>
-            </list-property>
-            <list-property name="columnHints">
-                <structure>
-                    <property name="columnName">description</property>
-                </structure>
-            </list-property>
-            <structure name="cachedMetaData">
-                <list-property name="resultSet">
-                    <structure>
-                        <property name="position">1</property>
-                        <property name="name">description</property>
-                        <property name="dataType">string</property>
-                    </structure>
-                </list-property>
-            </structure>
-            <property name="dataSource">maximoDataSource</property>
-            <method name="open"><![CDATA[maximoDataSet = MXReportDataSetProvider.create(this.getDataSource().getName(), this.getName());
-	maximoDataSet.open();
-
-
-
-
-var locationId = new String(params["locationId"]);
-
-locationId = "'" + (params["locationId"]).replace(/=/g,"") + "'";
-locationId = locationId.replace(/,/g,"','");
-
-
-var sqlText = new String();
-
-	sqlText = "select sys_xmlagg(xmlelement(pred, PRED||';  ')).extract('/ROWSET/PRED/text()').getclobval()  as description "
-+" from (	"
-+"	select spec.alnvalue || ', ' || spec2.alnvalue as pred "
-+"	from maximo.locationspec spec "
-+"  	join maximo.locationspec spec2 on (spec.location = spec2.location) "
-+"	where spec.location in ( "+locationId+" )"
-+" 			and spec.assetattrid = 'SNAME' and spec2.assetattrid = 'SNAME2' )"
-
-;
-
-
-	maximoDataSet.setQuery(sqlText);]]></method>
-            <method name="fetch"><![CDATA[if (!maximoDataSet.fetch())
-	   return (false);
-	// Add a line for each output column
-	row["description"] = maximoDataSet.getString("description");
-	return (true);]]></method>
-        </script-data-set>
         <script-data-set name="podr" id="8518">
             <list-property name="resultSetHints">
                 <structure>
@@ -552,10 +479,6 @@ var sqlText = new String();
 var siteid = new String(params["mroSite"]);
 siteid = "'"+params["mroSite"]+"'"  ;
 
-var locationId = new String(params["locationId"]);
-locationId = "'" + (params["locationId"]).replace(/=/g,"") + "'";
-locationId = locationId.replace(/,/g,"','");
-
 var podrId = new String();
 if(params["podrId"]!="")
 {	podrId = "'" + (params["podrId"]).replace("=","") + "'"
@@ -564,11 +487,9 @@ if(params["podrId"]!="")
 
 var sqlText = new String();
 
-	sqlText = "						select "
-+"			distinct (case when l_tip.NUMVALUE ='3'  then s.alnvalue  else l.description end) podr from MAXIMO.locations l "
-+"										 left join MAXIMO.locationspec l_tip on l_tip.location= "+locationId+" and l_tip.siteid=l.siteid  and l_tip.assetattrid='TIP_PREDPR' "
-+"										left join  MAXIMO.locationspec s on s.assetattrid= 'SNAME_PODR' and s.location=l.location and s.siteid=l.siteid "
-+"								where l.location = "+podrId+" and l.siteid=" + siteid + "    "
+	sqlText = " "
++" select l.description podr from MAXIMO.locations l "
++"where l.location = "+podrId+" and l.siteid=" + siteid + "    "
 																
 
 ;
@@ -663,21 +584,6 @@ var sqlText = new String();
             <property name="textAlign">center</property>
             <text-property name="text">Статистика выполнения работ по ППР по предприятию</text-property>
         </label>
-        <data id="7999">
-            <property name="fontSize">large</property>
-            <property name="fontWeight">bold</property>
-            <property name="textAlign">center</property>
-            <property name="dataSet">des</property>
-            <list-property name="boundDataColumns">
-                <structure>
-                    <property name="name">description</property>
-                    <property name="displayName">description</property>
-                    <expression name="expression">dataSetRow["description"]</expression>
-                    <property name="dataType">string</property>
-                </structure>
-            </list-property>
-            <property name="resultSetColumn">description</property>
-        </data>
         <data id="10822">
             <property name="fontSize">large</property>
             <property name="fontWeight">bold</property>
