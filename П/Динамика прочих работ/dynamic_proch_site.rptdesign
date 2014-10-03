@@ -26,26 +26,26 @@ mxReportScriptContext.setDefaultLogFile("c:/temp/tetttt.txt");
 
 //params["pred"] = params["pred"].replace("=", "")
 
-if (BirtComp.equalTo(params["date1"],null) == true || params["date1"] == '' )
-	{if (BirtComp.equalTo(params["date2"],null) == true || params["date2"] == '')
-		{params["date1"] = "to_date('01."+ BirtDateTime.month(BirtDateTime.now())+"." + BirtDateTime.year(BirtDateTime.now()) + "')";
-		params["date2"] = "to_date(LAST_DAY(TO_DATE('1."+ BirtDateTime.month(BirtDateTime.now()) + "."+ BirtDateTime.year(BirtDateTime.now()) +"','dd.mm.yyyy')))";
-		}
-	else
-		{params["date1"] = "to_date('" +params["date2"]+ "') - to_number(TO_CHAR(LAST_DAY(TO_DATE('1.' || to_char(extract (month from to_date('" +params["date2"]+ "'))-1) || '.'|| extract (year from to_date('" +params["date2"]+ "')),'dd.mm.yyyy')),'dd'))";
-		params["date2"] = "to_date('" +params["date2"]+ "')";
-		}
-	}
-else  
-	{if (BirtComp.equalTo(params["date2"],null) == true || params["date2"] == '')
-		{params["date2"] = "to_date('" +params["date1"]+ "')";
-		params["date1"] = "to_date('" +params["date1"]+ "')";
-		}
-	 else 
-	 	{params["date1"] = "to_date('" +params["date1"]+ "')";
-		params["date2"] = "to_date('" +params["date2"]+ "')";
-		}
-	}]]></method>
+//if (BirtComp.equalTo(params["date1"],null) == true || params["date1"] == '' )
+	//{if (BirtComp.equalTo(params["date2"],null) == true || params["date2"] == '')
+	//	{params["date1"] = "to_date('01."+ BirtDateTime.month(BirtDateTime.now())+"." + BirtDateTime.year(BirtDateTime.now()) + "')";
+	//	params["date2"] = "to_date(LAST_DAY(TO_DATE('1."+ BirtDateTime.month(BirtDateTime.now()) + "."+ BirtDateTime.year(BirtDateTime.now()) +"','dd.mm.yyyy')))";
+//		}
+//	else
+//		{params["date1"] = "to_date('" +params["date2"]+ "') - to_number(TO_CHAR(LAST_DAY(TO_DATE('1.' || to_char(extract (month from to_date('" +params["date2"]+ "'))-1) || '.'|| extract (year from to_date('" +params["date2"]+ "')),'dd.mm.yyyy')),'dd'))";
+//		params["date2"] = "to_date('" +params["date2"]+ "')";
+//		}
+//	}
+//else  
+//	{if (BirtComp.equalTo(params["date2"],null) == true || params["date2"] == '')
+//		{params["date2"] = "to_date('" +params["date1"]+ "')";
+	//	params["date1"] = "to_date('" +params["date1"]+ "')";
+	//	}
+	// else 
+	// 	{params["date1"] = "to_date('" +params["date1"]+ "')";
+	//	params["date2"] = "to_date('" +params["date2"]+ "')";
+	//	}
+	//}]]></method>
     <method name="afterFactory"><![CDATA[MXReportScriptContext.close();]]></method>
     <property name="theme">MaximoSystemLibrary.maximoTheme</property>
     <text-property name="displayName">Tivoli Maximo Grouped Chart Template</text-property>
@@ -104,10 +104,10 @@ else
         </scalar-parameter>
         <scalar-parameter name="date1" id="17788">
             <property name="valueType">static</property>
-            <property name="dataType">string</property>
+            <property name="dataType">integer</property>
             <property name="paramType">simple</property>
-            <text-property name="promptText">Начало периода</text-property>
-            <property name="isRequired">false</property>
+            <text-property name="promptText">Месяц начала периода</text-property>
+            <property name="isRequired">true</property>
             <property name="controlType">text-box</property>
             <property name="distinct">true</property>
             <structure name="format">
@@ -118,8 +118,8 @@ else
             <property name="valueType">static</property>
             <property name="dataType">string</property>
             <property name="paramType">simple</property>
-            <text-property name="promptText">Конец периода</text-property>
-            <property name="isRequired">false</property>
+            <text-property name="promptText">Месяц конца периода</text-property>
+            <property name="isRequired">true</property>
             <property name="controlType">text-box</property>
             <property name="distinct">true</property>
             <structure name="format">
@@ -220,7 +220,7 @@ sqlText = ""
  +"         AND wo.TYPEWORKORDER IN ('Прочее') "
  +"         AND WO.SITEID = '"+params["mroSite"]+"'" 
  //+"         AND WO.L_PRED = 'PRED_1369' "
- +"         and wo.actfinish >= "+params["date1"]+" AND wo.actfinish < "+params["date2"]+" +1"
+ +"         and extract (month from wo.actfinish) between "+params["date1"]+" AND "+params["date2"]
  +"			and wo.CLASSSTRUCTUREID in ('"+params["cls"].join("','")+"')"
  +" GROUP BY wo.CLASSSTRUCTUREID, "
  +"         cls.description "
@@ -371,7 +371,7 @@ return (true);]]></method>
                 <structure>
                     <property name="name">param_2</property>
                     <property name="paramName">date1</property>
-                    <property name="dataType">string</property>
+                    <property name="dataType">integer</property>
                     <property name="position">2</property>
                     <property name="isInput">true</property>
                     <property name="isOutput">false</property>
@@ -379,7 +379,7 @@ return (true);]]></method>
                 <structure>
                     <property name="name">param_3</property>
                     <property name="paramName">date2</property>
-                    <property name="dataType">string</property>
+                    <property name="dataType">integer</property>
                     <property name="position">3</property>
                     <property name="isInput">true</property>
                     <property name="isOutput">false</property>
