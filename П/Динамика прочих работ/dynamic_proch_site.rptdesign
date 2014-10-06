@@ -115,19 +115,31 @@ mxReportScriptContext.setDefaultLogFile("c:/temp/tetttt.txt");
             </structure>
         </scalar-parameter>
         <scalar-parameter name="cls" id="18300">
+            <text-property name="helpText">Зажмите CTRL и выберите нужные работы</text-property>
             <property name="valueType">dynamic</property>
             <property name="dataType">string</property>
             <property name="paramType">multi-value</property>
             <text-property name="promptText">Выберите работы</text-property>
+            <property name="isRequired">true</property>
             <property name="controlType">list-box</property>
             <property name="dataSetName">02_mih</property>
             <expression name="valueExpr">dataSetRow["CLS"]</expression>
             <expression name="labelExpr">dataSetRow["CLS_D"]</expression>
             <property name="mustMatch">true</property>
-            <property name="fixedOrder">false</property>
+            <property name="fixedOrder">true</property>
             <property name="distinct">true</property>
-            <expression name="sortByColumn">dataSetRow["CLS_D"]</expression>
-            <property name="sortDirection">asc</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="year" id="18364">
+            <property name="valueType">static</property>
+            <property name="dataType">integer</property>
+            <property name="paramType">simple</property>
+            <text-property name="promptText">Год</text-property>
+            <property name="isRequired">false</property>
+            <property name="controlType">text-box</property>
+            <property name="distinct">true</property>
             <structure name="format">
                 <property name="category">Unformatted</property>
             </structure>
@@ -165,11 +177,6 @@ mxReportScriptContext.setDefaultLogFile("c:/temp/tetttt.txt");
                     <property name="name">LABOR_HOUR</property>
                     <property name="dataType">float</property>
                 </structure>
-                <structure>
-                    <property name="position">5</property>
-                    <property name="name">C_MON</property>
-                    <property name="dataType">integer</property>
-                </structure>
             </list-property>
             <list-property name="columnHints">
                 <structure>
@@ -183,9 +190,6 @@ mxReportScriptContext.setDefaultLogFile("c:/temp/tetttt.txt");
                 </structure>
                 <structure>
                     <property name="columnName">MON</property>
-                </structure>
-                <structure>
-                    <property name="columnName">C_MON</property>
                 </structure>
             </list-property>
             <structure name="cachedMetaData">
@@ -209,11 +213,6 @@ mxReportScriptContext.setDefaultLogFile("c:/temp/tetttt.txt");
                         <property name="position">4</property>
                         <property name="name">LABOR_HOUR</property>
                         <property name="dataType">float</property>
-                    </structure>
-                    <structure>
-                        <property name="position">5</property>
-                        <property name="name">C_MON</property>
-                        <property name="dataType">integer</property>
                     </structure>
                 </list-property>
             </structure>
@@ -242,7 +241,6 @@ sqlText = ""
  +"                 WHEN 12 THEN '12декабрь' "
  +"                 ELSE '' "
  +"         END mon, " 
- +"			extract (MONTH FROM wo.actfinish) c_mon, "
  +"			SUM(WO.LABOR_HOUR) LABOR_HOUR "
  +" FROM    MAXIMO.WORKORDER WO "
  +"         JOIN MAXIMO.CLASSSTRUCTURE CLS "
@@ -269,7 +267,6 @@ maximoDataSet.setQuery(sqlText);]]></method>
 row["CLS"] = maximoDataSet.getString("CLS");	
 row["CLS_D"] = maximoDataSet.getString("CLS_D");
 row["MON"] = maximoDataSet.getString("MON");
-row["C_MON"] = maximoDataSet.getString("C_MON");
 row["LABOR_HOUR"] = maximoDataSet.getString("LABOR_HOUR");
 return (true);]]></method>
         </script-data-set>
@@ -422,21 +419,10 @@ row["D2"] = maximoDataSet.getString("D2");
 return (true);]]></method>
         </script-data-set>
         <oda-data-set extensionID="org.eclipse.birt.report.data.oda.jdbc.JdbcSelectDataSet" name="02_mih" id="18299">
-            <structure name="cachedMetaData">
-                <list-property name="resultSet">
-                    <structure>
-                        <property name="position">1</property>
-                        <property name="name">CLS</property>
-                        <property name="dataType">string</property>
-                    </structure>
-                    <structure>
-                        <property name="position">2</property>
-                        <property name="name">CLS_D</property>
-                        <property name="dataType">string</property>
-                    </structure>
-                </list-property>
-            </structure>
+            <structure name="cachedMetaData"/>
             <property name="dataSource">Data Source</property>
+            <method name="beforeOpen"><![CDATA[if(BirtComp.equalTo(params["year"],null) || params["year"] == ''  )
+params["year"]=BirtDateTime.year(BirtDateTime.now());]]></method>
             <list-property name="parameters">
                 <structure>
                     <property name="name">param_1</property>
@@ -462,19 +448,13 @@ return (true);]]></method>
                     <property name="isInput">true</property>
                     <property name="isOutput">false</property>
                 </structure>
-            </list-property>
-            <list-property name="resultSet">
                 <structure>
-                    <property name="position">1</property>
-                    <property name="name">CLS</property>
-                    <property name="nativeName">CLS</property>
-                    <property name="dataType">string</property>
-                </structure>
-                <structure>
-                    <property name="position">2</property>
-                    <property name="name">CLS_D</property>
-                    <property name="nativeName">CLS_D</property>
-                    <property name="dataType">string</property>
+                    <property name="name">param_4</property>
+                    <property name="paramName">year</property>
+                    <property name="dataType">integer</property>
+                    <property name="position">4</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
                 </structure>
             </list-property>
             <property name="queryText">SELECT  cls.CLASSSTRUCTUREID cls,
@@ -491,7 +471,7 @@ WHERE   (CLS.parent = '010001000021'
                 AND wo.TYPEWORKORDER IN ('Прочее')
                 AND WO.SITEID = ?
                 AND extract (MONTH FROM wo.actfinish) BETWEEN ? AND ?
-                AND extract (YEAR FROM wo.actfinish) = 2014
+                AND extract (YEAR FROM wo.actfinish) = ?
                 AND wo.CLASSSTRUCTUREID              = cls.CLASSSTRUCTUREID
         )</property>
         </oda-data-set>
@@ -575,7 +555,7 @@ WHERE   (CLS.parent = '010001000021'
                     <property name="name">PRED_D</property>
                     <property name="displayName">PRED_D</property>
                     <expression name="expression">//"Трудозатраты по рабочим заданиям в разрезе ТНВ по сети дорог за период с " + dataSetRow["D1"] + " по " + dataSetRow["D2"]
-"Фактические трудозатраты по прочим работам по " + dataSetRow["SITE_D"].replace("ая", "ой") + " ДИ за период с" + dataSetRow["D1"] + "по" + dataSetRow["D2"]</expression>
+"Фактические трудозатраты по прочим работам по " + dataSetRow["SITE_D"].replace("ая", "ой") + " ДИ за период с" + dataSetRow["D1"] + "по" + dataSetRow["D2"]+params["year"].value +" года"</expression>
                     <property name="dataType">string</property>
                 </structure>
             </list-property>
@@ -616,22 +596,9 @@ WHERE   (CLS.parent = '010001000021'
                     <expression name="expression">dataSetRow["LABOR_HOUR"]</expression>
                     <property name="dataType">float</property>
                 </structure>
-                <structure>
-                    <property name="name">C_MON</property>
-                    <property name="displayName">C_MON</property>
-                    <expression name="expression">dataSetRow["C_MON"]</expression>
-                    <property name="dataType">integer</property>
-                </structure>
-            </list-property>
-            <list-property name="sort">
-                <structure>
-                    <expression name="key">row["C_MON"]</expression>
-                    <property name="direction">asc</property>
-                </structure>
             </list-property>
             <column id="18347"/>
             <column id="18348"/>
-            <column id="18361"/>
             <column id="18349"/>
             <column id="18350"/>
             <header>
@@ -668,23 +635,6 @@ WHERE   (CLS.parent = '010001000021'
                         <property name="borderTopWidth">thin</property>
                         <label id="18328">
                             <text-property name="text">CLS_D</text-property>
-                        </label>
-                    </cell>
-                    <cell id="18358">
-                        <property name="borderBottomColor">#000000</property>
-                        <property name="borderBottomStyle">solid</property>
-                        <property name="borderBottomWidth">thin</property>
-                        <property name="borderLeftColor">#000000</property>
-                        <property name="borderLeftStyle">solid</property>
-                        <property name="borderLeftWidth">thin</property>
-                        <property name="borderRightColor">#000000</property>
-                        <property name="borderRightStyle">solid</property>
-                        <property name="borderRightWidth">thin</property>
-                        <property name="borderTopColor">#000000</property>
-                        <property name="borderTopStyle">solid</property>
-                        <property name="borderTopWidth">thin</property>
-                        <label id="18362">
-                            <text-property name="text">C_MON</text-property>
                         </label>
                     </cell>
                     <cell id="18329">
@@ -759,23 +709,6 @@ WHERE   (CLS.parent = '010001000021'
                             <property name="resultSetColumn">CLS_D</property>
                         </data>
                     </cell>
-                    <cell id="18359">
-                        <property name="borderBottomColor">#000000</property>
-                        <property name="borderBottomStyle">solid</property>
-                        <property name="borderBottomWidth">thin</property>
-                        <property name="borderLeftColor">#000000</property>
-                        <property name="borderLeftStyle">solid</property>
-                        <property name="borderLeftWidth">thin</property>
-                        <property name="borderRightColor">#000000</property>
-                        <property name="borderRightStyle">solid</property>
-                        <property name="borderRightWidth">thin</property>
-                        <property name="borderTopColor">#000000</property>
-                        <property name="borderTopStyle">solid</property>
-                        <property name="borderTopWidth">thin</property>
-                        <data id="18363">
-                            <property name="resultSetColumn">C_MON</property>
-                        </data>
-                    </cell>
                     <cell id="18338">
                         <property name="borderBottomColor">#000000</property>
                         <property name="borderBottomStyle">solid</property>
@@ -816,7 +749,6 @@ WHERE   (CLS.parent = '010001000021'
                 <row id="18342">
                     <cell id="18343"/>
                     <cell id="18344"/>
-                    <cell id="18360"/>
                     <cell id="18345"/>
                     <cell id="18346"/>
                 </row>
