@@ -115,16 +115,11 @@ mxReportScriptContext.setDefaultLogFile("c:/temp/tetttt.txt");
             </structure>
         </scalar-parameter>
         <scalar-parameter name="cls" id="18300">
-            <property name="valueType">dynamic</property>
+            <property name="valueType">static</property>
             <property name="dataType">string</property>
-            <property name="paramType">multi-value</property>
+            <property name="paramType">simple</property>
             <text-property name="promptText">Выберите работы</text-property>
-            <property name="controlType">list-box</property>
-            <property name="dataSetName">02_mih</property>
-            <expression name="valueExpr">dataSetRow["CLS"]</expression>
-            <expression name="labelExpr">dataSetRow["CLS_D"]</expression>
-            <property name="mustMatch">true</property>
-            <property name="fixedOrder">true</property>
+            <property name="controlType">text-box</property>
             <property name="defaultValue">010001000102</property>
             <property name="distinct">true</property>
             <structure name="format">
@@ -211,24 +206,23 @@ maximoDataSet.open();
 var sqlText = new String();
 
 sqlText = "" 
- +" SELECT  wo.CLASSSTRUCTUREID CLS, "
- +"         cls.description CLS_D, "
- +"			extract (month from wo.actfinish) mon, "
- +"         SUM(WO.LABOR_HOUR) LABOR_HOUR "
+ +" SELECT  wo.CLASSSTRUCTUREID                                      CLS, "
+ +"         CLS.DESCRIPTION                                          CLS_D, "
+ +"         extract (MONTH FROM wo.actfinish) mon, SUM(WO.LABOR_HOUR) LABOR_HOUR "
  +" FROM    MAXIMO.WORKORDER WO "
  +"         JOIN MAXIMO.CLASSSTRUCTURE CLS "
  +"                 ON      CLS.CLASSSTRUCTUREID = wo.CLASSSTRUCTUREID "
  +" WHERE   wo.h                                 = 800 "
  +"         AND WO.STATUS        IN ( 'НАПР_НА_УТ', 'ЗАВЕРШ', 'ОТКЛ_РГН', 'ОФОРМЛЕН', 'ЗАКРЫТО' ) "
- +"         AND wo.TYPEWORKORDER IN ('Прочее') "
- +"         AND WO.SITEID = '"+params["mroSite"]+"'" 
- //+"         AND WO.L_PRED = 'PRED_1369' "
- +"         and extract (month from wo.actfinish) between "+params["date1"]+" AND "+params["date2"]
- +"			and extract (month from wo.actfinish) = 2014 "
- +"			and wo.CLASSSTRUCTUREID in ('"+params["cls"].join("','")+"')"
+ +"         and WO.TYPEWORKORDER in ('Прочее') "
+ +"         and WO.SITEID = '"+params["mroSite"]+"' " 
+ +"         and extract (month from WO.ACTFINISH) between "+params["date1"]+" AND "+params["date2"]
+ +"         AND extract (YEAR FROM wo.actfinish) = 2014 "
+ +"         AND wo.CLASSSTRUCTUREID IN ('"+params["cls"]+"') "
  +" GROUP BY wo.CLASSSTRUCTUREID, "
- +"         cls.description, "
- +"			extract (month from wo.actfinish) "
+ +"         CLS.DESCRIPTION, "
+ +"         extract (MONTH FROM wo.actfinish) "
+
 
  ;
 
