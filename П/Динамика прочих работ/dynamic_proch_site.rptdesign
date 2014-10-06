@@ -440,20 +440,23 @@ return (true);]]></method>
                     <property name="dataType">string</property>
                 </structure>
             </list-property>
-            <property name="queryText">SELECT a1.CLASSSTRUCTUREID cls,
-  cls.description cls_d
-FROM
-  ( SELECT DISTINCT wo.CLASSSTRUCTUREID
-  FROM MAXIMO.WORKORDER WO
-  WHERE wo.h            = 800
-  AND WO.STATUS        IN ( 'НАПР_НА_УТ', 'ЗАВЕРШ', 'ОТКЛ_РГН', 'ОФОРМЛЕН', 'ЗАКРЫТО' )
-  AND wo.TYPEWORKORDER IN ('Прочее')
-  and WO.SITEID         = ?
-  and extract (month from wo.actfinish) between ? and ?
-  and extract (YEAR from wo.actfinish) = 2014
-  ) a1
-JOIN MAXIMO.CLASSSTRUCTURE cls
-ON CLS.CLASSSTRUCTUREID = a1.CLASSSTRUCTUREID </property>
+            <property name="queryText">SELECT  cls.CLASSSTRUCTUREID cls,
+        CLS.DESCRIPTION      CLS_D
+FROM    MAXIMO.CLASSSTRUCTURE CLS
+WHERE   (CLS.parent = '010001000021'
+        OR CLS.CLASSSTRUCTUREID IN ('10001000021', '10001000051')
+        )
+        AND EXISTS
+        ( SELECT *
+        FROM    MAXIMO.WORKORDER WO
+        WHERE   wo.h = 800
+                AND WO.STATUS        IN ( 'НАПР_НА_УТ', 'ЗАВЕРШ', 'ОТКЛ_РГН', 'ОФОРМЛЕН', 'ЗАКРЫТО' )
+                AND wo.TYPEWORKORDER IN ('Прочее')
+                AND WO.SITEID = ?
+                AND extract (MONTH FROM wo.actfinish) BETWEEN ? AND ?
+                AND extract (YEAR FROM wo.actfinish) = 2014
+                AND wo.CLASSSTRUCTUREID              = cls.CLASSSTRUCTUREID
+        )</property>
         </oda-data-set>
     </data-sets>
     <page-setup>
