@@ -115,13 +115,19 @@ mxReportScriptContext.setDefaultLogFile("c:/temp/tetttt.txt");
             </structure>
         </scalar-parameter>
         <scalar-parameter name="cls" id="18300">
-            <property name="valueType">static</property>
+            <property name="valueType">dynamic</property>
             <property name="dataType">string</property>
-            <property name="paramType">simple</property>
+            <property name="paramType">multi-value</property>
             <text-property name="promptText">Выберите работы</text-property>
-            <property name="controlType">text-box</property>
-            <property name="defaultValue">010001000102</property>
+            <property name="controlType">list-box</property>
+            <property name="dataSetName">02_mih</property>
+            <expression name="valueExpr">dataSetRow["CLS"]</expression>
+            <expression name="labelExpr">dataSetRow["CLS_D"]</expression>
+            <property name="mustMatch">true</property>
+            <property name="fixedOrder">false</property>
             <property name="distinct">true</property>
+            <expression name="sortByColumn">dataSetRow["CLS_D"]</expression>
+            <property name="sortDirection">asc</property>
             <structure name="format">
                 <property name="category">Unformatted</property>
             </structure>
@@ -218,7 +224,7 @@ sqlText = ""
  +"         and WO.SITEID = '"+params["mroSite"]+"' " 
  +"         and extract (month from WO.ACTFINISH) between "+params["date1"]+" AND "+params["date2"]
  +"         AND extract (YEAR FROM wo.actfinish) = 2014 "
- +"         AND wo.CLASSSTRUCTUREID IN ('"+params["cls"]+"') "
+ +"         AND wo.CLASSSTRUCTUREID IN ('"+params["cls"].join("','")+"') "
  +" GROUP BY wo.CLASSSTRUCTUREID, "
  +"         CLS.DESCRIPTION, "
  +"         extract (MONTH FROM wo.actfinish) "
