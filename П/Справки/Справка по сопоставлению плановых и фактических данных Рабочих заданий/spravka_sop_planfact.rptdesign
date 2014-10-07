@@ -514,7 +514,8 @@ sqlText = ""
  +"                wo.plan_wo, " 
  +"                wo.labor_hour , " 
  +"                wo.fakt_wo, " 
- +"                WO.TYPEWORKORDER, " 
+ +"                WO.TYPEWORKORDER, "
+ +"				   wo.CLASSSTRUCTUREID cls, " 
  +"                cls.description OTHERWORK, " 
  +"                (SELECT SUM(SKILLLEVEL*labor_hour) " 
  +"                FROM    maximo.labtrans labt " 
@@ -621,7 +622,7 @@ sqlText = ""
  +"         ''   cls4, "
  +"         wo.l_podr , "
  +"         wo.podr_d, "
- +"         NVL( CASE WHEN wo.TYPEWORKORDER IN ('Путевые обходчики') THEN 'Осмотр пути' ELSE wo.OTHERWORK END, 'Прочие работы') jpnum, "
+ +"         case when wo.cls in ('010001000101', '010001000102', '010001000103', '010001000105', '010001000108', '010001000109', '010001000112', '010001000113', '010001000114', '010001000115', '010001000116', '010001000117', '010001000124') then '1' else wo.cls end jpnum, "
  +"         wo.wonum , "
  +"         nvl(case when wo.TYPEWORKORDER IN ('Путевые обходчики') then 'Осмотр пути' else wo.OTHERWORK end, 'Прочие работы')jp_d , "
  +"         wo.edizm, "
@@ -2141,6 +2142,9 @@ row["tab_sr_razr"]/row["tab_labor_hour"]</expression>
                         <property name="borderTopColor">#000000</property>
                         <property name="borderTopStyle">solid</property>
                         <property name="borderTopWidth">thin</property>
+                        <label id="18956">
+                            <text-property name="text">Средний разряд работника</text-property>
+                        </label>
                     </cell>
                     <cell id="18925">
                         <property name="borderLeftColor">#000000</property>
@@ -2152,6 +2156,9 @@ row["tab_sr_razr"]/row["tab_labor_hour"]</expression>
                         <property name="borderTopColor">#000000</property>
                         <property name="borderTopStyle">solid</property>
                         <property name="borderTopWidth">thin</property>
+                        <label id="18959">
+                            <text-property name="text">Средний разряд работ</text-property>
+                        </label>
                     </cell>
                 </row>
                 <row id="18311">
@@ -2333,6 +2340,9 @@ row["tab_sr_razr"]/row["tab_labor_hour"]</expression>
                         <property name="borderRightColor">#000000</property>
                         <property name="borderRightStyle">solid</property>
                         <property name="borderRightWidth">thin</property>
+                        <label id="18957">
+                            <text-property name="text">по нормируемым работам</text-property>
+                        </label>
                     </cell>
                     <cell id="18926">
                         <property name="borderBottomColor">#000000</property>
@@ -2344,6 +2354,9 @@ row["tab_sr_razr"]/row["tab_labor_hour"]</expression>
                         <property name="borderRightColor">#000000</property>
                         <property name="borderRightStyle">solid</property>
                         <property name="borderRightWidth">thin</property>
+                        <label id="18960">
+                            <text-property name="text">c УЧЕТОМ выборочных прочих</text-property>
+                        </label>
                     </cell>
                 </row>
                 <row id="18376">
@@ -2593,6 +2606,9 @@ row["tab_sr_razr"]/row["tab_labor_hour"]</expression>
                         <property name="borderTopColor">#000000</property>
                         <property name="borderTopStyle">solid</property>
                         <property name="borderTopWidth">thin</property>
+                        <label id="18961">
+                            <text-property name="text">13</text-property>
+                        </label>
                     </cell>
                 </row>
             </header>
@@ -2698,32 +2714,6 @@ row["tab_sr_razr"]/row["tab_labor_hour"]</expression>
                             <property name="borderTopStyle">solid</property>
                             <property name="borderTopWidth">thin</property>
                             <property name="textAlign">right</property>
-                            <data id="18954">
-                                <structure name="numberFormat">
-                                    <property name="category">Fixed</property>
-                                    <property name="pattern">Fixed</property>
-                                </structure>
-                                <list-property name="visibility">
-                                    <structure>
-                                        <property name="format">all</property>
-                                        <expression name="valueExpr">true</expression>
-                                    </structure>
-                                </list-property>
-                                <property name="resultSetColumn">brig_sum_trf</property>
-                            </data>
-                            <data id="18955">
-                                <structure name="numberFormat">
-                                    <property name="category">Fixed</property>
-                                    <property name="pattern">Fixed</property>
-                                </structure>
-                                <list-property name="visibility">
-                                    <structure>
-                                        <property name="format">all</property>
-                                        <expression name="valueExpr">true</expression>
-                                    </structure>
-                                </list-property>
-                                <property name="resultSetColumn">brig_trfwork</property>
-                            </data>
                         </cell>
                         <cell id="18307">
                             <property name="borderBottomColor">#000000</property>
@@ -2871,6 +2861,32 @@ row["tab_sr_razr"]/row["tab_labor_hour"]</expression>
                             <property name="borderTopStyle">solid</property>
                             <property name="borderTopWidth">thin</property>
                             <property name="textAlign">right</property>
+                            <data id="18954">
+                                <structure name="numberFormat">
+                                    <property name="category">Fixed</property>
+                                    <property name="pattern">Fixed</property>
+                                </structure>
+                                <list-property name="visibility">
+                                    <structure>
+                                        <property name="format">all</property>
+                                        <expression name="valueExpr">true</expression>
+                                    </structure>
+                                </list-property>
+                                <property name="resultSetColumn">brig_sum_trf</property>
+                            </data>
+                            <data id="18955">
+                                <structure name="numberFormat">
+                                    <property name="category">Fixed</property>
+                                    <property name="pattern">Fixed</property>
+                                </structure>
+                                <list-property name="visibility">
+                                    <structure>
+                                        <property name="format">all</property>
+                                        <expression name="valueExpr">true</expression>
+                                    </structure>
+                                </list-property>
+                                <property name="resultSetColumn">brig_trfwork</property>
+                            </data>
                         </cell>
                         <cell id="18928">
                             <property name="borderBottomColor">#000000</property>
@@ -3304,32 +3320,6 @@ row["tab_sr_razr"]/row["tab_labor_hour"]</expression>
                             <property name="borderTopStyle">solid</property>
                             <property name="borderTopWidth">thin</property>
                             <property name="textAlign">right</property>
-                            <data id="18952">
-                                <structure name="numberFormat">
-                                    <property name="category">Fixed</property>
-                                    <property name="pattern">Fixed</property>
-                                </structure>
-                                <list-property name="visibility">
-                                    <structure>
-                                        <property name="format">all</property>
-                                        <expression name="valueExpr">true</expression>
-                                    </structure>
-                                </list-property>
-                                <property name="resultSetColumn">cls2_sum_trf</property>
-                            </data>
-                            <data id="18953">
-                                <structure name="numberFormat">
-                                    <property name="category">Fixed</property>
-                                    <property name="pattern">Fixed</property>
-                                </structure>
-                                <list-property name="visibility">
-                                    <structure>
-                                        <property name="format">all</property>
-                                        <expression name="valueExpr">row["CLS2_CLASS"] == "102"</expression>
-                                    </structure>
-                                </list-property>
-                                <property name="resultSetColumn">cls2_trfwork</property>
-                            </data>
                         </cell>
                         <cell id="18271">
                             <property name="borderBottomColor">#000000</property>
@@ -3477,6 +3467,32 @@ row["tab_sr_razr"]/row["tab_labor_hour"]</expression>
                             <property name="borderTopStyle">solid</property>
                             <property name="borderTopWidth">thin</property>
                             <property name="textAlign">right</property>
+                            <data id="18952">
+                                <structure name="numberFormat">
+                                    <property name="category">Fixed</property>
+                                    <property name="pattern">Fixed</property>
+                                </structure>
+                                <list-property name="visibility">
+                                    <structure>
+                                        <property name="format">all</property>
+                                        <expression name="valueExpr">true</expression>
+                                    </structure>
+                                </list-property>
+                                <property name="resultSetColumn">cls2_sum_trf</property>
+                            </data>
+                            <data id="18953">
+                                <structure name="numberFormat">
+                                    <property name="category">Fixed</property>
+                                    <property name="pattern">Fixed</property>
+                                </structure>
+                                <list-property name="visibility">
+                                    <structure>
+                                        <property name="format">all</property>
+                                        <expression name="valueExpr">row["CLS2_CLASS"] == "102"</expression>
+                                    </structure>
+                                </list-property>
+                                <property name="resultSetColumn">cls2_trfwork</property>
+                            </data>
                         </cell>
                         <cell id="18930">
                             <property name="borderBottomColor">#000000</property>
@@ -3623,26 +3639,6 @@ row["tab_sr_razr"]/row["tab_labor_hour"]</expression>
                             <property name="borderTopStyle">solid</property>
                             <property name="borderTopWidth">thin</property>
                             <property name="textAlign">right</property>
-                            <data id="18950">
-                                <structure name="numberFormat">
-                                    <property name="category">Fixed</property>
-                                    <property name="pattern">Fixed</property>
-                                </structure>
-                                <list-property name="visibility">
-                                    <structure>
-                                        <property name="format">all</property>
-                                        <expression name="valueExpr">true</expression>
-                                    </structure>
-                                </list-property>
-                                <property name="resultSetColumn">cls3_sum_trf</property>
-                            </data>
-                            <data id="18951">
-                                <structure name="numberFormat">
-                                    <property name="category">Fixed</property>
-                                    <property name="pattern">Fixed</property>
-                                </structure>
-                                <property name="resultSetColumn">cls3_trfwork</property>
-                            </data>
                         </cell>
                         <cell id="18253">
                             <property name="borderBottomColor">#000000</property>
@@ -3790,6 +3786,26 @@ row["tab_sr_razr"]/row["tab_labor_hour"]</expression>
                             <property name="borderTopStyle">solid</property>
                             <property name="borderTopWidth">thin</property>
                             <property name="textAlign">right</property>
+                            <data id="18950">
+                                <structure name="numberFormat">
+                                    <property name="category">Fixed</property>
+                                    <property name="pattern">Fixed</property>
+                                </structure>
+                                <list-property name="visibility">
+                                    <structure>
+                                        <property name="format">all</property>
+                                        <expression name="valueExpr">true</expression>
+                                    </structure>
+                                </list-property>
+                                <property name="resultSetColumn">cls3_sum_trf</property>
+                            </data>
+                            <data id="18951">
+                                <structure name="numberFormat">
+                                    <property name="category">Fixed</property>
+                                    <property name="pattern">Fixed</property>
+                                </structure>
+                                <property name="resultSetColumn">cls3_trfwork</property>
+                            </data>
                         </cell>
                         <cell id="18931">
                             <property name="borderBottomColor">#000000</property>
@@ -3936,26 +3952,6 @@ row["tab_sr_razr"]/row["tab_labor_hour"]</expression>
                             <property name="borderTopStyle">solid</property>
                             <property name="borderTopWidth">thin</property>
                             <property name="textAlign">right</property>
-                            <data id="18948">
-                                <structure name="numberFormat">
-                                    <property name="category">Fixed</property>
-                                    <property name="pattern">Fixed</property>
-                                </structure>
-                                <list-property name="visibility">
-                                    <structure>
-                                        <property name="format">all</property>
-                                        <expression name="valueExpr">true</expression>
-                                    </structure>
-                                </list-property>
-                                <property name="resultSetColumn">cls4_sum_trf</property>
-                            </data>
-                            <data id="18949">
-                                <structure name="numberFormat">
-                                    <property name="category">Fixed</property>
-                                    <property name="pattern">Fixed</property>
-                                </structure>
-                                <property name="resultSetColumn">cls4_trfwork</property>
-                            </data>
                         </cell>
                         <cell id="18235">
                             <property name="borderBottomColor">#000000</property>
@@ -4103,6 +4099,26 @@ row["tab_sr_razr"]/row["tab_labor_hour"]</expression>
                             <property name="borderTopStyle">solid</property>
                             <property name="borderTopWidth">thin</property>
                             <property name="textAlign">right</property>
+                            <data id="18948">
+                                <structure name="numberFormat">
+                                    <property name="category">Fixed</property>
+                                    <property name="pattern">Fixed</property>
+                                </structure>
+                                <list-property name="visibility">
+                                    <structure>
+                                        <property name="format">all</property>
+                                        <expression name="valueExpr">true</expression>
+                                    </structure>
+                                </list-property>
+                                <property name="resultSetColumn">cls4_sum_trf</property>
+                            </data>
+                            <data id="18949">
+                                <structure name="numberFormat">
+                                    <property name="category">Fixed</property>
+                                    <property name="pattern">Fixed</property>
+                                </structure>
+                                <property name="resultSetColumn">cls4_trfwork</property>
+                            </data>
                         </cell>
                         <cell id="18932">
                             <property name="borderBottomColor">#000000</property>
@@ -4151,9 +4167,9 @@ row["tab_sr_razr"]/row["tab_labor_hour"]</expression>
                 <property name="groupName">TK</property>
                 <property name="interval">none</property>
                 <property name="sortDirection">asc</property>
-                <expression name="keyExpr">row["JPNUM"]</expression>
+                <expression name="keyExpr">row["JP_D"]</expression>
                 <structure name="toc">
-                    <expression name="expressionValue">row["JPNUM"]</expression>
+                    <expression name="expressionValue">row["JP_D"]</expression>
                 </structure>
                 <property name="repeatHeader">true</property>
                 <property name="hideDetail">true</property>
@@ -4179,12 +4195,6 @@ row["tab_sr_razr"]/row["tab_labor_hour"]</expression>
                             <property name="borderTopStyle">solid</property>
                             <property name="borderTopWidth">thin</property>
                             <data id="18214">
-                                <list-property name="visibility">
-                                    <structure>
-                                        <property name="format">all</property>
-                                        <expression name="valueExpr">row["CLS1_CLASS"] == "101"</expression>
-                                    </structure>
-                                </list-property>
                                 <property name="resultSetColumn">JPNUM</property>
                             </data>
                         </cell>
