@@ -107,7 +107,7 @@ else
             </structure>
         </scalar-parameter>
         <scalar-parameter name="mroSite" id="7964">
-            <property name="hidden">true</property>
+            <property name="hidden">false</property>
             <property name="valueType">static</property>
             <property name="dataType">integer</property>
             <property name="paramType">simple</property>
@@ -120,7 +120,7 @@ else
             </structure>
         </scalar-parameter>
         <scalar-parameter name="pred" id="17062">
-            <property name="hidden">true</property>
+            <property name="hidden">false</property>
             <property name="valueType">static</property>
             <property name="dataType">string</property>
             <property name="paramType">simple</property>
@@ -133,7 +133,7 @@ else
             </structure>
         </scalar-parameter>
         <scalar-parameter name="date1" id="13304">
-            <property name="hidden">true</property>
+            <property name="hidden">false</property>
             <property name="valueType">static</property>
             <property name="dataType">string</property>
             <property name="paramType">simple</property>
@@ -146,7 +146,7 @@ else
             </structure>
         </scalar-parameter>
         <scalar-parameter name="date2" id="13305">
-            <property name="hidden">true</property>
+            <property name="hidden">false</property>
             <property name="valueType">static</property>
             <property name="dataType">string</property>
             <property name="paramType">simple</property>
@@ -1918,7 +1918,8 @@ row["tab_sr_razr"]/row["tab_labor_hour"]</expression>
                 </structure>
                 <structure>
                     <property name="name">brig_trfwork</property>
-                    <expression name="expression">row["brig_sum_trf"]/row["brig_labor_hour_norm_only"]</expression>
+                    <expression name="expression">if (BirtComp.equalTo(row["brig_labor_hour_norm_only"],null) == false) 
+row["brig_sum_trf"]/row["brig_labor_hour_norm_only"];</expression>
                     <property name="dataType">float</property>
                 </structure>
                 <structure>
@@ -1955,6 +1956,53 @@ row["tab_sr_razr"]/row["tab_labor_hour"]</expression>
                         </structure>
                     </list-property>
                     <expression name="filterExpr">dataSetRow["CLS1_CLASS"] != "101"</expression>
+                </structure>
+                <structure>
+                    <property name="name">tab_labor_hour_norm_only</property>
+                    <property name="dataType">float</property>
+                    <property name="aggregateFunction">SUM</property>
+                    <list-property name="arguments">
+                        <structure>
+                            <property name="name">Expression</property>
+                            <expression name="value">row["LABOR_HOUR"]</expression>
+                        </structure>
+                    </list-property>
+                    <expression name="filterExpr">dataSetRow["CLS1_CLASS"] != "101"</expression>
+                </structure>
+                <structure>
+                    <property name="name">tab_sum_trf</property>
+                    <property name="dataType">float</property>
+                    <property name="aggregateFunction">SUM</property>
+                    <list-property name="arguments">
+                        <structure>
+                            <property name="name">Expression</property>
+                            <expression name="value">row["TRFWORK"]*row["LABOR_HOUR"]</expression>
+                        </structure>
+                    </list-property>
+                    <expression name="filterExpr">dataSetRow["CLS1_CLASS"] != "101"</expression>
+                </structure>
+                <structure>
+                    <property name="name">tab_trfwork</property>
+                    <expression name="expression">if (BirtComp.equalTo(row["tab_labor_hour_norm_only"],null) == false) 
+row["tab_sum_trf"]/row["tab_labor_hour_norm_only"];</expression>
+                    <property name="dataType">float</property>
+                </structure>
+                <structure>
+                    <property name="name">tab_sum_vib_proch</property>
+                    <property name="dataType">float</property>
+                    <property name="aggregateFunction">SUM</property>
+                    <list-property name="arguments">
+                        <structure>
+                            <property name="name">Expression</property>
+                            <expression name="value">row["SR_RAZR"]</expression>
+                        </structure>
+                    </list-property>
+                    <expression name="filterExpr">dataSetRow["JPNUM"]!=1</expression>
+                </structure>
+                <structure>
+                    <property name="name">tab_razr_vib_proch</property>
+                    <expression name="expression">row["tab_sum_vib_proch"]/row["tab_labor_hour"]</expression>
+                    <property name="dataType">float</property>
                 </structure>
             </list-property>
             <column id="17828"/>
@@ -4495,6 +4543,19 @@ row["tab_sr_razr"]/row["tab_labor_hour"]</expression>
                             <property name="borderTopStyle">solid</property>
                             <property name="borderTopWidth">thin</property>
                             <property name="textAlign">right</property>
+                            <data id="18970">
+                                <structure name="numberFormat">
+                                    <property name="category">Custom</property>
+                                    <property name="pattern">###,##0.00</property>
+                                </structure>
+                                <list-property name="visibility">
+                                    <structure>
+                                        <property name="format">all</property>
+                                        <expression name="valueExpr">row["JPNUM"]==1</expression>
+                                    </structure>
+                                </list-property>
+                                <property name="resultSetColumn">tk_razr</property>
+                            </data>
                         </cell>
                     </row>
                 </header>
@@ -5106,6 +5167,19 @@ row["tab_sr_razr"]/row["tab_labor_hour"]</expression>
                             </structure>
                             <property name="resultSetColumn">tab_labor_hour</property>
                         </data>
+                        <data id="18965">
+                            <structure name="numberFormat">
+                                <property name="category">Custom</property>
+                                <property name="pattern">###,##0.00</property>
+                            </structure>
+                            <list-property name="visibility">
+                                <structure>
+                                    <property name="format">all</property>
+                                    <expression name="valueExpr">true</expression>
+                                </structure>
+                            </list-property>
+                            <property name="resultSetColumn">tab_labor_hour_norm_only</property>
+                        </data>
                     </cell>
                     <cell id="17825">
                         <property name="backgroundColor">#C0C0C0</property>
@@ -5187,6 +5261,26 @@ row["tab_sr_razr"]/row["tab_labor_hour"]</expression>
                         <property name="borderTopColor">#000000</property>
                         <property name="borderTopStyle">solid</property>
                         <property name="borderTopWidth">thin</property>
+                        <data id="18966">
+                            <structure name="numberFormat">
+                                <property name="category">Fixed</property>
+                                <property name="pattern">Fixed</property>
+                            </structure>
+                            <list-property name="visibility">
+                                <structure>
+                                    <property name="format">all</property>
+                                    <expression name="valueExpr">true</expression>
+                                </structure>
+                            </list-property>
+                            <property name="resultSetColumn">tab_sum_trf</property>
+                        </data>
+                        <data id="18967">
+                            <structure name="numberFormat">
+                                <property name="category">Fixed</property>
+                                <property name="pattern">Fixed</property>
+                            </structure>
+                            <property name="resultSetColumn">tab_trfwork</property>
+                        </data>
                     </cell>
                     <cell id="18941">
                         <property name="backgroundColor">#C0C0C0</property>
@@ -5202,6 +5296,22 @@ row["tab_sr_razr"]/row["tab_labor_hour"]</expression>
                         <property name="borderTopColor">#000000</property>
                         <property name="borderTopStyle">solid</property>
                         <property name="borderTopWidth">thin</property>
+                        <data id="18968">
+                            <list-property name="visibility">
+                                <structure>
+                                    <property name="format">all</property>
+                                    <expression name="valueExpr">true</expression>
+                                </structure>
+                            </list-property>
+                            <property name="resultSetColumn">tab_sum_vib_proch</property>
+                        </data>
+                        <data id="18969">
+                            <structure name="numberFormat">
+                                <property name="category">Fixed</property>
+                                <property name="pattern">Fixed</property>
+                            </structure>
+                            <property name="resultSetColumn">tab_razr_vib_proch</property>
+                        </data>
                     </cell>
                 </row>
             </footer>
