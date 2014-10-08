@@ -107,7 +107,7 @@ else
             </structure>
         </scalar-parameter>
         <scalar-parameter name="mroSite" id="7964">
-            <property name="hidden">false</property>
+            <property name="hidden">true</property>
             <property name="valueType">static</property>
             <property name="dataType">integer</property>
             <property name="paramType">simple</property>
@@ -120,7 +120,7 @@ else
             </structure>
         </scalar-parameter>
         <scalar-parameter name="pred" id="17062">
-            <property name="hidden">false</property>
+            <property name="hidden">true</property>
             <property name="valueType">static</property>
             <property name="dataType">string</property>
             <property name="paramType">simple</property>
@@ -133,7 +133,7 @@ else
             </structure>
         </scalar-parameter>
         <scalar-parameter name="date1" id="13304">
-            <property name="hidden">false</property>
+            <property name="hidden">true</property>
             <property name="valueType">static</property>
             <property name="dataType">string</property>
             <property name="paramType">simple</property>
@@ -146,7 +146,7 @@ else
             </structure>
         </scalar-parameter>
         <scalar-parameter name="date2" id="13305">
-            <property name="hidden">false</property>
+            <property name="hidden">true</property>
             <property name="valueType">static</property>
             <property name="dataType">string</property>
             <property name="paramType">simple</property>
@@ -1879,7 +1879,8 @@ row["tab_sr_razr"]/row["tab_labor_hour"]</expression>
                 </structure>
                 <structure>
                     <property name="name">cls3_trfwork</property>
-                    <expression name="expression">row["cls3_sum_trf"]/row["cls3_labor_hour"]</expression>
+                    <expression name="expression">if (row["cls3_labor_hour"] != 0 &amp;&amp; row["cls3_sum_trf"] >0)
+row["cls3_sum_trf"]/row["cls3_labor_hour"]</expression>
                     <property name="dataType">float</property>
                 </structure>
                 <structure>
@@ -1918,8 +1919,8 @@ row["tab_sr_razr"]/row["tab_labor_hour"]</expression>
                 </structure>
                 <structure>
                     <property name="name">brig_trfwork</property>
-                    <expression name="expression">if (BirtComp.equalTo(row["brig_labor_hour_norm_only"],null) == false) 
-row["brig_sum_trf"]/row["brig_labor_hour_norm_only"];</expression>
+                    <expression name="expression">if (BirtComp.equalTo(row["tab_labor_hour_norm_only"],null) == false) 
+row["tab_sum_trf1"]/row["tab_labor_hour_norm_only"];</expression>
                     <property name="dataType">float</property>
                 </structure>
                 <structure>
@@ -2079,12 +2080,14 @@ else
                 </structure>
                 <structure>
                     <property name="name">tk_razr_vib_proch1</property>
-                    <expression name="expression">row["tk_sum_vib_proch"]/row["tk_labor_hour"]</expression>
+                    <expression name="expression">if (row["tk_labor_hour"] != 0 &amp;&amp; row["tk_sum_vib_proch"] >0)
+row["tk_sum_vib_proch"]/row["tk_labor_hour"]</expression>
                     <property name="dataType">float</property>
                 </structure>
                 <structure>
                     <property name="name">cls3_razr_vib_proch</property>
-                    <expression name="expression">row["cls3_sum_vib_proch"]/row["cls3_labor_hour"]</expression>
+                    <expression name="expression">if (row["cls3_labor_hour"] != 0 &amp;&amp; row["cls3_sum_vib_proch"] >0)
+row["cls3_sum_vib_proch"]/row["cls3_labor_hour"]</expression>
                     <property name="dataType">float</property>
                 </structure>
                 <structure>
@@ -2131,6 +2134,35 @@ else
                     <property name="name">cls4_razr_vib_proch</property>
                     <expression name="expression">row["cls4_sum_vib_proch"]/row["cls4_labor_hour"]</expression>
                     <property name="dataType">float</property>
+                </structure>
+                <structure>
+                    <property name="name">tab_razr_vib_proch1</property>
+                    <expression name="expression">row["tab_sum_vib_proch1"]/row["tab_labor_hour"]</expression>
+                    <property name="dataType">float</property>
+                </structure>
+                <structure>
+                    <property name="name">tab_sum_vib_proch1</property>
+                    <property name="dataType">float</property>
+                    <property name="aggregateFunction">SUM</property>
+                    <list-property name="arguments">
+                        <structure>
+                            <property name="name">Expression</property>
+                            <expression name="value">row["rasch_vib_proch"]</expression>
+                        </structure>
+                    </list-property>
+                    <expression name="filterExpr">row["JPNUM"] !=1</expression>
+                </structure>
+                <structure>
+                    <property name="name">tab_sum_trf1</property>
+                    <property name="dataType">float</property>
+                    <property name="aggregateFunction">SUM</property>
+                    <list-property name="arguments">
+                        <structure>
+                            <property name="name">Expression</property>
+                            <expression name="value">row["TRFWORK"]*row["LABOR_HOUR"]</expression>
+                        </structure>
+                    </list-property>
+                    <expression name="filterExpr">dataSetRow["CLS1_CLASS"] != "101"</expression>
                 </structure>
             </list-property>
             <column id="17828"/>
@@ -5275,6 +5307,26 @@ else
                         <property name="borderTopColor">#000000</property>
                         <property name="borderTopStyle">solid</property>
                         <property name="borderTopWidth">thin</property>
+                        <data id="19005">
+                            <structure name="numberFormat">
+                                <property name="category">Fixed</property>
+                                <property name="pattern">Fixed</property>
+                            </structure>
+                            <list-property name="visibility">
+                                <structure>
+                                    <property name="format">all</property>
+                                    <expression name="valueExpr">true</expression>
+                                </structure>
+                            </list-property>
+                            <property name="resultSetColumn">tab_sum_trf1</property>
+                        </data>
+                        <data id="19006">
+                            <structure name="numberFormat">
+                                <property name="category">Fixed</property>
+                                <property name="pattern">Fixed</property>
+                            </structure>
+                            <property name="resultSetColumn">brig_trfwork</property>
+                        </data>
                     </cell>
                     <cell id="18532">
                         <property name="backgroundColor">#C0C0C0</property>
@@ -5290,12 +5342,21 @@ else
                         <property name="borderTopColor">#000000</property>
                         <property name="borderTopStyle">solid</property>
                         <property name="borderTopWidth">thin</property>
-                        <data id="18545">
+                        <data id="19003">
+                            <list-property name="visibility">
+                                <structure>
+                                    <property name="format">all</property>
+                                    <expression name="valueExpr">true</expression>
+                                </structure>
+                            </list-property>
+                            <property name="resultSetColumn">tab_sum_vib_proch1</property>
+                        </data>
+                        <data id="19004">
                             <structure name="numberFormat">
-                                <property name="category">Custom</property>
-                                <property name="pattern">###,##0.00</property>
+                                <property name="category">Fixed</property>
+                                <property name="pattern">Fixed</property>
                             </structure>
-                            <property name="resultSetColumn">tab_razr</property>
+                            <property name="resultSetColumn">tab_razr_vib_proch1</property>
                         </data>
                     </cell>
                     <cell id="18923">
