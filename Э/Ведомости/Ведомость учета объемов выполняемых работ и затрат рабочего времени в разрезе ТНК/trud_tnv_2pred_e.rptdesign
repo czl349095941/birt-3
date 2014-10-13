@@ -24,7 +24,28 @@ mxReportScriptContext = MXReportScriptContext.initialize(reportContext);
 mxReportScriptContext.setDefaultLogLevel("DEBUG");
 mxReportScriptContext.setDefaultLogFile("c:/temp/tetttt.txt");
 
-params["pred"] = params["pred"].replace("=", "")]]></method>
+params["pred"] = params["pred"].replace("=", "")
+
+if (BirtComp.equalTo(params["date1"],null) == true || params["date1"] == '' )
+	{if (BirtComp.equalTo(params["date2"],null) == true || params["date2"] == '')
+		{params["date1"] = "to_date('01."+ BirtDateTime.month(BirtDateTime.now())+"." + BirtDateTime.year(BirtDateTime.now()) + "')";
+		params["date2"] = "to_date(LAST_DAY(TO_DATE('1."+ BirtDateTime.month(BirtDateTime.now()) + "."+ BirtDateTime.year(BirtDateTime.now()) +"','dd.mm.yyyy')))";
+		}
+	else
+		{params["date1"] = "to_date('" +params["date2"]+ "') - to_number(TO_CHAR(LAST_DAY(TO_DATE('1.' || to_char(extract (month from to_date('" +params["date2"]+ "'))-1) || '.'|| extract (year from to_date('" +params["date2"]+ "')),'dd.mm.yyyy')),'dd'))";
+		params["date2"] = "to_date('" +params["date2"]+ "')";
+		}
+	}
+else  
+	{if (BirtComp.equalTo(params["date2"],null) == true || params["date2"] == '')
+		{params["date2"] = "to_date('" +params["date1"]+ "')";
+		params["date1"] = "to_date('" +params["date1"]+ "')";
+		}
+	 else 
+	 	{params["date1"] = "to_date('" +params["date1"]+ "')";
+		params["date2"] = "to_date('" +params["date2"]+ "')";
+		}
+	}]]></method>
     <method name="afterFactory"><![CDATA[MXReportScriptContext.close();]]></method>
     <property name="theme">MaximoSystemLibrary.maximoTheme</property>
     <text-property name="displayName">Tivoli Maximo Grouped Chart Template</text-property>
@@ -82,7 +103,7 @@ params["pred"] = params["pred"].replace("=", "")]]></method>
             <property name="dataType">string</property>
             <property name="paramType">simple</property>
             <text-property name="promptText">Начало периода</text-property>
-            <property name="isRequired">true</property>
+            <property name="isRequired">false</property>
             <property name="controlType">text-box</property>
             <property name="distinct">true</property>
             <structure name="format">
@@ -94,7 +115,7 @@ params["pred"] = params["pred"].replace("=", "")]]></method>
             <property name="dataType">string</property>
             <property name="paramType">simple</property>
             <text-property name="promptText">Конец периода</text-property>
-            <property name="isRequired">true</property>
+            <property name="isRequired">false</property>
             <property name="controlType">text-box</property>
             <property name="distinct">true</property>
             <structure name="format">
@@ -289,7 +310,7 @@ sqlText = ""
  +"                 AND WO.H      = 1400 "
  +"                 AND WO.SITEID = '"+ params["mroSite"]+"'"
  +"                 AND WO.L_PRED = '"+params["pred"]+"'"
- +"                 AND WO.ACTFINISH BETWEEN TO_DATE ('"+params["date1"]+"') AND TO_DATE ('"+params["date2"]+"')+1 "
+ +"                 AND wo.actfinish >= "+params["date1"]+" AND wo.actfinish < "+params["date2"]+" +1"
  +"         ) "
  +"         , "
  +"         SUMWO AS "
@@ -412,6 +433,16 @@ return (true);]]></method>
                     <property name="name">SITE_D</property>
                     <property name="dataType">string</property>
                 </structure>
+                <structure>
+                    <property name="position">3</property>
+                    <property name="name">D1</property>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="position">4</property>
+                    <property name="name">D2</property>
+                    <property name="dataType">string</property>
+                </structure>
             </list-property>
             <list-property name="columnHints">
                 <structure>
@@ -447,6 +478,12 @@ return (true);]]></method>
                 <structure>
                     <property name="columnName">SITE_D</property>
                 </structure>
+                <structure>
+                    <property name="columnName">D1</property>
+                </structure>
+                <structure>
+                    <property name="columnName">D2</property>
+                </structure>
             </list-property>
             <structure name="cachedMetaData">
                 <list-property name="resultSet">
@@ -458,6 +495,16 @@ return (true);]]></method>
                     <structure>
                         <property name="position">2</property>
                         <property name="name">SITE_D</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">3</property>
+                        <property name="name">D1</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">4</property>
+                        <property name="name">D2</property>
                         <property name="dataType">string</property>
                     </structure>
                 </list-property>
@@ -472,7 +519,9 @@ var sqlText = new String();
 
 sqlText = "" 
 +"SELECT  preds.description pred_d, " 
-+"        site.description  site_d " 
++"        site.description  site_d, "
++"		  to_char(" + params["date1"] + ", 'DD.MM.YYYY') D1,"
++"		  to_char(" + params["date2"] + ", 'DD.MM.YYYY') D2 " 
 +"FROM    maximo.preds " 
 +"        JOIN maximo.site " 
 +"                ON      preds.siteid = site.siteid " 
@@ -488,6 +537,8 @@ maximoDataSet.setQuery(sqlText);]]></method>
 
 row["PRED_D"] = maximoDataSet.getString("PRED_D");
 row["SITE_D"] = maximoDataSet.getString("SITE_D");
+row["D1"] = maximoDataSet.getString("D1");
+row["D2"] = maximoDataSet.getString("D2");
 
 return (true);]]></method>
         </script-data-set>
@@ -570,7 +621,7 @@ return (true);]]></method>
                 <structure>
                     <property name="name">PRED_D</property>
                     <property name="displayName">PRED_D</property>
-                    <expression name="expression">"Ведомость учета объемов выполняемых работ и затрат рабочего времени в разрезе ТНК по " +dataSetRow["PRED_D"]+ " " + dataSetRow["SITE_D"].replace("ая", "ой") + " ДИ за период с " + params["date1"].value + " по " + params["date2"].value</expression>
+                    <expression name="expression">"Ведомость учета объемов выполняемых работ и затрат рабочего времени в разрезе ТНК по " +dataSetRow["PRED_D"]+ " " + dataSetRow["SITE_D"].replace("ая", "ой") + " ДИ за период с " + dataSetRow["D1"] + " по " + dataSetRow["D2"]</expression>
                     <property name="dataType">string</property>
                 </structure>
             </list-property>
